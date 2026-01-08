@@ -1,0 +1,22 @@
+name: Gradle Build
+
+on: 
+    push:
+      
+jobs:
+    Build:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout and Initialize Thunder
+          uses: actions/checkout@v3
+          with:
+            submodules: 'true'
+        - name: Init JDK
+          uses: actions/setup-java@v3
+          with:
+            distribution: 'zulu'
+            java-version: '17'
+        - name: Set Execution Permissions
+          run: chmod +x ./gradlew
+        - name: Gradle Build Robot
+          run: ./gradlew build
