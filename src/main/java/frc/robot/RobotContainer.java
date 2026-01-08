@@ -4,17 +4,51 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.constants.DriveConstants;
+import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Telemetry;
 
 public class RobotContainer {
-  public RobotContainer() {
-    configureBindings();
-  }
 
-  private void configureBindings() {}
+    private final XboxController driver;
 
-  public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
-  }
+    public final Swerve drivetrain;
+
+    private final Telemetry logger;
+
+    public RobotContainer() {
+        driver = new XboxController(0);
+
+        drivetrain = DriveConstants.createDrivetrain();
+
+        logger = new Telemetry(DriveConstants.MaxSpeed);
+
+        configureDefaultCommands();
+        configureBindings();
+    }
+
+    private void configureDefaultCommands() {
+        // Note that X is defined as forward according to WPILib convention,
+        // and Y is defined as to the left according to WPILib convention.
+        drivetrain.setDefaultCommand(drivetrain.driveCommand(() -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+    }
+
+    private void configureBindings() {
+        new Trigger(driver::getBButton)
+            .whileTrue(drivetrain.brakeCommand());
+
+        // reset the field-centric heading
+        new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
+            .onTrue(drivetrain.resetFieldCentricCommand());
+
+        drivetrain.registerTelemetry(logger::telemeterize);
+    }
+
+    public Command getAutonomousCommand() {
+        return Commands.print("No autonomous command configured");
+    }
 }
