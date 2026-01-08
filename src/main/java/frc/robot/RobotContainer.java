@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
@@ -21,7 +22,7 @@ public class RobotContainer {
     private final Telemetry logger;
 
     public RobotContainer() {
-        driver = new XboxController(0);
+        driver = new XboxController(ControllerConstants.DRIVER_PORT);
 
         drivetrain = DriveConstants.createDrivetrain();
 
@@ -38,7 +39,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        new Trigger(driver::getBButton)
+        new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand());
 
         // reset the field-centric heading
