@@ -11,10 +11,13 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -22,8 +25,10 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.constants.AutonomousConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.DriveConstants.TunerSwerveDrivetrain;
 
@@ -303,6 +308,32 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command resetFieldCentricCommand() {
-        return runOnce(() -> seedFieldCentric());
+        return new InstantCommand(() -> seedFieldCentric());
+    }
+
+    public Pose2d getPose(){
+        return getState().Pose;
+    }
+
+    public ChassisSpeeds getCurrentRobotChassisSpeeds(){
+        return getState().Speeds;
+    }
+
+    public void configurePathplanner(){
+        AutoBuilder.configure(
+            this::getPose, // Supplier of current robot pose
+            this::resetPose, // Consumer for seeding pose against auto
+            this::getCurrentRobotChassisSpeeds,
+                (speeds, feedforwards) -> this
+                    .setControl(new SwerveRequest.ApplyRobotSpeeds().withSpeeds(speeds)
+                        .withDriveRequestType(DriveRequestType.Velocity)
+                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX())
+                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY())), // Consumer of
+                                                                                                    // ChassisSpeeds to
+                                                                                                    // drive the robot
+            new PPHolonomicDriveController(AutonomousConstants.TRANSLATION_PID, AutonomousConstants.ROTATION_PID),
+            AutonomousConstants.getConfig(getModuleLocations()),
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+            this); // Subsystem for requirements
     }
 }
