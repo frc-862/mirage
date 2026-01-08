@@ -137,7 +137,9 @@ public class ThunderBird extends TalonFX {
         kF = kF.length == 1 ? new double[] { kF[0], 0d, 0d } : kF;
         kF = kF.length == 2 ? new double[] { kF[0], kF[1], 0d } : kF;
 
-        double kS = kF[0], kV = kF[1], kA = kF[2];
+        double kS = kF[0];
+        double kV = kF[1];
+        double kA = kF[2];
 
         SlotConfiguration slotConfig = new SlotConfiguration(slotNumber, config);
 
@@ -188,8 +190,9 @@ public class ThunderBird extends TalonFX {
         StatusCode status = StatusCode.StatusCodeNotInitialized;
         for (int i = 0; i < 5; ++i) {
             status = super.getConfigurator().apply(config);
-            if (status.isOK())
-                break;
+            if (status.isOK()) {
+                break; 
+            }
         }
         if (!status.isOK()) {
             System.out.println("Could not configure device. Error: " + status.toString());
@@ -207,8 +210,9 @@ public class ThunderBird extends TalonFX {
         StatusCode status = StatusCode.StatusCodeNotInitialized;
         for (int i = 0; i < 5; ++i) {
             status = super.getConfigurator().apply(config);
-            if (status.isOK())
-                break;
+            if (status.isOK()) { 
+                break; 
+            }
         }
         if (!status.isOK()) {
             System.out.println("Could not configure device. Error: " + status.toString());

@@ -13,8 +13,12 @@ public class Triplet<K, V, A> extends Object {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj) { 
+            return true; 
+        }
+        if (obj == null || getClass() != obj.getClass()) { 
+            return false; 
+        }
         Triplet<?, ?, ?> other = (Triplet<?, ?, ?>) obj;
         return k.equals(other.k) && v.equals(other.v);
     }

@@ -36,11 +36,15 @@ public class LEDController {
     }
 
     public void setStripColor(LEDStrip strip, int hue, int sat, int val) {
-        for (int i = strip.startIndex(); i < strip.endIndex(); i++) { setColor(i, hue, sat, val); }
+        for (int i = strip.startIndex(); i < strip.endIndex(); i++) { 
+            setColor(i, hue, sat, val); 
+        }
     }
 
     public void setStripColor(LEDStrip strip, Color color) {
-        for (int i = strip.startIndex(); i < strip.endIndex(); i++) { setColor(i, color); }
+        for (int i = strip.startIndex(); i < strip.endIndex(); i++) { 
+            setColor(i, color); 
+        }
     }
 
 }

@@ -10,8 +10,12 @@ public class Tuple<K, V> extends Object {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj) { 
+            return true; 
+        }
+        if (obj == null || getClass() != obj.getClass()) { 
+            return false; 
+        }
         Tuple<?, ?> other = (Tuple<?, ?>) obj;
         return k.equals(other.k) && v.equals(other.v);
     }
