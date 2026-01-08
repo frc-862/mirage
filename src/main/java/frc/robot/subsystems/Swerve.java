@@ -2,11 +2,13 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -22,14 +24,14 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
-import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.constants.DriveConstants;
+import frc.robot.constants.DriveConstants.TunerSwerveDrivetrain;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
  * Subsystem so it can easily be used in command-based projects.
  */
-public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
+public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
@@ -118,7 +120,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param drivetrainConstants   Drivetrain-wide constants for the swerve drive
      * @param modules               Constants for each specific module
      */
-    public CommandSwerveDrivetrain(
+    public Swerve(
         SwerveDrivetrainConstants drivetrainConstants,
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
@@ -141,7 +143,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      *                                CAN FD, and 100 Hz on CAN 2.0.
      * @param modules                 Constants for each specific module
      */
-    public CommandSwerveDrivetrain(
+    public Swerve(
         SwerveDrivetrainConstants drivetrainConstants,
         double odometryUpdateFrequency,
         SwerveModuleConstants<?, ?, ?>... modules
@@ -171,7 +173,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      *                                  and radians
      * @param modules                   Constants for each specific module
      */
-    public CommandSwerveDrivetrain(
+    public Swerve(
         SwerveDrivetrainConstants drivetrainConstants,
         double odometryUpdateFrequency,
         Matrix<N3, N1> odometryStandardDeviation,
@@ -284,5 +286,23 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Matrix<N3, N1> visionMeasurementStdDevs
     ) {
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
+    }
+
+    public Command driveCommand(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput) {
+        return applyRequest(
+            () -> new SwerveRequest.FieldCentric()
+                .withVelocityX(xInput.getAsDouble() * DriveConstants.MaxSpeed)
+                .withVelocityY(yInput.getAsDouble() * DriveConstants.MaxSpeed)
+                .withRotationalRate(rInput.getAsDouble() * DriveConstants.MaxAngularRate)
+                .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+        );
+    }
+
+    public Command brakeCommand() {
+        return applyRequest(() -> new SwerveRequest.SwerveDriveBrake());
+    }
+
+    public Command resetFieldCentricCommand() {
+        return runOnce(() -> seedFieldCentric());
     }
 }
