@@ -16,6 +16,7 @@ import frc.robot.subsystems.Telemetry;
 public class RobotContainer {
 
     private final XboxController driver;
+    private final XboxController copilot;
 
     public final Swerve drivetrain;
 
@@ -23,6 +24,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         driver = new XboxController(ControllerConstants.DRIVER_PORT);
+        copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
         drivetrain = DriveConstants.createDrivetrain();
 
