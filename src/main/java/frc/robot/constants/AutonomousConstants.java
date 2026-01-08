@@ -17,7 +17,7 @@ public class AutonomousConstants {
     public static final PIDConstants TRANSLATION_PID = new PIDConstants(50, 0, 0); // TODO: Tune
     public static final PIDConstants ROTATION_PID = new PIDConstants(5, 0, 0);
 
-    private static final Mass ROBOT_MASS = Pounds.of(88); // TODO: Update
+    protected static final Mass ROBOT_MASS = Pounds.of(88); // TODO: Update
     private static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(3.3927854218);
     private static final double COF = 0.899; // Colsons
 
