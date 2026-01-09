@@ -15,7 +15,7 @@ public class PhotonVision extends SubsystemBase {
     public PhotonVision() {
 
     }
-
+ 
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
@@ -24,7 +24,6 @@ public class PhotonVision extends SubsystemBase {
     /**
      * Camera thread to run cameras in parrellel
      */
-
     private class CameraThread extends Thread {
 
         PhotonCamera camera;
