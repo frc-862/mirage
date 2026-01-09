@@ -298,6 +298,7 @@ public class DriveConstants {
     public static final double COF = COTS.WHEELS.VEX_GRIP_V2.cof;
 
     public static final Time kSimLoopPeriod = Seconds.of(0.005); // faster than default for better accuracy
+    @SuppressWarnings("unchecked")
     public static final SwerveSim getSwerveSim(Swerve drivetrain) {
         return new SwerveSim(
             kSimLoopPeriod,

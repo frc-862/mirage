@@ -22,9 +22,14 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.*;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -49,6 +54,12 @@ public class SwerveSim {
     private final Pigeon2SimState pigeonSim;
     private final SimSwerveModule[] simModules;
     public final SwerveDriveSimulation mapleSimDrive;
+
+   private final DoubleArrayPublisher fieldPub = 
+        NetworkTableInstance.getDefault().getTable("Pose").getDoubleArrayTopic("robotPose").publish();
+
+    private final DoubleArraySubscriber fieldSub = 
+        NetworkTableInstance.getDefault().getTable("Pose").getDoubleArrayTopic("robotPose").subscribe(new double[] {0.0, 0.0, 0.0});
 
     /**
      *
@@ -108,6 +119,8 @@ public class SwerveSim {
 
         SimulatedArena.overrideSimulationTimings(simPeriod, 1);
         SimulatedArena.getInstance().addDriveTrainSimulation(mapleSimDrive);
+
+        fieldPub.set(new double[] {0.0, 0.0, 0.0});
     }
 
     /**
@@ -124,6 +137,21 @@ public class SwerveSim {
                 mapleSimDrive.getSimulatedDriveTrainPose().getRotation().getMeasure());
         pigeonSim.setAngularVelocityZ(RadiansPerSecond.of(
                 mapleSimDrive.getDriveTrainSimulatedChassisSpeedsRobotRelative().omegaRadiansPerSecond));
+
+        double[] poseArray = new double[3];
+        poseArray[0] = mapleSimDrive.getSimulatedDriveTrainPose().getX();
+        poseArray[1] = mapleSimDrive.getSimulatedDriveTrainPose().getY();
+        poseArray[2] = mapleSimDrive.getSimulatedDriveTrainPose().getRotation().getDegrees();
+
+        if (DriverStation.isEnabled()) {
+            fieldPub.set(poseArray);
+
+         } else {
+            mapleSimDrive.setSimulationWorldPose(
+            new Pose2d(fieldSub.get()[0], fieldSub.get()[1], Rotation2d.fromDegrees(fieldSub.get()[2])));
+        }
+
+        SimulatedArena.getInstance().placeGamePiecesOnField();
     }
 
     /**

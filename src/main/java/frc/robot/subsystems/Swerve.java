@@ -20,11 +20,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -40,7 +38,7 @@ import frc.util.simulation.SwerveSim;
  */
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private Notifier m_simNotifier = null;
-    private SwerveSim swerveSim;
+    protected SwerveSim swerveSim;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -130,7 +128,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         SwerveDrivetrainConstants drivetrainConstants,
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
-        super(drivetrainConstants, modules);
+        super(drivetrainConstants, SwerveSim.regulateModuleConstantsForSimulation(modules));
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -154,7 +152,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         double odometryUpdateFrequency,
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
-        super(drivetrainConstants, odometryUpdateFrequency, modules);
+        super(drivetrainConstants, odometryUpdateFrequency, SwerveSim.regulateModuleConstantsForSimulation(modules));
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -186,7 +184,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Matrix<N3, N1> visionStandardDeviation,
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
-        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation, modules);
+        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation, 
+            SwerveSim.regulateModuleConstantsForSimulation(modules));
         if (Utils.isSimulation()) {
             startSimThread();
         }
