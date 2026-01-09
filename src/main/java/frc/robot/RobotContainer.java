@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -37,7 +38,9 @@ public class RobotContainer {
     private void configureDefaultCommands() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(drivetrain.driveCommand(() -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+        drivetrain.setDefaultCommand(drivetrain.controllerDrive(
+            () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX(), 
+            () -> driver.getRightBumperButton(), () -> driver.getLeftBumperButton()));
     }
 
     private void configureBindings() {
