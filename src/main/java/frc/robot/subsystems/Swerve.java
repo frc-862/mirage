@@ -2,12 +2,8 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.lang.ModuleLayer.Controller;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
-import org.ejml.simple.SimpleMatrix;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
@@ -19,14 +15,11 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 // import com.pathplanner.lib.auto.AutoBuilder;
 // import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -37,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.AutonomousConstants;
-import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.DriveConstants.TunerSwerveDrivetrain;
 
@@ -318,54 +310,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
             .withDriveRequestType(DriveRequestType.Velocity));
     }
-
-    /**
-     * applies deadbands, exponential scaling, and slow mode to controller inputs
-     * @param xInput
-     * @param yInput
-     * @param rInput
-     * @param isFieldCentric
-     * @return
-     */
-    public Command controllerDrive(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput, 
-        BooleanSupplier isFieldCentric, BooleanSupplier isSlowMode) {
-
-        return run(() ->{
-            Vector<N2> translation = new Vector<>(new SimpleMatrix(new double[] {xInput.getAsDouble(), yInput.getAsDouble()}));
-            translation = MathUtil.applyDeadband(translation, ControllerConstants.DEADBAND);
-            translation = MathUtil.copyDirectionPow(translation, ControllerConstants.POW);
-            translation.times(isSlowMode.getAsBoolean() ? ControllerConstants.SLOW_MODE_MULT : 1);
-
-            double rot = rInput.getAsDouble();
-            rot = MathUtil.applyDeadband(rot, ControllerConstants.DEADBAND);
-            rot = MathUtil.copyDirectionPow(rot, ControllerConstants.POW);
-            rot *= isSlowMode.getAsBoolean() ? ControllerConstants.SLOW_MODE_MULT : 1;
-
-            SwerveRequest request;
-            if (isFieldCentric.getAsBoolean()) {
-                request = new SwerveRequest.FieldCentric()
-                    .withVelocityX(translation.get(0))
-                    .withVelocityY(translation.get(1))
-                    .withRotationalRate(rot)
-                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-                    .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
-
-            } else {
-                request = new SwerveRequest.RobotCentric()
-                    .withVelocityX(translation.get(0))
-                    .withVelocityY(translation.get(1))
-                    .withRotationalRate(rot)
-                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-            }
-            
-            this.setControl(request);
-        });
-    }
-
-    public Command controllerDrive(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput) {
-        return controllerDrive(xInput, yInput, rInput, () -> true, () -> false);
-    }
-    
 
     public Command brakeCommand() {
         return applyRequest(() -> new SwerveRequest.SwerveDriveBrake());
