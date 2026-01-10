@@ -3,9 +3,9 @@ package frc.robot.constants;
 import frc.util.leds.LEDStrip;
 
 public class LEDConstants {
-    public static int LED_PWM_PORT = 0;
-    
-    public static int LED_COUNT = 200;
+    public static final int LED_PWM_PORT = 0;
+
+    public static final int LED_COUNT = 200;
 
     public static final LEDStrip strip1 = new LEDStrip(10, 0);
     public static final LEDStrip strip2 = new LEDStrip(10, 10);
@@ -18,9 +18,9 @@ public class LEDConstants {
         ERROR,
         AUTO,
         BRAKE;
-        
-        public int ID() {
+
+        public int id() {
             return this.ordinal();
         }
-    }    
+    }
 }

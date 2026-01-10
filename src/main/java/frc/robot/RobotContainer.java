@@ -60,7 +60,7 @@ public class RobotContainer {
     private void configureBindings() {
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()
-                .deadlineFor(leds.enableState(LED_STATES.BRAKE.ID()))
+                .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
             );
 
         // reset the field-centric heading
@@ -82,18 +82,18 @@ public class RobotContainer {
     private void configureLeds() {
         leds.setDefaultBehavior(LEDBehaviorFactory.swirl(LEDConstants.stripAll, 10, 5, Color.ORANGE, Color.BLUE));
         
-        leds.setBehavior(LED_STATES.TEST.ID(), LEDBehaviorFactory.testStrip(LEDConstants.stripAll, 
+        leds.setBehavior(LED_STATES.TEST.id(), LEDBehaviorFactory.testStrip(LEDConstants.stripAll, 
             () -> false,
             () -> true
         ));
-        leds.setBehavior(LED_STATES.ERROR.ID(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
-        leds.setBehavior(LED_STATES.AUTO.ID(), LEDBehaviorFactory.rainbow(LEDConstants.stripAll, 2));
-        leds.setBehavior(LED_STATES.BRAKE.ID(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
+        leds.setBehavior(LED_STATES.ERROR.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
+        leds.setBehavior(LED_STATES.AUTO.id(), LEDBehaviorFactory.rainbow(LEDConstants.stripAll, 2));
+        leds.setBehavior(LED_STATES.BRAKE.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
 
-        new Trigger(DriverStation:: isTest).whileTrue(leds.enableState(LED_STATES.TEST.ID()));
+        new Trigger(DriverStation:: isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
 
-        new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.ID()));
+        new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
 
-        new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.ID()));
+        new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
     }
 }
