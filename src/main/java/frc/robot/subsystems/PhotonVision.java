@@ -37,7 +37,10 @@ public class PhotonVision extends SubsystemBase {
     CameraThread backRightThread;
     CameraThread backLeftThread;
 
-    /** Creates a new PhotonVision. */
+    /** Creates a new PhotonVision.
+     * 
+     * @param drivetrain The main drivetrain on the robot
+     */
     public PhotonVision(Swerve drivetrain) {
         this.drivetrain = drivetrain;
 
@@ -93,9 +96,7 @@ public class PhotonVision extends SubsystemBase {
         }
     } 
 
-    /**
-     * Camera thread to run cameras in parrellel
-     */
+    // Camera thread to run cameras in parrellel
     private class CameraThread extends Thread {
 
         // Pose estimator
@@ -105,6 +106,11 @@ public class PhotonVision extends SubsystemBase {
         PhotonCamera camera;
         AtomicReference<VisionUpdate> updateData;
 
+        /**
+         * A thread that will run camera operations
+         * @param cameraInfo The camera info enum for the specific camera on the robot
+         * @param updateData The data that will be used to store camera updates
+         */
         public CameraThread(CameraInfo cameraInfo, AtomicReference<VisionUpdate> updateData) {
             this.camera = new PhotonCamera(cameraInfo.name);
             this.updateData = updateData;

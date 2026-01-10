@@ -10,7 +10,7 @@ public class VisionConstants {
             .loadField(AprilTagFields.k2025ReefscapeWelded);
 
 
-    public static enum CameraInfo {
+    public enum CameraInfo {
 
         FRONT_RIGHT("frontRight", new Transform3d()), 
         BACK_RIGHT("backRight", new Transform3d()), 
