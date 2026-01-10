@@ -59,7 +59,7 @@ public class SwerveSim {
     private final SimSwerveModule[] simModules;
     public final SwerveDriveSimulation mapleSimDrive;
 
-   private final DoubleArrayPublisher fieldPub = 
+    private final DoubleArrayPublisher fieldPub = 
         NetworkTableInstance.getDefault().getTable("Pose").getDoubleArrayTopic("robotPose").publish();
 
     private final DoubleArraySubscriber fieldSub = 
@@ -141,9 +141,9 @@ public class SwerveSim {
         if (DriverStation.isEnabled()) {
             fieldPub.set(poseArray);
 
-         } else {
+        } else {
             mapleSimDrive.setSimulationWorldPose(
-            new Pose2d(fieldSub.get()[0], fieldSub.get()[1], Rotation2d.fromDegrees(fieldSub.get()[2])));
+                new Pose2d(fieldSub.get()[0], fieldSub.get()[1], Rotation2d.fromDegrees(fieldSub.get()[2])));
         }
 
         SimulatedArena.getInstance().placeGamePiecesOnField();
