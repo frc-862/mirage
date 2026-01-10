@@ -16,8 +16,10 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -337,6 +339,19 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 .withRotationalRate(rInput.getAsDouble() * DriveConstants.MaxAngularRate)
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
         );
+    }
+
+    public Command pointAtCommand(DoubleSupplier xInput, DoubleSupplier yInput, Translation2d target) {
+        return driveCommand(xInput, yInput, () -> calculatePointAtPower(target));
+    }
+    
+    private double calculatePointAtPower(Translation2d target) {
+        PIDController angleController = new PIDController(1, 0, 0);
+
+        Translation2d delta = getPose().getTranslation().minus(target);
+        double targetAngle = Math.toDegrees(Math.atan2(delta.getY(), delta.getX()));
+
+        return angleController.calculate(getPose().getRotation().getDegrees(), targetAngle);
     }
 
     public Command brakeCommand() {

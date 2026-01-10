@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.PoseConstants;
+import static frc.robot.constants.PoseConstants.getTargetData;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -53,6 +55,9 @@ public class RobotContainer {
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
             .onTrue(drivetrain.resetFieldCentricCommand());
+
+        // Auto point at correct goal
+        new Trigger(driver::getRightBumperButton).whileTrue(drivetrain.pointAtCommand(() -> -driver.getLeftY(), () -> driver.getLeftX(), getTargetData(PoseConstants.GOAL_POSITION)));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
