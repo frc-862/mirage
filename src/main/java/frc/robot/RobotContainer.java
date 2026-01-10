@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,6 +14,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.Swerve;
+import frc.util.leds.Color;
+import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
@@ -45,6 +48,7 @@ public class RobotContainer {
         configureDefaultCommands();
         configureBindings();
         configureNamedCommands();
+        configureLeds();
     }
 
     private void configureDefaultCommands() {
@@ -55,7 +59,9 @@ public class RobotContainer {
 
     private void configureBindings() {
         new Trigger(driver::getXButton)
-            .whileTrue(drivetrain.brakeCommand());
+            .whileTrue(drivetrain.brakeCommand()
+                .deadlineFor(leds.enableState(LED_STATES.BRAKE.ID()))
+            );
 
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
@@ -71,5 +77,23 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
+    }
+
+    private void configureLeds() {
+        leds.setDefaultBehavior(LEDBehaviorFactory.swirl(LEDConstants.stripAll, 10, 5, Color.ORANGE, Color.BLUE));
+        
+        leds.setBehavior(LED_STATES.TEST.ID(), LEDBehaviorFactory.testStrip(0, 
+            () -> false,
+            () -> true
+        ));
+        leds.setBehavior(LED_STATES.ERROR.ID(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
+        leds.setBehavior(LED_STATES.AUTO.ID(), LEDBehaviorFactory.rainbow(LEDConstants.stripAll, 2));
+        leds.setBehavior(LED_STATES.BRAKE.ID(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
+
+        new Trigger(DriverStation:: isTest).whileTrue(leds.enableState(LED_STATES.TEST.ID()));
+
+        new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.ID()));
+
+        new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.ID()));
     }
 }
