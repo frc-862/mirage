@@ -50,6 +50,7 @@ import org.ironmaple.simulation.motorsims.SimulatedMotorController;
  *
  * <p>It replaces the {@link com.ctre.phoenix6.swerve.SimSwerveDrivetrain} class.
  */
+@SuppressWarnings({"unchecked", "ParameterNumber"})
 public class SwerveSim {
     private final Pigeon2SimState pigeonSim;
     private final SimSwerveModule[] simModules;
@@ -80,7 +81,6 @@ public class SwerveSim {
      * @param modules the {@link SwerveModule}s, typically obtained via {@link SwerveDrivetrain#getModules()}
      * @param moduleConstants the constants for the swerve modules
      */
-    @SuppressWarnings("unchecked")
     public SwerveSim(
             Time simPeriod,
             Mass robotMassWithBumpers,
