@@ -13,6 +13,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.Swerve;
+import frc.util.leds.LEDSubsystem;
+import frc.robot.constants.LEDConstants;
+import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.util.shuffleboard.LightningShuffleboard;
 
@@ -23,6 +26,8 @@ public class RobotContainer {
 
     public final Swerve drivetrain;
 
+    public final LEDSubsystem leds; 
+
     private final Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -32,6 +37,8 @@ public class RobotContainer {
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
         drivetrain = DriveConstants.createDrivetrain();
+
+        leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
 
         logger = new Telemetry(DriveConstants.MaxSpeed);
 
