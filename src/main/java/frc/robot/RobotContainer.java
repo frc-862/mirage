@@ -82,7 +82,7 @@ public class RobotContainer {
     private void configureLeds() {
         leds.setDefaultBehavior(LEDBehaviorFactory.swirl(LEDConstants.stripAll, 10, 5, Color.ORANGE, Color.BLUE));
         
-        leds.setBehavior(LED_STATES.TEST.ID(), LEDBehaviorFactory.testStrip(0, 
+        leds.setBehavior(LED_STATES.TEST.ID(), LEDBehaviorFactory.testStrip(LEDConstants.stripAll, 
             () -> false,
             () -> true
         ));
