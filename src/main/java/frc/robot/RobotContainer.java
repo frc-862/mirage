@@ -29,7 +29,7 @@ public class RobotContainer {
 
     public final Swerve drivetrain;
 
-    public final LEDSubsystem leds; 
+    public final LEDSubsystem leds;
 
     private final Telemetry logger;
 
@@ -81,8 +81,8 @@ public class RobotContainer {
 
     private void configureLeds() {
         leds.setDefaultBehavior(LEDBehaviorFactory.swirl(LEDConstants.stripAll, 10, 5, Color.ORANGE, Color.BLUE));
-        
-        leds.setBehavior(LED_STATES.TEST.id(), LEDBehaviorFactory.testStrip(LEDConstants.stripAll, 
+
+        leds.setBehavior(LED_STATES.TEST.id(), LEDBehaviorFactory.testStrip(LEDConstants.stripAll,
             () -> false,
             () -> true
         ));
@@ -91,8 +91,6 @@ public class RobotContainer {
         leds.setBehavior(LED_STATES.BRAKE.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
 
         new Trigger(DriverStation:: isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
-
-        new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
 
         new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
     }
