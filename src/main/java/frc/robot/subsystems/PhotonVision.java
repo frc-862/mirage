@@ -111,7 +111,7 @@ public class PhotonVision extends SubsystemBase {
          * @param cameraInfo The camera info enum for the specific camera on the robot
          * @param updateData The data that will be used to store camera updates
          */
-        public CameraThread(CameraInfo cameraInfo, AtomicReference<VisionUpdate> updateData) {
+        CameraThread(CameraInfo cameraInfo, AtomicReference<VisionUpdate> updateData) {
             this.camera = new PhotonCamera(cameraInfo.name);
             this.updateData = updateData;
 
@@ -139,7 +139,9 @@ public class PhotonVision extends SubsystemBase {
                     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
 
                     // If theres no results just skip this iteration
-                    if (results.isEmpty()) continue;
+                    if (results.isEmpty()) {
+                        continue;
+                    }
 
                     // Get the latest result of all thme
                     PhotonPipelineResult latestResult = getLatestResult(results);
