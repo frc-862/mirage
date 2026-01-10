@@ -19,6 +19,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.*;
 
 import frc.robot.subsystems.Swerve;
+import frc.util.dataTypes.Triplet;
+import frc.util.dataTypes.Tuple;
 import frc.util.simulation.SwerveSim;
 
 
@@ -301,13 +303,10 @@ public class DriveConstants {
     @SuppressWarnings("unchecked")
     public static final SwerveSim getSwerveSim(Swerve drivetrain) {
         return new SwerveSim(
-            kSimLoopPeriod,
-            AutonomousConstants.ROBOT_MASS,
-            DriveConstants.RobotWidth,
-            DriveConstants.RobotWidth,
-            DCMotor.getKrakenX60Foc(1),
-            RobotMap.IS_OASIS ? DCMotor.getFalcon500Foc(1) : DCMotor.getKrakenX60Foc(1), //TODO: change to 44 once wpilib 2026
-            COF,
+            new Triplet<Time, Mass, Double>(kSimLoopPeriod, AutonomousConstants.ROBOT_MASS, COF),
+            new Tuple<Distance, Distance>(RobotWidth, RobotWidth),
+            new Tuple<DCMotor, DCMotor>(DCMotor.getKrakenX60Foc(1),
+            RobotMap.IS_OASIS ? DCMotor.getFalcon500Foc(1) : DCMotor.getKrakenX60Foc(1)), //TODO: change to 44 once wpilib 2026
             drivetrain.getModuleLocations(),
             drivetrain.getPigeon2(),
             drivetrain.getModules(),
