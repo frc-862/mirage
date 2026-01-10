@@ -119,7 +119,9 @@ public class Telemetry {
 
         /* Telemeterize the pose to a Field2d */
         fieldTypePub.set("Field2d");
-        if (Robot.isReal()) fieldPub.set(m_poseArray);
+        if (Robot.isReal()) {
+            fieldPub.set(m_poseArray);
+        }
 
         /* Telemeterize each module state to a Mechanism2d */
         for (int i = 0; i < 4; ++i) {
