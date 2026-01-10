@@ -40,7 +40,6 @@ env:
     lintMD: ${{ github.event_name != 'workflow_dispatch' && 'false' || inputs.lintMD }}
     lintXML: ${{ github.event_name != 'workflow_dispatch' && 'false' || inputs.lintXML }}
     lintYML: ${{ github.event_name != 'workflow_dispatch' && 'false' || inputs.lintYML }}
-    FILTER_REGEX_EXCLUDE: src/main/java/frc/util/SwerveSim.java
 
 jobs:
     Build:
