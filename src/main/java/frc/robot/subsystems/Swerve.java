@@ -130,6 +130,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, modules);
+
+        configurePathplanner();
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -154,6 +157,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, odometryUpdateFrequency, modules);
+
+        configurePathplanner();
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -186,6 +192,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation, modules);
+
+        configurePathplanner();
+        
         if (Utils.isSimulation()) {
             startSimThread();
         }
