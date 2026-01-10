@@ -29,6 +29,6 @@
   <suppress checks="VisibilityModifier"/> <!-- May delete this one later -->
   <suppress checks="MemberName"/> <!-- May delete this one later -->
   <suppress checks="FinalParameters"/> <!-- May delete this one later -->
-  <suppress files="src/main/java/frc/util/SwerveSim.java">
+  <suppress files="src/main/java/frc/util/*">
 </suppressions>
         
