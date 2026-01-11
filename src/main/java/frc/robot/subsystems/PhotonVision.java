@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -61,7 +62,7 @@ public class PhotonVision extends SubsystemBase {
         backRightExecutor = new CameraExecutor(CameraInfo.BACK_RIGHT, backRightData);
         backLeftExecutor = new CameraExecutor(CameraInfo.BACK_LEFT, backLeftData);
 
-        // Start the trheads
+        // Start the threads
         frontRightExecutor.run();
         frontLeftExecutor.run();
         backRightExecutor.run();
@@ -105,6 +106,8 @@ public class PhotonVision extends SubsystemBase {
     private class CameraExecutor {
         // Executor
         ScheduledExecutorService executor;
+        // I honestly don't know why we need this nate
+        ScheduledFuture<?> future;
 
         // Pose estimator
         PhotonPoseEstimator poseEstimator;
@@ -114,7 +117,7 @@ public class PhotonVision extends SubsystemBase {
         AtomicReference<VisionUpdate> updateData;
 
         /**
-         * A thread that will run camera operations
+         * An executor that will run camera operations
          * @param cameraInfo The camera info enum for the specific camera on the robot
          * @param updateData The data that will be used to store camera updates
          */
@@ -139,7 +142,7 @@ public class PhotonVision extends SubsystemBase {
 
         public void run() {
             //loop
-            executor.scheduleWithFixedDelay((() -> {
+            future = executor.scheduleWithFixedDelay((() -> {
                 try {
                     // All results
                     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
