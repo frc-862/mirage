@@ -154,31 +154,25 @@ public class PhotonVision extends SubsystemBase {
 
                     // Get the latest result of all thme
                     PhotonPipelineResult latestResult = getLatestResult(results);
+
+                    // The result we will actually use
                     PhotonPipelineResult useableResult = latestResult;
 
-                    // If theres a tag we don't wanna use remove it from the results
-                    if (latestResult.getTargets().stream().anyMatch((tag) -> VisionConstants.TAG_IGNORE_LIST.contains((short) tag.getFiducialId()))) {
-                        // Filter out the targets
-                        List<PhotonTrackedTarget> filteredTargets = new ArrayList<PhotonTrackedTarget>(latestResult.getTargets());
-                        filteredTargets.removeIf((tag) -> VisionConstants.TAG_IGNORE_LIST.contains((short) tag.getFiducialId()));
+                    // Filter out the targets
+                    List<PhotonTrackedTarget> filteredTargets = new ArrayList<>(latestResult.getTargets());
+                    filteredTargets.removeIf((tag) -> VisionConstants.TAG_IGNORE_LIST.contains((short) tag.getFiducialId()));
 
-                        // Scrap it if the new result has no target
-                        if (filteredTargets.isEmpty()) {
-                            continue;
-                        }
-
-                        // Create a new result to use -- Using the same metadata as the original latest result
-                        useableResult = new PhotonPipelineResult(
-                            latestResult.metadata,
-                            filteredTargets,
-                            Optional.empty()
-                        );
-                    }
-
-                    // If the result doens't have any targets just reutrn it.
-                    if (!useableResult.hasTargets()) {
+                    // Scrap it if the new result has no target
+                    if (filteredTargets.isEmpty()) {
                         continue;
                     }
+
+                    // Create a new result to use -- Using the same metadata as the original latest result
+                    useableResult = new PhotonPipelineResult(
+                        latestResult.metadata,
+                        filteredTargets,
+                        Optional.empty()
+                    );
 
                     // If the ambiguity is too high skip the iteration
                     if (useableResult.getBestTarget().getPoseAmbiguity() > VisionConstants.POSE_AMBIGUITY_TOLERANCE) {
@@ -187,7 +181,6 @@ public class PhotonVision extends SubsystemBase {
 
                     // If the best tag's distance is too far than scrap the result
                     double bestDistance = useableResult.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
-
                     if (bestDistance > VisionConstants.TAG_DISTANCE_TOLERANCE) {
                         continue;
                     }
