@@ -128,7 +128,7 @@ public class PhotonVision extends SubsystemBase {
                 cameraInfo.offset);
 
             poseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
-
+            
             executor = Executors.newSingleThreadScheduledExecutor((r) -> {
                 Thread thread = new Thread(r);
                 thread.setName(cameraInfo.toString());
@@ -139,7 +139,7 @@ public class PhotonVision extends SubsystemBase {
 
         public void run() {
             //loop
-            executor.scheduleAtFixedRate(() -> {
+            executor.scheduleWithFixedDelay((() -> {
                 try {
                     // All results
                     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
@@ -169,7 +169,7 @@ public class PhotonVision extends SubsystemBase {
                             double bestDistance = useableResult.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
                             boolean highDistance = bestDistance > VisionConstants.TAG_DISTANCE_TOLERANCE;
 
-                            if (!(highPoseAmbiguity && highDistance)) {
+                            if (!highPoseAmbiguity && !highDistance) {
                                 // Get the estimated position
                                 Optional<EstimatedRobotPose> poseOpt = poseEstimator.update(useableResult);
 
