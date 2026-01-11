@@ -57,7 +57,8 @@ public class RobotContainer {
             .onTrue(drivetrain.resetFieldCentricCommand());
 
         // Auto point at correct goal
-        new Trigger(driver::getRightBumperButton).whileTrue(drivetrain.pointAtCommand(() -> -driver.getLeftY(), () -> driver.getLeftX(), getTargetData(PoseConstants.GOAL_POSITION)));
+        // Changed it to the A buton beucase right bumper was not working
+        new Trigger(driver::getAButton).whileTrue(drivetrain.pointAtCommand(() -> -driver.getLeftY(), () -> -driver.getLeftX(), getTargetData(PoseConstants.GOAL_POSITION)));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
