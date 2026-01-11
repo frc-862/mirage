@@ -10,6 +10,7 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
+import com.ctre.phoenix6.swerve.utility.LinearPath;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 // import com.pathplanner.lib.auto.AutoBuilder;
@@ -21,6 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -303,12 +305,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      * @param rInput
      */
     public void autoDrive(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput) {
-        setControl(new SwerveRequest.FieldCentric()
-            .withVelocityX(xInput.getAsDouble() * DriveConstants.MaxSpeed)
-            .withVelocityY(yInput.getAsDouble() * DriveConstants.MaxSpeed)
-            .withRotationalRate(rInput.getAsDouble() * DriveConstants.MaxAngularRate)
+        run(() -> setControl(new SwerveRequest.FieldCentric()
+            .withVelocityX(DriveConstants.MaxSpeed.times(xInput.getAsDouble()))
+            .withVelocityY(DriveConstants.MaxSpeed.times(yInput.getAsDouble()))
+            .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-            .withDriveRequestType(DriveRequestType.Velocity));
+            .withDriveRequestType(DriveRequestType.Velocity)));
     }
 
     public Command brakeCommand() {

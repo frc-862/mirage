@@ -288,6 +288,8 @@ public class DriveConstants {
         }
     }
 
-    public static final double MaxSpeed = kSpeedAt12Volts.in(MetersPerSecond);
-    public static final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+    public static final LinearVelocity MaxSpeed = kSpeedAt12Volts;
+    public static final LinearAcceleration MaxAcceleration = MetersPerSecondPerSecond.of(3.0);
+    public static final AngularVelocity MaxAngularRate = RotationsPerSecond.of(0.75);
+    public static final AngularAcceleration MaxAngularAcceleration = RotationsPerSecondPerSecond.of(3.0);
 }

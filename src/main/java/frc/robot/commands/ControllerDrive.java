@@ -18,6 +18,7 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.ControllerConstants;
+import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.Swerve;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -73,7 +74,7 @@ public class ControllerDrive extends Command {
         translation = new Vector<>(new SimpleMatrix(new double[] {xInput.getAsDouble(), yInput.getAsDouble()}));
         translation = MathUtil.applyDeadband(translation, ControllerConstants.DEADBAND);
         translation = MathUtil.copyDirectionPow(translation, ControllerConstants.POW);
-        translation.times(isSlowMode.getAsBoolean() ? ControllerConstants.SLOW_MODE_MULT : 1);
+        translation = translation.times(isSlowMode.getAsBoolean() ? ControllerConstants.SLOW_MODE_MULT : 1);
 
         rot = rInput.getAsDouble();
         rot = MathUtil.applyDeadband(rot, ControllerConstants.DEADBAND);
@@ -82,17 +83,17 @@ public class ControllerDrive extends Command {
 
         if (isFieldCentric.getAsBoolean()) {
             request = new SwerveRequest.FieldCentric()
-                .withVelocityX(translation.get(0))
-                .withVelocityY(translation.get(1))
-                .withRotationalRate(rot)
+                .withVelocityX(DriveConstants.MaxSpeed.times(translation.get(0)))
+                .withVelocityY(DriveConstants.MaxSpeed.times(translation.get(1)))
+                .withRotationalRate(DriveConstants.MaxAngularRate.times(rot))
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
                 .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
 
         } else {
             request = new SwerveRequest.RobotCentric()
-                .withVelocityX(translation.get(0))
-                .withVelocityY(translation.get(1))
-                .withRotationalRate(rot)
+                .withVelocityX(DriveConstants.MaxSpeed.times(translation.get(0)))
+                .withVelocityY(DriveConstants.MaxSpeed.times(translation.get(1)))
+                .withRotationalRate(DriveConstants.MaxAngularRate.times(rot))
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
         }
         
