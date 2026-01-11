@@ -4,14 +4,17 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
+import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
 
@@ -21,6 +24,8 @@ public class RobotContainer {
     public final Swerve drivetrain;
 
     private final Telemetry logger;
+
+    private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     public RobotContainer() {
         driver = new XboxController(ControllerConstants.DRIVER_PORT);
@@ -32,6 +37,7 @@ public class RobotContainer {
 
         configureDefaultCommands();
         configureBindings();
+        configureNamedCommands();
     }
 
     private void configureDefaultCommands() {
@@ -51,7 +57,12 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
+    private void configureNamedCommands(){
+        autoChooser = AutoBuilder.buildAutoChooser();
+        LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
+    }
+
     public Command getAutonomousCommand() {
-        return new PrintCommand("No autonomous command configured");
+        return autoChooser.getSelected();
     }
 }
