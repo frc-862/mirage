@@ -189,7 +189,7 @@ public class PhotonVision extends SubsystemBase {
                 } catch (Exception e) {
                     DataLogManager.log("[PHOTON VISION] " + e);
                 }
-            }, 1500, 15, TimeUnit.MILLISECONDS);
+            }), 1500, 15, TimeUnit.MILLISECONDS);
         }
 
         // Gets the latest result from multiple results
