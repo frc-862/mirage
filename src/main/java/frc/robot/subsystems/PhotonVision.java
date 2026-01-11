@@ -148,46 +148,52 @@ public class PhotonVision extends SubsystemBase {
                     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
 
                     // If theres no results just skip this iteration
-                    if (!results.isEmpty()) {
-                        // Get the latest result of all thme
-                        PhotonPipelineResult latestResult = getLatestResult(results);
+                    if (results.isEmpty()) {
+                        return;
+                    }
+                    
+                    // Get the latest result of all thme
+                    PhotonPipelineResult latestResult = getLatestResult(results);
 
-                        // Filter out the targets
-                        List<PhotonTrackedTarget> filteredTargets = new ArrayList<>(latestResult.getTargets());
-                        filteredTargets.removeIf((tag) -> VisionConstants.TAG_IGNORE_LIST.contains((short) tag.getFiducialId()));
+                    // Filter out the targets
+                    List<PhotonTrackedTarget> filteredTargets = new ArrayList<>(latestResult.getTargets());
+                    filteredTargets.removeIf((tag) -> VisionConstants.TAG_IGNORE_LIST.contains((short) tag.getFiducialId()));
 
-                        // Scrap it if the new result has no target
-                        if (!filteredTargets.isEmpty()) {
-                            // Create a new result to use -- Using the same metadata as the original latest result
-                            PhotonPipelineResult useableResult = new PhotonPipelineResult(
-                                latestResult.metadata,
-                                filteredTargets,
-                                Optional.empty()
-                            );
+                    // Scrap it if the new result has no target
+                    if (filteredTargets.isEmpty()) {
+                        return;
+                    }
 
-                            // If pose ambiguity is to high well scrap the result
-                            boolean highPoseAmbiguity = useableResult.getBestTarget().getPoseAmbiguity() > VisionConstants.POSE_AMBIGUITY_TOLERANCE;
+                    // Create a new result to use -- Using the same metadata as the original latest result
+                    PhotonPipelineResult useableResult = new PhotonPipelineResult(
+                        latestResult.metadata,
+                        filteredTargets,
+                        Optional.empty()
+                    );
 
-                            // If the best tag's distance is too far than scrap the result
-                            double bestDistance = useableResult.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
-                            boolean highDistance = bestDistance > VisionConstants.TAG_DISTANCE_TOLERANCE;
+                    // If pose ambiguity is to high well scrap the result
+                    boolean highPoseAmbiguity = useableResult.getBestTarget().getPoseAmbiguity() > VisionConstants.POSE_AMBIGUITY_TOLERANCE;
 
-                            if (!highPoseAmbiguity && !highDistance) {
-                                // Get the estimated position
-                                Optional<EstimatedRobotPose> poseOpt = poseEstimator.update(useableResult);
+                    // If the best tag's distance is too far than scrap the result
+                    double bestDistance = useableResult.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
+                    boolean highDistance = bestDistance > VisionConstants.TAG_DISTANCE_TOLERANCE;
 
-                                // If the estimated position is there run this code
-                                if (poseOpt.isPresent()) {
-                                    // The pose
-                                    EstimatedRobotPose pose = poseOpt.get();
-                                    
-                                    // Add the vision measurment
-                                    updateData.set(new VisionUpdate(pose, bestDistance));
-                                } else {
-                                    DataLogManager.log("[PHOTON VISION] Pose not available");
-                                }
-                            }
-                        }
+                    if (highPoseAmbiguity || highDistance) {
+                        return;
+                    }
+
+                    // Get the estimated position
+                    Optional<EstimatedRobotPose> poseOpt = poseEstimator.update(useableResult);
+
+                    // If the estimated position is there run this code
+                    if (poseOpt.isPresent()) {
+                        // The pose
+                        EstimatedRobotPose pose = poseOpt.get();
+                        
+                        // Add the vision measurment
+                        updateData.set(new VisionUpdate(pose, bestDistance));
+                    } else {
+                        DataLogManager.log("[PHOTON VISION] Pose not available");
                     }
                 } catch (Exception e) {
                     DataLogManager.log("[PHOTON VISION] " + e);
