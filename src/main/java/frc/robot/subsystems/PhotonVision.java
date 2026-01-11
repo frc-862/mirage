@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -12,6 +13,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -120,7 +122,7 @@ public class PhotonVision extends SubsystemBase {
                 PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
                 cameraInfo.offset);
 
-            poseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.CLOSEST_TO_LAST_POSE);
+            poseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
         } 
 
         @Override
@@ -135,6 +137,13 @@ public class PhotonVision extends SubsystemBase {
             //loop
             while (true) { 
                 try {
+                    // Sleep for 15 miliseconds before next loop considering the cameara is updating at 50fps
+                    try {
+                        Thread.sleep(15);
+                    } catch (InterruptedException e) {
+                        DataLogManager.log("[PHOTON VISOIN] Failed to sleep");
+                    }
+
                     // All results
                     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
 
@@ -145,32 +154,59 @@ public class PhotonVision extends SubsystemBase {
 
                     // Get the latest result of all thme
                     PhotonPipelineResult latestResult = getLatestResult(results);
+                    PhotonPipelineResult useableResult = latestResult;
+
+                    // If theres a tag we don't wanna use remove it from the results
+                    if (latestResult.getTargets().stream().anyMatch((tag) -> VisionConstants.TAG_IGNORE_LIST.contains((short) tag.getFiducialId()))) {
+                        // Filter out the targets
+                        List<PhotonTrackedTarget> filteredTargets = new ArrayList<PhotonTrackedTarget>(latestResult.getTargets());
+                        filteredTargets.removeIf((tag) -> VisionConstants.TAG_IGNORE_LIST.contains((short) tag.getFiducialId()));
+
+                        // Scrap it if the new result has no target
+                        if (filteredTargets.isEmpty()) {
+                            continue;
+                        }
+
+                        // Create a new result to use -- Using the same metadata as the original latest result
+                        useableResult = new PhotonPipelineResult(
+                            latestResult.metadata,
+                            filteredTargets,
+                            Optional.empty()
+                        );
+                    }
+
+                    // If the result doens't have any targets just reutrn it.
+                    if (!useableResult.hasTargets()) {
+                        continue;
+                    }
+
+                    // If the ambiguity is too high skip the iteration
+                    if (useableResult.getBestTarget().getPoseAmbiguity() > VisionConstants.POSE_AMBIGUITY_TOLERANCE) {
+                        continue;
+                    }
+
+                    // If the best tag's distance is too far than scrap the result
+                    double bestDistance = useableResult.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
+
+                    if (bestDistance > VisionConstants.TAG_DISTANCE_TOLERANCE) {
+                        continue;
+                    }
                     
                     // Get the estimated position
-                    Optional<EstimatedRobotPose> poseOpt = poseEstimator.update(latestResult);
+                    Optional<EstimatedRobotPose> poseOpt = poseEstimator.update(useableResult);
 
                     // If the estimated position is there run this code
                     if (poseOpt.isPresent()) {
                         // The pose
                         EstimatedRobotPose pose = poseOpt.get();
                         
-                        // The distance
-                        double distance = pose.estimatedPose.getTranslation().getNorm();
-                        
                         // Add the vision measurment
-                        updateData.set(new VisionUpdate(pose, distance));
+                        updateData.set(new VisionUpdate(pose, bestDistance));
                     } else {
                         DataLogManager.log("[PHOTON VISION] Pose not available");
                     }
                 } catch (Exception e) {
-                    DataLogManager.log("[PHOTON VISION] Error");
-                }
-                
-                // Sleep for 15 miliseconds before next loop considering the cameara is updating at 50fps
-                try {
-                    Thread.sleep(15);
-                } catch (InterruptedException e) {
-                    DataLogManager.log("[PHOTON VISOIN] Failed to sleep");
+                    DataLogManager.log("[PHOTON VISION] " + e);
                 }
             }
         }
