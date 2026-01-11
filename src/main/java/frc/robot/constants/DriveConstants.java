@@ -57,8 +57,7 @@ public class DriveConstants {
         .withKP(0.1).withKI(0).withKD(0)
         .withKS(0).withKV(0.124);
 
-    public static final PIDController POINT_AT_PID = new PIDController(0.9
-        , 0, 0);
+    public static final PIDController POINT_AT_PID = new PIDController(0.9, 0, 0);
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
