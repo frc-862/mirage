@@ -339,10 +339,13 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
     
     private double calculatePointAtPower(Translation2d target) {
-        Translation2d delta = getPose().getTranslation().minus(target);
+        Pose2d simPose = swerveSim.mapleSimDrive.getSimulatedDriveTrainPose();
+
+        Translation2d delta = simPose.getTranslation().minus(target);
         double targetAngle = Math.toDegrees(Math.atan2(delta.getY(), delta.getX()));
 
-        return DriveConstants.POINT_AT_PID.calculate(getPose().getRotation().getDegrees(), targetAngle);
+        double power = DriveConstants.POINT_AT_PID.calculate(simPose.getRotation().getDegrees(), targetAngle);
+        return Math.min(1.0d, Math.max(-1.0d, power));
     }
 
     public Command brakeCommand() {
