@@ -57,7 +57,7 @@ public class RobotContainer {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(new ControllerDrive(
-            () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX(), 
+            () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX(),
             () -> driver.getRightBumperButton(), () -> driver.getLeftBumperButton(), drivetrain));
     }
 
@@ -75,7 +75,7 @@ public class RobotContainer {
     }
 
     private void configureNamedCommands(){
-        // autoChooser = AutoBuilder.buildAutoChooser();
+        autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
     }
 

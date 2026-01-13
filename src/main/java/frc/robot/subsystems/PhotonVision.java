@@ -26,7 +26,7 @@ public class PhotonVision extends SubsystemBase {
 
     // Vision update type
     private record VisionUpdate(EstimatedRobotPose pose, double distance) {}
-    
+
     // Vision data
     AtomicReference<VisionUpdate> frontRightData;
     AtomicReference<VisionUpdate> frontLeftData;
@@ -40,7 +40,7 @@ public class PhotonVision extends SubsystemBase {
     CameraThread backLeftThread;
 
     /** Creates a new PhotonVision.
-     * 
+     *
      * @param drivetrain The main drivetrain on the robot
      */
     public PhotonVision(Swerve drivetrain) {
@@ -64,7 +64,7 @@ public class PhotonVision extends SubsystemBase {
         backRightThread.start();
         backLeftThread.start();
     }
- 
+
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
@@ -96,7 +96,7 @@ public class PhotonVision extends SubsystemBase {
         if (update != null) {
              drivetrain.addVisionMeasurement(update.pose, update.distance);
         }
-    } 
+    }
 
     // Camera thread to run cameras in parrellel
     private class CameraThread extends Thread {
@@ -117,13 +117,8 @@ public class PhotonVision extends SubsystemBase {
             this.camera = new PhotonCamera(cameraInfo.name);
             this.updateData = updateData;
 
-            poseEstimator = new PhotonPoseEstimator(
-                VisionConstants.TAG_LAYOUT, 
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
-                cameraInfo.offset);
-
-            poseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
-        } 
+            poseEstimator = new PhotonPoseEstimator(VisionConstants.TAG_LAYOUT, cameraInfo.offset);
+        }
 
         @Override
         public void run() {
@@ -135,7 +130,7 @@ public class PhotonVision extends SubsystemBase {
             }
 
             //loop
-            while (true) { 
+            while (true) {
                 try {
                     // Sleep for 15 miliseconds before next loop considering the cameara is updating at 50fps
                     try {
@@ -184,15 +179,18 @@ public class PhotonVision extends SubsystemBase {
                     if (bestDistance > VisionConstants.TAG_DISTANCE_TOLERANCE) {
                         continue;
                     }
-                    
+
                     // Get the estimated position
-                    Optional<EstimatedRobotPose> poseOpt = poseEstimator.update(useableResult);
+                    Optional<EstimatedRobotPose> poseOpt = poseEstimator.estimateCoprocMultiTagPose(useableResult);
+                    if (poseOpt.isEmpty()) {
+                        poseOpt = poseEstimator.estimateLowestAmbiguityPose(useableResult); // fallback strategy
+                    }
 
                     // If the estimated position is there run this code
                     if (poseOpt.isPresent()) {
                         // The pose
                         EstimatedRobotPose pose = poseOpt.get();
-                        
+
                         // Add the vision measurment
                         updateData.set(new VisionUpdate(pose, bestDistance));
                     } else {
