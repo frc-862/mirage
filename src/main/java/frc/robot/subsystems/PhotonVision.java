@@ -63,7 +63,8 @@ public class PhotonVision extends SubsystemBase {
     @Override
     public void periodic() {
         if (pose.get() != null) {
-            drivetrain.addVisionMeasurement(pose.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(pose.get().timestampSeconds));
+            EstimatedRobotPose updatedPose = pose.getAndSet(null);
+            drivetrain.addVisionMeasurement(updatedPose.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(updatedPose.timestampSeconds));
         }
     }
 
@@ -127,6 +128,7 @@ public class PhotonVision extends SubsystemBase {
             for (VisionInfo info : visionInfos) {
                 if (bestPose == null) {
                     bestPose = info;
+                    continue;
                 }
 
                 if (bestPose.result().getBestTarget().poseAmbiguity > info.result().getBestTarget().poseAmbiguity) {
