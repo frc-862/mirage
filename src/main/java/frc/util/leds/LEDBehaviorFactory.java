@@ -48,10 +48,13 @@ public class LEDBehaviorFactory {
         });
     }
 
-    public static LEDBehavior testStrip(int startIndex, BooleanSupplier... values) {
+    public static LEDBehavior testStrip(LEDStrip strip, BooleanSupplier... values) {
+        if (values.length > strip.length()) {
+            throw new IllegalArgumentException("More values for testStrip then on LED strip");
+        }
         return new LEDBehavior((ledController) -> {
             for (int i = 0; i < values.length; i++) {
-                ledController.setColor(startIndex + i, (values[i].getAsBoolean() ? Color.GREEN : Color.RED));
+                ledController.setColor(strip.startIndex() + i, (values[i].getAsBoolean() ? Color.GREEN : Color.RED));
             }
         });
     }

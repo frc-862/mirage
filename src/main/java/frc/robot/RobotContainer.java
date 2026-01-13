@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,6 +17,11 @@ import frc.robot.commands.ControllerDrive;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.Swerve;
+import frc.util.leds.Color;
+import frc.util.leds.LEDBehaviorFactory;
+import frc.util.leds.LEDSubsystem;
+import frc.robot.constants.LEDConstants;
+import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.util.shuffleboard.LightningShuffleboard;
 
@@ -25,6 +31,8 @@ public class RobotContainer {
     private final XboxController copilot;
 
     public final Swerve drivetrain;
+
+    public final LEDSubsystem leds;
 
     private final Telemetry logger;
 
@@ -37,10 +45,12 @@ public class RobotContainer {
         drivetrain = DriveConstants.createDrivetrain();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
+        leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
 
         configureDefaultCommands();
         configureBindings();
         configureNamedCommands();
+        configureLeds();
     }
 
     private void configureDefaultCommands() {
@@ -53,7 +63,9 @@ public class RobotContainer {
 
     private void configureBindings() {
         new Trigger(driver::getXButton)
-            .whileTrue(drivetrain.brakeCommand());
+            .whileTrue(drivetrain.brakeCommand()
+                .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
+            );
 
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
@@ -69,5 +81,21 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
+    }
+
+    private void configureLeds() {
+        leds.setDefaultBehavior(LEDBehaviorFactory.swirl(LEDConstants.stripAll, 10, 5, Color.ORANGE, Color.BLUE));
+
+        leds.setBehavior(LED_STATES.TEST.id(), LEDBehaviorFactory.testStrip(LEDConstants.stripAll,
+            () -> false,
+            () -> true
+        ));
+        leds.setBehavior(LED_STATES.ERROR.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
+        leds.setBehavior(LED_STATES.AUTO.id(), LEDBehaviorFactory.rainbow(LEDConstants.stripAll, 2));
+        leds.setBehavior(LED_STATES.BRAKE.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
+
+        new Trigger(DriverStation:: isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
+
+        new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
     }
 }
