@@ -55,7 +55,7 @@ public class PhotonVision extends SubsystemBase {
 
         executor1.submit(() -> {
             try { 
-                pose.set(executor2.submit(() -> mac.getVisionPose()).get()); 
+                pose.set(executor2.submit(() -> mac.getEstimatedPose()).get()); 
             } catch (Exception e) {}
         });
     }
@@ -92,7 +92,7 @@ public class PhotonVision extends SubsystemBase {
 
         }
 
-        public EstimatedRobotPose getVisionPose() {
+        public EstimatedRobotPose getEstimatedPose() {
             try {
                 VisionInfo[] poses = new VisionInfo[VisionConstants.CAMERA_CONSTANTS.length];
                 
