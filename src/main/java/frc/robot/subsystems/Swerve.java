@@ -331,6 +331,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      * @param xInput
      * @param yInput
      * @param rInput
+     * @return command to run
      */
     public Command autoDrive(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput) {
         return run(() -> setControl(new SwerveRequest.FieldCentric()
