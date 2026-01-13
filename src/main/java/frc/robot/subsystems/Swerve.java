@@ -342,6 +342,16 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             .withDriveRequestType(DriveRequestType.Velocity)));
     }
 
+    public Command driveCommand(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput) {
+        return applyRequest(
+            () -> new SwerveRequest.FieldCentric()
+                .withVelocityX(DriveConstants.MaxSpeed.times(xInput.getAsDouble()))
+                .withVelocityY(DriveConstants.MaxSpeed.times(yInput.getAsDouble()))
+                .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
+                .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+        );
+    }
+
     public Command brakeCommand() {
         return applyRequest(() -> new SwerveRequest.SwerveDriveBrake());
     }
