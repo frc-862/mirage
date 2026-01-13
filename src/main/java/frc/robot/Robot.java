@@ -23,7 +23,7 @@ public class Robot extends TimedRobot {
     public static RobotContainer getContainer() {
         if (robotContainer == null) {
             robotContainer = new RobotContainer();
-        };
+        }
 
         return robotContainer;
     }
