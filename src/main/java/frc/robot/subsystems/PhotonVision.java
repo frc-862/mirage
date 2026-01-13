@@ -132,11 +132,11 @@ public class PhotonVision extends SubsystemBase {
             //loop
             while (true) {
                 try {
-                    // Sleep for 15 miliseconds before next loop considering the cameara is updating at 50fps
+                    // Sleep for 15 milliseconds before next loop considering the camera is updating at 50fps
                     try {
                         Thread.sleep(15);
                     } catch (InterruptedException e) {
-                        DataLogManager.log("[PHOTON VISOIN] Failed to sleep");
+                        DataLogManager.log("[PHOTON VISION] Failed to sleep");
                     }
 
                     // All results
