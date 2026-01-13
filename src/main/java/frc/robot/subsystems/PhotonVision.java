@@ -77,7 +77,7 @@ public class PhotonVision extends SubsystemBase {
         // Cameras
         CameraInfo[] cameras;
 
-        public MacMini() {            
+        MacMini() {            
             // cameras
             cameras = new CameraInfo[VisionConstants.CAMERA_CONSTANTS.length];
             
