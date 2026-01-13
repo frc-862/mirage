@@ -327,7 +327,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     /**
      * Use for autonomous driving ex. auto align, auton
      * Use whenever you want a specific velocity with closed loop control
-     * Allways uses blue alliace perspective
+     * Always uses blue alliance perspective
      * @param xInput The input for the x velocity
      * @param yInput The input for the y velocity
      * @param rInput The input for the rotational rate
