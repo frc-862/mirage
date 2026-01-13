@@ -53,7 +53,11 @@ public class PhotonVision extends SubsystemBase {
 
         pose = new AtomicReference<>(null);
 
-        executor1.submit(() -> {try { pose.set(executor2.submit(() -> mac.getVisionPose()).get()); } catch (Exception e) {}});
+        executor1.submit(() -> {
+            try { 
+                pose.set(executor2.submit(() -> mac.getVisionPose()).get()); 
+            } catch (Exception e) {}
+        });
     }
  
     @Override
