@@ -294,8 +294,8 @@ public class DriveConstants {
         }
     }
 
-    public static final double MaxSpeed = kSpeedAt12Volts.in(MetersPerSecond);
-    public static final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+    public static final LinearVelocity MaxSpeed = kSpeedAt12Volts;
+    public static final AngularVelocity MaxAngularRate = RotationsPerSecond.of(0.75);
     public static final Distance RobotWidth = Inches.of(30);
     public static final double COF = COTS.WHEELS.VEX_GRIP_V2.cof;
 

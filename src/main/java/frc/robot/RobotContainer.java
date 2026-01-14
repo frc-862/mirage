@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -41,9 +43,8 @@ public class RobotContainer {
 
         drivetrain = DriveConstants.createDrivetrain();
 
+        logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
-
-        logger = new Telemetry(DriveConstants.MaxSpeed);
 
         configureDefaultCommands();
         configureBindings();
