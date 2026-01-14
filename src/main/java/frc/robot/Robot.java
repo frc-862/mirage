@@ -4,22 +4,45 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+    private Command autonomousCommand;
 
-  private final RobotContainer m_robotContainer;
+    private static RobotContainer robotContainer;
 
     public Robot() {
-        m_robotContainer = new RobotContainer();
+        getContainer();
+    }
+
+    public static RobotContainer getContainer() {
+        if (robotContainer == null) {
+            robotContainer = new RobotContainer();
+        }
+
+        return robotContainer;
+    }
+
+    @Override
+    public void robotInit() {
+        // Starts WPILIB data logging
+        DataLogManager.start("/home/lvuser/logs");
+
+        // Start logging driverstation
+        DriverStation.startDataLog(DataLogManager.getLog());
+
+        // No Live Window for now
+        LiveWindow.disableAllTelemetry();
     }
 
     @Override
     public void robotPeriodic() {
-        CommandScheduler.getInstance().run(); 
+        CommandScheduler.getInstance().run();
     }
 
     @Override
@@ -33,10 +56,10 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        autonomousCommand = robotContainer.getAutonomousCommand();
 
-        if (m_autonomousCommand != null) {
-            m_autonomousCommand.schedule();
+        if (autonomousCommand != null) {
+            CommandScheduler.getInstance().schedule(autonomousCommand);
         }
     }
 
@@ -48,8 +71,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        if (m_autonomousCommand != null) {
-            m_autonomousCommand.cancel();
+        if (autonomousCommand != null) {
+            autonomousCommand.cancel();
         }
     }
 

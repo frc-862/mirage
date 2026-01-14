@@ -9,6 +9,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -194,11 +195,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Matrix<N3, N1> visionStandardDeviation,
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
-        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation, 
+        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation,
             SwerveSim.regulateModuleConstantsForSimulation(modules));
 
         configurePathplanner();
-        
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -323,12 +324,30 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
+    /**
+     * Use for autonomous driving ex. auto align, auton
+     * Use whenever you want a specific velocity with closed loop control
+     * Always uses blue alliance perspective
+     * @param xInput The input for the x velocity
+     * @param yInput The input for the y velocity
+     * @param rInput The input for the rotational rate
+     * @return command to run
+     */
+    public Command autoDrive(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput) {
+        return run(() -> setControl(new SwerveRequest.FieldCentric()
+            .withVelocityX(DriveConstants.MaxSpeed.times(xInput.getAsDouble()))
+            .withVelocityY(DriveConstants.MaxSpeed.times(yInput.getAsDouble()))
+            .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
+            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
+            .withDriveRequestType(DriveRequestType.Velocity)));
+    }
+
     public Command driveCommand(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput) {
         return applyRequest(
             () -> new SwerveRequest.FieldCentric()
-                .withVelocityX(xInput.getAsDouble() * DriveConstants.MaxSpeed)
-                .withVelocityY(yInput.getAsDouble() * DriveConstants.MaxSpeed)
-                .withRotationalRate(rInput.getAsDouble() * DriveConstants.MaxAngularRate)
+                .withVelocityX(DriveConstants.MaxSpeed.times(xInput.getAsDouble()))
+                .withVelocityY(DriveConstants.MaxSpeed.times(yInput.getAsDouble()))
+                .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
         );
     }
