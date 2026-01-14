@@ -72,9 +72,6 @@ public class RobotContainer {
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
             .onTrue(drivetrain.resetFieldCentricCommand());
 
-        new Trigger(copilot::getAButton).whileTrue(collector.runCollector());
-        new Trigger(copilot::getBButton).whileTrue(collector.reverseCollector());
-
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
