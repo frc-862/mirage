@@ -11,6 +11,7 @@ import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 
 public class Shooter extends SubsystemBase {
+
     /**Creates new motors */
     ThunderBird topMotor;
     ThunderBird bottomMotor;
@@ -24,26 +25,35 @@ public class Shooter extends SubsystemBase {
             RobotMap.SHOOTER_BOTTOM_MOTOR_INVERTED, RobotMap.SHOOTER_BOTTOM_MOTOR_STATOR_LIMIT, RobotMap.SHOOTER_BOTTOM_MOTOR_BRAKE);
     }
 
-
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-
     }
-    /**Set top motor power */
+
+    /**
+     * Set top motor power
+    */
     public void setTopPower(double power) {
         topMotor.setControl(new DutyCycleOut(power));
-
     }
-    /**Set top motor power */
+
+    /**
+     * Set top motor power
+     */
     public void setBottomPower(double power) {
         bottomMotor.setControl(new DutyCycleOut(power));
     }
-    /**Stoping the top Motor */
+
+    /**
+     * Stoping the top Motor
+     */
     public void stopTopMotor() {
         topMotor.stopMotor();
     }
-    /**Stoping the bottom motor */
+
+    /**
+     * Stoping the bottom motor
+     */
     public void stopBottomMotor() {
         bottomMotor.stopMotor();
     }
