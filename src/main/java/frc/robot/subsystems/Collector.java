@@ -2,17 +2,19 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.controls.DutyCycleOut;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
-import frc.util.shuffleboard.LightningShuffleboard;
 
-public class Collector {
+public class Collector extends SubsystemBase{
+    private static final double DEFAULT_COLLECTOR_POWER = 0.8;
     private ThunderBird motor;
 
-    private double targetPower = 0;
-
-    public void periodic() {
-        LightningShuffleboard.setDouble("Collector", "current", motor.getStatorCurrent().getValueAsDouble());
-        LightningShuffleboard.setDouble("Diagnostic", "COLLECTOR Temperature", motor.getDeviceTemp().getValueAsDouble());
+    public Collector () {
+        this.motor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
+        RobotMap.COLLECTOR_MOTOR_INVERTED, RobotMap.COLLECTOR_MOTOR_STATOR_LIMIT, RobotMap.COLLECTOR_MOTOR_BRAKE_MODE);
     }
 
     /**
@@ -21,31 +23,25 @@ public class Collector {
      */
     public void setPower(double power) {
         motor.setControl(new DutyCycleOut(power));
-        targetPower = power; // store the current power for reference
     }
 
     public void stop() {
         motor.stopMotor();
-        targetPower = 0; // reset the current power since we stopped the motor
     }
 
-    /**
-     * @return current velocity of collector rot/sec
-     */
-    public double getVelocity() {
-        return motor.getRotorVelocity().getValueAsDouble();
+    public Command runCollector(double power) {
+        return new StartEndCommand(
+            () -> setPower(power),
+            this::stop,
+            this
+        );
     }
 
-    public double getPower() {
-        return motor.getMotorVoltage().getValueAsDouble();
+    public Command runCollector() {
+        return runCollector(DEFAULT_COLLECTOR_POWER);
     }
 
-    /**
-     * @return the last power set to the motor. This may not be the actual power due to motor control loops
-     */
-    public double getTargetPower() {
-        // this returns the last power set to the motor
-        // this may not be the actual power due to motor control loops
-        return targetPower;
+    public Command reverseCollector() {
+        return runCollector(-DEFAULT_COLLECTOR_POWER);
     }
 }
