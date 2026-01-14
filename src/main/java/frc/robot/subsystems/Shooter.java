@@ -32,6 +32,7 @@ public class Shooter extends SubsystemBase {
 
     /**
      * Set top motor power
+     * @param power
     */
     public void setTopPower(double power) {
         topMotor.setControl(new DutyCycleOut(power));
@@ -39,6 +40,7 @@ public class Shooter extends SubsystemBase {
 
     /**
      * Set top motor power
+     * @param power
      */
     public void setBottomPower(double power) {
         bottomMotor.setControl(new DutyCycleOut(power));
