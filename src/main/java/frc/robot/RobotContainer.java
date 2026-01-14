@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.PoseBasedAutoAlign;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
@@ -33,7 +34,7 @@ public class RobotContainer {
     private final XboxController copilot;
 
     public final Swerve drivetrain;
-
+    public final Collector collector;
     public final LEDSubsystem leds;
 
     private final Telemetry logger;
@@ -45,6 +46,7 @@ public class RobotContainer {
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
         drivetrain = DriveConstants.createDrivetrain();
+        collector = new Collector();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
@@ -69,6 +71,9 @@ public class RobotContainer {
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
             .onTrue(drivetrain.resetFieldCentricCommand());
+
+        new Trigger(copilot::getAButton).whileTrue(collector.runCollector());
+        new Trigger(copilot::getBButton).whileTrue(collector.reverseCollector());
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
