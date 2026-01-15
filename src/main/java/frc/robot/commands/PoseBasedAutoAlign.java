@@ -4,7 +4,9 @@
 
 package frc.robot.commands;
 
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -62,7 +64,9 @@ public class PoseBasedAutoAlign extends Command {
         drivetrain.setControl(new SwerveRequest.FieldCentric()
             .withVelocityX(pidX.calculate(currentPose.getX(), targetPose.getX()))
             .withVelocityY(pidY.calculate(currentPose.getY(), targetPose.getY()))
-            .withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees())));
+            .withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()))
+            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
+            .withDriveRequestType(DriveRequestType.Velocity));
     }
 
     // Called once the command ends or is interrupted.

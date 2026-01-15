@@ -71,8 +71,6 @@ public class RobotContainer {
             .onTrue(drivetrain.resetFieldCentricCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
-
-        new Trigger(()->driver.getAButton()).whileTrue(new PoseBasedAutoAlign(drivetrain, new Pose2d(8, 4, new Rotation2d(0))));
     }
 
     private void configureNamedCommands(){
