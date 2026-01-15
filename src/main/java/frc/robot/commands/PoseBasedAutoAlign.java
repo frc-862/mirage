@@ -28,7 +28,11 @@ public class PoseBasedAutoAlign extends Command {
   //creates a variable for the PID controller for the X-axis (horizontally)
 
   public Pose2d targetPose = new Pose2d();
-  /** Creates a new PoseBasedAutoAlign. */
+  /** Creates a new PoseBasedAutoAlign.
+   * @param drivetrain
+   * @param targetPose
+   */
+
   public PoseBasedAutoAlign(Swerve drivetrain, Pose2d targetPose) {
     //sets drivetrain
     this.drivetrain = drivetrain;
