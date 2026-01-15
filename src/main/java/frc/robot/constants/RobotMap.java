@@ -15,4 +15,10 @@ public class RobotMap {
     public static final double INDEXER_MOTOR_STATOR_LIMIT = 120d; // Temp
     public static final boolean INDEXER_MOTOR_BRAKE_MODE = true; // Temp
 
+    // Hood constants
+    public static final int HOOD_MOTOR_ID = 2; // Temp
+    public static final boolean HOOD_MOTOR_INVERTED = false; // Temp
+    public static final double HOOD_MOTOR_STATOR_LIMIT = 120d; // Temp
+    public static final boolean HOOD_MOTOR_BRAKE_MODE = false; // Temp
+
 }
