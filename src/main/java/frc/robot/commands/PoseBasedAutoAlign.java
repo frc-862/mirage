@@ -27,11 +27,12 @@ public class PoseBasedAutoAlign extends Command {
 
   //creates a variable for the PID controller for the X-axis (horizontally)
 
-  private Pose2d targetPose = new Pose2d();
+  public Pose2d targetPose = new Pose2d();
   /** Creates a new PoseBasedAutoAlign. */
-  public PoseBasedAutoAlign(Swerve drivetrain) {
+  public PoseBasedAutoAlign(Swerve drivetrain, Pose2d targetPose) {
     //sets drivetrain
     this.drivetrain = drivetrain;
+    this.targetPose = targetPose;
 
     //sets the pid values to a pid controller
     pidX = new PIDController(PoseConstants.AUTON_DRIVE_P, PoseConstants.AUTON_DRIVE_I, PoseConstants.AUTON_DRIVE_D);

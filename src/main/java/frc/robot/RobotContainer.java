@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -70,7 +72,7 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        new Trigger(()->driver.getAButton()).whileTrue(new PoseBasedAutoAlign(drivetrain));
+        new Trigger(()->driver.getAButton()).whileTrue(new PoseBasedAutoAlign(drivetrain, new Pose2d(8, 4, new Rotation2d(0))));
     }
 
     private void configureNamedCommands(){
