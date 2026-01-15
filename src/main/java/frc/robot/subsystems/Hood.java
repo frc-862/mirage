@@ -11,7 +11,7 @@ import frc.util.hardware.ThunderBird;
 import frc.robot.constants.RobotMap;
 
 public class Hood extends SubsystemBase {
-  ThunderBird hoodMotor;
+  private ThunderBird hoodMotor;
   /** Creates a new Hood. */
   public Hood() {
     hoodMotor = new ThunderBird(RobotMap.HOOD_MOTOR_ID, RobotMap.CAN_BUS,
