@@ -23,7 +23,7 @@ public class PoseBasedAutoAlign extends Command {
   private PIDController pidR;
 
   //Creates a variable for DriveTolerance (amount of possible error)
-  private double DriveTolerance = PoseConstants.TELE_DRIVE_TOLERANCE;
+  private double DriveTolerance = PoseConstants.DRIVE_TOLERANCE;
 
   //creates a variable for the PID controller for the X-axis (horizontally)
 
@@ -39,9 +39,9 @@ public class PoseBasedAutoAlign extends Command {
     this.targetPose = targetPose;
 
     //sets the pid values to a pid controller
-    pidX = new PIDController(PoseConstants.AUTON_DRIVE_P, PoseConstants.AUTON_DRIVE_I, PoseConstants.AUTON_DRIVE_D);
-    pidY = new PIDController(PoseConstants.AUTON_DRIVE_P, PoseConstants.AUTON_DRIVE_I, PoseConstants.AUTON_DRIVE_D);
-    pidR = new PIDController(PoseConstants.AUTON_DRIVE_P, PoseConstants.AUTON_DRIVE_I, PoseConstants.AUTON_DRIVE_D);
+    pidX = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
+    pidY = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
+    pidR = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivetrain);

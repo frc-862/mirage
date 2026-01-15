@@ -48,7 +48,6 @@ public class RobotContainer {
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
-
         configureDefaultCommands();
         configureBindings();
         configureNamedCommands();
