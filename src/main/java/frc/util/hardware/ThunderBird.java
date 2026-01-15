@@ -1,8 +1,8 @@
 package frc.util.hardware;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -15,13 +15,13 @@ public class ThunderBird extends TalonFX {
      * breaker)
      * 
      * @param deviceId    CAN Id Of the TalonFX
-     * @param canbus      CAN Bus name ("rio" for rio bus)
+     * @param canbus      CAN Bus instance
      * @param invert      boolean (true = clockwise positive, false =
      *                    counterclockwise positive)
      * @param statorLimit Stator current limit for the motor (zero to disable)
      * @param brake       boolean (true = brake, false = coast)
      */
-    public ThunderBird(int deviceId, String canbus, boolean invert, double statorLimit, boolean brake) {
+    public ThunderBird(int deviceId, CANBus canbus, boolean invert, double statorLimit, boolean brake) {
         super(deviceId, canbus);
         this.config = new TalonFXConfiguration();
         configInvert(invert);
@@ -228,11 +228,4 @@ public class ThunderBird extends TalonFX {
     public TalonFXConfiguration getConfig() {
         return this.config;
     }
-
-    @Deprecated
-    @Override
-    public TalonFXConfigurator getConfigurator() {
-        return super.getConfigurator();
-    }
-
 }
