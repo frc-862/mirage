@@ -11,16 +11,6 @@ public class RobotMap {
 
     public static final CANBus CAN_BUS = new CANBus("canbus"); // Temp
 
-    // Shooter constants
-    public static final int SHOOTER_BOTTOM_MOTOR_ID = 3; //temp
-    public static final int SHOOTER_TOP_MOTOR_ID = 4; //temp
-    public static final boolean SHOOTER_BOTTOM_MOTOR_INVERTED = false; //temp
-    public static final boolean SHOOTER_TOP_MOTOR_INVERTED = false; //temp
-    public static final double SHOOTER_BOTTOM_MOTOR_STATOR_LIMIT = 120.0; //temp
-    public static final double SHOOTER_TOP_MOTOR_STATOR_LIMIT = 120.0; //temp
-    public static final boolean SHOOTER_BOTTOM_MOTOR_BRAKE = true; //temp
-    public static final boolean SHOOTER_TOP_MOTOR_BRAKE = true; //temp
-
     // Indexer constants
     public static final int INDEXER_MOTOR_ID = 1; // Temp
     public static final boolean INDEXER_MOTOR_INVERTED = false; // Temp
