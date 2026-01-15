@@ -13,7 +13,7 @@ import frc.util.hardware.ThunderBird;
 
 public class Shooter extends SubsystemBase {
 
-    public final DutyCycleOut dutyCycle = new DutyCycleOut(0.0); // TEMP
+    public final DutyCycleOut dutyCycle = new DutyCycleOut(0.0);
     /**Creates new motors */
     ThunderBird topMotor;
     ThunderBird bottomMotor;
