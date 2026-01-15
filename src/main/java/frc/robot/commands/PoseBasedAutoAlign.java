@@ -53,6 +53,7 @@ public class PoseBasedAutoAlign extends Command {
     //gives a tolerance to pidX and Y
     pidX.setTolerance(DriveTolerance);
     pidY.setTolerance(DriveTolerance);
+    pidR.setTolerance(DriveTolerance);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -62,7 +63,8 @@ public class PoseBasedAutoAlign extends Command {
 
     drivetrain.setControl(new SwerveRequest.FieldCentric()
       .withVelocityX(pidX.calculate(currentPose.getX(), targetPose.getX()))
-      .withVelocityY(pidY.calculate(currentPose.getY(), targetPose.getY())));
+      .withVelocityY(pidY.calculate(currentPose.getY(), targetPose.getY()))
+      .withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees())));
   }
 
   // Called once the command ends or is interrupted.
