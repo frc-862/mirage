@@ -6,10 +6,12 @@ package frc.robot.commands;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.PoseConstants;
 import frc.robot.subsystems.Swerve;
@@ -27,7 +29,16 @@ public class PoseBasedAutoAlign extends Command {
     //Creates a variable for DriveTolerance (amount of possible error)
     private double DriveTolerance = PoseConstants.DRIVE_TOLERANCE;
 
+    private SwerveRequest.FieldCentric AUTO_REQUEST = new SwerveRequest.FieldCentric();
+
     public Pose2d targetPose = new Pose2d();
+
+    public SwerveRequest.FieldCentric velocityX;
+    public SwerveRequest.FieldCentric velocityY;
+
+
+
+
     /** Creates a new PoseBasedAutoAlign.
     * @param drivetrain
     * @param targetPose
@@ -47,6 +58,7 @@ public class PoseBasedAutoAlign extends Command {
         addRequirements(drivetrain);
     }
 
+
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
@@ -59,14 +71,27 @@ public class PoseBasedAutoAlign extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+
+
+        drivetrain.setControl(autoRequest(pidX, pidY, pidR));
+        //     .withVelocityX(pidX.calculate(currentPose.getX(), targetPose.getX()))
+        //     .withVelocityY(pidY.calculate(currentPose.getY(), targetPose.getY()))
+        //     .withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()))
+        //     .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
+        //     .withDriveRequestType(DriveRequestType.Velocity));
+    }
+
+     private SwerveRequest autoRequest(PIDController X, PIDController Y, PIDController R){
         Pose2d currentPose = drivetrain.getPose();
 
-        drivetrain.setControl(new SwerveRequest.FieldCentric()
-            .withVelocityX(pidX.calculate(currentPose.getX(), targetPose.getX()))
-            .withVelocityY(pidY.calculate(currentPose.getY(), targetPose.getY()))
-            .withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()))
-            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-            .withDriveRequestType(DriveRequestType.Velocity));
+        AUTO_REQUEST.withVelocityX(X.calculate(currentPose.getX(), targetPose.getX()));
+        AUTO_REQUEST.withVelocityY(Y.calculate(currentPose.getY(), targetPose.getY()));
+        AUTO_REQUEST.withRotationalRate(R.calculate(currentPose.getRotation().getDegrees(),
+        targetPose.getRotation().getDegrees()));
+        AUTO_REQUEST.withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
+        AUTO_REQUEST.withDriveRequestType(DriveRequestType.Velocity);
+
+        return AUTO_REQUEST;
     }
 
     // Called once the command ends or is interrupted.
