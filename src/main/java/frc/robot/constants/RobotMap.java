@@ -15,5 +15,9 @@ public class RobotMap {
     public static final boolean INDEXER_MOTOR_INVERTED = false; // Temp
     public static final double INDEXER_MOTOR_STATOR_LIMIT = 120d; // Temp
     public static final boolean INDEXER_MOTOR_BRAKE_MODE = true; // Temp
+
+    // Collector / Pivot
+    public static final int COLLECTOR_MOTOR_ID = 2; // Temp
+    public static final int PIVOT_ID = 5; // Temp
 }
 

@@ -8,7 +8,6 @@ public class CollectorConstants {
 
 
     // collector motor
-    public static final int COLLECTOR_MOTOR_ID = 2; // Temp
     public static final boolean COLLECTOR_MOTOR_INVERTED = false; // Temp
     public static final double COLLECTOR_MOTOR_STATOR_LIMIT = 40d; // Temp
     public static final boolean COLLECTOR_MOTOR_BRAKE_MODE = true; // Temp
@@ -23,7 +22,6 @@ public class CollectorConstants {
     public static final double PIVOT_KG = 0.3d; // temp
 
     // collector pivot
-    public static final int PIVOT_ID = 5; // Temp
     public static final boolean PIVOT_INVERTED = false; // Temp
     public static final double PIVOT_STATOR_LIMIT = 40d; // Temp
     public static final boolean PIVOT_BRAKE_MODE = true; // Temp
