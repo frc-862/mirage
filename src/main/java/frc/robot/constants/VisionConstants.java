@@ -26,7 +26,7 @@ public class VisionConstants {
     public static final List<Short> TAG_IGNORE_LIST = List.of();
 
     public static final AprilTagFieldLayout TAG_LAYOUT = AprilTagFieldLayout
-            .loadField(AprilTagFields.k2026RebuiltWelded); //FIM Uses welded fields (we have AndyMark)
+            .loadField(AprilTagFields.k2026RebuiltWelded); //FIM Uses welded fields
 
     public static final double POSE_AMBIGUITY_TOLERANCE = 0.2;
     public static final double TAG_DISTANCE_TOLERANCE = 4;
