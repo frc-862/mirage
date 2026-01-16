@@ -16,7 +16,7 @@ public class CollectorConstants {
     public static final double PIVOT_KP = 0.3d; // temp
     public static final double PIVOT_KI = 0d; // temp
     public static final double PIVOT_KD = 0.02d; // temp
-    public static final double PIVOT_KF = 0; // temp
+    public static final double PIVOT_KS = 0; // temp
     public static final double PIVOT_KV = 0;
     public static final double PIVOT_KA = 0;
     public static final double PIVOT_KG = 0.3d; // temp
@@ -25,7 +25,6 @@ public class CollectorConstants {
     public static final boolean PIVOT_INVERTED = false; // Temp
     public static final double PIVOT_STATOR_LIMIT = 40d; // Temp
     public static final boolean PIVOT_BRAKE_MODE = true; // Temp
-    public static final int PIVOT_ENCODER = 35; // Temp
     public static final double PIVOT_OFFSET = -0.227; // Temp
     public static final double ROTOR_TO_ENCODER_RATIO = 74; // Temp
     public static final double ENCODER_TO_MECHANISM_RATIO = 1d; // Temp

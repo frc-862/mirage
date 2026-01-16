@@ -11,8 +11,6 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
-import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -32,13 +30,13 @@ public class Collector extends SubsystemBase {
     private final PositionVoltage positionPID = new PositionVoltage(0);
 
     public Collector() {
-        collectMotor = new ThunderBird(CollectorConstants.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
+        collectMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
             CollectorConstants.COLLECTOR_MOTOR_INVERTED, CollectorConstants.COLLECTOR_MOTOR_STATOR_LIMIT, CollectorConstants.COLLECTOR_MOTOR_BRAKE_MODE);
 
-        pivotMotor = new ThunderBird(CollectorConstants.PIVOT_ID, RobotMap.CAN_BUS,
+        pivotMotor = new ThunderBird(RobotMap.PIVOT_MOTOR_ID, RobotMap.CAN_BUS,
             CollectorConstants.PIVOT_INVERTED, CollectorConstants.PIVOT_STATOR_LIMIT, CollectorConstants.PIVOT_BRAKE_MODE);
 
-        encoder = new CANcoder(CollectorConstants.PIVOT_ENCODER, RobotMap.CAN_BUS);
+        encoder = new CANcoder(RobotMap.PIVOT_ENCODER_ID, RobotMap.CAN_BUS);
         CANcoderConfiguration angleConfig = new CANcoderConfiguration();
         angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
         angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? CollectorConstants.PIVOT_OFFSET : 0d;
@@ -49,7 +47,7 @@ public class Collector extends SubsystemBase {
         config.Slot0.kP = CollectorConstants.PIVOT_KP;
         config.Slot0.kI = CollectorConstants.PIVOT_KI;
         config.Slot0.kD = CollectorConstants.PIVOT_KD;
-        config.Slot0.kS = CollectorConstants.PIVOT_KF;
+        config.Slot0.kS = CollectorConstants.PIVOT_KS;
         config.Slot0.kV = CollectorConstants.PIVOT_KV;
         config.Slot0.kA = CollectorConstants.PIVOT_KA;
         config.Slot0.kG = CollectorConstants.PIVOT_KG;
@@ -102,7 +100,6 @@ public class Collector extends SubsystemBase {
      *
      * @return Current angle of the pivot
      */
-    @Logged(importance = Importance.DEBUG)
     public double getAngle() {
         return encoder.getAbsolutePosition().getValue().in(Degrees);
     }

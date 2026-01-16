@@ -18,6 +18,7 @@ public class RobotMap {
 
     // Collector / Pivot
     public static final int COLLECTOR_MOTOR_ID = 2; // Temp
-    public static final int PIVOT_ID = 5; // Temp
+    public static final int PIVOT_MOTOR_ID = 5; // Temp
+    public static final int PIVOT_ENCODER_ID = 35; // Temp
 }
 
