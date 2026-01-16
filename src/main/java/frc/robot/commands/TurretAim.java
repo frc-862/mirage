@@ -10,6 +10,7 @@
   import frc.robot.constants.TurretConstants;
   import frc.robot.subsystems.Swerve;
   import frc.robot.subsystems.Turret;
+  import static edu.wpi.first.units.Units.Degree;
 
 
   /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -17,6 +18,7 @@
     Swerve drivetrain;
     Translation2d target;
     Turret turret;
+    private double distanceToTargetMeters;
 
     /** Creates a new TurretAim. */
     public TurretAim(Swerve drivetrain, Turret turret, Translation2d target) {
@@ -40,9 +42,19 @@
       // Get the translation assuming the robot at (0, 0)
       Translation2d delta = target.minus(robotPose.getTranslation());
 
+      // Get the distance from the robot to the target shot via the norm of the translation
+      distanceToTargetMeters = delta.getNorm();
+
       // Well add values if we have to based on however the angles acually get calculated
       double fieldAngle = Math.toDegrees(Math.atan2(delta.getY(), delta.getX()));
       double turretAngle = fieldAngle - robotPose.getRotation().getDegrees();
+
+      // Adjust the angle based on the minimum and maximum angles of the turret
+      if (turretAngle > TurretConstants.MAX_ANGLE.in(Degree)) {
+        turretAngle -= 360;
+      } else if (turretAngle < TurretConstants.MIN_ANGLE.in(Degree)) {
+        turretAngle += 360;
+      }
 
       // Set the turret angle based off our robot angle as well
       turret.setAngle(robotPose.getRotation().getDegrees() - turretAngle);    
@@ -59,6 +71,9 @@
     public boolean isFinished() {
       // if Math.abs(turretTargetAngle - turret.getAngle()) > someTolerance
       return turret.isOnTarget();
+    }
 
+    public double getDistanceToTargetMeters() {
+      return distanceToTargetMeters;
     }
   }
