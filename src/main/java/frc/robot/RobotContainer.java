@@ -34,7 +34,7 @@ public class RobotContainer {
     private final XboxController copilot;
 
     public final Swerve drivetrain;
-    public final Collector collector;
+    // public final Collector collector;
     public final LEDSubsystem leds;
 
     private final Telemetry logger;
@@ -46,7 +46,7 @@ public class RobotContainer {
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
         drivetrain = DriveConstants.createDrivetrain();
-        collector = new Collector();
+        // collector = new Collector();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
