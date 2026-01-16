@@ -34,9 +34,9 @@ public class RobotContainer {
     private final XboxController driver;
     private final XboxController copilot;
 
-    public final Swerve drivetrain;
-    // public final Collector collector;
-    public final LEDSubsystem leds;
+    private final Swerve drivetrain;
+    // private final Collector collector;
+    private final LEDSubsystem leds;
 
     private final Telemetry logger;
 
