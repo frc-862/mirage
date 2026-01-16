@@ -1,8 +1,9 @@
 name: Gradle Build
 
-on: 
+on:
     push:
-      
+    pull_request:
+
 jobs:
     Build:
         runs-on: ubuntu-latest
@@ -18,5 +19,13 @@ jobs:
             java-version: '17'
         - name: Set Execution Permissions
           run: chmod +x ./gradlew
+        - name: Run Unit Tests
+          run: ./gradlew test
+        - name: Publish Test Report
+          uses: mikepenz/action-junit-report@v4
+          if: success() || failure()
+          with:
+            report_paths: '**/build/test-results/test/TEST-*.xml'
+            check_name: Unit Test Results
         - name: Gradle Build Robot
           run: ./gradlew build
