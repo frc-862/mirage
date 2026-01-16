@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -56,9 +58,11 @@ public class RobotContainer {
     private void configureDefaultCommands() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(new ControllerDrive(
-            () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX(),
-            () -> driver.getRightBumperButton(), () -> driver.getLeftBumperButton(), drivetrain));
+        drivetrain.setDefaultCommand(drivetrain.driveCommand(
+            () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
+                VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
+                .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
+                ControllerConstants.POW), () -> -driver.getRightX()));
     }
 
     private void configureBindings() {
@@ -72,6 +76,12 @@ public class RobotContainer {
             .onTrue(drivetrain.resetFieldCentricCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        new Trigger(driver::getLeftBumperButton).whileTrue(drivetrain.robotCentricDrive(
+            () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
+                VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
+                .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
+                ControllerConstants.POW), () -> -driver.getRightX()));
     }
 
     private void configureNamedCommands(){

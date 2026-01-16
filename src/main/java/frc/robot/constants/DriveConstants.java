@@ -202,7 +202,7 @@ public class DriveConstants {
     /**
      * Creates a CommandSwerveDrivetrain instance.
      * This should only be called once in your robot program,.
-     * 
+     *
      * @return The Swerve drivetrain instance.
      */
     public static Swerve createDrivetrain() {
@@ -315,4 +315,8 @@ public class DriveConstants {
             DriveConstants.BackLeft,
             DriveConstants.BackRight);
     }
+
+    public static final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric();
+    public static final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric();
+    public static final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
 }
