@@ -6,8 +6,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public abstract class LEDCommand extends Command {
-    private ArrayList<Command> successCommands;
-    private ArrayList<Command> failCommands;
+    private final ArrayList<Command> successCommands;
+    private final ArrayList<Command> failCommands;
 
     public LEDCommand() {
         super();

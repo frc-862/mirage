@@ -18,7 +18,7 @@ public class RobotMap {
 
     // Hood Motor ID
     public static final int HOOD_MOTOR_ID = 2; // Temp
-    
+
     // Collector / Pivot
     public static final int COLLECTOR_MOTOR_ID = 2; // Temp
     public static final int PIVOT_MOTOR_ID = 5; // Temp
