@@ -8,8 +8,9 @@ public class RobotMap {
     public static final String OASIS_IDENTIFIER = "/home/lvuser/Oasis"; // Differentiate between Oasis and Mirage
     public static final boolean IS_OASIS = Paths.get(OASIS_IDENTIFIER).toFile().exists();
 
-    public static final CANBus CAN_BUS = new CANBus("canbus"); // Temp
+    public static final CANBus CAN_BUS = new CANBus("Canivore"); // Temp
 
+    // indexer motor
     public static final int INDEXER_MOTOR_ID = 1; // Temp
     public static final boolean INDEXER_MOTOR_INVERTED = false; // Temp
     public static final double INDEXER_MOTOR_STATOR_LIMIT = 120d; // Temp
@@ -17,4 +18,10 @@ public class RobotMap {
 
     // Hood Motor ID
     public static final int HOOD_MOTOR_ID = 2; // Temp
+    
+    // Collector / Pivot
+    public static final int COLLECTOR_MOTOR_ID = 2; // Temp
+    public static final int PIVOT_MOTOR_ID = 5; // Temp
+    public static final int PIVOT_ENCODER_ID = 35; // Temp
 }
+
