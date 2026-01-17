@@ -6,22 +6,29 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.PoseBasedAutoAlign;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
 import frc.robot.constants.LEDConstants;
+import frc.robot.constants.OasisTunerConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -31,9 +38,9 @@ public class RobotContainer {
     private final XboxController driver;
     private final XboxController copilot;
 
-    public final Swerve drivetrain;
-
-    public final LEDSubsystem leds;
+    private final Swerve drivetrain;
+    // private final Collector collector;
+    private final LEDSubsystem leds;
 
     private final Telemetry logger;
 
@@ -43,11 +50,11 @@ public class RobotContainer {
         driver = new XboxController(ControllerConstants.DRIVER_PORT);
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
-        drivetrain = DriveConstants.createDrivetrain();
+        drivetrain = OasisTunerConstants.createDrivetrain();
+        // collector = new Collector();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
-
         configureDefaultCommands();
         configureBindings();
         configureNamedCommands();

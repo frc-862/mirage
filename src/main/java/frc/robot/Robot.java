@@ -30,7 +30,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-
         // Starts WPILIB data logging
         DataLogManager.start("/home/lvuser/logs");
 
@@ -39,7 +38,6 @@ public class Robot extends TimedRobot {
 
         // No Live Window for now
         LiveWindow.disableAllTelemetry();
-
     }
 
     @Override
