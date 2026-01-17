@@ -22,7 +22,7 @@ public class TurretAim extends Command {
     private Swerve drivetrain;
     private Translation2d target;
     private Turret turret;
-    private double distanceToTargetMeters;
+    private Distance distanceToTargetMeters;
 
     /** Creates a new TurretAim. */
     public TurretAim(Swerve drivetrain, Turret turret, Translation2d target) {
@@ -49,7 +49,7 @@ public class TurretAim extends Command {
 
         // Get the distance from the robot to the target shot via the norm of the
         // translation
-        distanceToTargetMeters = delta.getNorm();
+        distanceToTargetMeters = Meters.of(delta.getNorm());
 
         // Well add values if we have to based on however the angles acually get
         // calculated
@@ -57,11 +57,12 @@ public class TurretAim extends Command {
         Angle turretAngle = fieldAngle.minus(Degree.of(robotPose.getRotation().getDegrees()));
 
         // Adjust the angle based on the minimum and maximum angles of the turret
-        double wrappedAngle = MathUtil.inputModulus(turretAngle.in(Degree), TurretConstants.MIN_ANGLE.in(Degree),
-                TurretConstants.MAX_ANGLE.in(Degree));
+        Angle wrappedAngle = Degree
+                .of(MathUtil.inputModulus(turretAngle.in(Degree), TurretConstants.MIN_ANGLE.in(Degree),
+                        TurretConstants.MAX_ANGLE.in(Degree)));
 
         // Set the turret angle based off our robot angle as well
-        turret.setAngle(Degree.of(robotPose.getRotation().getDegrees()).minus(Degree.of(wrappedAngle)));
+        turret.setAngle(wrappedAngle);
     }
 
     // Called once the command ends or is interrupted.
@@ -78,6 +79,6 @@ public class TurretAim extends Command {
     }
 
     public Distance getDistanceToTargetMeters() {
-        return Meters.of(distanceToTargetMeters);
+        return distanceToTargetMeters;
     }
 }

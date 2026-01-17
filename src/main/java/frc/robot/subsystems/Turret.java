@@ -19,6 +19,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Meter;
 
 import edu.wpi.first.units.Measure;
@@ -42,15 +43,14 @@ public class Turret extends SubsystemBase {
     private ThunderBird motor;
     private CANcoder encoder;
 
-    private double targetPosition = 0;
+    private Angle targetPosition = Rotations.zero();
 
     public final PositionVoltage positionPID = new PositionVoltage(0);
 
     /** Creates a new TurretAim. */
     public Turret() {
-        // CREATE CONSTANTS FOR THIS
-        motor = new ThunderBird(TurretConstants.TURRET_MOTOR_ID, TurretConstants.TURRET_CAN_BUS, TurretConstants.TURRET_MOTOR_INVERTED, TurretConstants.TURRET_STATOR_LIMIT, TurretConstants.TURRET_BRAKE);
-        encoder = new CANcoder(TurretConstants.TURRET_ENCODER_ID, TurretConstants.TURRET_CAN_BUS);
+        motor = new ThunderBird(RobotMap.TURRET_MOTOR_ID, RobotMap.CAN_BUS_NAME, RobotMap.TURRET_MOTOR_INVERTED, RobotMap.TURRET_STATOR_LIMIT, RobotMap.TURRET_BRAKE);
+        encoder = new CANcoder(RobotMap.TURRET_ENCODER_ID, RobotMap.CAN_BUS);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
         CANcoderConfiguration angleConfig = new CANcoderConfiguration();
@@ -81,7 +81,7 @@ public class Turret extends SubsystemBase {
     }
 
     public void setAngle(Angle angle) {
-        targetPosition = angle.in(Rotations);
+        targetPosition = angle;
         motor.setControl(positionPID.withPosition(targetPosition));
     }
 
@@ -90,11 +90,11 @@ public class Turret extends SubsystemBase {
     }
 
     public Angle getTargetAngle() {
-        return Rotations.of(targetPosition);
+        return targetPosition;
     }
 
     public boolean isOnTarget() {
-        return (getAngle().minus(getTargetAngle())).abs(Degree) < TurretConstants.TURRET_ANGLE_TOLERANCE;
+        return MathUtil.isNear(getTargetAngle().in(Degree), getAngle().in(Degree), TurretConstants.TURRET_ANGLE_TOLERANCE);
     }
 
     public void stop() {
