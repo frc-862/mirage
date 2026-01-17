@@ -27,10 +27,6 @@ public class Shooter extends SubsystemBase {
     // private Velocity topShooterTarget;
     // private Velocity bottomShooterTarget;
 
-
-    private ThunderBird topMotor;
-    private ThunderBird bottomMotor;
-
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
         //Sets new motors
