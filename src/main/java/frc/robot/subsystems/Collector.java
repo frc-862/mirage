@@ -26,10 +26,10 @@ public class Collector extends SubsystemBase {
     private ThunderBird pivotMotor;
     private CANcoder encoder;
 
-    private final DutyCycleOut collectorDuty = new DutyCycleOut(0);
+    private final DutyCycleOut collectorDuty;
 
     private Angle targetPivotPosition = Degrees.of(0);
-    private final PositionVoltage positionPID = new PositionVoltage(0);
+    private final PositionVoltage positionPID;
 
     public Collector() {
         collectMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
@@ -44,6 +44,10 @@ public class Collector extends SubsystemBase {
         angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? CollectorConstants.PIVOT_OFFSET : 0d;
         angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         encoder.getConfigurator().apply(angleConfig);
+
+
+        collectorDuty = new DutyCycleOut(0.0);
+        positionPID = new PositionVoltage(0);
 
         TalonFXConfiguration config = pivotMotor.getConfig();
         config.Slot0.kP = CollectorConstants.PIVOT_KP;
