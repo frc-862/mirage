@@ -25,7 +25,7 @@ public class PoseBasedAutoAlign extends Command {
     private PIDController pidY;
     private PIDController pidR;
 
-    //Creates a variable for AUTO_REQUEST, which is used later
+    //Creates a variable for AUTO_REQUEST
     private SwerveRequest.FieldCentric AUTO_REQUEST;
 
     private Pose2d targetPose;
@@ -43,29 +43,22 @@ public class PoseBasedAutoAlign extends Command {
         pidY = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
         pidR = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
 
-        //Instatiates AUTO_REQUEST
-        AUTO_REQUEST = new SwerveRequest.FieldCentric();
-
-        // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(drivetrain);
-
-        //sets target pose
-        this.targetPose = targetPose;
-    }
-
-    // Called when the command is initially scheduled.
-    @Override
-    public void initialize() {
-        //gives a tolerance to pidX and Y
         pidX.setTolerance(PoseConstants.DRIVE_TOLERANCE);
         pidY.setTolerance(PoseConstants.DRIVE_TOLERANCE);
         pidR.setTolerance(PoseConstants.DRIVE_TOLERANCE);
+
+        //Instatiates AUTO_REQUEST
+        AUTO_REQUEST = new SwerveRequest.FieldCentric();
+
+        //sets target pose
+        this.targetPose = targetPose;
+
+        addRequirements(drivetrain);
     }
 
-    // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        //uses the autoRequest method below to set a control for the drivetrain pased on pids
+        //uses the autoRequest to set a control for the drivetrain pased on pids
         drivetrain.setControl(autoRequest());
     }
 
@@ -74,23 +67,17 @@ public class PoseBasedAutoAlign extends Command {
 
         AUTO_REQUEST.withVelocityX(pidX.calculate(currentPose.getX(), targetPose.getX()));
         AUTO_REQUEST.withVelocityY(pidY.calculate(currentPose.getY(), targetPose.getY()));
-        AUTO_REQUEST.withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(),
-        targetPose.getRotation().getDegrees()));
+        AUTO_REQUEST.withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()));
+
         AUTO_REQUEST.withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
         AUTO_REQUEST.withDriveRequestType(DriveRequestType.Velocity);
 
         return AUTO_REQUEST;
     }
 
-    // Called once the command ends or is interrupted.
-    @Override
-    public void end(boolean interrupted) {
-
-    }
-
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return false;
+        return pidX.atSetpoint() && pidY.atSetpoint() && pidR.atSetpoint();
     }
 }
