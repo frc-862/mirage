@@ -31,4 +31,12 @@ public class TurretConstants {
 
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
     public static final Distance LENGTH = Meter.of(0.18);
+
+    public static final int TURRET_MOTOR_ID = 0;
+    public static final String TURRET_CAN_BUS = "canivore";
+    public static final boolean TURRET_MOTOR_INVERTED = false;
+    public static final int TURRET_STATOR_LIMIT = 0;
+    public static final boolean TURRET_BRAKE = false;
+
+    public static final int TURRET_ENCODER_ID = 0;
 }
