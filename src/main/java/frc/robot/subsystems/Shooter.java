@@ -20,8 +20,8 @@ public class Shooter extends SubsystemBase {
 
     public final DutyCycleOut dutyCycle;
     /**Creates new motors */
-    ThunderBird topMotor;
-    ThunderBird bottomMotor;
+    private ThunderBird topMotor;
+    private ThunderBird bottomMotor;
 
 
     private VelocityVoltage velocityPid;
