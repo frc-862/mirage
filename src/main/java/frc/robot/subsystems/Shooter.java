@@ -30,7 +30,10 @@ public class Shooter extends SubsystemBase {
     private Velocity bottomShooterTarget;
 
 
-    /** Creates a new Shooter. */
+    private ThunderBird topMotor;
+    private ThunderBird bottomMotor;
+
+    /** Creates a new Shooter Subsystem. */
     public Shooter() {
         //Sets new motors
         topMotor = new ThunderBird(RobotMap.SHOOTER_TOP_MOTOR_ID, RobotMap.CAN_BUS,
@@ -57,12 +60,10 @@ public class Shooter extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
-        // This method will be called once per scheduler run
-    }
+    public void periodic() {}
 
     /**
-     * Set top motor power
+     * Sets top motor power of the shooter
      * @param power
     */
     public void setTopPower(double power) {
@@ -70,7 +71,7 @@ public class Shooter extends SubsystemBase {
     }
 
     /**
-     * Set top motor power
+     * Sets bottom motor power of the shooter
      * @param power
      */
     public void setBottomPower(double power) {
@@ -78,14 +79,14 @@ public class Shooter extends SubsystemBase {
     }
 
     /**
-     * Stoping the top Motor
+     * Stops all movement of the top shooter motor
      */
     public void stopTopMotor() {
         topMotor.stopMotor();
     }
 
     /**
-     * Stoping the bottom motor
+     * Stops all movement of the bottom shooter motor
      */
     public void stopBottomMotor() {
         bottomMotor.stopMotor();
