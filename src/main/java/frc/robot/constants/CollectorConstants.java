@@ -30,5 +30,5 @@ public class CollectorConstants {
     public static final double ENCODER_TO_MECHANISM_RATIO = 1d; // Temp
     public static final Angle MIN_ANGLE = Degrees.of(-85); // Temp
     public static final Angle MAX_ANGLE = Degrees.of(85); // Temp
-    public static final double TOLERANCE = 5d; // Temp
+    public static final Angle TOLERANCE = Degrees.of(5); // Temp
 }
