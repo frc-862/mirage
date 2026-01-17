@@ -4,13 +4,12 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.Slot0Configs;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ShooterConstants;
 import frc.robot.constants.RobotMap;
@@ -23,11 +22,10 @@ public class Shooter extends SubsystemBase {
     private ThunderBird topMotor;
     private ThunderBird bottomMotor;
 
-
     private VelocityVoltage velocityPid;
 
-    private Velocity topShooterTarget;
-    private Velocity bottomShooterTarget;
+    // private Velocity topShooterTarget;
+    // private Velocity bottomShooterTarget;
 
 
     /** Creates a new Shooter. */
