@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 
@@ -16,7 +17,7 @@ public class Indexer extends SubsystemBase {
     /** Creates a new Indexer. */
     public Indexer() {
         indexerMotor = new ThunderBird(RobotMap.INDEXER_MOTOR_ID, RobotMap.CAN_BUS,
-            RobotMap.INDEXER_MOTOR_INVERTED, RobotMap.INDEXER_MOTOR_STATOR_LIMIT, RobotMap.INDEXER_MOTOR_BRAKE_MODE);
+            IndexerConstants.INDEXER_MOTOR_INVERTED, IndexerConstants.INDEXER_MOTOR_STATOR_LIMIT, IndexerConstants.INDEXER_MOTOR_BRAKE_MODE);
     }
 
 
