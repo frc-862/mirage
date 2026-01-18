@@ -35,6 +35,12 @@ public class ShooterTest {
 
   /**
    * Bundles motor + control hooks + sim objects.
+   *
+   * @param motor The ThunderBird motor controller
+   * @param setPower Function to set motor power
+   * @param stop Function to stop the motor
+   * @param simState TalonFX simulation state
+   * @param sim DC motor physics simulation
    */
   private record MotorUnderTest(
       frc.util.hardware.ThunderBird motor,
@@ -108,7 +114,9 @@ public class ShooterTest {
   void tearDown() throws Exception {
     // Close motors (MotorUnderTest holds ThunderBird)
     for (var m : motors.values()) {
-      if (m.motor() != null) m.motor().close();
+      if (m.motor() != null) {
+        m.motor().close();
+      }
     }
     motors.clear();
 
@@ -134,7 +142,11 @@ public class ShooterTest {
   private void stepSim() {
     // If you truly need CTRE async breathing room, keep it *small* and isolated.
     // Otherwise, remove this sleep and see if your tests remain stable.
-    try { Thread.sleep(5); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+    try {
+      Thread.sleep(5);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
 
     for (var m : motors.values()) {
       m.updateSim(DT, BATTERY_VOLTAGE);
@@ -144,7 +156,9 @@ public class ShooterTest {
 
   private void runForSeconds(double seconds) {
     int cycles = (int) Math.ceil(seconds / DT);
-    for (int i = 0; i < cycles; i++) stepSim();
+    for (int i = 0; i < cycles; i++) {
+      stepSim();
+    }
   }
 
   private void resetAllMotors() {
@@ -162,7 +176,9 @@ public class ShooterTest {
       stepSim();
       sig.refresh();
       last = sig.getValueAsDouble();
-      if (Math.abs(last - expected) <= tol) return;
+      if (Math.abs(last - expected) <= tol) {
+        return;
+      }
     }
     fail("Duty cycle never reached " + expected + " ± " + tol + " (last=" + last + ")");
   }
