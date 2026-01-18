@@ -17,14 +17,16 @@ import frc.util.hardware.ThunderBird;
 
 public class Shooter extends SubsystemBase {
 
-    private final DutyCycleOut dutyCycle;
-    /**Creates new motor */
+    //creates a shooter motor//
     private ThunderBird shooterMotor;
 
+    //creates a Duty cycle out variable//
+    private final DutyCycleOut dutyCycle;
+
+    //creates a velocity PID variable//
     private VelocityVoltage velocityPID;
 
-    // private Velocity topShooterTarget;
-    // private Velocity bottomShooterTarget;
+    private AngularVelocity targetVelocity;
 
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
@@ -32,15 +34,17 @@ public class Shooter extends SubsystemBase {
         shooterMotor = new ThunderBird(RobotMap.SHOOTER_TOP_MOTOR_ID, RobotMap.CAN_BUS,
             ShooterConstants.SHOOTER_MOTOR_INVERTED, ShooterConstants.SHOOTER_MOTOR_STATOR_LIMIT, ShooterConstants.SHOOTER_MOTOR_BRAKE);
 
+        //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
 
-        TalonFXConfiguration topMotorConfig = shooterMotor.getConfig();
-        topMotorConfig.Slot0.kP = ShooterConstants.kP;
-        topMotorConfig.Slot0.kI = ShooterConstants.kI;
-        topMotorConfig.Slot0.kD = ShooterConstants.kD;
-        topMotorConfig.Slot0.kV = ShooterConstants.kV;
-        topMotorConfig.Slot0.kS = ShooterConstants.kS;
+        //creates a config for the shooter motor
+        TalonFXConfiguration shooterMotorConfig = shooterMotor.getConfig();
+        shooterMotorConfig.Slot0.kP = ShooterConstants.kP;
+        shooterMotorConfig.Slot0.kI = ShooterConstants.kI;
+        shooterMotorConfig.Slot0.kD = ShooterConstants.kD;
+        shooterMotorConfig.Slot0.kV = ShooterConstants.kV;
+        shooterMotorConfig.Slot0.kS = ShooterConstants.kS;
     }
 
     @Override
@@ -66,6 +70,19 @@ public class Shooter extends SubsystemBase {
      * @param velocity
      */
     public void setVelocity(AngularVelocity velocity){
+        targetVelocity = velocity;
         shooterMotor.setControl(velocityPID.withVelocity(velocity));
     }
+
+    //gets the velocity of the shooter motor as an Angular Velocity
+    public AngularVelocity getVelocity(){
+        return shooterMotor.getVelocity().getValue();
+    }
+
+    /**uses the target velocity set earlier and checks to make sure that the velocity
+    is near where we want it to be with the Tolerance given*/
+    public boolean velocityOnTarget(){
+        return getVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
+    }
+
 }
