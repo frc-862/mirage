@@ -11,9 +11,10 @@ public class Units {
    * @param min The lower bound (inclusive).
    * @param max The upper bound (inclusive).
    * @param <U> The unit type.
+   * @param <M> The measure type.
    * @return A {@code Measure<U>} between {@code min} and {@code max}.
    */
-    public static <U extends Unit> Measure<U> clamp(Measure<U> value, Measure<U> min, Measure<U> max) {
+    public static <U extends Unit, M extends Measure<U>> M clamp(M value, M min, M max) {
         if (value.lt(min)) {
             return min;
         } else if (value.gt(max)) {
