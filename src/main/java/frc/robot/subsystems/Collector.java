@@ -20,6 +20,7 @@ import frc.robot.Robot;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
+import static frc.util.Units.clamp;
 
 public class Collector extends SubsystemBase {
     private ThunderBird collectMotor;
@@ -84,7 +85,7 @@ public class Collector extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        targetPivotPosition = Degrees.of(MathUtil.clamp(position.in(Degrees), CollectorConstants.MIN_ANGLE.in(Degrees), CollectorConstants.MAX_ANGLE.in(Degrees)));
+        targetPivotPosition = clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
         pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
     }
 
