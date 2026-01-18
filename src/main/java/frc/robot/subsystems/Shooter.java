@@ -75,12 +75,17 @@ public class Shooter extends SubsystemBase {
     }
 
     //gets the velocity of the shooter motor as an Angular Velocity
+    /**
+     * @return shooterMotor.getVelocity().getValue();
+     */
     public AngularVelocity getVelocity(){
         return shooterMotor.getVelocity().getValue();
     }
 
-    /**uses the target velocity set earlier and checks to make sure that the velocity
-    is near where we want it to be with the Tolerance given*/
+    /**
+     * @return getVelocity().isNear
+     */
+    //checks in current velocity is near target velocity
     public boolean velocityOnTarget(){
         return getVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
     }
