@@ -11,8 +11,8 @@ public class RobotMap {
     public static final CANBus CAN_BUS = new CANBus("Canivore"); // Temp
 
     // indexer motor
-    public static final int INDEXER_MOTOR_ID = 1; // Temp
-    
+    public static final int INDEXER_MOTOR_ID = 11; // Temp
+
     // Collector / Pivot
     public static final int COLLECTOR_MOTOR_ID = 2; // Temp
     public static final int PIVOT_MOTOR_ID = 5; // Temp
