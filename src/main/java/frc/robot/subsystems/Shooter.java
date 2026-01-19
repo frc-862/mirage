@@ -20,10 +20,7 @@ public class Shooter extends SubsystemBase {
     //creates a shooter motor//
     private ThunderBird shooterMotor;
 
-    //creates a Duty cycle out variable//
     private final DutyCycleOut dutyCycle;
-
-    //creates a velocity PID variable//
     private VelocityVoltage velocityPID;
 
     private AngularVelocity targetVelocity;
@@ -45,6 +42,7 @@ public class Shooter extends SubsystemBase {
         shooterMotorConfig.Slot0.kD = ShooterConstants.kD;
         shooterMotorConfig.Slot0.kV = ShooterConstants.kV;
         shooterMotorConfig.Slot0.kS = ShooterConstants.kS;
+        shooterMotor.applyConfig(shooterMotorConfig);
     }
 
     @Override
@@ -74,18 +72,16 @@ public class Shooter extends SubsystemBase {
         shooterMotor.setControl(velocityPID.withVelocity(velocity));
     }
 
-    //gets the velocity of the shooter motor as an Angular Velocity
     /**
-     * @return shooterMotor.getVelocity().getValue();
+     * @return the velocity of the shooter motor
      */
     public AngularVelocity getVelocity(){
         return shooterMotor.getVelocity().getValue();
     }
 
     /**
-     * @return getVelocity().isNear
+     * @return whether or not the current velocity is near the target velocity
      */
-    //checks in current velocity is near target velocity
     public boolean velocityOnTarget(){
         return getVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
     }

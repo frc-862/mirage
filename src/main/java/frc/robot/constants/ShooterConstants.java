@@ -20,5 +20,4 @@ public class ShooterConstants {
     public static final double kV = 0d;
     public static final double kS = 0d;
     public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
-    // public static final Current THRESHHOLD = Amps.of(20);
 }
