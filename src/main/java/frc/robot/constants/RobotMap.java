@@ -10,9 +10,7 @@ public class RobotMap {
 
     public static final double UPDATE_FREQ = 0.02;
 
-    // Thunderbird takes a string for the CAN bus name, while the CANcoder takes in a CANBus object
-    public static final String CAN_BUS_NAME = "CANivore";
-    public static final CANBus CAN_BUS = new CANBus(CAN_BUS_NAME);
+    public static final CANBus CAN_BUS = new CANBus("CANivore");
 
     public static final int TURRET_MOTOR_ID = 0; // Temp
     public static final int TURRET_ENCODER_ID = 0; // Temp

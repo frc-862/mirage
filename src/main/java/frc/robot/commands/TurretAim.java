@@ -24,7 +24,11 @@ public class TurretAim extends Command {
     private Turret turret;
     private Distance distanceToTargetMeters;
 
-    /** Creates a new TurretAim. */
+    /**
+     * @param drivetrain drivetrain from the Swerve class to get robot pose
+     * @param turret a turret from the Turret subsytem
+     * @param target a Translation2d representing where the turret should aim at
+     */
     public TurretAim(Swerve drivetrain, Turret turret, Translation2d target) {
         this.drivetrain = drivetrain;
         this.target = target;
