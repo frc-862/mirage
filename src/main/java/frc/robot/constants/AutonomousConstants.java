@@ -21,8 +21,8 @@ public class AutonomousConstants {
     private static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(3.3927854218);
 
     private static final ModuleConfig MODULE_CONFIG = new ModuleConfig(
-        OasisTunerConstants.kWheelRadius, OasisTunerConstants.kSpeedAt12Volts,
-        DriveConstants.COF, DCMotor.getKrakenX60Foc(1).withReduction(OasisTunerConstants.kDriveGearRatio),
+        DriveConstants.kWheelRadius, DriveConstants.kSpeedAt12Volts,
+        DriveConstants.COF, DCMotor.getKrakenX60Foc(1).withReduction(DriveConstants.kDriveGearRatio),
         Amps.of(120), 1);
 
     public static final RobotConfig getConfig(Translation2d... moduleLocations) {
