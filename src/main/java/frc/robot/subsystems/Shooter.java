@@ -28,7 +28,7 @@ public class Shooter extends SubsystemBase {
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
         //Sets new motors
-        shooterMotor = new ThunderBird(RobotMap.SHOOTER_TOP_MOTOR_ID, RobotMap.CAN_BUS,
+        shooterMotor = new ThunderBird(RobotMap.SHOOTER_MOTOR_ID, RobotMap.CAN_BUS,
             ShooterConstants.SHOOTER_MOTOR_INVERTED, ShooterConstants.SHOOTER_MOTOR_STATOR_LIMIT, ShooterConstants.SHOOTER_MOTOR_BRAKE);
 
         //instatiates duty cycle and velocity pid
@@ -49,7 +49,7 @@ public class Shooter extends SubsystemBase {
     public void periodic() {}
 
     /**
-     * Sets bottom motor power of the shooter
+     * Sets motor power of the shooter
      * @param power
      */
     public void setPower(double power) {
@@ -57,14 +57,14 @@ public class Shooter extends SubsystemBase {
     }
 
     /**
-     * Stops all movement of the top shooter motor
+     * Stops all movement of the shooter motor
      */
     public void stopMotor() {
         shooterMotor.stopMotor();
     }
 
     /**
-     * set top motor velocity
+     * set motor velocity
      * @param velocity
      */
     public void setVelocity(AngularVelocity velocity){
