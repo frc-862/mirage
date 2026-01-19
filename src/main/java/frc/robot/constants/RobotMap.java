@@ -8,9 +8,7 @@ public class RobotMap {
     public static final String OASIS_IDENTIFIER = "/home/lvuser/Oasis"; // Differentiate between Oasis and Mirage
     public static final boolean IS_OASIS = Paths.get(OASIS_IDENTIFIER).toFile().exists();
 
-    public static final double UPDATE_FREQ = 0.02;
-
-    public static final CANBus CAN_BUS = new CANBus("CANivore");
+    public static final CANBus CAN_BUS = new CANBus("Canivore");
 
     public static final int TURRET_MOTOR_ID = 0; // Temp
     public static final int TURRET_ENCODER_ID = 0; // Temp
