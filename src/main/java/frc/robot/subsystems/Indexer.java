@@ -65,6 +65,11 @@ public class Indexer extends SubsystemBase {
         indexerMotor.setControl(dutyCycle.withOutput(power));
     }
 
+    /**
+     * Gets the current velocity of the indexer motor.
+     *
+     * @return the indexer motor velocity as an {@link AngularVelocity}
+     */
     public AngularVelocity getVelocity() {
         return indexerMotor.getVelocity().getValue();
     }
