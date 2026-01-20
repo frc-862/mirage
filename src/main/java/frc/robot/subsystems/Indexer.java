@@ -37,7 +37,7 @@ public class Indexer extends SubsystemBase {
 
         dutyCycle = new DutyCycleOut(0);
 
-        if (Robot.isSimulation()){
+        if (Robot.isSimulation()) {
             indexerSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(IndexerConstants.SIM_kV,
                 IndexerConstants.SIM_kA));
             motorSim = indexerMotor.getSimState();
