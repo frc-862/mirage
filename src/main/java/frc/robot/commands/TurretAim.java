@@ -51,12 +51,16 @@ public class TurretAim extends Command {
         // Get the translation assuming the robot at (0, 0)
         Translation2d delta = target.minus(robotPose.getTranslation());
 
-        // Get the distance from the robot to the target shot via the norm of the
-        // translation
+        /*
+        Get the distance from the robot to the target shot via the norm of the
+        translation
+        */
         distanceToTargetMeters = Meters.of(delta.getNorm());
 
-        // Well add values if we have to based on however the angles acually get
-        // calculated
+        /*
+        Well add values if we have to based on however the angles acually get
+        calculated
+        */
         Angle fieldAngle = delta.getAngle().getMeasure();
         Angle turretAngle = fieldAngle.minus(Degree.of(robotPose.getRotation().getDegrees()));
 
