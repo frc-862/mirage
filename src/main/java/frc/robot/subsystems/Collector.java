@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Rotation;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -13,23 +12,23 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
+import static frc.util.Units.clamp;
 
 public class Collector extends SubsystemBase {
     private ThunderBird collectMotor;
     private ThunderBird pivotMotor;
     private CANcoder encoder;
 
-    private final DutyCycleOut collectorDuty = new DutyCycleOut(0);
+    private final DutyCycleOut collectorDuty;
 
     private Angle targetPivotPosition = Degrees.of(0);
-    private final PositionVoltage positionPID = new PositionVoltage(0);
+    private final PositionVoltage positionPID;
 
     public Collector() {
         collectMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
@@ -44,6 +43,10 @@ public class Collector extends SubsystemBase {
         angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? CollectorConstants.PIVOT_OFFSET : 0d;
         angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         encoder.getConfigurator().apply(angleConfig);
+
+
+        collectorDuty = new DutyCycleOut(0.0);
+        positionPID = new PositionVoltage(0);
 
         TalonFXConfiguration config = pivotMotor.getConfig();
         config.Slot0.kP = CollectorConstants.PIVOT_KP;
@@ -84,7 +87,7 @@ public class Collector extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        targetPivotPosition = Degrees.of(MathUtil.clamp(position.in(Degrees), CollectorConstants.MIN_ANGLE.in(Degrees), CollectorConstants.MAX_ANGLE.in(Degrees)));
+        targetPivotPosition = clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
         pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
     }
 

@@ -19,10 +19,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.PoseBasedAutoAlign;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
-import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
@@ -55,6 +53,7 @@ public class RobotContainer {
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
+
         configureDefaultCommands();
         configureBindings();
         configureNamedCommands();
