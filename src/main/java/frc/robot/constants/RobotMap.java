@@ -20,5 +20,8 @@ public class RobotMap {
     public static final int COLLECTOR_MOTOR_ID = 2; // Temp
     public static final int PIVOT_MOTOR_ID = 5; // Temp
     public static final int PIVOT_ENCODER_ID = 35; // Temp
+
+    //Shooter
+    public static final int SHOOTER_MOTOR_ID = 4; //temp
 }
 
