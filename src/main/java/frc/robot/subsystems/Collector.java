@@ -12,22 +12,23 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
+import static frc.util.Units.clamp;
 
 public class Collector extends SubsystemBase {
     private ThunderBird collectMotor;
     private ThunderBird pivotMotor;
     private CANcoder encoder;
 
-    private final DutyCycleOut collectorDuty = new DutyCycleOut(0);
+    private final DutyCycleOut collectorDuty;
 
-    private double targetPivotPosition = 0;
-    private final PositionVoltage positionPID = new PositionVoltage(0);
+    private Angle targetPivotPosition = Degrees.of(0);
+    private final PositionVoltage positionPID;
 
     public Collector() {
         collectMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
@@ -42,6 +43,10 @@ public class Collector extends SubsystemBase {
         angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? CollectorConstants.PIVOT_OFFSET : 0d;
         angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         encoder.getConfigurator().apply(angleConfig);
+
+
+        collectorDuty = new DutyCycleOut(0.0);
+        positionPID = new PositionVoltage(0);
 
         TalonFXConfiguration config = pivotMotor.getConfig();
         config.Slot0.kP = CollectorConstants.PIVOT_KP;
@@ -81,9 +86,9 @@ public class Collector extends SubsystemBase {
      *
      * @param position in degrees
      */
-    public void setPosition(double position) {
-        targetPivotPosition = MathUtil.clamp(position, CollectorConstants.MIN_ANGLE.in(Degrees), CollectorConstants.MAX_ANGLE.in(Degrees));
-        pivotMotor.setControl(positionPID.withPosition(Units.degreesToRotations(position)));
+    public void setPosition(Angle position) {
+        targetPivotPosition = clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
+        pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
     }
 
     /**
@@ -91,7 +96,7 @@ public class Collector extends SubsystemBase {
      *
      * @return Target angle of the pivot
      */
-    public double getTargetAngle() {
+    public Angle getTargetAngle() {
         return targetPivotPosition;
     }
 
@@ -100,8 +105,8 @@ public class Collector extends SubsystemBase {
      *
      * @return Current angle of the pivot
      */
-    public double getAngle() {
-        return encoder.getAbsolutePosition().getValue().in(Degrees);
+    public Angle getAngle() {
+        return encoder.getAbsolutePosition().getValue();
     }
 
     /**
@@ -110,6 +115,6 @@ public class Collector extends SubsystemBase {
      * @return True if the wrist is on target
      */
     public boolean isOnTarget() {
-        return Math.abs(targetPivotPosition - getAngle()) < CollectorConstants.TOLERANCE;
+        return targetPivotPosition.isNear(getAngle(), CollectorConstants.TOLERANCE);
     }
 }

@@ -18,13 +18,16 @@ public class RobotMap {
 
     // indexer motor
     public static final int INDEXER_MOTOR_ID = 1; // Temp
-    public static final boolean INDEXER_MOTOR_INVERTED = false; // Temp
-    public static final double INDEXER_MOTOR_STATOR_LIMIT = 120d; // Temp
-    public static final boolean INDEXER_MOTOR_BRAKE_MODE = true; // Temp
+
+    // Hood Motor ID
+    public static final int HOOD_MOTOR_ID = 3; // Temp
 
     // Collector / Pivot
     public static final int COLLECTOR_MOTOR_ID = 2; // Temp
     public static final int PIVOT_MOTOR_ID = 5; // Temp
     public static final int PIVOT_ENCODER_ID = 35; // Temp
+
+    //Shooter
+    public static final int SHOOTER_MOTOR_ID = 4; //temp
 }
 

@@ -4,8 +4,12 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.controls.DutyCycleOut;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ShooterConstants;
 import frc.robot.constants.RobotMap;
@@ -13,52 +17,73 @@ import frc.util.hardware.ThunderBird;
 
 public class Shooter extends SubsystemBase {
 
-    public final DutyCycleOut dutyCycle = new DutyCycleOut(0.0);
-    /**Creates new motors */
-    ThunderBird topMotor;
-    ThunderBird bottomMotor;
+    //creates a shooter motor//
+    private ThunderBird shooterMotor;
 
-    /** Creates a new Shooter. */
+    private final DutyCycleOut dutyCycle;
+    private VelocityVoltage velocityPID;
+
+    private AngularVelocity targetVelocity;
+
+    /** Creates a new Shooter Subsystem. */
     public Shooter() {
         //Sets new motors
-        topMotor = new ThunderBird(ShooterConstants.SHOOTER_TOP_MOTOR_ID, RobotMap.CAN_BUS,
-            ShooterConstants.SHOOTER_TOP_MOTOR_INVERTED, ShooterConstants.SHOOTER_TOP_MOTOR_STATOR_LIMIT, ShooterConstants.SHOOTER_TOP_MOTOR_BRAKE);
-        bottomMotor = new ThunderBird(ShooterConstants.SHOOTER_BOTTOM_MOTOR_ID, RobotMap.CAN_BUS,
-            ShooterConstants.SHOOTER_BOTTOM_MOTOR_INVERTED, ShooterConstants.SHOOTER_BOTTOM_MOTOR_STATOR_LIMIT, ShooterConstants.SHOOTER_BOTTOM_MOTOR_BRAKE);
+        shooterMotor = new ThunderBird(RobotMap.SHOOTER_MOTOR_ID, RobotMap.CAN_BUS,
+            ShooterConstants.SHOOTER_MOTOR_INVERTED, ShooterConstants.SHOOTER_MOTOR_STATOR_LIMIT, ShooterConstants.SHOOTER_MOTOR_BRAKE);
+
+        //instatiates duty cycle and velocity pid
+        dutyCycle = new DutyCycleOut(0.0);
+        velocityPID = new VelocityVoltage(0d);
+
+        //creates a config for the shooter motor
+        TalonFXConfiguration shooterMotorConfig = shooterMotor.getConfig();
+        shooterMotorConfig.Slot0.kP = ShooterConstants.kP;
+        shooterMotorConfig.Slot0.kI = ShooterConstants.kI;
+        shooterMotorConfig.Slot0.kD = ShooterConstants.kD;
+        shooterMotorConfig.Slot0.kV = ShooterConstants.kV;
+        shooterMotorConfig.Slot0.kS = ShooterConstants.kS;
+        shooterMotor.applyConfig(shooterMotorConfig);
     }
 
     @Override
-    public void periodic() {
-        // This method will be called once per scheduler run
-    }
+    public void periodic() {}
 
     /**
-     * Set top motor power
-     * @param power
-    */
-    public void setTopPower(double power) {
-        topMotor.setControl(dutyCycle.withOutput(power));
-    }
-
-    /**
-     * Set top motor power
+     * Sets motor power of the shooter
      * @param power
      */
-    public void setBottomPower(double power) {
-        bottomMotor.setControl(dutyCycle.withOutput(power));
+    public void setPower(double power) {
+        shooterMotor.setControl(dutyCycle.withOutput(power));
     }
 
     /**
-     * Stoping the top Motor
+     * Stops all movement of the shooter motor
      */
-    public void stopTopMotor() {
-        topMotor.stopMotor();
+    public void stopMotor() {
+        shooterMotor.stopMotor();
     }
 
     /**
-     * Stoping the bottom motor
+     * set motor velocity
+     * @param velocity
      */
-    public void stopBottomMotor() {
-        bottomMotor.stopMotor();
+    public void setVelocity(AngularVelocity velocity){
+        targetVelocity = velocity;
+        shooterMotor.setControl(velocityPID.withVelocity(velocity));
     }
+
+    /**
+     * @return the velocity of the shooter motor
+     */
+    public AngularVelocity getVelocity(){
+        return shooterMotor.getVelocity().getValue();
+    }
+
+    /**
+     * @return whether or not the current velocity is near the target velocity
+     */
+    public boolean velocityOnTarget(){
+        return getVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
+    }
+
 }
