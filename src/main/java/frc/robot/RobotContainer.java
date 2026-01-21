@@ -14,6 +14,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -69,7 +73,11 @@ public class RobotContainer {
     private void configureDefaultCommands() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(drivetrain.driveCommand(() -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+        drivetrain.setDefaultCommand(drivetrain.driveCommand(
+            () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
+                VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
+                .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
+                ControllerConstants.POW), () -> -driver.getRightX()));
     }
 
     private void configureBindings() {
@@ -85,6 +93,12 @@ public class RobotContainer {
             .onTrue(drivetrain.resetFieldCentricCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        new Trigger(driver::getLeftBumperButton).whileTrue(drivetrain.robotCentricDrive(
+            () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
+                VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
+                .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
+                ControllerConstants.POW), () -> -driver.getRightX()));
     }
 
 
