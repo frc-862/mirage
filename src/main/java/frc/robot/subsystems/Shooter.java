@@ -27,9 +27,17 @@ public class Shooter extends SubsystemBase {
 
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
-        //Sets new motors
-        shooterMotor = new ThunderBird(RobotMap.SHOOTER_MOTOR_ID, RobotMap.CAN_BUS,
-            ShooterConstants.SHOOTER_MOTOR_INVERTED, ShooterConstants.SHOOTER_MOTOR_STATOR_LIMIT, ShooterConstants.SHOOTER_MOTOR_BRAKE);
+        this(new ThunderBird(RobotMap.SHOOTER_MOTOR_ID, RobotMap.CAN_BUS,
+            ShooterConstants.SHOOTER_MOTOR_INVERTED, ShooterConstants.SHOOTER_MOTOR_STATOR_LIMIT, ShooterConstants.SHOOTER_MOTOR_BRAKE));
+    }
+
+    /**
+     * Creates a new Shooter Subsystem with a provided motor.
+     * @param motor the ThunderBird motor to use for the shooter
+     */
+    public Shooter(ThunderBird motor) {
+        //Sets the shooter motor
+        shooterMotor = motor;
 
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
