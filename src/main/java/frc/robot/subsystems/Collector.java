@@ -10,9 +10,14 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.sim.TalonFXSSimState;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.CollectorConstants;
@@ -24,6 +29,8 @@ public class Collector extends SubsystemBase {
     private ThunderBird collectMotor;
     private ThunderBird pivotMotor;
     private CANcoder encoder;
+
+    private TalonFXSimState pivotSim;
 
     private final DutyCycleOut collectorDuty;
 
@@ -64,6 +71,14 @@ public class Collector extends SubsystemBase {
         config.Feedback.RotorToSensorRatio = CollectorConstants.ROTOR_TO_ENCODER_RATIO;
 
         pivotMotor.applyConfig(config);
+
+        if(Robot.isSimulation()){
+            pivotSim = pivotMotor.getSimState();
+        }
+    }
+
+    public void simulationPeriodic(){
+        pivotSim.setSupplyVoltage(RobotController.getBatteryVoltage());
     }
 
     /**
@@ -73,6 +88,7 @@ public class Collector extends SubsystemBase {
     public void setPower(double power) {
         collectMotor.setControl(collectorDuty.withOutput(power));
     }
+
 
     /**
      * Stops all movement to the collector motor
