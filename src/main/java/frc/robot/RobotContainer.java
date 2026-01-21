@@ -5,18 +5,27 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Degrees;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Collector;
+import frc.util.hardware.ThunderBird;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
@@ -33,10 +42,11 @@ public class RobotContainer {
 
     private final Swerve drivetrain;
     private Indexer indexer;
-    // private final Collector collector;
+    private final Collector collector;
     private final LEDSubsystem leds;
 
     private final Telemetry logger;
+
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -45,7 +55,7 @@ public class RobotContainer {
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
         drivetrain = OasisTunerConstants.createDrivetrain();
-        // collector = new Collector();
+        collector = new Collector();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
@@ -63,6 +73,8 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        new Trigger(driver::getAButton).whileTrue(new InstantCommand(() -> collector.setPosition(Degrees.of(45))));
+        
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()
                 .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
@@ -74,6 +86,9 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
+
+
+
 
     private void configureNamedCommands(){
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -99,4 +114,5 @@ public class RobotContainer {
 
         new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
     }
+
 }

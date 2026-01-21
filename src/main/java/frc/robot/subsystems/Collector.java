@@ -10,19 +10,17 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.ctre.phoenix6.sim.TalonFXSSimState;
-import com.ctre.phoenix6.sim.TalonFXSimState;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.numbers.N1;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
+import frc.util.shuffleboard.LightningShuffleboard;
+
 import static frc.util.Units.clamp;
 
 public class Collector extends SubsystemBase {
@@ -79,6 +77,8 @@ public class Collector extends SubsystemBase {
 
     public void simulationPeriodic(){
         pivotSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+        LightningShuffleboard.getDouble("Collector", "Collector Pivot", getPosition());
     }
 
     /**
@@ -123,6 +123,10 @@ public class Collector extends SubsystemBase {
      */
     public Angle getAngle() {
         return encoder.getAbsolutePosition().getValue();
+    }
+
+    public double getPosition(){
+        return pivotMotor.getPosition().getValueAsDouble();
     }
 
     /**
