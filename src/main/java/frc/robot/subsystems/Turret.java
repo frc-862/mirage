@@ -64,6 +64,9 @@ public class Turret extends SubsystemBase {
         // This method will be called once per scheduler run
     }
 
+    /**
+     * @param angle sets the angle to the motor of the turret
+     */
     public void setAngle(Angle angle) {
         targetPosition = angle;
         motor.setControl(positionPID.withPosition(targetPosition));
