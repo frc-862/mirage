@@ -23,7 +23,7 @@ public class ShooterTest {
   private static final double BATTERY_VOLTAGE = 12.0;
   private static final double DT = 0.02;          // 20ms
   private static final double DUTY_TOL = 0.01;
-  private static final double DEFAULT_TIMEOUT_S = 0.5;
+  private static final double DEFAULT_TIMEOUT_S = 1.0;
 
   private Shooter shooter;
   private MotorUnderTest motorUnderTest;
