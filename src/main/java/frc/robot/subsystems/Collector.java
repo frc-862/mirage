@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -10,19 +12,32 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.sim.TalonFXSimState;
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.CollectorConstants;
+import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
+import frc.util.shuffleboard.LightningShuffleboard;
+
 import static frc.util.Units.clamp;
 
 public class Collector extends SubsystemBase {
-    private ThunderBird collectMotor;
-    private ThunderBird pivotMotor;
-    private CANcoder encoder;
+    private final ThunderBird collectorMotor;
+    private final ThunderBird pivotMotor;
+    private final CANcoder encoder;
+
+    private LinearSystemSim<N1, N1, N1> collectorSim;
+    private TalonFXSimState motorSim;
 
     private final DutyCycleOut collectorDuty;
 
@@ -30,7 +45,7 @@ public class Collector extends SubsystemBase {
     private final PositionVoltage positionPID;
 
     public Collector() {
-        collectMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
+        collectorMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
             CollectorConstants.COLLECTOR_MOTOR_INVERTED, CollectorConstants.COLLECTOR_MOTOR_STATOR_LIMIT, CollectorConstants.COLLECTOR_MOTOR_BRAKE_MODE);
 
         pivotMotor = new ThunderBird(RobotMap.PIVOT_MOTOR_ID, RobotMap.CAN_BUS,
@@ -63,6 +78,25 @@ public class Collector extends SubsystemBase {
         config.Feedback.RotorToSensorRatio = CollectorConstants.ROTOR_TO_ENCODER_RATIO;
 
         pivotMotor.applyConfig(config);
+
+        if (Robot.isSimulation()) {
+            collectorSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
+                CollectorConstants.COLLECTOR_SIM_kA));
+            motorSim = collectorMotor.getSimState();
+            motorSim.setMotorType(MotorType.KrakenX60);
+        }
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        motorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+        collectorSim.setInput(motorSim.getMotorVoltageMeasure().in(Volts));
+        collectorSim.update(Robot.kDefaultPeriod);
+
+        motorSim.setRotorVelocity(collectorSim.getOutput(0));
+
+        LightningShuffleboard.setDouble("Collector", "Velocity", getVelocity().in(RotationsPerSecond));
     }
 
     /**
@@ -70,14 +104,23 @@ public class Collector extends SubsystemBase {
      * @param power
      */
     public void setPower(double power) {
-        collectMotor.setControl(collectorDuty.withOutput(power));
+        collectorMotor.setControl(collectorDuty.withOutput(power));
     }
 
     /**
      * Stops all movement to the collector motor
      */
     public void stop() {
-        collectMotor.stopMotor();
+        collectorMotor.stopMotor();
+    }
+
+    /**
+     * Gets the current velocity of the collector motor.
+     *
+     * @return the collector motor velocity as an {@link AngularVelocity}
+     */
+    public AngularVelocity getVelocity() {
+        return collectorMotor.getVelocity().getValue();
     }
 
     /**
