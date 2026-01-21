@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.CollectorConstants;
-import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -101,7 +100,7 @@ public class Collector extends SubsystemBase {
 
     /**
      * Set the power of the motor using a duty cycle
-     * @param power
+     * @param power duty cycle value from -1.0 to 1.0
      */
     public void setPower(double power) {
         collectorMotor.setControl(collectorDuty.withOutput(power));
