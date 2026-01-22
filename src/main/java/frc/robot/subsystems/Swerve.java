@@ -9,6 +9,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -16,10 +17,12 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
@@ -33,7 +36,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.AutonomousConstants;
 import frc.robot.constants.DriveConstants;
-import frc.robot.constants.DriveConstants.TunerSwerveDrivetrain;
+import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -194,11 +197,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Matrix<N3, N1> visionStandardDeviation,
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
-        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation, 
+        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation,
             SwerveSim.regulateModuleConstantsForSimulation(modules));
 
         configurePathplanner();
-        
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -323,18 +326,43 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
-    public Command driveCommand(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput) {
-        return applyRequest(
-            () -> new SwerveRequest.FieldCentric()
-                .withVelocityX(xInput.getAsDouble() * DriveConstants.MaxSpeed)
-                .withVelocityY(yInput.getAsDouble() * DriveConstants.MaxSpeed)
-                .withRotationalRate(rInput.getAsDouble() * DriveConstants.MaxAngularRate)
-                .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        );
+    /**
+     * Use for autonomous driving ex. auto align, auton
+     * Use whenever you want a specific velocity with closed loop control
+     * Always uses blue alliace perspective
+     * @param xInput input for the x velocity
+     * @param yInput input for the x velocity
+     * @param rInput input for the x velocity
+     * @return command to run
+     */
+    public Command autoDrive(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput) {
+        return run(() -> setControl(DriveConstants.fieldCentricRequest
+            .withVelocityX(DriveConstants.MaxSpeed.times(xInput.getAsDouble()))
+            .withVelocityY(DriveConstants.MaxSpeed.times(yInput.getAsDouble()))
+            .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
+            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
+            .withDriveRequestType(DriveRequestType.Velocity)));
+    }
+
+    public Command driveCommand(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput) {
+        return run(() -> setControl(DriveConstants.fieldCentricRequest
+            .withVelocityX(DriveConstants.MaxSpeed.times(xyInput.get().get(0)))
+            .withVelocityY(DriveConstants.MaxSpeed.times(xyInput.get().get(1)))
+            .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
+            .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
+    }
+
+    public Command robotCentricDrive(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput){
+        return run(() -> setControl(DriveConstants.robotCentricRequest
+            .withVelocityX(DriveConstants.MaxSpeed.times(xyInput.get().get(0)))
+            .withVelocityY(DriveConstants.MaxSpeed.times(xyInput.get().get(1)))
+            .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
     }
 
     public Command brakeCommand() {
-        return applyRequest(() -> new SwerveRequest.SwerveDriveBrake());
+        return applyRequest(() -> DriveConstants.brakeRequest);
     }
 
     public Command resetFieldCentricCommand() {

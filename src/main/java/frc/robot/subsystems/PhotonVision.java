@@ -41,7 +41,7 @@ public class PhotonVision extends SubsystemBase {
 
 
     /** Creates a new PhotonVision.
-     * 
+     *
      * @param drivetrain The main drivetrain on the robot
      */
     public PhotonVision(Swerve drivetrain) {
@@ -54,12 +54,12 @@ public class PhotonVision extends SubsystemBase {
         pose = new AtomicReference<>(null);
 
         executor1.submit(() -> {
-            try { 
-                pose.set(executor2.submit(() -> mac.getEstimatedPose()).get()); 
+            try {
+                pose.set(executor2.submit(() -> mac.getEstimatedPose()).get());
             } catch (Exception e) {}
         });
     }
- 
+
     @Override
     public void periodic() {
         if (pose.get() != null) {
@@ -78,10 +78,10 @@ public class PhotonVision extends SubsystemBase {
         // Cameras
         CameraInfo[] cameras;
 
-        MacMini() {            
+        MacMini() {
             // cameras
             cameras = new CameraInfo[VisionConstants.CAMERA_CONSTANTS.length];
-            
+
             // Create the camears
             for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
                 PhotonPoseEstimator poseEstimator = new PhotonPoseEstimator(AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField), PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_RIO, VisionConstants.CAMERA_CONSTANTS[i].offset());
@@ -95,7 +95,7 @@ public class PhotonVision extends SubsystemBase {
         public EstimatedRobotPose getEstimatedPose() {
             try {
                 VisionInfo[] poses = new VisionInfo[VisionConstants.CAMERA_CONSTANTS.length];
-                
+
                 for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
                    poses[i] = getVisionPose(cameras[i]);
                 }
@@ -148,7 +148,7 @@ public class PhotonVision extends SubsystemBase {
             if (results.isEmpty()) {
                 return null;
             }
-            
+
             // Get the latest result of all thme
             PhotonPipelineResult latestResult = getLatestResult(results);
 
@@ -178,7 +178,7 @@ public class PhotonVision extends SubsystemBase {
             if (highPoseAmbiguity || highDistance) {
                 return null;
             }
-            
+
             // Get the estimated position
             Optional<EstimatedRobotPose> poseOpt = cameraInfo.poseEstimator().update(useableResult);
 
@@ -186,7 +186,7 @@ public class PhotonVision extends SubsystemBase {
             if (poseOpt.isPresent()) {
                 // The pose
                 EstimatedRobotPose pose = poseOpt.get();
-                
+
                 // Add the vision measurment
                 return new VisionInfo(useableResult, pose);
             } else {

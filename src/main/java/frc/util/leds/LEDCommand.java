@@ -3,10 +3,11 @@ package frc.util.leds;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public abstract class LEDCommand extends Command {
-    private ArrayList<Command> successCommands;
-    private ArrayList<Command> failCommands;
+    private final ArrayList<Command> successCommands;
+    private final ArrayList<Command> failCommands;
 
     public LEDCommand() {
         super();
@@ -30,11 +31,11 @@ public abstract class LEDCommand extends Command {
     public void succeeded(boolean success) {
          if (success) {
             for (Command command : successCommands) {
-                command.schedule();
+                CommandScheduler.getInstance().schedule(command);
             }
         } else {
             for (Command command : failCommands) {
-                command.schedule();
+                CommandScheduler.getInstance().schedule(command);
             }
         }
     }

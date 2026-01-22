@@ -145,8 +145,6 @@ public class SwerveSim {
             mapleSimDrive.setSimulationWorldPose(
                 new Pose2d(fieldSub.get()[0], fieldSub.get()[1], Rotation2d.fromDegrees(fieldSub.get()[2])));
         }
-
-        SimulatedArena.getInstance().placeGamePiecesOnField();
     }
 
     /**
