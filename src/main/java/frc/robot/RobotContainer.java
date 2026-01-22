@@ -78,11 +78,12 @@ public class RobotContainer {
     }
 
     private void configureNamedCommands(){
-        autoChooser = AutoBuilder.buildAutoChooser();
-        LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
         NamedCommands.registerCommand("LED_SHOOT", leds.enableStateWithTimeout(LED_STATES.SHOOT.id(), 2));
         NamedCommands.registerCommand("LED_COLLECT", leds.enableStateWithTimeout(LED_STATES.COLLECT.id(), 2));
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
+
+        autoChooser = AutoBuilder.buildAutoChooser();
+        LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
     }
 
     public Command getAutonomousCommand() {
@@ -97,7 +98,7 @@ public class RobotContainer {
             () -> true
         ));
         leds.setBehavior(LED_STATES.ERROR.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
-        leds.setBehavior(LED_STATES.AUTO.id(), LEDBehaviorFactory.rainbow(LEDConstants.stripAll, 2));
+        // leds.setBehavior(LED_STATES.AUTO.id(), LEDBehaviorFactory.rainbow(LEDConstants.stripAll, 2));
         leds.setBehavior(LED_STATES.BRAKE.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
         leds.setBehavior(LED_STATES.SHOOT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2 ,Color.ORANGE));
         leds.setBehavior(LED_STATES.COLLECT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2 ,Color.BLUE));
