@@ -19,6 +19,9 @@ public class RobotMap {
     // spindexer motor
     public static final int SPINDEXER_MOTOR_ID = 1; // Temp
 
+    // Transfer motor
+    public static final int TRANSFER_MOTOR_ID = 12; // Temp
+
     // Hood Motor ID
     public static final int HOOD_MOTOR_ID = 3; // Temp
 

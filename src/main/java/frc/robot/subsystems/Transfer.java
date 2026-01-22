@@ -7,28 +7,28 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.SpindexerConstants;
 import frc.robot.constants.RobotMap;
+import frc.robot.constants.TurretConstants;
 import frc.util.hardware.ThunderBird;
 
 public class Transfer extends SubsystemBase {
-  ThunderBird spindexerTower;
+  ThunderBird transfer;
 
   /** Creates a new Transfer. */
   public Transfer() {
-    spindexerTower = new ThunderBird(RobotMap.SPINDEXER_MOTOR_ID,
-    RobotMap.CAN_BUS, SpindexerConstants.SPINDEXER_MOTOR_INVERTED,
-    SpindexerConstants.SPINDEXER_MOTOR_STATOR_LIMIT,
-    SpindexerConstants.SPINDEXER_MOTOR_BRAKE_MODE);
+    transfer = new ThunderBird(RobotMap.TRANSFER_MOTOR_ID,
+    RobotMap.CAN_BUS, TurretConstants.TRANSFER_MOTOR_INVERTED,
+    TurretConstants.TRANSFER_MOTOR_STATOR_LIMIT,
+    TurretConstants.TRANSFER_MOTOR_BRAKE_MODE);
   }
 
-  /* Turns the motor for the tower on */
+  /* Turns the motor for the transfer on */
   public void setPower(double power) {
-    spindexerTower.setControl(new DutyCycleOut(power));
+    transfer.setControl(new DutyCycleOut(power));
     }
 
-  /* Stops the spindexer tower  */
+  /* Stops the transfer motor  */
   public void stop() {
-    spindexerTower.stopMotor();
+    transfer.stopMotor();
     }
 }

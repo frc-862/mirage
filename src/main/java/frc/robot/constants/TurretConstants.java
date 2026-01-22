@@ -1,12 +1,11 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meter;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
-
-import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
 public class TurretConstants {
     // Tolerance in degrees
@@ -31,4 +30,11 @@ public class TurretConstants {
 
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
     public static final Distance LENGTH = Meter.of(0.18);
+
+    public static final boolean TRANSFER_MOTOR_INVERTED = false; 
+     public static final double TRANSFER_MOTOR_STATOR_LIMIT = 40d;
+    public static final boolean TRANSFER_MOTOR_BRAKE_MODE = true;
+
+    public static final double SIM_kV = 0.24;
+    public static final double SIM_kA = 0.8;
 }
