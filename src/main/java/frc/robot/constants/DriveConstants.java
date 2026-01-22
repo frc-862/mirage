@@ -59,4 +59,8 @@ public class DriveConstants {
             backLeftModule,
             backRightModule);
     }
+
+    public static final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric();
+    public static final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric();
+    public static final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
 }
