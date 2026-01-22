@@ -4,9 +4,14 @@
 
 package frc.robot.subsystems;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.photonvision.EstimatedRobotPose;
@@ -15,29 +20,33 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import com.ctre.phoenix6.Utils;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.VisionConstants;
-import frc.robot.constants.VisionConstants.CameraInfo;
+import frc.util.shuffleboard.LightningShuffleboard;
 
 public class PhotonVision extends SubsystemBase {
+    private record VisionInfo(PhotonPipelineResult result, EstimatedRobotPose pose) {};
+
     // The drivetrain to add vision measurments
     Swerve drivetrain;
 
-    // Vision update type
-    private record VisionUpdate(EstimatedRobotPose pose, double distance) {}
+    // mac
+    MacMini mac;
 
-    // Vision data
-    AtomicReference<VisionUpdate> frontRightData;
-    AtomicReference<VisionUpdate> frontLeftData;
-    AtomicReference<VisionUpdate> backRightData;
-    AtomicReference<VisionUpdate> backLeftData;
+    // Atomic
+    AtomicReference<VisionInfo> pose;
 
-    // Vision threads
-    CameraThread frontRightThread;
-    CameraThread frontLeftThread;
-    CameraThread backRightThread;
-    CameraThread backLeftThread;
+    // executor
+    ScheduledExecutorService executor1;
+    ExecutorService executor2;
+
 
     /** Creates a new PhotonVision.
      *
@@ -45,160 +54,110 @@ public class PhotonVision extends SubsystemBase {
      */
     public PhotonVision(Swerve drivetrain) {
         this.drivetrain = drivetrain;
+        mac = new MacMini();
 
-        // initialize the records
-        frontRightData = new AtomicReference<>();
-        frontLeftData = new AtomicReference<>();
-        backRightData = new AtomicReference<>();
-        backLeftData = new AtomicReference<>();
+        executor1 = Executors.newSingleThreadScheduledExecutor();
+        executor2 = Executors.newSingleThreadExecutor();
 
-        // threads
-        frontRightThread = new CameraThread(CameraInfo.FRONT_RIGHT, frontRightData);
-        frontLeftThread = new CameraThread(CameraInfo.FRONT_LEFT, frontLeftData);
-        backRightThread = new CameraThread(CameraInfo.BACK_RIGHT, backRightData);
-        backLeftThread = new CameraThread(CameraInfo.BACK_LEFT, backLeftData);
+        pose = new AtomicReference<>(null);
 
-        // Start the trheads
-        frontRightThread.start();
-        frontLeftThread.start();
-        backRightThread.start();
-        backLeftThread.start();
+        LightningShuffleboard.setPose2d("vision", "vision_pose", new Pose2d());
+
+        executor1.schedule(() -> {
+            while (true) {
+                try {
+                    VisionInfo result = executor2.submit(() -> mac.getEstimatedPose()).get();
+                    if (result != null) {
+                        pose.set(result);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log("Failed to get data");
+                }
+                }
+        }, 0, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
-        updateVision();
-    }
+        if (pose.get() != null) {
+            VisionInfo updatedPose = pose.getAndSet(null);
 
-    private void updateVision() {
-        // Front right data
-        VisionUpdate update = frontRightData.getAndSet(null);
-
-        if (update != null) {
-            drivetrain.addVisionMeasurement(update.pose, update.distance);
-        }
-
-        // Front left data
-        update = frontLeftData.getAndSet(null);
-        if (update != null) {
-            drivetrain.addVisionMeasurement(update.pose, update.distance);
-        }
-
-        // Back right grade
-        update = backRightData.getAndSet(null);
-        if (update != null) {
-             drivetrain.addVisionMeasurement(update.pose, update.distance);
-        }
-
-        // Back left grade
-        update = backLeftData.getAndSet(null);
-        if (update != null) {
-             drivetrain.addVisionMeasurement(update.pose, update.distance);
+            double bestTagAmbiguity = updatedPose.result.getBestTarget().poseAmbiguity;
+             LightningShuffleboard.setPose2d("vision", "vision_pose", updatedPose.pose.estimatedPose.toPose2d());
+            drivetrain.addVisionMeasurement(
+                updatedPose.pose.estimatedPose.toPose2d(),
+                Utils.fpgaToCurrentTime(updatedPose.pose.timestampSeconds),
+                VecBuilder.fill(bestTagAmbiguity, bestTagAmbiguity, bestTagAmbiguity));
+            log("Added vision measurment");
         }
     }
 
-    // Camera thread to run cameras in parrellel
-    private class CameraThread extends Thread {
+    // -------------------------------------
 
-        // Pose estimator
-        PhotonPoseEstimator poseEstimator;
+    private class MacMini {
+        // Camera info
+        private record CameraInfo(PhotonCamera camera, PhotonPoseEstimator poseEstimator) {};
+        // private record VisionInfo(PhotonPipelineResult result, EstimatedRobotPose pose) {};
 
-        // Camera stuff
-        PhotonCamera camera;
-        AtomicReference<VisionUpdate> updateData;
+        // Cameras
+        CameraInfo[] cameras;
 
-        /**
-         * A thread that will run camera operations
-         * @param cameraInfo The camera info enum for the specific camera on the robot
-         * @param updateData The data that will be used to store camera updates
-         */
-        CameraThread(CameraInfo cameraInfo, AtomicReference<VisionUpdate> updateData) {
-            this.camera = new PhotonCamera(cameraInfo.name);
-            this.updateData = updateData;
+        MacMini() {
+            this.cameras = new CameraInfo[VisionConstants.CAMERA_CONSTANTS.length];
 
-            poseEstimator = new PhotonPoseEstimator(VisionConstants.TAG_LAYOUT, cameraInfo.offset);
-        }
+            // Create the cameras
+            for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
+                AprilTagFieldLayout fieldLayout;
 
-        @Override
-        public void run() {
-            // Pause before starting the thread
-            try {
-                Thread.sleep(1500);
-            } catch (InterruptedException e) {
-                DataLogManager.log("[BetterPhotonVision] Failed to init sleep");
+                try {
+                    // Get the path to the field from the deploy directory
+                    Path fieldPath = Filesystem.getDeployDirectory()
+                        .toPath()
+                        .resolve("field0120.json");
+
+                    fieldLayout = new AprilTagFieldLayout(fieldPath);
+                } catch (Exception e) {
+                    // Just use the default field if we can't get it
+                    DataLogManager.log("[PHOTON VISION] Can't load field resource-- using default field");
+                    fieldLayout = VisionConstants.DEFAULT_TAG_LAYOUT;
+                }
+
+                // Get the pose estimator
+                PhotonPoseEstimator poseEstimator =
+                        new PhotonPoseEstimator(
+                                fieldLayout,
+                                VisionConstants.CAMERA_CONSTANTS[i].offset()
+                        );
+
+                // Create the camera using the name from our constant
+                PhotonCamera camera = new PhotonCamera(VisionConstants.CAMERA_CONSTANTS[i].name());
+
+                // Create the camera
+                this.cameras[i] = new CameraInfo(camera, poseEstimator);
+                log(VisionConstants.CAMERA_CONSTANTS[i].name() + " info created sucessfully");
             }
 
-            //loop
-            while (true) {
-                try {
-                    // Sleep for 15 milliseconds before next loop considering the camera is updating at 50fps
-                    try {
-                        Thread.sleep(15);
-                    } catch (InterruptedException e) {
-                        DataLogManager.log("[PHOTON VISION] Failed to sleep");
-                    }
+        }
 
-                    // All results
-                    List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+        public VisionInfo getEstimatedPose() {
+            if (cameras == null || cameras.length == 0) {
+                log("No cameras configured");
+                return null;
+            }
 
-                    // If theres no results just skip this iteration
-                    if (results.isEmpty()) {
-                        continue;
-                    }
+            try {
+                VisionInfo[] poses = new VisionInfo[VisionConstants.CAMERA_CONSTANTS.length];
 
-                    // Get the latest result of all thme
-                    PhotonPipelineResult latestResult = getLatestResult(results);
-
-                    // The result we will actually use
-                    PhotonPipelineResult useableResult = latestResult;
-
-                    // Filter out the targets
-                    List<PhotonTrackedTarget> filteredTargets = new ArrayList<>(latestResult.getTargets());
-                    filteredTargets.removeIf((tag) -> VisionConstants.TAG_IGNORE_LIST.contains((short) tag.getFiducialId()));
-
-                    // Scrap it if the new result has no target
-                    if (filteredTargets.isEmpty()) {
-                        continue;
-                    }
-
-                    // Create a new result to use -- Using the same metadata as the original latest result
-                    useableResult = new PhotonPipelineResult(
-                        latestResult.metadata,
-                        filteredTargets,
-                        Optional.empty()
-                    );
-
-                    // If the ambiguity is too high skip the iteration
-                    if (useableResult.getBestTarget().getPoseAmbiguity() > VisionConstants.POSE_AMBIGUITY_TOLERANCE) {
-                        continue;
-                    }
-
-                    // If the best tag's distance is too far than scrap the result
-                    double bestDistance = useableResult.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
-                    if (bestDistance > VisionConstants.TAG_DISTANCE_TOLERANCE) {
-                        continue;
-                    }
-
-                    // Get the estimated position
-                    Optional<EstimatedRobotPose> poseOpt = poseEstimator.estimateCoprocMultiTagPose(useableResult);
-                    if (poseOpt.isEmpty()) {
-                        poseOpt = poseEstimator.estimateLowestAmbiguityPose(useableResult); // fallback strategy
-                    }
-
-                    // If the estimated position is there run this code
-                    if (poseOpt.isPresent()) {
-                        // The pose
-                        EstimatedRobotPose pose = poseOpt.get();
-
-                        // Add the vision measurment
-                        updateData.set(new VisionUpdate(pose, bestDistance));
-                    } else {
-                        DataLogManager.log("[PHOTON VISION] Pose not available");
-                    }
-                } catch (Exception e) {
-                    DataLogManager.log("[PHOTON VISION] " + e);
+                for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
+                    poses[i] = getVisionPose(cameras[i]);
                 }
+
+                return getBestPose(poses);
+            } catch (Exception e) {
+                log("Failed to get pose");
+                e.printStackTrace();
+                return null;
             }
         }
 
@@ -207,7 +166,7 @@ public class PhotonVision extends SubsystemBase {
             int latestResultIndex = 0;
 
             for (int i = 0; i < results.size(); i++) {
-                if (results.get(i).metadata.getCaptureTimestampMicros() > results.get(latestResultIndex).metadata.getCaptureTimestampMicros()) {
+                if (results.get(i).getTimestampSeconds() > results.get(latestResultIndex).getTimestampSeconds()) {
                     latestResultIndex = i;
                 }
             }
@@ -216,5 +175,110 @@ public class PhotonVision extends SubsystemBase {
 
             return latestResult;
         }
+
+        // This will get the best pose
+        private VisionInfo getBestPose(VisionInfo[] visionInfos) {
+            VisionInfo bestPose = null;
+
+            for (VisionInfo info : visionInfos) {
+                if (info == null) {
+                    continue;
+                }
+
+                if (bestPose == null) {
+                    bestPose = info;
+                    continue;
+                }
+
+                if (bestPose.result().getBestTarget().poseAmbiguity > info.result().getBestTarget().poseAmbiguity) {
+                    bestPose = info;
+                }
+            }
+            log("Got best pose");
+            return bestPose;
+        }
+
+        private VisionInfo getVisionPose(CameraInfo cameraInfo) {
+            PhotonCamera camera = cameraInfo.camera;
+
+            List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+
+            // If theres no results just skip this iteration
+            if (results.isEmpty()) {
+                log(cameraInfo.camera.getName() + "'s Result is null");
+                return null;
+            }
+
+            // Get the latest result of all thme
+            PhotonPipelineResult latestResult = getLatestResult(results);
+
+            // Filter out the targets
+            List<PhotonTrackedTarget> filteredTargets = new ArrayList<>(latestResult.getTargets());
+            filteredTargets.removeIf((tag) -> VisionConstants.TAG_IGNORE_LIST.contains((short) tag.getFiducialId()));
+
+            // Scrap it if the new result has no target
+            if (filteredTargets.isEmpty()) {
+                return null;
+            }
+
+            PhotonPipelineResult useableResult = latestResult;
+
+            // Create a new result to use -- Using the same metadata as the original latest result
+            if (!latestResult.getTargets().stream().allMatch((target) -> filteredTargets.contains(target))) {
+                useableResult = new PhotonPipelineResult(
+                    latestResult.metadata,
+                    filteredTargets,
+                    Optional.empty()
+                );
+            }
+
+            // If pose ambiguity is to high well scrap the result
+            boolean highPoseAmbiguity = latestResult.getBestTarget().getPoseAmbiguity() > VisionConstants.POSE_AMBIGUITY_TOLERANCE;
+
+            // If the best tag's distance is too far than scrap the result
+            double bestDistance = useableResult.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
+            boolean highDistance = bestDistance > VisionConstants.TAG_DISTANCE_TOLERANCE;
+
+            // If we have high ambiguity or high distance then just return back a null/"empty" value
+            if (highPoseAmbiguity || highDistance) {
+                return null;
+            }
+
+            // Get the estimated position
+            Optional<EstimatedRobotPose> poseOpt = cameraInfo.poseEstimator().estimateCoprocMultiTagPose(useableResult);
+
+            // If the estimated position is there run this code
+            if (poseOpt.isPresent()) {
+                // The pose
+                EstimatedRobotPose pose = poseOpt.get();
+
+                log("Used multitag result");
+
+                // Add the vision measurment
+                return new VisionInfo(useableResult, pose);
+            } else {
+                // Get the estimated position
+                poseOpt = cameraInfo.poseEstimator().estimateLowestAmbiguityPose(useableResult);
+
+                if (poseOpt.isPresent()) {
+                    // The pose
+                    EstimatedRobotPose pose = poseOpt.get();
+
+                    log("Used singletag result");
+
+                    // Add the vision measurment
+                    return new VisionInfo(useableResult, pose);
+                }
+            }
+
+            // We have no pose if were here
+            log("No pose");
+            return null;
+        }
+    }
+
+    // im lazy
+    private void log(String message) {
+        DataLogManager.log("[PHOTON VISION]" + message);
     }
 }
