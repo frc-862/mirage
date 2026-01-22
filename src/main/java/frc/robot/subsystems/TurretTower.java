@@ -7,28 +7,28 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.IndexerConstants;
+import frc.robot.constants.SpindexerConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 
 public class TurretTower extends SubsystemBase {
-  ThunderBird indexerTower;
+  ThunderBird spindexerTower;
 
   /** Creates a new TurretTower. */
   public TurretTower() {
-    indexerTower = new ThunderBird(RobotMap.INDEXER_MOTOR_ID, 
-    RobotMap.CAN_BUS, IndexerConstants.INDEXER_MOTOR_INVERTED, 
-    IndexerConstants.INDEXER_MOTOR_STATOR_LIMIT, 
-    IndexerConstants.INDEXER_MOTOR_BRAKE_MODE);
+    spindexerTower = new ThunderBird(RobotMap.SPINDEXER_MOTOR_ID,
+    RobotMap.CAN_BUS, SpindexerConstants.SPINDEXER_MOTOR_INVERTED,
+    SpindexerConstants.SPINDEXER_MOTOR_STATOR_LIMIT,
+    SpindexerConstants.SPINDEXER_MOTOR_BRAKE_MODE);
   }
- 
+
   /* Turns the motor for the tower on */
   public void setPower(double power) {
-    indexerTower.setControl(new DutyCycleOut(power));
+    spindexerTower.setControl(new DutyCycleOut(power));
     }
 
-  /* Stops the indexer tower  */
+  /* Stops the spindexer tower  */
   public void stop() {
-    indexerTower.stopMotor();
+    spindexerTower.stopMotor();
     }
 }
