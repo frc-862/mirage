@@ -78,7 +78,8 @@ public class Collector extends SubsystemBase {
     public void simulationPeriodic(){
         pivotSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        LightningShuffleboard.getDouble("Collector", "Collector Pivot", getPosition());
+        LightningShuffleboard.getDouble("Collector", "Collector Pivot", 1);
+
     }
 
     /**
@@ -104,7 +105,7 @@ public class Collector extends SubsystemBase {
      */
     public void setPosition(Angle position) {
         targetPivotPosition = clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
-        pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
+        pivotMotor.setControl(positionPID.withPosition(position));
     }
 
     /**
