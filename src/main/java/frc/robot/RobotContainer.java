@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -16,10 +18,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.PoseBasedAutoAlign;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
-import frc.robot.subsystems.Collector;
+import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
@@ -36,6 +37,7 @@ public class RobotContainer {
     private final XboxController copilot;
 
     private final Swerve drivetrain;
+    private Indexer indexer;
     // private final Collector collector;
     private final LEDSubsystem leds;
 
@@ -52,6 +54,7 @@ public class RobotContainer {
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
+
         configureDefaultCommands();
         configureBindings();
         configureNamedCommands();
@@ -61,7 +64,11 @@ public class RobotContainer {
     private void configureDefaultCommands() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(drivetrain.driveCommand(() -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+        drivetrain.setDefaultCommand(drivetrain.driveCommand(
+            () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
+                VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
+                .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
+                ControllerConstants.POW), () -> -driver.getRightX()));
     }
 
     private void configureBindings() {
@@ -75,6 +82,12 @@ public class RobotContainer {
             .onTrue(drivetrain.resetFieldCentricCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        new Trigger(driver::getLeftBumperButton).whileTrue(drivetrain.robotCentricDrive(
+            () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
+                VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
+                .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
+                ControllerConstants.POW), () -> -driver.getRightX()));
     }
 
     private void configureNamedCommands(){
