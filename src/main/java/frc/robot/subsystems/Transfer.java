@@ -11,11 +11,11 @@ import frc.robot.constants.SpindexerConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 
-public class Kicker extends SubsystemBase {
+public class Transfer extends SubsystemBase {
   ThunderBird spindexerTower;
 
-  /** Creates a new Kicker. */
-  public Kicker() {
+  /** Creates a new Transfer. */
+  public Transfer() {
     spindexerTower = new ThunderBird(RobotMap.SPINDEXER_MOTOR_ID,
     RobotMap.CAN_BUS, SpindexerConstants.SPINDEXER_MOTOR_INVERTED,
     SpindexerConstants.SPINDEXER_MOTOR_STATOR_LIMIT,
