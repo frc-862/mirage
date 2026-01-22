@@ -99,18 +99,7 @@ public class Collector extends SubsystemBase {
             motorSim.setMotorType(MotorType.KrakenX60);
         }
     }
-
-    @Override
-    public void simulationPeriodic() {
-        motorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-
-        collectorSim.setInput(motorSim.getMotorVoltageMeasure().in(Volts));
-        collectorSim.update(Robot.kDefaultPeriod);
-
-        motorSim.setRotorVelocity(collectorSim.getOutput(0));
-
-        LightningShuffleboard.setDouble("Collector", "Velocity", getVelocity().in(RotationsPerSecond));
-    }
+    
 
     /**
      * Set the power of the motor using a duty cycle
