@@ -1,8 +1,6 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -12,21 +10,19 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.ctre.phoenix6.sim.TalonFXSimState;
-import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import com.ctre.phoenix6.sim.TalonFXSimState;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj.RobotController;
+
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.CollectorConstants;
+import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -34,14 +30,12 @@ import frc.util.shuffleboard.LightningShuffleboard;
 import static frc.util.Units.clamp;
 
 public class Collector extends SubsystemBase {
-    private final ThunderBird collectorMotor;
-    private final ThunderBird pivotMotor;
-    private final CANcoder encoder;
-
-    private LinearSystemSim<N1, N1, N1> collectorSim;
-    private TalonFXSimState motorSim;
+    private ThunderBird collectMotor;
+    private ThunderBird pivotMotor;
+    private CANcoder encoder;
 
     private TalonFXSimState pivotSim;
+    private LinearSystemSim<N1, N1, N1> linearPivotSim;
 
     private final DutyCycleOut collectorDuty;
 
@@ -49,7 +43,8 @@ public class Collector extends SubsystemBase {
     private final PositionVoltage positionPID;
 
     public Collector() {
-        collectorMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
+
+        collectMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
             CollectorConstants.COLLECTOR_MOTOR_INVERTED, CollectorConstants.COLLECTOR_MOTOR_STATOR_LIMIT, CollectorConstants.COLLECTOR_MOTOR_BRAKE_MODE);
 
         pivotMotor = new ThunderBird(RobotMap.PIVOT_MOTOR_ID, RobotMap.CAN_BUS,
@@ -84,29 +79,25 @@ public class Collector extends SubsystemBase {
         pivotMotor.applyConfig(config);
 
         if(Robot.isSimulation()){
+            linearPivotSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
+            CollectorConstants.COLLECTOR_SIM_kA));
             pivotSim = pivotMotor.getSimState();
         }
     }
 
+    @Override
     public void simulationPeriodic(){
         pivotSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        LightningShuffleboard.getDouble("Collector", "Collector Pivot", getPosition());
-        if (Robot.isSimulation()) {
-            collectorSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
-                CollectorConstants.COLLECTOR_SIM_kA));
-            motorSim = collectorMotor.getSimState();
-            motorSim.setMotorType(MotorType.KrakenX60);
-        }
+        LightningShuffleboard.setDouble("Collector", "Collector Pivot", getPosition());
     }
-    
 
     /**
      * Set the power of the motor using a duty cycle
-     * @param power duty cycle value from -1.0 to 1.0
+     * @param power
      */
     public void setPower(double power) {
-        collectorMotor.setControl(collectorDuty.withOutput(power));
+        collectMotor.setControl(collectorDuty.withOutput(power));
     }
 
 
@@ -114,16 +105,7 @@ public class Collector extends SubsystemBase {
      * Stops all movement to the collector motor
      */
     public void stop() {
-        collectorMotor.stopMotor();
-    }
-
-    /**
-     * Gets the current velocity of the collector motor.
-     *
-     * @return the collector motor velocity as an {@link AngularVelocity}
-     */
-    public AngularVelocity getVelocity() {
-        return collectorMotor.getVelocity().getValue();
+        collectMotor.stopMotor();
     }
 
     /**
@@ -132,16 +114,16 @@ public class Collector extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        targetPivotPosition = clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
+        //targetPivotPosition = clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
         pivotMotor.setControl(positionPID.withPosition(position));
+        System.out.println("Set Position");
     }
 
     /**
      * Gets the target angle of the pivot
      *
      * @return Target angle of the pivot
-
-    */
+     */
     public Angle getTargetAngle() {
         return targetPivotPosition;
     }
@@ -158,6 +140,7 @@ public class Collector extends SubsystemBase {
     public double getPosition(){
         return pivotMotor.getPosition().getValueAsDouble();
     }
+
 
     /**
      * Checks if the wrist is on target
