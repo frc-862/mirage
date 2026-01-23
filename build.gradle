@@ -12,7 +12,7 @@ java {
 def MAC_MAIN_CLASS = "frc.robot.mac.Main"
 
 sourceSets {
-    mac {
+    macbot {
         java {
             srcDirs = ['src/main/java']
             include 'frc/robot/mac/*.java' // Include all Java files in the mac folder
@@ -28,8 +28,8 @@ task compileMacJar(type: Jar) {
     archiveBaseName.set('MacRobot')
     destinationDirectory.set(file("src/main/deploy"))
 
-    // Include the compiled classes from the mac source set
-    from sourceSets.mac.output
+    // Include the compiled classes from the macbot source set
+    from sourceSets.macbot.output
 
     manifest {
         attributes(
@@ -75,14 +75,12 @@ deploy {
                                            // longer exist in deploy directory of this project
                 }
 
-                macRobotExecute(getArtifactTypeClass('CommandArtifact')) {
+                updateMacScript(getArtifactTypeClass('CommandArtifact')) {
                     command = "/etc/init.d/update-mac"
-                    // For background execution: command = "nohup java -jar /home/lvuser/deploy/MacRobot.jar > /home/lvuser/mac.log 2>&1 &"
                 }
 
-                // Execute the MacRobot JAR after deployment
                 macRobotExecute(getArtifactTypeClass('CommandArtifact')) {
-                    command = "java -jar MacRobot.jar"
+                    command = "java -jar /home/lvuser/deploy/MacRobot.jar"
                     // For background execution: command = "nohup java -jar /home/lvuser/deploy/MacRobot.jar > /home/lvuser/mac.log 2>&1 &"
                 }
 
