@@ -33,7 +33,7 @@ public class RobotContainer {
     private final XboxController copilot;
 
     private final Swerve drivetrain;
-    // private final Indexer indexer;
+    // private final Spindexer spindexer;
     // private final Collector collector;
     private final LEDSubsystem leds;
 
@@ -46,7 +46,7 @@ public class RobotContainer {
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
         drivetrain = OasisTunerConstants.createDrivetrain();
-        // indexer = new indexer();
+        // Spindexer = new spindexer();
         // collector = new Collector();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
