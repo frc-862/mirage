@@ -122,7 +122,7 @@ public class Turret extends SubsystemBase {
         encoderSim.setSupplyVoltage(batteryVoltage);
 
         turretSim.setInputVoltage(motorSim.getMotorVoltage());
-        turretSim.update(RobotMap.UPDATE_FREQ);
+        turretSim.update(Robot.kDefaultPeriod);
 
         double simAngle = turretSim.getAngleRads();
         double simVeloc = turretSim.getVelocityRadPerSec();
