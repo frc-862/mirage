@@ -20,8 +20,10 @@ import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -124,15 +126,15 @@ public class Turret extends SubsystemBase {
         turretSim.setInputVoltage(motorSim.getMotorVoltage());
         turretSim.update(Robot.kDefaultPeriod);
 
-        double simAngle = turretSim.getAngleRads();
-        double simVeloc = turretSim.getVelocityRadPerSec();
+        Angle simAngle = Rotations.of(turretSim.getAngleRads());
+        AngularVelocity simVeloc = RadiansPerSecond.of(turretSim.getVelocityRadPerSec());
         motorSim.setRawRotorPosition(simAngle);
         motorSim.setRotorVelocity(simVeloc);
         encoderSim.setRawPosition(simAngle);
         encoderSim.setVelocity(simVeloc);
 
         LightningShuffleboard.setDouble("Turret", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
-        LightningShuffleboard.setDouble("Turret", "sim angle", simAngle);
+        LightningShuffleboard.setDouble("Turret", "sim angle", simAngle.in(Degree));
         LightningShuffleboard.setDouble("Turret", "getPose", getAngle().in(Degree));
 
         LightningShuffleboard.setDouble("Turret", "current angle", getAngle().in(Degree));
