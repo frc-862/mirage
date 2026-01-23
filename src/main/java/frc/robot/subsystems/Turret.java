@@ -33,8 +33,9 @@ public class Turret extends SubsystemBase {
 
     /** Creates a new TurretAim. */
     public Turret() {
-        motor = new ThunderBird(RobotMap.TURRET_MOTOR_ID, RobotMap.CAN_BUS, RobotMap.TURRET_MOTOR_INVERTED, RobotMap.TURRET_STATOR_LIMIT, RobotMap.TURRET_BRAKE);
-        encoder = new CANcoder(RobotMap.TURRET_ENCODER_ID, RobotMap.CAN_BUS);
+        motor = new ThunderBird(RobotMap.TURRET, RobotMap.CAN_BUS, TurretConstants.INVERTED, TurretConstants.STATOR_LIMIT,
+            TurretConstants.BRAKE);
+        encoder = new CANcoder(RobotMap.TURRET_ENCODER, RobotMap.CAN_BUS);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
         CANcoderConfiguration angleConfig = new CANcoderConfiguration();

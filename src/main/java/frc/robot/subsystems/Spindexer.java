@@ -32,7 +32,7 @@ public class Spindexer extends SubsystemBase {
 
     /** Creates a new Spindexer. */
     public Spindexer() {
-        spindexerMotor = new ThunderBird(RobotMap.SPINDEXER_MOTOR_ID, RobotMap.CAN_BUS,
+        spindexerMotor = new ThunderBird(RobotMap.SPINDEXER, RobotMap.CAN_BUS,
             SpindexerConstants.SPINDEXER_MOTOR_INVERTED, SpindexerConstants.SPINDEXER_MOTOR_STATOR_LIMIT, SpindexerConstants.SPINDEXER_MOTOR_BRAKE_MODE);
 
         dutyCycle = new DutyCycleOut(0);

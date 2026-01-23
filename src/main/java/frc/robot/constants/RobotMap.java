@@ -10,24 +10,19 @@ public class RobotMap {
 
     public static final CANBus CAN_BUS = new CANBus("Canivore");
 
-    public static final int TURRET_MOTOR_ID = 0; // Temp
-    public static final int TURRET_ENCODER_ID = 0; // Temp
-    public static final boolean TURRET_MOTOR_INVERTED = false; // Temp
-    public static final int TURRET_STATOR_LIMIT = 0; // Temp
-    public static final boolean TURRET_BRAKE = false; // Temp
+    public static final int COLLECTOR = 9;
+    public static final int COLLECTOR_PIVOT = 10;
+    public static final int PIVOT_ENCODER = 35;
 
-    // spindexer motor
-    public static final int SPINDEXER_MOTOR_ID = 1; // Temp
+    public static final int SPINDEXER = 11;
+    public static final int TRANSFER = 12;
 
-    // Hood Motor ID
-    public static final int HOOD_MOTOR_ID = 3; // Temp
+    public static final int TURRET = 13;
+    public static final int TURRET_ENCODER = 36;
+    public static final int HOOD = 14;
+    public static final int HOOD_ENCODER = 37;
+    public static final int SHOOTER = 15;
 
-    // Collector / Pivot
-    public static final int COLLECTOR_MOTOR_ID = 9; // Temp
-    public static final int PIVOT_MOTOR_ID = 5; // Temp
-    public static final int PIVOT_ENCODER_ID = 35; // Temp
-
-    //Flywheel
-    public static final int FLYWHEEL_MOTOR_ID = 4; //temp
+    public static final int CLIMBER = 16;
 }
 

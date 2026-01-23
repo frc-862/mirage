@@ -16,7 +16,7 @@ public class Transfer extends SubsystemBase {
 
   /** Creates a new Transfer. */
   public Transfer() {
-    spindexerTower = new ThunderBird(RobotMap.SPINDEXER_MOTOR_ID,
+    spindexerTower = new ThunderBird(RobotMap.TRANSFER,
     RobotMap.CAN_BUS, SpindexerConstants.SPINDEXER_MOTOR_INVERTED,
     SpindexerConstants.SPINDEXER_MOTOR_STATOR_LIMIT,
     SpindexerConstants.SPINDEXER_MOTOR_BRAKE_MODE);
