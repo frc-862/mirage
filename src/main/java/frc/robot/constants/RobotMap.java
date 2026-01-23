@@ -12,17 +12,18 @@ public class RobotMap {
 
     public static final int COLLECTOR = 9;
     public static final int COLLECTOR_PIVOT = 10;
-    public static final int PIVOT_ENCODER = 35;
 
     public static final int SPINDEXER = 11;
     public static final int TRANSFER = 12;
 
     public static final int TURRET = 13;
-    public static final int TURRET_ENCODER = 36;
+    public static final int TURRET_ENCODER = 35;
     public static final int HOOD = 14;
-    public static final int HOOD_ENCODER = 37;
+    public static final int HOOD_ENCODER = 36;
     public static final int SHOOTER = 15;
 
     public static final int CLIMBER = 16;
+
+    public static final int PIVOT_ENCODER = 37; //TODO: Delete this line once Collector subsystem is updated
 }
 
