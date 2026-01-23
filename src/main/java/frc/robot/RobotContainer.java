@@ -16,8 +16,6 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -27,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
-import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Collector;
 import frc.util.hardware.ThunderBird;
@@ -40,14 +37,17 @@ import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.util.shuffleboard.LightningShuffleboard;
 
+
+
 public class RobotContainer {
 
     private final XboxController driver;
     private final XboxController copilot;
 
     private final Swerve drivetrain;
-    private Indexer indexer;
     private final Collector collector;
+    // private final Spindexer spindexer;
+    // private final Collector collector;
     private final LEDSubsystem leds;
 
     private final Telemetry logger;
@@ -61,6 +61,8 @@ public class RobotContainer {
 
         drivetrain = OasisTunerConstants.createDrivetrain();
         collector = new Collector();
+        // Spindexer = new spindexer();
+        // collector = new Collector();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
