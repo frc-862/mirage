@@ -4,13 +4,16 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import static edu.wpi.first.units.Units.Volts;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,6 +21,7 @@ import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.robot.constants.TurretConstants;
 import frc.util.hardware.ThunderBird;
+import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Transfer extends SubsystemBase {
   ThunderBird transfer;
@@ -48,6 +52,8 @@ public class Transfer extends SubsystemBase {
     transferSim.update(Robot.kDefaultPeriod);
 
     motorSim.setRotorVelocity(transferSim.getOutput(0));
+
+    LightningShuffleboard.setDouble("Spindexer","" , getVelocity().in(RotationsPerSecond));
   }
 
   /* Turns the motor for the transfer on */
@@ -55,6 +61,9 @@ public class Transfer extends SubsystemBase {
     transfer.setControl(new DutyCycleOut(power));
     }
 
+    public AngularVelocity getVelocity() {
+        return transfer.getVelocity().getValue();
+    }
   /* Stops the transfer motor  */
   public void stop() {
     transfer.stopMotor();
