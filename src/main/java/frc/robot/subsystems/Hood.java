@@ -11,6 +11,7 @@ import frc.util.hardware.ThunderBird;
 import frc.robot.constants.RobotMap;
 import frc.robot.constants.HoodConstants;
 
+
 public class Hood extends SubsystemBase {
 
     public final DutyCycleOut dutyCycle = new DutyCycleOut(0.0);
