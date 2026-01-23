@@ -35,7 +35,7 @@ public class FlywheelTest {
     RoboRioSim.setVInVoltage(BATTERY_VOLTAGE);
 
     var motor = new frc.util.hardware.ThunderBird(
-        frc.robot.constants.RobotMap.FLYWHEEL_MOTOR_ID,
+        frc.robot.constants.RobotMap.SHOOTER,
         frc.robot.constants.RobotMap.CAN_BUS,
         frc.robot.constants.FlywheelConstants.FLYWHEEL_MOTOR_INVERTED,
         frc.robot.constants.FlywheelConstants.FLYWHEEL_MOTOR_STATOR_LIMIT,
