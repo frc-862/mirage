@@ -8,6 +8,44 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+
+def MAC_MAIN_CLASS = "frc.robot.mac.Main"
+
+sourceSets {
+    mac {
+        java {
+            srcDirs = ['src/main/java']
+            include 'frc/robot/mac/*.java' // Include all Java files in the mac folder
+        }
+    }
+}
+
+task compileMacJar(type: Jar) {
+    group = 'build'
+    description = 'Compile and package src/main/java/frc/robot/mac/Main.java into a standalone JAR'
+
+    // Set the archive name and destination
+    archiveBaseName.set('MacRobot')
+    destinationDirectory.set(file("src/main/deploy"))
+
+    // Include the compiled classes from the mac source set
+    from sourceSets.mac.output
+
+    manifest {
+        attributes(
+            'Main-Class': MAC_MAIN_CLASS // Fully qualified name of the main class
+        )
+    }
+}
+
+// Declare compileMacJar as an input of the jar task
+jar {
+    dependsOn compileMacJar
+    from(compileMacJar.outputs.files) // Include the output of compileMacJar in the jar task
+}
+
+build.dependsOn compileMacJar
+
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
@@ -36,6 +74,18 @@ deploy {
                     deleteOldFiles = true // Change to true to delete files on roboRIO that no
                                            // longer exist in deploy directory of this project
                 }
+
+                macRobotExecute(getArtifactTypeClass('CommandArtifact')) {
+                    command = "/etc/init.d/update-mac"
+                    // For background execution: command = "nohup java -jar /home/lvuser/deploy/MacRobot.jar > /home/lvuser/mac.log 2>&1 &"
+                }
+
+                // Execute the MacRobot JAR after deployment
+                macRobotExecute(getArtifactTypeClass('CommandArtifact')) {
+                    command = "java -jar MacRobot.jar"
+                    // For background execution: command = "nohup java -jar /home/lvuser/deploy/MacRobot.jar > /home/lvuser/mac.log 2>&1 &"
+                }
+
             }
         }
     }
