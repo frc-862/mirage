@@ -27,9 +27,17 @@ public class Flywheel extends SubsystemBase {
 
     /** Creates a new Flywheel Subsystem. */
     public Flywheel() {
-        //Sets new motors
-        flywheelMotor = new ThunderBird(RobotMap.FLYWHEEL_MOTOR_ID, RobotMap.CAN_BUS,
-            FlywheelConstants.FLYWHEEL_MOTOR_INVERTED, FlywheelConstants.FLYWHEEL_MOTOR_STATOR_LIMIT, FlywheelConstants.FLYWHEEL_MOTOR_BRAKE);
+        this(new ThunderBird(RobotMap.FLYWHEEL_MOTOR_ID, RobotMap.CAN_BUS,
+            FlywheelConstants.FLYWHEEL_MOTOR_INVERTED, FlywheelConstants.FLYWHEEL_MOTOR_STATOR_LIMIT, FlywheelConstants.FLYWHEEL_MOTOR_BRAKE));
+    }
+
+    /**
+     * Creates a new Flywheel Subsystem with a provided motor.
+     * @param motor the ThunderBird motor to use for the flywheel
+     */
+    public Flywheel(ThunderBird motor) {
+        //Sets the flywheel motor
+        flywheelMotor = motor;
 
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
