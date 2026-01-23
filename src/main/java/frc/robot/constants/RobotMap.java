@@ -29,5 +29,8 @@ public class RobotMap {
 
     //Shooter
     public static final int SHOOTER_MOTOR_ID = 4; //temp
+
+    //20ms default loop time
+    public static final double UPDATE_FREQ = 0.020;
 }
 
