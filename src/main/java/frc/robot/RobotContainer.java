@@ -4,12 +4,11 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -17,14 +16,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.LEDConstants;
+import frc.robot.constants.LEDConstants.LED_STATES;
+import frc.robot.constants.OasisTunerConstants;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Telemetry;
+import frc.robot.subsystems.Transfer;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
-import frc.robot.constants.LEDConstants;
-import frc.robot.constants.OasisTunerConstants;
-import frc.robot.constants.LEDConstants.LED_STATES;
-import frc.robot.subsystems.Telemetry;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
@@ -35,6 +35,8 @@ public class RobotContainer {
     private final Swerve drivetrain;
     // private final Spindexer spindexer;
     // private final Collector collector;
+    private final Transfer transfer;
+
     private final LEDSubsystem leds;
 
     private final Telemetry logger;
@@ -48,7 +50,7 @@ public class RobotContainer {
         drivetrain = OasisTunerConstants.createDrivetrain();
         // Spindexer = new spindexer();
         // collector = new Collector();
-
+        transfer = new Transfer();
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
 

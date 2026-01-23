@@ -12,6 +12,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
+
+    public static double getBatteryVoltage() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
     private Command autonomousCommand;
 
     private static RobotContainer robotContainer;
