@@ -18,29 +18,29 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.constants.SpindexerConstants;
+import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 
-public class Spindexer extends SubsystemBase {
-    private final ThunderBird spindexerMotor;
+public class Indexer extends SubsystemBase {
+    private final ThunderBird indexerMotor;
     private final DutyCycleOut dutyCycle;
 
-    private LinearSystemSim<N1, N1, N1> spindexerSim;
+    private LinearSystemSim<N1, N1, N1> indexerSim;
     private TalonFXSimState motorSim;
 
-    /** Creates a new Spindexer. */
-    public Spindexer() {
-        spindexerMotor = new ThunderBird(RobotMap.SPINDEXER_MOTOR_ID, RobotMap.CAN_BUS,
-            SpindexerConstants.SPINDEXER_MOTOR_INVERTED, SpindexerConstants.SPINDEXER_MOTOR_STATOR_LIMIT, SpindexerConstants.SPINDEXER_MOTOR_BRAKE_MODE);
+    /** Creates a new Indexer. */
+    public Indexer() {
+        indexerMotor = new ThunderBird(RobotMap.INDEXER_MOTOR_ID, RobotMap.CAN_BUS,
+            IndexerConstants.INDEXER_MOTOR_INVERTED, IndexerConstants.INDEXER_MOTOR_STATOR_LIMIT, IndexerConstants.INDEXER_MOTOR_BRAKE_MODE);
 
         dutyCycle = new DutyCycleOut(0);
 
         if (Robot.isSimulation()) {
-            spindexerSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(SpindexerConstants.SIM_kV,
-                SpindexerConstants.SIM_kA));
-            motorSim = spindexerMotor.getSimState();
+            indexerSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(IndexerConstants.SIM_kV,
+                IndexerConstants.SIM_kA));
+            motorSim = indexerMotor.getSimState();
             motorSim.setMotorType(MotorType.KrakenX44);
         }
     }
@@ -49,35 +49,35 @@ public class Spindexer extends SubsystemBase {
     public void simulationPeriodic() {
         motorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        spindexerSim.setInput(motorSim.getMotorVoltageMeasure().in(Volts));
-        spindexerSim.update(Robot.kDefaultPeriod);
+        indexerSim.setInput(motorSim.getMotorVoltageMeasure().in(Volts));
+        indexerSim.update(Robot.kDefaultPeriod);
 
-        motorSim.setRotorVelocity(spindexerSim.getOutput(0));
+        motorSim.setRotorVelocity(indexerSim.getOutput(0));
 
-        LightningShuffleboard.setDouble("Spindexer", "Velocity", getVelocity().in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Indexer", "Velocity", getVelocity().in(RotationsPerSecond));
     }
 
     /**
-     * Sets power to (-1 to 1) to the spindexer motor.
+     * Sets power to (-1 to 1) to the indexer motor.
      * @param power
      */
     public void setPower(double power) {
-        spindexerMotor.setControl(dutyCycle.withOutput(power));
+        indexerMotor.setControl(dutyCycle.withOutput(power));
     }
 
     /**
-     * Gets the current velocity of the spindexer motor.
+     * Gets the current velocity of the indexer motor.
      *
-     * @return the spindexer motor velocity as an {@link AngularVelocity}
+     * @return the indexer motor velocity as an {@link AngularVelocity}
      */
     public AngularVelocity getVelocity() {
-        return spindexerMotor.getVelocity().getValue();
+        return indexerMotor.getVelocity().getValue();
     }
 
     /**
-     * Stops the spindexer motor.
+     * Stops the indexer motor.
      */
     public void stop() {
-        spindexerMotor.stopMotor();
+        indexerMotor.stopMotor();
     }
 }

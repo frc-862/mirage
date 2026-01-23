@@ -11,38 +11,38 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.FlywheelConstants;
+import frc.robot.constants.ShooterConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 
-public class Flywheel extends SubsystemBase {
+public class Shooter extends SubsystemBase {
 
-    //creates a flywheel motor//
-    private ThunderBird flywheelMotor;
+    //creates a shooter motor//
+    private ThunderBird shooterMotor;
 
     private final DutyCycleOut dutyCycle;
     private VelocityVoltage velocityPID;
 
     private AngularVelocity targetVelocity;
 
-    /** Creates a new Flywheel Subsystem. */
-    public Flywheel() {
+    /** Creates a new Shooter Subsystem. */
+    public Shooter() {
         //Sets new motors
-        flywheelMotor = new ThunderBird(RobotMap.FLYWHEEL_MOTOR_ID, RobotMap.CAN_BUS,
-            FlywheelConstants.FLYWHEEL_MOTOR_INVERTED, FlywheelConstants.FLYWHEEL_MOTOR_STATOR_LIMIT, FlywheelConstants.FLYWHEEL_MOTOR_BRAKE);
+        shooterMotor = new ThunderBird(RobotMap.SHOOTER_MOTOR_ID, RobotMap.CAN_BUS,
+            ShooterConstants.SHOOTER_MOTOR_INVERTED, ShooterConstants.SHOOTER_MOTOR_STATOR_LIMIT, ShooterConstants.SHOOTER_MOTOR_BRAKE);
 
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
 
-        //creates a config for the flywheel motor
-        TalonFXConfiguration flywheelMotorConfig = flywheelMotor.getConfig();
-        flywheelMotorConfig.Slot0.kP = FlywheelConstants.kP;
-        flywheelMotorConfig.Slot0.kI = FlywheelConstants.kI;
-        flywheelMotorConfig.Slot0.kD = FlywheelConstants.kD;
-        flywheelMotorConfig.Slot0.kV = FlywheelConstants.kV;
-        flywheelMotorConfig.Slot0.kS = FlywheelConstants.kS;
-        flywheelMotor.applyConfig(flywheelMotorConfig);
+        //creates a config for the shooter motor
+        TalonFXConfiguration shooterMotorConfig = shooterMotor.getConfig();
+        shooterMotorConfig.Slot0.kP = ShooterConstants.kP;
+        shooterMotorConfig.Slot0.kI = ShooterConstants.kI;
+        shooterMotorConfig.Slot0.kD = ShooterConstants.kD;
+        shooterMotorConfig.Slot0.kV = ShooterConstants.kV;
+        shooterMotorConfig.Slot0.kS = ShooterConstants.kS;
+        shooterMotor.applyConfig(shooterMotorConfig);
     }
 
     @Override
@@ -53,14 +53,14 @@ public class Flywheel extends SubsystemBase {
      * @param power
      */
     public void setPower(double power) {
-        flywheelMotor.setControl(dutyCycle.withOutput(power));
+        shooterMotor.setControl(dutyCycle.withOutput(power));
     }
 
     /**
-     * Stops all movement of the flywheel motor
+     * Stops all movement of the shooter motor
      */
     public void stopMotor() {
-        flywheelMotor.stopMotor();
+        shooterMotor.stopMotor();
     }
 
     /**
@@ -69,21 +69,21 @@ public class Flywheel extends SubsystemBase {
      */
     public void setVelocity(AngularVelocity velocity){
         targetVelocity = velocity;
-        flywheelMotor.setControl(velocityPID.withVelocity(velocity));
+        shooterMotor.setControl(velocityPID.withVelocity(velocity));
     }
 
     /**
-     * @return the velocity of the flywheel motor
+     * @return the velocity of the shooter motor
      */
     public AngularVelocity getVelocity(){
-        return flywheelMotor.getVelocity().getValue();
+        return shooterMotor.getVelocity().getValue();
     }
 
     /**
      * @return whether or not the current velocity is near the target velocity
      */
     public boolean velocityOnTarget(){
-        return getVelocity().isNear(targetVelocity, FlywheelConstants.TOLERANCE);
+        return getVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
     }
 
 }
