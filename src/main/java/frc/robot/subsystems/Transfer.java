@@ -53,7 +53,7 @@ public class Transfer extends SubsystemBase {
 
     motorSim.setRotorVelocity(transferSim.getOutput(0));
 
-    LightningShuffleboard.setDouble("Spindexer","" , getVelocity().in(RotationsPerSecond));
+    LightningShuffleboard.setDouble("Spindexer","Velocity", getVelocity().in(RotationsPerSecond));
   }
 
   /* Turns the motor for the transfer on */
