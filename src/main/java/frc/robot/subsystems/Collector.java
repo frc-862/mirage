@@ -43,19 +43,18 @@ public class Collector extends SubsystemBase {
     private final PositionVoltage positionPID;
 
     public Collector() {
-
         collectMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
             CollectorConstants.COLLECTOR_MOTOR_INVERTED, CollectorConstants.COLLECTOR_MOTOR_STATOR_LIMIT, CollectorConstants.COLLECTOR_MOTOR_BRAKE_MODE);
 
         pivotMotor = new ThunderBird(RobotMap.PIVOT_MOTOR_ID, RobotMap.CAN_BUS,
             CollectorConstants.PIVOT_INVERTED, CollectorConstants.PIVOT_STATOR_LIMIT, CollectorConstants.PIVOT_BRAKE_MODE);
 
-        encoder = new CANcoder(RobotMap.PIVOT_ENCODER_ID, RobotMap.CAN_BUS);
-        CANcoderConfiguration angleConfig = new CANcoderConfiguration();
-        angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
-        angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? CollectorConstants.PIVOT_OFFSET : 0d;
-        angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        encoder.getConfigurator().apply(angleConfig);
+        // encoder = new CANcoder(RobotMap.PIVOT_ENCODER_ID, RobotMap.CAN_BUS);
+        // CANcoderConfiguration angleConfig = new CANcoderConfiguration();
+        // angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
+        // angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? CollectorConstants.PIVOT_OFFSET : 0d;
+        // angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        // encoder.getConfigurator().apply(angleConfig);
 
 
         collectorDuty = new DutyCycleOut(0.0);
@@ -86,10 +85,18 @@ public class Collector extends SubsystemBase {
     }
 
     @Override
+    public void periodic() {
+        pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
+    }
+
+    @Override
     public void simulationPeriodic(){
         pivotSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        LightningShuffleboard.setDouble("Collector", "Collector Pivot", getPosition());
+        pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
+
+        LightningShuffleboard.setDouble("Collector", "Pivot Current Angle", getPosition());
+        LightningShuffleboard.setString("Collector", "Pivot Target Angle", getTargetAngle().toString());
     }
 
     /**
@@ -114,9 +121,8 @@ public class Collector extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        //targetPivotPosition = clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
-        pivotMotor.setControl(positionPID.withPosition(position));
-        System.out.println("Set Position");
+        targetPivotPosition = clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
+        System.out.println("set position method ran");
     }
 
     /**
@@ -128,26 +134,26 @@ public class Collector extends SubsystemBase {
         return targetPivotPosition;
     }
 
-    /**
-     * Gets the current angle of the pivot
-     *
-     * @return Current angle of the pivot
-     */
-    public Angle getAngle() {
-        return encoder.getAbsolutePosition().getValue();
-    }
+    // /**
+    //  * Gets the current angle of the pivot
+    //  *
+    //  * @return Current angle of the pivot
+    //  */
+    // public Angle getAngle() {
+    //     return encoder.getAbsolutePosition().getValue();
+    // }
 
     public double getPosition(){
         return pivotMotor.getPosition().getValueAsDouble();
     }
 
 
-    /**
-     * Checks if the wrist is on target
-     *
-     * @return True if the wrist is on target
-     */
-    public boolean isOnTarget() {
-        return targetPivotPosition.isNear(getAngle(), CollectorConstants.TOLERANCE);
-    }
+    // /**
+    //  * Checks if the wrist is on target
+    //  *
+    //  * @return True if the wrist is on target
+    //  */
+    // public boolean isOnTarget() {
+    //     return targetPivotPosition.isNear(getPosition(), CollectorConstants.TOLERANCE);
+    // }
 }

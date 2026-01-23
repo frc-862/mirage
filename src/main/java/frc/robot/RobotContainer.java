@@ -45,6 +45,7 @@ public class RobotContainer {
     private final XboxController copilot;
 
     private final Swerve drivetrain;
+
     private final Collector collector;
     // private final Spindexer spindexer;
     // private final Collector collector;
@@ -84,7 +85,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        new Trigger(driver::getAButton).whileTrue(new RunCommand(() -> collector.setPosition
+        new Trigger(driver::getAButton).whileTrue(new InstantCommand(() -> collector.setPosition
         (Degrees.of(45)), collector));
 
 
