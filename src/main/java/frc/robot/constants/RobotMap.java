@@ -12,6 +12,7 @@ public class RobotMap {
 
     public static final int COLLECTOR = 9;
     public static final int COLLECTOR_PIVOT = 10;
+    public static final int PIVOT_ENCODER = 37; //TODO: Delete this line once Collector subsystem is updated
 
     public static final int SPINDEXER = 11;
     public static final int TRANSFER = 12;
@@ -23,7 +24,8 @@ public class RobotMap {
     public static final int SHOOTER = 15;
 
     public static final int CLIMBER = 16;
-
-    public static final int PIVOT_ENCODER = 37; //TODO: Delete this line once Collector subsystem is updated
+  
+    //Flywheel
+    public static final int FLYWHEEL_MOTOR_ID = 17; //temp
 }
 

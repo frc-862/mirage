@@ -37,9 +37,9 @@ public class FlywheelTest {
     var motor = new frc.util.hardware.ThunderBird(
         frc.robot.constants.RobotMap.SHOOTER,
         frc.robot.constants.RobotMap.CAN_BUS,
-        frc.robot.constants.FlywheelConstants.FLYWHEEL_MOTOR_INVERTED,
-        frc.robot.constants.FlywheelConstants.FLYWHEEL_MOTOR_STATOR_LIMIT,
-        frc.robot.constants.FlywheelConstants.FLYWHEEL_MOTOR_BRAKE
+        frc.robot.constants.FlywheelConstants.INVERTED,
+        frc.robot.constants.FlywheelConstants.STATOR_LIMIT,
+        frc.robot.constants.FlywheelConstants.BRAKE
     );
 
     flywheel = new Flywheel(motor);
