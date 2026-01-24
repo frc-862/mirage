@@ -5,13 +5,11 @@ import static edu.wpi.first.units.Units.Degrees;
 import edu.wpi.first.units.measure.Angle;
 
 public class CollectorConstants {
-
-
-    // collector motor
-    public static final boolean COLLECTOR_MOTOR_INVERTED = false; // temp
-    public static final double COLLECTOR_MOTOR_STATOR_LIMIT = 40d; // temp
-    public static final boolean COLLECTOR_MOTOR_BRAKE_MODE = true; // temp
-    public static final double COLLECTOR_POWER = 1d;
+    // collector motor for the rollers
+    public static final boolean COLLECTOR_MOTOR_INVERTED = false; // Temp
+    public static final double COLLECTOR_MOTOR_STATOR_LIMIT = 40d; // Temp
+    public static final boolean COLLECTOR_MOTOR_BRAKE = true; // Temp
+    public static final double COLLECT_POWER = 1d;
 
     public static final double COLLECTOR_SIM_kV = 0.24; // temp
     public static final double COLLECTOR_SIM_kA = 0.8; // temp
@@ -26,13 +24,13 @@ public class CollectorConstants {
     public static final double PIVOT_KG = 0.3d; // temp
 
     // collector pivot
-    public static final boolean PIVOT_INVERTED = false; // temp
-    public static final double PIVOT_STATOR_LIMIT = 40d; // temp
-    public static final boolean PIVOT_BRAKE_MODE = true; // temp
-    public static final double PIVOT_OFFSET = -0.227; // temp
-    public static final double ROTOR_TO_ENCODER_RATIO = 74; // temp
-    public static final double ENCODER_TO_MECHANISM_RATIO = 1d; // temp
-    public static final Angle MIN_ANGLE = Degrees.of(-85); // temp
-    public static final Angle MAX_ANGLE = Degrees.of(85); // temp
-    public static final Angle TOLERANCE = Degrees.of(5); // temp
+    public static final boolean PIVOT_INVERTED = false; // Temp
+    public static final double PIVOT_STATOR_LIMIT = 40d; // Temp
+    public static final boolean PIVOT_BRAKE_MODE = true; // Temp
+    public static final double PIVOT_OFFSET = -0.227; // Temp
+    public static final double ROTOR_TO_ENCODER_RATIO = 74; // Temp
+    public static final double ENCODER_TO_MECHANISM_RATIO = 1d; // Temp
+    public static final Angle MIN_ANGLE = Degrees.of(-85); // Temp
+    public static final Angle MAX_ANGLE = Degrees.of(85); // Temp
+    public static final Angle TOLERANCE = Degrees.of(5); // Temp
 }
