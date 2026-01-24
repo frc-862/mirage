@@ -7,11 +7,16 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Collector;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class Collect extends Command {
-    /** Creates a new Collect. */
     private Collector collector;
     private double power;
+
+    /**
+     * Collects fuel from the field
+     *
+     * @param collector The collector subsystem
+     * @param power Motor power
+     */
 
     public Collect(Collector collector, double power) {
         this.collector = collector;
@@ -20,13 +25,11 @@ public class Collect extends Command {
         addRequirements(collector);
     }
 
-    // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         collector.setPower(power);
     }
 
-    // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
         collector.stop();

@@ -12,24 +12,28 @@ public class BasicShoot extends Command {
     private Flywheel shooter;
     private double power;
 
+    /**
+     * Shoots the fuel toward the hub
+     *
+     * @param shooter The Shooter subsystem
+     * @param power Motor power
+     */
     public BasicShoot(Flywheel shooter, double power) {
         this.shooter = shooter;
         this.power = power;
         addRequirements(shooter);
     }
 
-    // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         shooter.setPower(power);
     }
 
-    // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
         shooter.stopMotor();
     }
-    // Returns true when the command should end.
+    
     @Override
     public boolean isFinished() {
     return false;

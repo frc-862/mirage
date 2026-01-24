@@ -9,9 +9,15 @@ import frc.robot.subsystems.Transfer;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class BasicTransfer extends Command {
-  /** Creates a new RunTransfer. */
   private Transfer transfer;
   private double speed;
+
+  /**
+   * Transfers fuel from spindexer to cannon
+   *
+   * @param transfer The Transfer subsystem
+   * @param speed Motor's speed
+   */
 
   public BasicTransfer(Transfer transfer, double speed) {
     this.transfer = transfer;
@@ -19,25 +25,21 @@ public class BasicTransfer extends Command {
     addRequirements(transfer);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     transfer.setPower(speed);
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
   }
 
-  // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     transfer.stop();
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;
