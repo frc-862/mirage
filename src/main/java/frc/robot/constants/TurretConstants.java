@@ -9,9 +9,9 @@ import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
 public class TurretConstants {
-    public static final boolean INVERTED = false; //temp
-    public static final double STATOR_LIMIT = 120.0; //temp
-    public static final boolean BRAKE = false; //temp
+    public static final boolean INVERTED = false; // temp
+    public static final double STATOR_LIMIT = 120.0; // temp
+    public static final boolean BRAKE = false; // temp
 
     // Tolerance in degrees
     public static final double TURRET_ANGLE_TOLERANCE = 5; // temp

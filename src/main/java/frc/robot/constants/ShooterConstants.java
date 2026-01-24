@@ -11,9 +11,9 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public class ShooterConstants {
-    public static final boolean INVERTED = false; //temp
-    public static final double STATOR_LIMIT = 120.0; //temp
-    public static final boolean BRAKE = false; //temp
+    public static final boolean INVERTED = false; // temp
+    public static final double STATOR_LIMIT = 120.0; // temp
+    public static final boolean BRAKE = false; // temp
 
     public static final double kP = 0d; // temp
     public static final double kI = 0d; // temp
