@@ -17,6 +17,9 @@ public class LEDConstants {
         TEST,
         ERROR,
         AUTO,
+        SHOOT,
+        CLIMB,
+        COLLECT,
         BRAKE;
 
         public int id() {

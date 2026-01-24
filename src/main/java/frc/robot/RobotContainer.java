@@ -7,6 +7,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
@@ -16,28 +17,31 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.TurretAim;
+import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
+import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
 import frc.robot.constants.LEDConstants;
+import frc.robot.constants.MirageTunerConstants;
 import frc.robot.constants.OasisTunerConstants;
+import frc.robot.constants.RobotMap;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
+import frc.robot.commands.Collect;
 
 public class RobotContainer {
-
     private final XboxController driver;
     private final XboxController copilot;
 
     private final Swerve drivetrain;
-    // private final Spindexer spindexer;
-    // private final Collector collector;
+    private final Collector collector;
     private final LEDSubsystem leds;
 
     private final Turret turret;
@@ -50,13 +54,13 @@ public class RobotContainer {
         driver = new XboxController(ControllerConstants.DRIVER_PORT);
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
-        drivetrain = OasisTunerConstants.createDrivetrain();
-        turret = new Turret();
-        // Spindexer = new spindexer();
-        // collector = new Collector();
+        drivetrain = RobotMap.IS_OASIS ? OasisTunerConstants.createDrivetrain() : MirageTunerConstants.createDrivetrain();
+        collector = new Collector();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
+
+        turret = new Turret();
 
         configureDefaultCommands();
         configureBindings();
@@ -65,6 +69,7 @@ public class RobotContainer {
     }
 
     private void configureDefaultCommands() {
+        /* Driver */
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(drivetrain.driveCommand(
@@ -75,6 +80,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        /* Driver */
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()
                 .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
@@ -93,9 +99,16 @@ public class RobotContainer {
                 ControllerConstants.POW), () -> -driver.getRightX()));
 
         new Trigger(driver::getBButton).whileTrue(new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
+
+        /* Copilot */
+        new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
     }
 
     private void configureNamedCommands(){
+        NamedCommands.registerCommand("LED_SHOOT", leds.enableStateWithTimeout(LED_STATES.SHOOT.id(), 2));
+        NamedCommands.registerCommand("LED_COLLECT", leds.enableStateWithTimeout(LED_STATES.COLLECT.id(), 2));
+        NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
+
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
     }
@@ -112,8 +125,11 @@ public class RobotContainer {
             () -> true
         ));
         leds.setBehavior(LED_STATES.ERROR.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
-        leds.setBehavior(LED_STATES.AUTO.id(), LEDBehaviorFactory.rainbow(LEDConstants.stripAll, 2));
         leds.setBehavior(LED_STATES.BRAKE.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
+        leds.setBehavior(LED_STATES.SHOOT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.ORANGE));
+        leds.setBehavior(LED_STATES.COLLECT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.BLUE));
+        leds.setBehavior(LED_STATES.CLIMB.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.YELLOW));
+
 
         new Trigger(DriverStation:: isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
 
