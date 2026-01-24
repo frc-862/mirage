@@ -29,5 +29,8 @@ public class RobotMap {
 
     //Flywheel
     public static final int FLYWHEEL_MOTOR_ID = 4; //temp
+
+    // Climber Motor ID
+    public static final int CLIMBER_MOTOR_ID = 6;
 }
 
