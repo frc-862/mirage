@@ -7,11 +7,8 @@ package frc.robot.commands;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.util.Map;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,8 +26,9 @@ public class ShooterAim extends Command {
 
     /**
      * Point the shooter and angle the hood so the fuel shot reaches the hub
+     * @param shooter the shooter subsystem
      * @param swerve swerve to get robot pose
-     * @param turret shooter to spin the shooter subsytem
+     * @param hood the hood susbsystem
      * @param target a Translation2d representing where the shooter should shoot at
      */
     public ShooterAim(Shooter shooter, Swerve swerve, Hood hood, Translation2d target) {
