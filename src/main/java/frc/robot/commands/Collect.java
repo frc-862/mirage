@@ -7,18 +7,16 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Collector;
 
-public class BasicCollect extends Command {
+public class Collect extends Command {
     private Collector collector;
     private double power;
 
     /**
-     * Collects fuel from the field
-     *
+     * Basic command for moving the rollers of the collector
      * @param collector The collector subsystem
-     * @param power     Motor power
+     * @param power Motor power
      */
-
-    public BasicCollect(Collector collector, double power) {
+    public Collect(Collector collector, double power) {
         this.collector = collector;
         this.power = power;
 
@@ -27,11 +25,11 @@ public class BasicCollect extends Command {
 
     @Override
     public void initialize() {
-        collector.setPower(power);
+        collector.setCollectorPower(power);
     }
 
     @Override
     public void end(boolean interrupted) {
-        collector.stop();
+        collector.stopCollector();
     }
 }
