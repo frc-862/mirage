@@ -61,6 +61,8 @@ public class Collector extends SubsystemBase {
         pivotMotor.applyConfig(config);
 
         if(Robot.isSimulation()){
+            gearbox = DCMotor.getKrakenX44Foc(1);
+
             collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ROTOR_TO_ENCODER_RATIO, CollectorConstants.MOI.magnitude(),
             CollectorConstants.LENGTH.magnitude(), CollectorConstants.MIN_ANGLE.in(Radians), CollectorConstants.MAX_ANGLE.in(Radians), false,
             CollectorConstants.MIN_ANGLE.in(Radians), 0d,1d);
