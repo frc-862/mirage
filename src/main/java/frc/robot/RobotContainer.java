@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Collect;
+import frc.robot.commands.Spin;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
@@ -27,6 +28,7 @@ import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.OasisTunerConstants;
+import frc.robot.constants.SpindexerConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -83,6 +85,7 @@ public class RobotContainer {
             .onTrue(drivetrain.resetFieldCentricCommand());
 
         new Trigger(driver::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECTOR_POWER));
+        //new Trigger(copilot::getBButton).whileTrue(new Spin(spindexer, SpindexerConstants.SPINDEXER_POWER));
 
         new Trigger(driver::getLeftBumperButton).whileTrue(drivetrain.robotCentricDrive(
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
