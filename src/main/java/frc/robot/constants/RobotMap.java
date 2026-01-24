@@ -17,7 +17,8 @@ public class RobotMap {
     public static final boolean TURRET_BRAKE = false; // Temp
 
     // indexer motor
-    public static final int INDEXER_MOTOR_ID = 1; // Temp
+    public static final int SPINDEXER_MOTOR_ID = 1; // Temp
+    public static final int TRANSFER_MOTOR_ID = 2; // Temp
 
     // Hood Motor ID
     public static final int HOOD_MOTOR_ID = 3; // Temp

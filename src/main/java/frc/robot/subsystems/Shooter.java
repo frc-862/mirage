@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ShooterConstants;
+import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -36,11 +37,20 @@ public class Shooter extends SubsystemBase {
 
     private AngularVelocity targetVelocity;
 
+    private TalonFXSimState motorSim;
+    private FlywheelSim shooterSim;
+
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
+        this(new ThunderBird(RobotMap.SHOOTER_MOTOR_ID, RobotMap.CAN_BUS,
+            ShooterConstants.SHOOTER_MOTOR_INVERTED, ShooterConstants.SHOOTER_MOTOR_STATOR_LIMIT,
+            ShooterConstants.SHOOTER_MOTOR_BRAKE));
+    }
+
+    /** Creates a new Shooter Subsystem. */
+    public Shooter(ThunderBird motor) {
         //Sets new motors
-        shooterMotor = new ThunderBird(RobotMap.SHOOTER_MOTOR_ID, RobotMap.CAN_BUS,
-            ShooterConstants.SHOOTER_MOTOR_INVERTED, ShooterConstants.SHOOTER_MOTOR_STATOR_LIMIT, ShooterConstants.SHOOTER_MOTOR_BRAKE);
+        shooterMotor = motor;
 
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
@@ -54,6 +64,15 @@ public class Shooter extends SubsystemBase {
         shooterMotorConfig.Slot0.kV = ShooterConstants.kV;
         shooterMotorConfig.Slot0.kS = ShooterConstants.kS;
         shooterMotor.applyConfig(shooterMotorConfig);
+
+        if (Robot.isSimulation()){
+            motorSim = shooterMotor.getSimState();
+            motorSim.setMotorType(MotorType.KrakenX60);
+
+            shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(
+                DCMotor.getKrakenX60Foc(1), ShooterConstants.MOI.in(KilogramSquareMeters),
+                ShooterConstants.GEAR_RATIO), DCMotor.getKrakenX60Foc(1));
+        }
     }
 
     @Override

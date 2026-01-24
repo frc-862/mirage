@@ -32,7 +32,7 @@ public class Indexer extends SubsystemBase {
 
     /** Creates a new Indexer. */
     public Indexer() {
-        indexerMotor = new ThunderBird(RobotMap.INDEXER_MOTOR_ID, RobotMap.CAN_BUS,
+        indexerMotor = new ThunderBird(RobotMap.SPINDEXER_MOTOR_ID, RobotMap.CAN_BUS,
             IndexerConstants.INDEXER_MOTOR_INVERTED, IndexerConstants.INDEXER_MOTOR_STATOR_LIMIT, IndexerConstants.INDEXER_MOTOR_BRAKE_MODE);
 
         dutyCycle = new DutyCycleOut(0);

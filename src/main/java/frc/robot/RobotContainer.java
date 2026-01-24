@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
-import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
@@ -37,6 +36,7 @@ public class RobotContainer {
     private final Swerve drivetrain;
     // private final Indexer indexer;
     // private final Collector collector;
+    // private final Shooter shooter;
     private final LEDSubsystem leds;
 
     private final Telemetry logger;
@@ -50,7 +50,7 @@ public class RobotContainer {
         drivetrain = OasisTunerConstants.createDrivetrain();
         // Indexer = new Indexer();
         // collector = new Collector();
-        new Flywheel();
+        // shooter = new Shooter();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);

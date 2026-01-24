@@ -28,4 +28,7 @@ public class ShooterConstants {
 
     // Sim
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
+    public static final boolean INVERTED = false;
+    public static final double STATOR_LIMIT = 0;
+    public static final boolean BRAKE = false;
 }
