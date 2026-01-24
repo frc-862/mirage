@@ -15,13 +15,13 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Flywheel;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Swerve;
 
 public class ShooterAim extends Command {
 
-    private final Flywheel shooter;
+    private final Shooter shooter;
     private final Swerve swerve;
     private final Hood hood;
     private final Translation2d target;
@@ -40,7 +40,7 @@ public class ShooterAim extends Command {
         Map.entry(6d, 30d)
     );
 
-    public ShooterAim(Flywheel shooter, Swerve swerve, Hood hood, Translation2d target) {
+    public ShooterAim(Shooter shooter, Swerve swerve, Hood hood, Translation2d target) {
         this.shooter = shooter;
         this.swerve = swerve;
         this.hood = hood;
