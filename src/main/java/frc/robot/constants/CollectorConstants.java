@@ -8,9 +8,9 @@ public class CollectorConstants {
 
 
     // collector motor
-    public static final boolean COLLECTOR_MOTOR_INVERTED = false; // Temp
-    public static final double COLLECTOR_MOTOR_STATOR_LIMIT = 40d; // Temp
-    public static final boolean COLLECTOR_MOTOR_BRAKE_MODE = true; // Temp
+    public static final boolean INTAKE_MOTOR_INVERTED = false; // Temp
+    public static final double INTAKE_MOTOR_STATOR_LIMIT = 40d; // Temp
+    public static final boolean INTAKE_MOTOR_BRAKE_MODE = true; // Temp
 
     public static final double COLLECTOR_SIM_kV = 0.24;
     public static final double COLLECTOR_SIM_kA = 0.8;

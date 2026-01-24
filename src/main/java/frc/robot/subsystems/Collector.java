@@ -31,21 +31,21 @@ import frc.util.shuffleboard.LightningShuffleboard;
 import static frc.util.Units.clamp;
 
 public class Collector extends SubsystemBase {
-    private final ThunderBird collectorMotor;
+    private final ThunderBird intakeMotor;
     private final ThunderBird pivotMotor;
     private final CANcoder encoder;
 
     private LinearSystemSim<N1, N1, N1> collectorSim;
     private TalonFXSimState motorSim;
 
-    private final DutyCycleOut collectorDuty;
+    private final DutyCycleOut intakeDuty;
 
     private Angle targetPivotPosition = Degrees.of(0);
     private final PositionVoltage positionPID;
 
     public Collector() {
-        collectorMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
-            CollectorConstants.COLLECTOR_MOTOR_INVERTED, CollectorConstants.COLLECTOR_MOTOR_STATOR_LIMIT, CollectorConstants.COLLECTOR_MOTOR_BRAKE_MODE);
+        intakeMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
+            CollectorConstants.INTAKE_MOTOR_INVERTED, CollectorConstants.INTAKE_MOTOR_STATOR_LIMIT, CollectorConstants.INTAKE_MOTOR_BRAKE_MODE);
 
         pivotMotor = new ThunderBird(RobotMap.PIVOT_MOTOR_ID, RobotMap.CAN_BUS,
             CollectorConstants.PIVOT_INVERTED, CollectorConstants.PIVOT_STATOR_LIMIT, CollectorConstants.PIVOT_BRAKE_MODE);
@@ -58,7 +58,7 @@ public class Collector extends SubsystemBase {
         encoder.getConfigurator().apply(angleConfig);
 
 
-        collectorDuty = new DutyCycleOut(0.0);
+        intakeDuty = new DutyCycleOut(0.0);
         positionPID = new PositionVoltage(0);
 
         TalonFXConfiguration config = pivotMotor.getConfig();
@@ -81,7 +81,7 @@ public class Collector extends SubsystemBase {
         if (Robot.isSimulation()) {
             collectorSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
                 CollectorConstants.COLLECTOR_SIM_kA));
-            motorSim = collectorMotor.getSimState();
+            motorSim = intakeMotor.getSimState();
             motorSim.setMotorType(MotorType.KrakenX60);
         }
     }
@@ -95,31 +95,31 @@ public class Collector extends SubsystemBase {
 
         motorSim.setRotorVelocity(collectorSim.getOutput(0));
 
-        LightningShuffleboard.setDouble("Collector", "Velocity", getVelocity().in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Collector", "Velocity", getIntakeVelocity().in(RotationsPerSecond));
     }
 
     /**
-     * Set the power of the motor using a duty cycle
+     * Set the power of the intake motor using a duty cycle
      * @param power duty cycle value from -1.0 to 1.0
      */
-    public void setPower(double power) {
-        collectorMotor.setControl(collectorDuty.withOutput(power));
+    public void setIntakePower(double power) {
+        intakeMotor.setControl(intakeDuty.withOutput(power));
     }
 
     /**
-     * Stops all movement to the collector motor
+     * Stops all movement to the intake motor
      */
-    public void stop() {
-        collectorMotor.stopMotor();
+    public void stopIntake() {
+        intakeMotor.stopMotor();
     }
 
     /**
-     * Gets the current velocity of the collector motor.
+     * Gets the current velocity of the intake motor.
      *
-     * @return the collector motor velocity as an {@link AngularVelocity}
+     * @return the intake motor velocity as an {@link AngularVelocity}
      */
-    public AngularVelocity getVelocity() {
-        return collectorMotor.getVelocity().getValue();
+    public AngularVelocity getIntakeVelocity() {
+        return intakeMotor.getVelocity().getValue();
     }
 
     /**

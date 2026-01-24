@@ -6,8 +6,7 @@ package frc.robot.constants;
 
 /** Constants for Hood */
 public class HoodConstants {
-    public static final boolean HOOD_MOTOR_INVERTED = false; // Temp
-    public static final double HOOD_MOTOR_STATOR_LIMIT = 40d; // Temp
-    public static final boolean HOOD_MOTOR_BRAKE_MODE = false; // Temp
-
+    public static final boolean INVERTED = false; // Temp
+    public static final double STATOR_LIMIT = 40d; // Temp
+    public static final boolean BRAKE_MODE = false; // Temp
 }

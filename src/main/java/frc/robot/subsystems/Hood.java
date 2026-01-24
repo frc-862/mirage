@@ -19,8 +19,8 @@ public class Hood extends SubsystemBase {
     /** Creates a new Hood. */
     public Hood() {
         hoodMotor = new ThunderBird(RobotMap.HOOD_MOTOR_ID, RobotMap.CAN_BUS,
-            HoodConstants.HOOD_MOTOR_INVERTED, HoodConstants.HOOD_MOTOR_STATOR_LIMIT,
-            HoodConstants.HOOD_MOTOR_BRAKE_MODE);
+            HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
+            HoodConstants.BRAKE_MODE);
     }
 
     @Override

@@ -43,8 +43,8 @@ public class Shooter extends SubsystemBase {
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
         this(new ThunderBird(RobotMap.SHOOTER_MOTOR_ID, RobotMap.CAN_BUS,
-            ShooterConstants.SHOOTER_MOTOR_INVERTED, ShooterConstants.SHOOTER_MOTOR_STATOR_LIMIT,
-            ShooterConstants.SHOOTER_MOTOR_BRAKE));
+            ShooterConstants.INVERTED, ShooterConstants.STATOR_LIMIT,
+            ShooterConstants.BRAKE));
     }
 
     /** Creates a new Shooter Subsystem. */

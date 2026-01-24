@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import frc.util.MotorUnderTest;
 
-public class FlywheelTest {
+public class ShooterTest {
   private static final double BATTERY_VOLTAGE = 12.0;
   private static final double DT = 0.02;          // 20ms
   private static final double DUTY_TOL = 0.01;

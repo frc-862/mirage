@@ -53,7 +53,7 @@ public class Turret extends SubsystemBase {
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
         CANcoderConfiguration angleConfig = new CANcoderConfiguration();
-        angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? TurretConstants.turretOffset : 0;
+        angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? TurretConstants.OFFSET : 0;
         angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         encoder.getConfigurator().apply(angleConfig);
 
@@ -110,7 +110,7 @@ public class Turret extends SubsystemBase {
     }
 
     public boolean isOnTarget() {
-        return MathUtil.isNear(getTargetAngle().in(Degree), getAngle().in(Degree), TurretConstants.TURRET_ANGLE_TOLERANCE);
+        return MathUtil.isNear(getTargetAngle().in(Degree), getAngle().in(Degree), TurretConstants.ANGLE_TOLERANCE);
     }
 
     public void stop() {

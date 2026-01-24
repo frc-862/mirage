@@ -13,9 +13,9 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 /** Add your docs here. */
 public class ShooterConstants {
 
-    public static final boolean SHOOTER_MOTOR_INVERTED = false; //temp
-    public static final double SHOOTER_MOTOR_STATOR_LIMIT = 120.0; //temp
-    public static final boolean SHOOTER_MOTOR_BRAKE = false; //temp
+    public static final boolean INVERTED = false; //temp
+    public static final double STATOR_LIMIT = 120.0; //temp
+    public static final boolean BRAKE = false; //temp
 
     public static final double kP = 0.1;
     public static final double kI = 0d;
@@ -28,7 +28,4 @@ public class ShooterConstants {
 
     // Sim
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
-    public static final boolean INVERTED = false;
-    public static final double STATOR_LIMIT = 0;
-    public static final boolean BRAKE = false;
 }
