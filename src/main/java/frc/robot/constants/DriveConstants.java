@@ -25,22 +25,22 @@ public class DriveConstants {
     protected static final double kDriveGearRatio = RobotMap.IS_OASIS ? OasisTunerConstants.kDriveGearRatio : MirageTunerConstants.kDriveGearRatio;
 
     private static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> frontLeftModule =
-        RobotMap.IS_OASIS ? OasisTunerConstants.FrontLeft : MirageTunerConstants.FrontLeft; // temp
+        RobotMap.IS_OASIS ? OasisTunerConstants.FrontLeft : MirageTunerConstants.FrontLeft;
     private static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> frontRightModule =
-        RobotMap.IS_OASIS ? OasisTunerConstants.FrontRight : MirageTunerConstants.FrontRight; // temp
+        RobotMap.IS_OASIS ? OasisTunerConstants.FrontRight : MirageTunerConstants.FrontRight;
     private static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> backLeftModule =
-        RobotMap.IS_OASIS ? OasisTunerConstants.BackLeft : MirageTunerConstants.BackLeft; // temp
+        RobotMap.IS_OASIS ? OasisTunerConstants.BackLeft : MirageTunerConstants.BackLeft;
     private static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> backRightModule =
-        RobotMap.IS_OASIS ? OasisTunerConstants.BackRight : MirageTunerConstants.BackRight; // temp
+        RobotMap.IS_OASIS ? OasisTunerConstants.BackRight : MirageTunerConstants.BackRight;
 
     public static final Swerve createDrivetrain() {
         return RobotMap.IS_OASIS ? OasisTunerConstants.createDrivetrain() : MirageTunerConstants.createDrivetrain();
     }
 
-    public static final LinearVelocity MaxSpeed = kSpeedAt12Volts; // temp
-    public static final AngularVelocity MaxAngularRate = RotationsPerSecond.of(0.75); // temp
-    public static final Distance RobotWidth = Inches.of(30); // temp
-    public static final double COF = COTS.WHEELS.VEX_GRIP_V2.cof; // temp
+    public static final LinearVelocity MaxSpeed = kSpeedAt12Volts;
+    public static final AngularVelocity MaxAngularRate = RotationsPerSecond.of(0.75);
+    public static final Distance RobotWidth = Inches.of(30);
+    public static final double COF = COTS.WHEELS.VEX_GRIP_V2.cof;
 
     public static final Time kSimLoopPeriod = Seconds.of(0.005); // faster than default for better accuracy
     @SuppressWarnings("unchecked")
@@ -59,7 +59,7 @@ public class DriveConstants {
             backRightModule);
     }
 
-    public static final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric(); // temp
-    public static final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric(); // temp
-    public static final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake(); // temp
+    public static final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric();
+    public static final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric();
+    public static final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
 }

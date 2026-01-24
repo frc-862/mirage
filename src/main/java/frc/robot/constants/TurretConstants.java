@@ -14,25 +14,25 @@ public class TurretConstants {
     public static final boolean BRAKE = false; // temp
 
     // Tolerance in degrees
-    public static final double TURRET_ANGLE_TOLERANCE = 5; // temp
+    public static final double TURRET_ANGLE_TOLERANCE = 5;
 
-    public static final Angle MIN_ANGLE = Degree.of(-220); // temp
-    public static final Angle MAX_ANGLE = Degree.of(220); // temp
+    public static final Angle MIN_ANGLE = Degree.of(-220);
+    public static final Angle MAX_ANGLE = Degree.of(220);
 
-    public static final double MOTOR_KP = 6.5; // temp
-    public static final double MOTOR_KI = 0; // temp
-    public static final double MOTOR_KD = 0; // temp
-    public static final double MOTOR_KF = 0; // temp
-    public static final double MOTOR_KS = 1; // temp
-    public static final double MOTOR_KV = 0.18; // temp
-    public static final double MOTOR_KA = 0.01; // temp
-    public static final double MOTOR_KG = 0; // temp
+    public static final double MOTOR_KP = 6.5;
+    public static final double MOTOR_KI = 0;
+    public static final double MOTOR_KD = 0;
+    public static final double MOTOR_KF = 0;
+    public static final double MOTOR_KS = 1;
+    public static final double MOTOR_KV = 0.18;
+    public static final double MOTOR_KA = 0.01;
+    public static final double MOTOR_KG = 0;
 
-    public static final double ROTOR_TO_ENCODER_RATIO = 74; // temp
-    public static final double ENCODER_TO_MECHANISM_RATIO = 1d; // temp
+    public static final double ROTOR_TO_ENCODER_RATIO = 74;
+    public static final double ENCODER_TO_MECHANISM_RATIO = 1d;
 
-    public static final double turretOffset = -0.227; // temp
+    public static final double turretOffset = -0.227;
 
-    public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086); // temp
-    public static final Distance LENGTH = Meter.of(0.18); // temp
+    public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
+    public static final Distance LENGTH = Meter.of(0.18);
 }

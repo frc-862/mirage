@@ -10,16 +10,16 @@ import static edu.wpi.first.units.Units.Inches;
 
 public class VisionConstants {
 
-    public static final List<Short> TAG_IGNORE_LIST = List.of(); // temp
+    public static final List<Short> TAG_IGNORE_LIST = List.of();
 
     // TODO: Update this to be the correect field layout for this season,
     public static final AprilTagFieldLayout DEFAULT_TAG_LAYOUT = AprilTagFieldLayout
             .loadField(AprilTagFields.k2026RebuiltWelded);
 
-    public static final double POSE_AMBIGUITY_TOLERANCE = 1; // temp
-    public static final double TAG_DISTANCE_TOLERANCE = 10; // temp
+    public static final double POSE_AMBIGUITY_TOLERANCE = 1;
+    public static final double TAG_DISTANCE_TOLERANCE = 10;
 
-    public record CameraConstant(String name, Transform3d offset) {}; // temp
+    public record CameraConstant(String name, Transform3d offset) {};
 
     public static final CameraConstant[] CAMERA_CONSTANTS = new CameraConstant[] {
         new CameraConstant("leftCam",
