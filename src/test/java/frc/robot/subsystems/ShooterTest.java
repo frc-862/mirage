@@ -19,13 +19,13 @@ import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import frc.util.MotorUnderTest;
 
-public class FlywheelTest {
+public class ShooterTest {
   private static final double BATTERY_VOLTAGE = 12.0;
   private static final double DT = 0.02;          // 20ms
   private static final double DUTY_TOL = 0.01;
   private static final double DEFAULT_TIMEOUT_S = 1.0;
 
-  private Flywheel flywheel;
+  private Shooter shooter;
   private MotorUnderTest motorUnderTest;
 
   @BeforeEach
@@ -35,19 +35,19 @@ public class FlywheelTest {
     RoboRioSim.setVInVoltage(BATTERY_VOLTAGE);
 
     var motor = new frc.util.hardware.ThunderBird(
-        frc.robot.constants.RobotMap.FLYWHEEL_MOTOR_ID,
+        frc.robot.constants.RobotMap.SHOOTER_MOTOR_ID,
         frc.robot.constants.RobotMap.CAN_BUS,
-        frc.robot.constants.FlywheelConstants.FLYWHEEL_MOTOR_INVERTED,
-        frc.robot.constants.FlywheelConstants.FLYWHEEL_MOTOR_STATOR_LIMIT,
-        frc.robot.constants.FlywheelConstants.FLYWHEEL_MOTOR_BRAKE
+        frc.robot.constants.ShooterConstants.INVERTED,
+        frc.robot.constants.ShooterConstants.STATOR_LIMIT,
+        frc.robot.constants.ShooterConstants.BRAKE
     );
 
-    flywheel = new Flywheel(motor);
+    shooter = new Shooter(motor);
 
     motorUnderTest = new MotorUnderTest(
         motor,
-        flywheel::setPower,
-        flywheel::stopMotor,
+        shooter::setPower,
+        shooter::stopMotor,
         motor.getSimState(),
         newKrakenSim()
     );
@@ -101,7 +101,7 @@ public class FlywheelTest {
   }
 
   private void resetMotor() {
-    flywheel.setPower(0.0);
+    shooter.setPower(0.0);
     stepSim();
   }
 
@@ -125,7 +125,7 @@ public class FlywheelTest {
 
   @Test
   void constructorSucceeds() {
-    assertNotNull(flywheel);
+    assertNotNull(shooter);
   }
 
   static Stream<Arguments> dutyCycleCases() {
