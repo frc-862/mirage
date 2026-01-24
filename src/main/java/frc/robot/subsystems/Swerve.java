@@ -268,6 +268,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     }
 
+    public void simulationPeriodic() {
+        resetPose(swerveSim.mapleSimDrive.getSimulatedDriveTrainPose());
+    }
+
     /**
      * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
      * while still accounting for measurement noise.
@@ -345,20 +349,25 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command driveCommand(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput) {
-        return run(() -> setControl(DriveConstants.fieldCentricRequest
+        return run(() -> {
+            setControl(DriveConstants.fieldCentricRequest
             .withVelocityX(DriveConstants.MaxSpeed.times(xyInput.get().get(0)))
             .withVelocityY(DriveConstants.MaxSpeed.times(xyInput.get().get(1)))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage));
+        });
     }
 
     public Command robotCentricDrive(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput){
-        return run(() -> setControl(DriveConstants.robotCentricRequest
+        return run(() -> {
+            System.out.println("driving!");
+            setControl(DriveConstants.robotCentricRequest
             .withVelocityX(DriveConstants.MaxSpeed.times(xyInput.get().get(0)))
             .withVelocityY(DriveConstants.MaxSpeed.times(xyInput.get().get(1)))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage));
+        });
     }
 
     public Command brakeCommand() {

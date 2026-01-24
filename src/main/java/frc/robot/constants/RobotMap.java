@@ -10,8 +10,8 @@ public class RobotMap {
 
     public static final CANBus CAN_BUS = new CANBus("Canivore");
 
-    public static final int TURRET_MOTOR_ID = 0; // Temp
-    public static final int TURRET_ENCODER_ID = 0; // Temp
+    public static final int TURRET_MOTOR_ID = 14; // Temp
+    public static final int TURRET_ENCODER_ID = 6; // Temp
     public static final boolean TURRET_MOTOR_INVERTED = false; // Temp
     public static final int TURRET_STATOR_LIMIT = 0; // Temp
     public static final boolean TURRET_BRAKE = false; // Temp

@@ -15,8 +15,10 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.TurretAim;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
@@ -25,6 +27,7 @@ import frc.robot.constants.LEDConstants;
 import frc.robot.constants.OasisTunerConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
+import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
@@ -37,6 +40,8 @@ public class RobotContainer {
     // private final Collector collector;
     private final LEDSubsystem leds;
 
+    private final Turret turret;
+
     private final Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -46,6 +51,7 @@ public class RobotContainer {
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
         drivetrain = OasisTunerConstants.createDrivetrain();
+        turret = new Turret();
         // Spindexer = new spindexer();
         // collector = new Collector();
 
@@ -85,6 +91,8 @@ public class RobotContainer {
                 VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
                 .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
                 ControllerConstants.POW), () -> -driver.getRightX()));
+
+        new Trigger(driver::getBButton).whileTrue(new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
     }
 
     private void configureNamedCommands(){
