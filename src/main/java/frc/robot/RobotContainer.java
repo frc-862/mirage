@@ -85,9 +85,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        new Trigger(driver::getAButton).whileTrue(new InstantCommand(() -> collector.setPosition(
-            Degrees.of(45)), collector));
-
 
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()
