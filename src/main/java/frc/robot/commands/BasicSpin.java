@@ -5,33 +5,31 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Collector;
+import frc.robot.subsystems.Spindexer;
 
-public class Collect extends Command {
-    private Collector collector;
+public class BasicSpin extends Command {
+    private Spindexer spindexer;
     private double power;
 
     /**
-     * Collects fuel from the field
+     * Moves the spindexer to transfer fuel to cannon
      *
-     * @param collector The collector subsystem
-     * @param power Motor power
+     * @param spindexer The Spindexer subsystem
+     * @param power     Motor power
      */
 
-    public Collect(Collector collector, double power) {
-        this.collector = collector;
-        this.power = power;
-
-        addRequirements(collector);
+    public BasicSpin(Spindexer spindexer, double power) {
+        this.spindexer = spindexer;
+        addRequirements(spindexer);
     }
 
     @Override
     public void initialize() {
-        collector.setPower(power);
+        spindexer.setPower(power);
     }
 
     @Override
     public void end(boolean interrupted) {
-        collector.stop();
+        spindexer.stop();
     }
 }

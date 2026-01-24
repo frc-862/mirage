@@ -17,8 +17,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.Collect;
-import frc.robot.commands.Spin;
+import frc.robot.commands.BasicCollect;
+import frc.robot.commands.BasicSpin;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
@@ -42,7 +42,7 @@ public class RobotContainer {
 
     private final Swerve drivetrain;
     // private final Spindexer spindexer;
-    private final Collector collector = new Collector();
+    private final Collector collector;
     private final LEDSubsystem leds;
 
     private final Telemetry logger;
@@ -55,8 +55,7 @@ public class RobotContainer {
 
         drivetrain = OasisTunerConstants.createDrivetrain();
         // Spindexer = new spindexer();
-        // collector = new Collector();
-        new Flywheel();
+        collector = new Collector();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
@@ -88,7 +87,7 @@ public class RobotContainer {
             .onTrue(drivetrain.resetFieldCentricCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
-        new Trigger(driver::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECTOR_POWER));
+        new Trigger(driver::getAButton).whileTrue(new BasicCollect(collector, CollectorConstants.COLLECTOR_POWER));
         //new Trigger(copilot::getBButton).whileTrue(new Spin(spindexer, SpindexerConstants.SPINDEXER_POWER));
 
         new Trigger(driver::getLeftBumperButton).whileTrue(drivetrain.robotCentricDrive(

@@ -16,7 +16,7 @@ public class BasicShoot extends Command {
      * Shoots the fuel toward the hub
      *
      * @param shooter The Shooter subsystem
-     * @param power Motor power
+     * @param power   Motor power
      */
     public BasicShoot(Flywheel shooter, double power) {
         this.shooter = shooter;
@@ -33,9 +33,9 @@ public class BasicShoot extends Command {
     public void end(boolean interrupted) {
         shooter.stopMotor();
     }
-    
+
     @Override
     public boolean isFinished() {
-    return false;
+        return false;
     }
 }
