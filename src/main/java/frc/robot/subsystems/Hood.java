@@ -76,7 +76,7 @@ public class Hood extends SubsystemBase {
             hoodSim = new SingleJointedArmSim(gearbox, HoodConstants.GEARING_RATIO,
                 HoodConstants.MOI.magnitude(), HoodConstants.LENGTH.in(Meters),
                 HoodConstants.MIN_ANGLE.in(Radians), HoodConstants.MAX_ANGLE.in(Radians),
-                false, HoodConstants.MIN_ANGLE.in(Radians), 0d, 1d);
+                true, HoodConstants.MIN_ANGLE.in(Radians), 0d, 1d);
 
             motorSim = new TalonFXSimState(hoodMotor);
 

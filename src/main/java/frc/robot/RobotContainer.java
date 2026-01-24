@@ -41,7 +41,6 @@ public class RobotContainer {
     private final XboxController copilot;
 
     private final Swerve drivetrain;
-    private final Hood hood;
     private final Collector collector;
     private final LEDSubsystem leds;
 
@@ -54,7 +53,6 @@ public class RobotContainer {
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
         drivetrain = OasisTunerConstants.createDrivetrain();
-        hood = new Hood();
         collector = new Collector();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
