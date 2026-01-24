@@ -5,6 +5,9 @@
 package frc.robot.constants;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MomentOfInertia;
+
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public class ShooterConstants {
@@ -18,4 +21,8 @@ public class ShooterConstants {
     public static final double kV = 0d; // temp
     public static final double kS = 0d; // temp
     public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2); // temp
+
+    public static final double GEAR_RATIO = 1d; // temp
+
+    public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
 }
