@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -48,8 +49,8 @@ public class Hood extends SubsystemBase {
                 HoodConstants.MIN_ANGLE.in(Radians), HoodConstants.MAX_ANGLE.in(Radians),
                 false, HoodConstants.MIN_ANGLE.in(Radians), 0d, 1d);
 
-
             motorSim = new TalonFXSimState(hoodMotor);
+
             motorSim.setRawRotorPosition(TurretConstants.MIN_ANGLE.in(Rotations));
         }
     }
@@ -66,9 +67,14 @@ public class Hood extends SubsystemBase {
     public void setPower(double power) {
         hoodMotor.setControl(dutyCycle.withOutput(power));
     }
+    /**
+     * Stops the hood motor.
+     */
+    public void stop() {
+        hoodMotor.stopMotor();
+    }
 
-
-    @Override
+        @Override
     public void simulationPeriodic() {
         double batteryVoltage = RobotController.getBatteryVoltage();
         motorSim.setSupplyVoltage(batteryVoltage);
@@ -83,12 +89,7 @@ public class Hood extends SubsystemBase {
         motorSim.setRotorVelocity(simVeloc);
 
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
-
-    }
-    /**
-     * Stops the hood motor.
-     */
-    public void stop() {
-        hoodMotor.stopMotor();
+        LightningShuffleboard.setDouble("Hood", "Sim Veloc", simVeloc.in(RadiansPerSecond));
+        LightningShuffleboard.setDouble("Hood", "Power", dutyCycle.Output);
     }
 }

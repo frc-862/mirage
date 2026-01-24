@@ -14,9 +14,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
@@ -35,6 +37,7 @@ public class RobotContainer {
     private final Swerve drivetrain;
     // private final Spindexer spindexer;
     // private final Collector collector;
+    private final Hood hood;
     private final LEDSubsystem leds;
 
     private final Telemetry logger;
@@ -48,6 +51,7 @@ public class RobotContainer {
         drivetrain = OasisTunerConstants.createDrivetrain();
         // Spindexer = new spindexer();
         // collector = new Collector();
+        hood = new Hood();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
@@ -85,6 +89,8 @@ public class RobotContainer {
                 VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
                 .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
                 ControllerConstants.POW), () -> -driver.getRightX()));
+
+        new Trigger(driver::getAButton).whileTrue(new StartEndCommand(() -> hood.setPower(1), () -> hood.setPower(-1), hood));
     }
 
     private void configureNamedCommands(){
