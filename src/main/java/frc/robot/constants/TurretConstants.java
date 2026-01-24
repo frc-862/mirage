@@ -34,7 +34,7 @@ public class TurretConstants {
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
     public static final Distance LENGTH = Meter.of(0.18);
 
-    public enum Canned_Shot {
+    public enum CannedShot {
         HUB,
         SQUARE_THING,
         CORNER_BOTTOM,
