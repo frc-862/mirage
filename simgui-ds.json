@@ -1,7 +1,7 @@
 {
-  "System Joysticks": {
+  "Keyboard 0 Settings": {
     "window": {
-      "enabled": false
+      "visible": true
     }
   },
   "keyboardJoysticks": [
@@ -96,7 +96,7 @@
   ],
   "robotJoysticks": [
     {
-      "guid": "030000006d04000016c2000000000000"
+      "guid": "Keyboard0"
     }
   ]
 }

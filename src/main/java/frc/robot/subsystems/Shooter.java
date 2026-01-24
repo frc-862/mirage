@@ -5,15 +5,26 @@
 package frc.robot.subsystems;
 
 
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.sim.TalonFXSimState;
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ShooterConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
+import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Shooter extends SubsystemBase {
 
@@ -21,7 +32,7 @@ public class Shooter extends SubsystemBase {
     private ThunderBird shooterMotor;
 
     private final DutyCycleOut dutyCycle;
-    private VelocityVoltage velocityPID;
+    private final VelocityVoltage velocityPID;
 
     private AngularVelocity targetVelocity;
 
@@ -46,7 +57,16 @@ public class Shooter extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {}
+    public void simulationPeriodic() {
+        motorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+        shooterSim.setInput(motorSim.getMotorVoltageMeasure().in(Volts));
+        shooterSim.update(Robot.kDefaultPeriod);
+
+        motorSim.setRotorVelocity(shooterSim.getAngularVelocity());
+
+        LightningShuffleboard.setDouble("Flywheel", "Velocity", getVelocity().in(RotationsPerSecond));
+    }
 
     /**
      * Sets motor power of the flywheel
