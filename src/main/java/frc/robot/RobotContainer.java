@@ -53,6 +53,8 @@ public class RobotContainer {
 
     private final Telemetry logger;
 
+    private double stuff;
+
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -84,9 +86,8 @@ public class RobotContainer {
                 ControllerConstants.POW), () -> -driver.getRightX()));
     }
 
-    private void configureBindings() { 
+    private void configureBindings() {
         new Trigger(driver::getAButton).whileTrue(new InstantCommand(() -> collector.setPosition(Degrees.of(45))));
-
 
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()
