@@ -32,15 +32,11 @@ public class TurretAim extends Command {
      */
     public TurretAim(Swerve drivetrain, Turret turret, Translation2d target) {
         this.drivetrain = drivetrain;
-        this.target = target;
         this.turret = turret;
+        this.target = target;
 
         addRequirements(turret);
     }
-
-    // Called when the command is initially scheduled.
-    @Override
-    public void initialize() {}
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override

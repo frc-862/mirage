@@ -5,22 +5,21 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Flywheel;
+import frc.robot.subsystems.Shooter;
 
-public class BasicShoot extends Command {
-
-    private Flywheel shooter;
+public class Shoot extends Command {
+    private Shooter shooter;
     private double power;
 
     /**
-     * Shoots the fuel toward the hub
-     *
+     * Basic command for moving the shooter
      * @param shooter The Shooter subsystem
-     * @param power   Motor power
+     * @param power Motor power
      */
-    public BasicShoot(Flywheel shooter, double power) {
+    public Shoot(Shooter shooter, double power) {
         this.shooter = shooter;
         this.power = power;
+
         addRequirements(shooter);
     }
 

@@ -10,8 +10,7 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-public class FlywheelConstants {
-
+public class ShooterConstants {
     public static final boolean INVERTED = false; //temp
     public static final double STATOR_LIMIT = 120.0; //temp
     public static final boolean BRAKE = false; //temp

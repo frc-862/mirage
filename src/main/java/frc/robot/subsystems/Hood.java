@@ -17,18 +17,22 @@ import edu.wpi.first.units.measure.Angle;
 import static frc.util.Units.clamp;
 
 public class Hood extends SubsystemBase {
-
-    public final DutyCycleOut dutyCycle = new DutyCycleOut(0.0);
-
     private ThunderBird hoodMotor;
 
+    public final DutyCycleOut dutyCycle;
+
     // create a Motion Magic request, voltage output
-    final MotionMagicVoltage request = new MotionMagicVoltage(0);
-    /** Creates a new Hood. */
+    final MotionMagicVoltage request;
+
+    /** Creates a new Hood Subsystem. */
     public Hood() {
         hoodMotor = new ThunderBird(RobotMap.HOOD_MOTOR_ID, RobotMap.CAN_BUS,
-            HoodConstants.HOOD_MOTOR_INVERTED, HoodConstants.HOOD_MOTOR_STATOR_LIMIT,
-            HoodConstants.HOOD_MOTOR_BRAKE_MODE);
+            HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
+            HoodConstants.BRAKE);
+
+        dutyCycle = new DutyCycleOut(0d);
+
+        request = new MotionMagicVoltage(0d);
 
         // in init function
         var talonFXConfigs = new TalonFXConfiguration();
@@ -51,18 +55,20 @@ public class Hood extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
-        // This method will be called once per scheduler run
-    }
+    public void periodic() {}
 
     /**
-     * Sets power to (-1 to 1) to the hood motor.
-     * @param power
+     * Set the power of the hood motor using duty cycle out
+     * @param power duty cycle value from -1.0 to 1.0
      */
     public void setPower(double power) {
         hoodMotor.setControl(dutyCycle.withOutput(power));
     }
 
+    /**
+     * Sets position of the hood
+     * @param position in degrees
+     */
     public void setPosition(Angle position) {
         position = clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
 
@@ -70,7 +76,7 @@ public class Hood extends SubsystemBase {
     }
 
     /**
-     * Stops the hood motor.
+     * stops all movement to the hood motor
      */
     public void stop() {
         hoodMotor.stopMotor();
