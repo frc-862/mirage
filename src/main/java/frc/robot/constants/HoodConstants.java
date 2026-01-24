@@ -17,7 +17,7 @@ public class HoodConstants {
     public static final double kI = 0.0; // TEMP
     public static final double kD = 0.0; // TEMP
     // Motion Magic parameters (https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html)
-    public static final double CruiseVelocity = 80.0; // TEMP
-    public static final double Acceleration = 160.0; // TEMP
-    public static final double Jerk = 1600.0; // TEMP
+    public static final double CRUISE_VELOCITY = 80.0; // TEMP
+    public static final double ACCELERATION = 160.0; // TEMP
+    public static final double JERK = 1600.0; // TEMP
 }

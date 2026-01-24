@@ -41,9 +41,9 @@ public class Hood extends SubsystemBase {
         slot0Configs.kD = HoodConstants.kD; // A velocity error of 1 rps results in 0.1 V output
         // set Motion Magic settings
         var motionMagicConfigs = talonFXConfigs.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = HoodConstants.CruiseVelocity; // Target cruise velocity of 80 rps
-        motionMagicConfigs.MotionMagicAcceleration = HoodConstants.Acceleration; // Target acceleration of 160 rps/s (0.5 seconds)
-        motionMagicConfigs.MotionMagicJerk = HoodConstants.Jerk; // Target jerk of 1600 rps/s/s (0.1 seconds)
+        motionMagicConfigs.MotionMagicCruiseVelocity = HoodConstants.CRUISE_VELOCITY; // Target cruise velocity of 80 rps
+        motionMagicConfigs.MotionMagicAcceleration = HoodConstants.ACCELERATION; // Target acceleration of 160 rps/s (0.5 seconds)
+        motionMagicConfigs.MotionMagicJerk = HoodConstants.JERK; // Target jerk of 1600 rps/s/s (0.1 seconds)
 
         hoodMotor.applyConfig(talonFXConfigs);
     }
