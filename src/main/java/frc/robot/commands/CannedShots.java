@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
-public class CannedShots {
+import edu.wpi.first.wpilibj2.command.Command;
+
+public class CannedShots extends Command {
 
 }

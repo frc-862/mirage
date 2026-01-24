@@ -1,12 +1,14 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meter;
+
+import java.util.HashMap;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
-
-import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
 public class TurretConstants {
     // Tolerance in degrees
@@ -31,4 +33,35 @@ public class TurretConstants {
 
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
     public static final Distance LENGTH = Meter.of(0.18);
+
+    public enum Canned_Shot {
+        HUB,
+        SQUARE_THING,
+        CORNER_BOTTOM,
+        CORNER_TOP,
+        TUNNEL_ENTRANCE_BOTTOM,
+        TUNNEL_ENTRANCE_TOP,
+    }
+
+    public static final HashMap<Canned_Shot, Double> SHOOTER_RPM_MAP = new HashMap<Canned_Shot, Double>() {
+        {
+            put(Canned_Shot.HUB, 1d);                   //placeholder value
+            put(Canned_Shot.SQUARE_THING, 1d);          //placeholder value
+            put(Canned_Shot.CORNER_BOTTOM, 1d);         //placeholder value
+            put(Canned_Shot.CORNER_TOP, 1d);            //placeholder value
+            put(Canned_Shot.TUNNEL_ENTRANCE_BOTTOM, 1d);//placeholder value
+            put(Canned_Shot.TUNNEL_ENTRANCE_TOP, 1d);   //placeholder value
+        }
+    };
+
+    public static final HashMap<Canned_Shot, Double> HOOD_ANGlE_MAP = new HashMap<Canned_Shot, Double>() {
+        {
+            put(Canned_Shot.HUB, 1d);                   //placeholder value
+            put(Canned_Shot.SQUARE_THING, 1d);          //placeholder value
+            put(Canned_Shot.CORNER_BOTTOM, 1d);         //placeholder value
+            put(Canned_Shot.CORNER_TOP, 1d);            //placeholder value
+            put(Canned_Shot.TUNNEL_ENTRANCE_BOTTOM, 1d);//placeholder value
+            put(Canned_Shot.TUNNEL_ENTRANCE_TOP, 1d);   //placeholder value
+        }
+    };
 }
