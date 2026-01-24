@@ -47,7 +47,10 @@ public class Shooter extends SubsystemBase {
             ShooterConstants.BRAKE));
     }
 
-    /** Creates a new Shooter Subsystem. */
+    /**
+     * Creates a new Shooter Subsystem.
+     * @param motor The motor to pass into the shooter.
+     */
     public Shooter(ThunderBird motor) {
         //Sets new motors
         shooterMotor = motor;
@@ -84,12 +87,12 @@ public class Shooter extends SubsystemBase {
 
         motorSim.setRotorVelocity(shooterSim.getAngularVelocity());
 
-        LightningShuffleboard.setDouble("Flywheel", "Velocity", getVelocity().in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Shooter", "Velocity", getVelocity().in(RotationsPerSecond));
     }
 
     /**
-     * Sets motor power of the flywheel
-     * @param power
+     * Sets power of the shooter motor
+     * @param power duty cycle value from -1.0 to 1.0
      */
     public void setPower(double power) {
         shooterMotor.setControl(dutyCycle.withOutput(power));
