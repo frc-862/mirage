@@ -84,6 +84,7 @@ public class RobotContainer {
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
             .onTrue(drivetrain.resetFieldCentricCommand());
 
+        drivetrain.registerTelemetry(logger::telemeterize);
         new Trigger(driver::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECTOR_POWER));
         //new Trigger(copilot::getBButton).whileTrue(new Spin(spindexer, SpindexerConstants.SPINDEXER_POWER));
 
