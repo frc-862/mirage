@@ -14,5 +14,3 @@ public class PoseConstants {
         public static final double ROT_TOLERANCE = 1.5;
         public static final double ROT_KS = 0; // 0.01 NOT APPLIED
     }
-
-

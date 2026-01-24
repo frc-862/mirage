@@ -46,9 +46,9 @@ public class Turret extends SubsystemBase {
     private TalonFXSimState motorSim;
     private CANcoderSimState encoderSim;
 
-    /** Creates a new TurretAim. */
+    /** Creates a new Turret Subsystem. */
     public Turret() {
-        motor = new ThunderBird(RobotMap.TURRET_MOTOR_ID, RobotMap.CAN_BUS, RobotMap.TURRET_MOTOR_INVERTED, RobotMap.TURRET_STATOR_LIMIT, RobotMap.TURRET_BRAKE);
+        motor = new ThunderBird(RobotMap.TURRET_MOTOR_ID, RobotMap.CAN_BUS, TurretConstants.INVERTED, TurretConstants.STATOR_LIMIT, TurretConstants.BRAKE);
         encoder = new CANcoder(RobotMap.TURRET_ENCODER_ID, RobotMap.CAN_BUS);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
@@ -89,33 +89,7 @@ public class Turret extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
-        // This method will be called once per scheduler run
-    }
-
-    /**
-     * @param angle sets the angle to the motor of the turret
-     */
-    public void setAngle(Angle angle) {
-        targetPosition = angle;
-        motor.setControl(positionPID.withPosition(targetPosition));
-    }
-
-    public Angle getAngle() {
-        return encoder.getAbsolutePosition().getValue();
-    }
-
-    public Angle getTargetAngle() {
-        return targetPosition;
-    }
-
-    public boolean isOnTarget() {
-        return MathUtil.isNear(getTargetAngle().in(Degree), getAngle().in(Degree), TurretConstants.TURRET_ANGLE_TOLERANCE);
-    }
-
-    public void stop() {
-        motor.stopMotor();
-    }
+    public void periodic() {}
 
     @Override
     public void simulationPeriodic() {
@@ -140,5 +114,45 @@ public class Turret extends SubsystemBase {
         LightningShuffleboard.setDouble("Turret", "current angle", getAngle().in(Degree));
         LightningShuffleboard.setDouble("Turret", "target angle", getTargetAngle().in(Degree));
         LightningShuffleboard.setBool("Turret", "on target", isOnTarget());
+    }
+
+    /**
+     * sets angle of the turret
+     * @param angle sets the angle to the motor of the turret
+     */
+    public void setAngle(Angle angle) {
+        targetPosition = angle;
+        motor.setControl(positionPID.withPosition(targetPosition));
+    }
+
+    /**
+     * gets the current angle of the turret
+     * @return angle of turret
+     */
+    public Angle getAngle() {
+        return encoder.getAbsolutePosition().getValue();
+    }
+
+    /**
+     * gets the current target angle of the turret
+     * @return target angle of turret
+     */
+    public Angle getTargetAngle() {
+        return targetPosition;
+    }
+
+    /**
+     * gets whether the turret is currently on target with set target angle
+     * @return whether turret on target
+     */
+    public boolean isOnTarget() {
+        return MathUtil.isNear(getTargetAngle().in(Degree), getAngle().in(Degree), TurretConstants.TURRET_ANGLE_TOLERANCE);
+    }
+
+    /**
+     * stops all movement to the turret motor
+     */
+    public void stop() {
+        motor.stopMotor();
     }
 }

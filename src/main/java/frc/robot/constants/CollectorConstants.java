@@ -10,12 +10,11 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 
 public class CollectorConstants {
-
-
-    // collector motor
+    // collector motor for the rollers
     public static final boolean COLLECTOR_MOTOR_INVERTED = false; // Temp
     public static final double COLLECTOR_MOTOR_STATOR_LIMIT = 40d; // Temp
-    public static final boolean COLLECTOR_MOTOR_BRAKE_MODE = true; // Temp
+    public static final boolean COLLECTOR_MOTOR_BRAKE = true; // Temp
+    public static final double COLLECT_POWER = 1d;
 
     public static final double COLLECTOR_SIM_kV = 0.24;
     public static final double COLLECTOR_SIM_kA = 0.8;

@@ -16,7 +16,6 @@ import frc.robot.subsystems.Swerve;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class PoseBasedAutoAlign extends Command {
-
     //creates drivetrain variable
     private Swerve drivetrain;
 
