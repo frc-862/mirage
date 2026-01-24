@@ -5,36 +5,31 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Indexer;
 
-public class BasicShoot extends Command {
-    private Shooter shooter;
+public class Index extends Command {
+    private Indexer indexer;
     private double power;
 
     /**
-     * Basic command for moving the shooter
-     * @param shooter The Shooter subsystem
+     * Basic command for moving the indexer
+     * @param indexer The indexer subsystem
      * @param power Motor power
      */
-    public BasicShoot(Shooter shooter, double power) {
-        this.shooter = shooter;
+    public Index(Indexer indexer, double power) {
+        this.indexer = indexer;
         this.power = power;
 
-        addRequirements(shooter);
+        addRequirements(indexer);
     }
 
     @Override
     public void initialize() {
-        shooter.setPower(power);
+        indexer.setPower(power);
     }
 
     @Override
     public void end(boolean interrupted) {
-        shooter.stopMotor();
-    }
-
-    @Override
-    public boolean isFinished() {
-        return false;
+        indexer.stop();
     }
 }

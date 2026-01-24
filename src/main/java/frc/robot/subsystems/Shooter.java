@@ -40,7 +40,7 @@ public class Shooter extends SubsystemBase {
 
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
-        this(new ThunderBird(RobotMap.FLYWHEEL_MOTOR_ID, RobotMap.CAN_BUS,
+        this(new ThunderBird(RobotMap.SHOOTER_MOTOR_ID, RobotMap.CAN_BUS,
             ShooterConstants.INVERTED, ShooterConstants.STATOR_LIMIT, ShooterConstants.BRAKE));
     }
 
@@ -49,14 +49,13 @@ public class Shooter extends SubsystemBase {
      * @param motor the ThunderBird motor to use for the shooter
      */
     public Shooter(ThunderBird motor) {
-        //Sets the flywheel motor
         this.motor = motor;
 
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
 
-        //creates a config for the flywheel motor
+        //creates a config for the shooter motor
         TalonFXConfiguration config = motor.getConfig();
 
         config.Slot0.kP = ShooterConstants.kP;

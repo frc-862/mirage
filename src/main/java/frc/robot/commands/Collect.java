@@ -5,31 +5,31 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Collector;
 
-public class BasicIndex extends Command {
-    private Indexer indexer;
+public class Collect extends Command {
+    private Collector collector;
     private double power;
 
     /**
-     * Basic command for moving the indexer
-     * @param indexer The indexer subsystem
+     * Basic command for moving the rollers of the collector
+     * @param collector The collector subsystem
      * @param power Motor power
      */
-    public BasicIndex(Indexer indexer, double power) {
-        this.indexer = indexer;
+    public Collect(Collector collector, double power) {
+        this.collector = collector;
         this.power = power;
 
-        addRequirements(indexer);
+        addRequirements(collector);
     }
 
     @Override
     public void initialize() {
-        indexer.setPower(power);
+        collector.setCollectorPower(power);
     }
 
     @Override
     public void end(boolean interrupted) {
-        indexer.stop();
+        collector.stopCollector();
     }
 }

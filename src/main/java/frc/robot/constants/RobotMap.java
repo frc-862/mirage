@@ -20,12 +20,12 @@ public class RobotMap {
     // Hood Motor ID
     public static final int HOOD_MOTOR_ID = 3; // Temp
 
-    // collector: intake / Pivot
-    public static final int INTAKE_MOTOR_ID = 9; // Temp
+    // Collector: collector motor / Pivot
+    public static final int COLLECTOR_MOTOR_ID = 9; // Temp
     public static final int PIVOT_MOTOR_ID = 5; // Temp
     public static final int PIVOT_ENCODER_ID = 35; // Temp
 
-    //Flywheel
-    public static final int FLYWHEEL_MOTOR_ID = 17; //temp
+    // Shooter
+    public static final int SHOOTER_MOTOR_ID = 17; //temp
 }
 

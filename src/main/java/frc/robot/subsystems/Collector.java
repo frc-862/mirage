@@ -31,24 +31,24 @@ import frc.util.shuffleboard.LightningShuffleboard;
 import static frc.util.Units.clamp;
 
 public class Collector extends SubsystemBase {
-    private final ThunderBird intakeMotor;
+    private final ThunderBird collectorMotor;
     private final ThunderBird pivotMotor;
     private final CANcoder encoder;
 
-    private LinearSystemSim<N1, N1, N1> intakeSim;
-    private TalonFXSimState intakeMotorSim;
+    private LinearSystemSim<N1, N1, N1> collectorSim;
+    private TalonFXSimState collectorMotorSim;
 
-    private final DutyCycleOut intakeDuty;
+    private final DutyCycleOut collectorDutyCycle;
 
     private Angle targetPivotPosition = Degrees.of(0);
     private final PositionVoltage positionPID;
 
     /**
-     * Creates a new Collector Subsystem with an Intake and a Pivot motor.
+     * Creates a new Collector Subsystem.
      */
     public Collector() {
-        intakeMotor = new ThunderBird(RobotMap.INTAKE_MOTOR_ID, RobotMap.CAN_BUS,
-            CollectorConstants.INTAKE_MOTOR_INVERTED, CollectorConstants.INTAKE_MOTOR_STATOR_LIMIT, CollectorConstants.INTAKE_MOTOR_BRAKE_MODE);
+        collectorMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
+            CollectorConstants.COLLECTOR_MOTOR_INVERTED, CollectorConstants.COLLECTOR_MOTOR_STATOR_LIMIT, CollectorConstants.COLLECTOR_MOTOR_BRAKE);
 
         pivotMotor = new ThunderBird(RobotMap.PIVOT_MOTOR_ID, RobotMap.CAN_BUS,
             CollectorConstants.PIVOT_INVERTED, CollectorConstants.PIVOT_STATOR_LIMIT, CollectorConstants.PIVOT_BRAKE_MODE);
@@ -61,7 +61,7 @@ public class Collector extends SubsystemBase {
         encoder.getConfigurator().apply(angleConfig);
 
 
-        intakeDuty = new DutyCycleOut(0.0);
+        collectorDutyCycle = new DutyCycleOut(0.0);
         positionPID = new PositionVoltage(0);
 
         TalonFXConfiguration config = pivotMotor.getConfig();
@@ -82,10 +82,10 @@ public class Collector extends SubsystemBase {
         pivotMotor.applyConfig(config);
 
         if (Robot.isSimulation()) {
-            intakeSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.INTAKE_SIM_kV,
-                CollectorConstants.INTAKE_SIM_kA));
-            intakeMotorSim = intakeMotor.getSimState();
-            intakeMotorSim.setMotorType(MotorType.KrakenX60);
+            collectorSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
+                CollectorConstants.COLLECTOR_SIM_kA));
+            collectorMotorSim = collectorMotor.getSimState();
+            collectorMotorSim.setMotorType(MotorType.KrakenX60);
         }
     }
 
@@ -94,29 +94,29 @@ public class Collector extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        intakeMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+        collectorMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        intakeSim.setInput(intakeMotorSim.getMotorVoltageMeasure().in(Volts));
-        intakeSim.update(Robot.kDefaultPeriod);
+        collectorSim.setInput(collectorMotorSim.getMotorVoltageMeasure().in(Volts));
+        collectorSim.update(Robot.kDefaultPeriod);
 
-        intakeMotorSim.setRotorVelocity(intakeSim.getOutput(0));
+        collectorMotorSim.setRotorVelocity(collectorSim.getOutput(0));
 
         LightningShuffleboard.setDouble("Collector", "Velocity", getVelocity().in(RotationsPerSecond));
     }
 
     /**
-     * Set the power of the intake motor using duty cycle out
+     * Set the power of the collector motor using duty cycle out
      * @param power duty cycle value from -1.0 to 1.0
      */
-    public void setIntakePower(double power) {
-        intakeMotor.setControl(intakeDuty.withOutput(power));
+    public void setCollectorPower(double power) {
+        collectorMotor.setControl(collectorDutyCycle.withOutput(power));
     }
 
     /**
-     * Stops all movement to the intake motor
+     * Stops all movement to the collector motor
      */
-    public void stopIntake() {
-        intakeMotor.stopMotor();
+    public void stopCollector() {
+        collectorMotor.stopMotor();
     }
 
     /**
@@ -125,7 +125,7 @@ public class Collector extends SubsystemBase {
      * @return the collector motor velocity as an {@link AngularVelocity}
      */
     public AngularVelocity getVelocity() {
-        return intakeMotor.getVelocity().getValue();
+        return collectorMotor.getVelocity().getValue();
     }
 
     /**

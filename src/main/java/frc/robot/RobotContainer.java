@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.BasicIntake;
+import frc.robot.commands.Collect;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
@@ -90,7 +90,7 @@ public class RobotContainer {
                 ControllerConstants.POW), () -> -driver.getRightX()));
 
         /* Copilot */
-        new Trigger(copilot::getAButton).whileTrue(new BasicIntake(collector, CollectorConstants.INTAKE_POWER));
+        new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
     }
 
     private void configureNamedCommands(){
