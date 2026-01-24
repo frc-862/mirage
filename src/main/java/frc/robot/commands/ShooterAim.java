@@ -16,30 +16,23 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
+import frc.robot.constants.HoodConstants;
+import frc.robot.constants.ShooterConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Swerve;
 
 public class ShooterAim extends Command {
-
     private final Shooter shooter;
     private final Swerve swerve;
     private final Hood hood;
     private final Translation2d target;
 
-    // Input is distance to target in meters, output is shooter speed in rotations per second
-    private static final InterpolatingDoubleTreeMap VELOCITY_MAP = InterpolatingDoubleTreeMap.ofEntries(
-        Map.entry(2d, 20d),
-        Map.entry(4d, 40d),
-        Map.entry(6d, 60d)
-    );
-
-    // Input is distance to target in meters, output is hood angle in degrees
-    private static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
-        Map.entry(2d, 10d),
-        Map.entry(4d, 20d),
-        Map.entry(6d, 30d)
-    );
-
+    /**
+     * Point the shooter and angle the hood so the fuel shot reaches the hub
+     * @param swerve swerve to get robot pose
+     * @param turret shooter to spin the shooter subsytem
+     * @param target a Translation2d representing where the shooter should shoot at
+     */
     public ShooterAim(Shooter shooter, Swerve swerve, Hood hood, Translation2d target) {
         this.shooter = shooter;
         this.swerve = swerve;
@@ -54,8 +47,8 @@ public class ShooterAim extends Command {
         Pose2d robotPose = swerve.getPose();
         double distanceMeters = robotPose.getTranslation().getDistance(target);
 
-        AngularVelocity shooterVelocity = RotationsPerSecond.of(VELOCITY_MAP.get(distanceMeters));
-        Angle hoodAngle = Degrees.of(HOOD_MAP.get(distanceMeters));
+        AngularVelocity shooterVelocity = RotationsPerSecond.of(ShooterConstants.VELOCITY_MAP.get(distanceMeters));
+        Angle hoodAngle = Degrees.of(HoodConstants.HOOD_MAP.get(distanceMeters));
 
         hood.setPosition(hoodAngle);
         shooter.setVelocity(shooterVelocity);

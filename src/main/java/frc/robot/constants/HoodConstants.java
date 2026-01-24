@@ -4,12 +4,22 @@
 
 package frc.robot.constants;
 
+import java.util.Map;
+
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+
 /** Constants for Hood */
 public class HoodConstants {
     public static final boolean INVERTED = false; // Temp
     public static final double STATOR_LIMIT = 40d; // Temp
     public static final boolean BRAKE = false; // Temp
     public static final double HOOD_MOTOR_POWER = 1d;
+
+    // Input is distance to target in meters, output is hood angle in degrees
+    public static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
+        Map.entry(2d, 10d),
+        Map.entry(4d, 20d),
+        Map.entry(6d, 30d));
 
     // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html
     public static final double kS = 0.0; // TEMP
