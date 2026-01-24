@@ -37,4 +37,10 @@ public class HoodConstants {
     public static final double CRUISE_VELOCITY = 80.0; // TEMP
     public static final double ACCELERATION = 160.0; // TEMP
     public static final double JERK = 1600.0; // TEMP
+    // Angle limits
+    public static final Angle MIN_ANGLE = Degrees.of(0); // temp
+    public static final Angle MAX_ANGLE = Degrees.of(90); // temp
+    // Tolerance for being "on target"
+    public static final Angle POSITION_TOLERANCE = Degrees.of(0.41); // temp
+
 }
