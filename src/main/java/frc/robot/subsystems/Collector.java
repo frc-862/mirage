@@ -1,17 +1,18 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.CollectorConstants;
@@ -22,15 +23,17 @@ import frc.util.shuffleboard.LightningShuffleboard;
 public class Collector extends SubsystemBase {
     private ThunderBird collectMotor;
     private ThunderBird pivotMotor;
-
     private TalonFXSimState pivotSim;
-    private LinearSystemSim<N1, N1, N1> linearPivotSim;
+    private SingleJointedArmSim collectorPivotSim;
+
     private double simMechanismPosition = 0.0; // Track position in rotations
 
     private final DutyCycleOut collectorDuty;
 
     private Angle targetPivotPosition = Degrees.of(0);
     private final PositionVoltage positionPID;
+
+    private DCMotor gearbox;
 
     public Collector() {
         collectMotor = new ThunderBird(RobotMap.COLLECTOR_MOTOR_ID, RobotMap.CAN_BUS,
@@ -58,9 +61,12 @@ public class Collector extends SubsystemBase {
         pivotMotor.applyConfig(config);
 
         if(Robot.isSimulation()){
-            linearPivotSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
-            CollectorConstants.COLLECTOR_SIM_kA));
+            collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ROTOR_TO_ENCODER_RATIO, CollectorConstants.MOI.magnitude(),
+            CollectorConstants.LENGTH.magnitude(), CollectorConstants.MIN_ANGLE.in(Radians), CollectorConstants.MAX_ANGLE.in(Radians), false,
+            CollectorConstants.MIN_ANGLE.in(Radians), 0d,1d);
+
             pivotSim = pivotMotor.getSimState();
+            pivotSim.setRawRotorPosition(CollectorConstants.MIN_ANGLE.in(Radians));
         }
     }
 
@@ -73,26 +79,32 @@ public class Collector extends SubsystemBase {
     public void simulationPeriodic(){
         pivotSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
+        Angle simAngle = Rotations.of(collectorPivotSim.getAngleRads());
+
+        pivotSim.setRawRotorPosition(simAngle);
+
         // Get the motor voltage output
-        double motorVoltage = pivotSim.getMotorVoltage();
+        // double motorVoltage = pivotSim.getMotorVoltage();
 
         // Update the physics simulation with voltage input
-        linearPivotSim.setInput(motorVoltage);
-        linearPivotSim.update(0.020); // 20ms period
+        // linearPivotSim.setInput(motorVoltage);
+        // linearPivotSim.update(0.020); // 20ms period
 
-        // Get simulated velocity (output of velocity system) in rotations/sec
-        double mechanismVelocity = linearPivotSim.getOutput(0);
+        // pivotSim = new SingleJointedArmSim(null, motorVoltage, motorVoltage, motorVoltage, motorVoltage, motorVoltage, false, motorVoltage, null);
+
+        // // Get simulated velocity (output of velocity system) in rotations/sec
+        // double mechanismVelocity = linearPivotSim.getOutput(0);
 
         // Integrate velocity to get position
-        simMechanismPosition += mechanismVelocity * 0.020; // position in rotations
+        // simMechanismPosition += mechanismVelocity * 0.020; // position in rotations
 
-        // Convert mechanism values to rotor values (multiply by gear ratio)
-        double rotorPosition = simMechanismPosition * CollectorConstants.ROTOR_TO_ENCODER_RATIO;
-        double rotorVelocity = mechanismVelocity * CollectorConstants.ROTOR_TO_ENCODER_RATIO;
+        // // Convert mechanism values to rotor values (multiply by gear ratio)
+        // double rotorPosition = simMechanismPosition * CollectorConstants.ROTOR_TO_ENCODER_RATIO;
+        // double rotorVelocity = mechanismVelocity * CollectorConstants.ROTOR_TO_ENCODER_RATIO;
 
         // Apply the simulated state back to the motor
-        pivotSim.setRawRotorPosition(rotorPosition);
-        pivotSim.setRotorVelocity(rotorVelocity);
+        // pivotSim.setRawRotorPosition(rotorPosition);
+        // pivotSim.setRotorVelocity(rotorVelocity);
 
         LightningShuffleboard.setDouble("Collector", "Collector Pivot", getPosition());
     }

@@ -1,8 +1,13 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.MomentOfInertia;
 
 public class CollectorConstants {
 
@@ -34,4 +39,7 @@ public class CollectorConstants {
     public static final Angle MIN_ANGLE = Degrees.of(-85); // Temp
     public static final Angle MAX_ANGLE = Degrees.of(85); // Temp
     public static final Angle TOLERANCE = Degrees.of(5); // Temp
+
+    public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); //Temp
+    public static final Distance LENGTH = Inches.of(6);
 }
