@@ -4,6 +4,10 @@
 
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Degrees;
+
+import edu.wpi.first.units.measure.Angle;
+
 /** Constants for Hood */
 public class HoodConstants {
     public static final boolean HOOD_MOTOR_INVERTED = false; // Temp
@@ -22,4 +26,8 @@ public class HoodConstants {
     public static final double CRUISE_VELOCITY = 80.0; // TEMP
     public static final double ACCELERATION = 160.0; // TEMP
     public static final double JERK = 1600.0; // TEMP
+    // Angle limits
+    public static final Angle MIN_ANGLE = Degrees.of(0);
+    public static final Angle MAX_ANGLE = Degrees.of(90);
+
 }

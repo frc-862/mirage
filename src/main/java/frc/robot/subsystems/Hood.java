@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -13,6 +14,7 @@ import frc.util.hardware.ThunderBird;
 import frc.robot.constants.RobotMap;
 import frc.robot.constants.HoodConstants;
 import edu.wpi.first.units.measure.Angle;
+import static frc.util.Units.clamp;
 
 public class Hood extends SubsystemBase {
 
@@ -62,6 +64,8 @@ public class Hood extends SubsystemBase {
     }
 
     public void setPosition(Angle position) {
+        position = clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
+
         hoodMotor.setControl(request.withPosition(position));
     }
 
