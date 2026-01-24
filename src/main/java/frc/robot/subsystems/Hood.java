@@ -123,7 +123,5 @@ public class Hood extends SubsystemBase {
         motorSim.setRotorVelocity(simVeloc);
 
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
-        LightningShuffleboard.setDouble("Hood", "Sim Veloc", simVeloc.in(RadiansPerSecond));
-        LightningShuffleboard.setDouble("Hood", "Power", dutyCycle.Output);
     }
 }

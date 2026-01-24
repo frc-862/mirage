@@ -19,11 +19,11 @@ public class HoodConstants {
     public static final boolean BRAKE = false; // Temp
     public static final double HOOD_MOTOR_POWER = 1d;
 
-    public static final Angle MIN_ANGLE = Degree.of(-90);
-    public static final Angle MAX_ANGLE = Degree.of(90);
+    public static final Angle MIN_ANGLE = Degree.of(-90); // Temp
+    public static final Angle MAX_ANGLE = Degree.of(90); // Temp
 
-    public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
-    public static final Distance LENGTH = Meter.of(0.18);
+    public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086); // Temp
+    public static final Distance LENGTH = Meter.of(0.18); // Temp
     public static final double GEARING_RATIO = 5d; // temp
 
     // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html
