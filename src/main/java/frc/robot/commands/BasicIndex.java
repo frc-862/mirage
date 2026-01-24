@@ -5,33 +5,31 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Collector;
+import frc.robot.subsystems.Indexer;
 
-public class BasicCollect extends Command {
-    private Collector collector;
+public class BasicIndex extends Command {
+    private Indexer indexer;
     private double power;
 
     /**
-     * Collects fuel from the field
-     *
-     * @param collector The collector subsystem
-     * @param power     Motor power
+     * Basic command for moving the indexer
+     * @param indexer The indexer subsystem
+     * @param power Motor power
      */
-
-    public BasicCollect(Collector collector, double power) {
-        this.collector = collector;
+    public BasicIndex(Indexer indexer, double power) {
+        this.indexer = indexer;
         this.power = power;
 
-        addRequirements(collector);
+        addRequirements(indexer);
     }
 
     @Override
     public void initialize() {
-        collector.setPower(power);
+        indexer.setPower(power);
     }
 
     @Override
     public void end(boolean interrupted) {
-        collector.stop();
+        indexer.stop();
     }
 }

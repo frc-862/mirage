@@ -5,36 +5,31 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Collector;
 
-public class BasicShoot extends Command {
-    private Shooter shooter;
+public class BasicIntake extends Command {
+    private Collector collector;
     private double power;
 
     /**
-     * Basic command for moving the shooter
-     * @param shooter The Shooter subsystem
+     * Basic command for moving the intake of the collector
+     * @param collector The collector subsystem
      * @param power Motor power
      */
-    public BasicShoot(Shooter shooter, double power) {
-        this.shooter = shooter;
+    public BasicIntake(Collector collector, double power) {
+        this.collector = collector;
         this.power = power;
 
-        addRequirements(shooter);
+        addRequirements(collector);
     }
 
     @Override
     public void initialize() {
-        shooter.setPower(power);
+        collector.setIntakePower(power);
     }
 
     @Override
     public void end(boolean interrupted) {
-        shooter.stopMotor();
-    }
-
-    @Override
-    public boolean isFinished() {
-        return false;
+        collector.stopIntake();
     }
 }

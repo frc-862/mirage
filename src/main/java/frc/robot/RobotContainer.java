@@ -15,33 +15,27 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.BasicCollect;
-import frc.robot.commands.BasicSpin;
+import frc.robot.commands.BasicIntake;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.Collector;
-import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.OasisTunerConstants;
-import frc.robot.constants.SpindexerConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
-
     private final XboxController driver;
     private final XboxController copilot;
 
     private final Swerve drivetrain;
-    // private final Spindexer spindexer;
     private final Collector collector;
     private final LEDSubsystem leds;
 
@@ -54,7 +48,6 @@ public class RobotContainer {
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
         drivetrain = OasisTunerConstants.createDrivetrain();
-        // Spindexer = new spindexer();
         collector = new Collector();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
@@ -67,6 +60,7 @@ public class RobotContainer {
     }
 
     private void configureDefaultCommands() {
+        /* Driver */
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(drivetrain.driveCommand(
@@ -77,6 +71,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        /* Driver */
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()
                 .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
@@ -87,14 +82,15 @@ public class RobotContainer {
             .onTrue(drivetrain.resetFieldCentricCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
-        new Trigger(driver::getAButton).whileTrue(new BasicCollect(collector, CollectorConstants.COLLECTOR_POWER));
-        //new Trigger(copilot::getBButton).whileTrue(new Spin(spindexer, SpindexerConstants.SPINDEXER_POWER));
 
         new Trigger(driver::getLeftBumperButton).whileTrue(drivetrain.robotCentricDrive(
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
                 VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
                 .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
                 ControllerConstants.POW), () -> -driver.getRightX()));
+
+        /* Copilot */
+        new Trigger(copilot::getAButton).whileTrue(new BasicIntake(collector, CollectorConstants.INTAKE_POWER));
     }
 
     private void configureNamedCommands(){

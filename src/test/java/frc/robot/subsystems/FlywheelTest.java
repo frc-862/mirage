@@ -25,7 +25,7 @@ public class FlywheelTest {
   private static final double DUTY_TOL = 0.01;
   private static final double DEFAULT_TIMEOUT_S = 1.0;
 
-  private Flywheel flywheel;
+  private Shooter flywheel;
   private MotorUnderTest motorUnderTest;
 
   @BeforeEach
@@ -37,12 +37,12 @@ public class FlywheelTest {
     var motor = new frc.util.hardware.ThunderBird(
         frc.robot.constants.RobotMap.FLYWHEEL_MOTOR_ID,
         frc.robot.constants.RobotMap.CAN_BUS,
-        frc.robot.constants.FlywheelConstants.INVERTED,
-        frc.robot.constants.FlywheelConstants.STATOR_LIMIT,
-        frc.robot.constants.FlywheelConstants.BRAKE
+        frc.robot.constants.ShooterConstants.INVERTED,
+        frc.robot.constants.ShooterConstants.STATOR_LIMIT,
+        frc.robot.constants.ShooterConstants.BRAKE
     );
 
-    flywheel = new Flywheel(motor);
+    flywheel = new Shooter(motor);
 
     motorUnderTest = new MotorUnderTest(
         motor,

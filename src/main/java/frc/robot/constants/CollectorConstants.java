@@ -5,16 +5,14 @@ import static edu.wpi.first.units.Units.Degrees;
 import edu.wpi.first.units.measure.Angle;
 
 public class CollectorConstants {
+    // collector intake motor
+    public static final boolean INTAKE_MOTOR_INVERTED = false; // Temp
+    public static final double INTAKE_MOTOR_STATOR_LIMIT = 40d; // Temp
+    public static final boolean INTAKE_MOTOR_BRAKE_MODE = true; // Temp
+    public static final double INTAKE_POWER = 1d;
 
-
-    // collector motor
-    public static final boolean COLLECTOR_MOTOR_INVERTED = false; // Temp
-    public static final double COLLECTOR_MOTOR_STATOR_LIMIT = 40d; // Temp
-    public static final boolean COLLECTOR_MOTOR_BRAKE_MODE = true; // Temp
-    public static final double COLLECTOR_POWER = 1d;
-
-    public static final double COLLECTOR_SIM_kV = 0.24;
-    public static final double COLLECTOR_SIM_kA = 0.8;
+    public static final double INTAKE_SIM_kV = 0.24;
+    public static final double INTAKE_SIM_kA = 0.8;
 
     // collector pivot motor config
     public static final double PIVOT_KP = 0.3d; // temp
