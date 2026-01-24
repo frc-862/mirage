@@ -11,9 +11,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
+import frc.util.shuffleboard.LightningShuffleboard;
+
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radian;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 
@@ -39,27 +40,24 @@ public class TurretAim extends Command {
 
     // Called when the command is initially scheduled.
     @Override
-    public void initialize() {
-    }
+    public void initialize() {}
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        // Get our robot pose
         Pose2d robotPose = drivetrain.getPose();
 
-        // Get the translation assuming the robot at (0, 0)
         Translation2d delta = target.minus(robotPose.getTranslation());
 
         /*
-        Get the distance from the robot to the target shot via the norm of the
-        translation
+        * Get the distance from the robot to the target shot via the norm of the
+        * translation
         */
         distanceToTargetMeters = Meters.of(delta.getNorm());
 
         /*
-        Well add values if we have to based on however the angles acually get
-        calculated
+        * Well add values if we have to based on however the angles acually get
+        * calculated
         */
         Angle fieldAngle = delta.getAngle().getMeasure();
         Angle turretAngle = fieldAngle.minus(Degree.of(robotPose.getRotation().getDegrees()));
@@ -69,7 +67,6 @@ public class TurretAim extends Command {
                 .of(MathUtil.inputModulus(turretAngle.in(Degree), TurretConstants.MIN_ANGLE.in(Degree),
                         TurretConstants.MAX_ANGLE.in(Degree)));
 
-        // Set the turret angle based off our robot angle as well
         turret.setAngle(wrappedAngle);
     }
 
@@ -82,10 +79,13 @@ public class TurretAim extends Command {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        // if Math.abs(turretTargetAngle - turret.getAngle()) > someTolerance
         return turret.isOnTarget();
     }
 
+    /**
+     * gets the distance from current turret angle to target turret angle
+     * @return distance to target in meters
+     */
     public Distance getDistanceToTargetMeters() {
         return distanceToTargetMeters;
     }
