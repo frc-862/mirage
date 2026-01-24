@@ -9,6 +9,8 @@ public class HoodConstants {
     public static final boolean HOOD_MOTOR_INVERTED = false; // Temp
     public static final double HOOD_MOTOR_STATOR_LIMIT = 40d; // Temp
     public static final boolean HOOD_MOTOR_BRAKE_MODE = false; // Temp
+    public static final double HOOD_MOTOR_POWER = 1d;
+
     // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html
     public static final double kS = 0.0; // TEMP
     public static final double kV = 0.0; // TEMP
