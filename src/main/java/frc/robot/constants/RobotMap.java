@@ -28,6 +28,6 @@ public class RobotMap {
     public static final int PIVOT_ENCODER_ID = 35; // Temp
 
     //Flywheel
-    public static final int FLYWHEEL_MOTOR_ID = 4; //temp
+    public static final int FLYWHEEL_MOTOR_ID = 17; //temp
 }
 
