@@ -27,14 +27,14 @@ public class ShooterAim extends Command {
     private final Translation2d target;
 
     // Input is distance to target in meters, output is shooter speed in rotations per second
-    private final InterpolatingDoubleTreeMap VELOCITY_MAP = InterpolatingDoubleTreeMap.ofEntries(
+    private static final InterpolatingDoubleTreeMap VELOCITY_MAP = InterpolatingDoubleTreeMap.ofEntries(
         Map.entry(2d, 20d),
         Map.entry(4d, 40d),
         Map.entry(6d, 60d)
     );
 
-    // Input is distance to target in meters, output is hood agle in degrees
-    private final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
+    // Input is distance to target in meters, output is hood angle in degrees
+    private static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
         Map.entry(2d, 10d),
         Map.entry(4d, 20d),
         Map.entry(6d, 30d)
@@ -65,6 +65,7 @@ public class ShooterAim extends Command {
     @Override
     public void end(boolean interrupted) {
         shooter.stopMotor();
+        hood.stop();
     }
 
     // Returns true when the command should end.
