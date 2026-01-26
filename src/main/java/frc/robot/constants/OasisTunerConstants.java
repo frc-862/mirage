@@ -70,7 +70,7 @@ public class OasisTunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final Current kSlipCurrent = Amps.of(120.0);
+    private static final Current kSlipCurrent = Amps.of(120);
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -89,11 +89,11 @@ public class OasisTunerConstants {
 
     // CAN bus that the devices are located on;
     // All swerve devices must share the same CAN bus
-    public static final CANBus kCANBus = RobotMap.CAN_BUS;
+    public static final CANBus kCANBus = new CANBus("Canivore", "./logs/example.hoot");
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
-    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.73);
+    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.58);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
@@ -148,7 +148,7 @@ public class OasisTunerConstants {
     private static final int kFrontLeftDriveMotorId = 1;
     private static final int kFrontLeftSteerMotorId = 2;
     private static final int kFrontLeftEncoderId = 31;
-    private static final Angle kFrontLeftEncoderOffset = Rotations.of(-0.436279);
+    private static final Angle kFrontLeftEncoderOffset = Rotations.of(0.062744140625);
     private static final boolean kFrontLeftSteerMotorInverted = true;
     private static final boolean kFrontLeftEncoderInverted = false;
 
@@ -159,7 +159,7 @@ public class OasisTunerConstants {
     private static final int kFrontRightDriveMotorId = 3;
     private static final int kFrontRightSteerMotorId = 4;
     private static final int kFrontRightEncoderId = 32;
-    private static final Angle kFrontRightEncoderOffset = Rotations.of(-0.452393);
+    private static final Angle kFrontRightEncoderOffset = Rotations.of(0.051025390625);
     private static final boolean kFrontRightSteerMotorInverted = true;
     private static final boolean kFrontRightEncoderInverted = false;
 
@@ -170,7 +170,7 @@ public class OasisTunerConstants {
     private static final int kBackLeftDriveMotorId = 5;
     private static final int kBackLeftSteerMotorId = 6;
     private static final int kBackLeftEncoderId = 33;
-    private static final Angle kBackLeftEncoderOffset = Rotations.of(0.063721);
+    private static final Angle kBackLeftEncoderOffset = Rotations.of(-0.430908203125);
     private static final boolean kBackLeftSteerMotorInverted = true;
     private static final boolean kBackLeftEncoderInverted = false;
 
@@ -181,7 +181,7 @@ public class OasisTunerConstants {
     private static final int kBackRightDriveMotorId = 7;
     private static final int kBackRightSteerMotorId = 8;
     private static final int kBackRightEncoderId = 34;
-    private static final Angle kBackRightEncoderOffset = Rotations.of(-0.351318);
+    private static final Angle kBackRightEncoderOffset = Rotations.of(0.140869140625);
     private static final boolean kBackRightSteerMotorInverted = true;
     private static final boolean kBackRightEncoderInverted = false;
 
@@ -213,8 +213,6 @@ public class OasisTunerConstants {
     /**
      * Creates a CommandSwerveDrivetrain instance.
      * This should only be called once in your robot program,.
-     *
-     * @return The Swerve drivetrain instance.
      */
     public static Swerve createDrivetrain() {
         return new Swerve(
