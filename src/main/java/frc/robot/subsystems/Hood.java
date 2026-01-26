@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.util.hardware.ThunderBird;
 import frc.robot.constants.RobotMap;
 import frc.robot.constants.HoodConstants;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import static frc.util.Units.clamp;
 
@@ -27,7 +26,7 @@ public class Hood extends SubsystemBase {
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
-        hoodMotor = new ThunderBird(RobotMap.HOOD_MOTOR_ID, RobotMap.CAN_BUS,
+        hoodMotor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
             HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
             HoodConstants.BRAKE);
 
