@@ -23,7 +23,6 @@ import frc.robot.subsystems.Swerve;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ControllerDrive extends Command {
-
     DoubleSupplier xInput;
     DoubleSupplier yInput;
     DoubleSupplier rInput;
@@ -44,15 +43,15 @@ public class ControllerDrive extends Command {
      * @param isSlowMode
      * @param drivetrain
      */
-    public ControllerDrive(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput, 
+    public ControllerDrive(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput,
         BooleanSupplier isFieldCentric, BooleanSupplier isSlowMode, Swerve drivetrain) {
-        
             this.xInput = xInput;
             this.yInput = yInput;
             this.rInput = rInput;
             this.isFieldCentric = isFieldCentric;
             this.isSlowMode = isSlowMode;
             this.drivetrain = drivetrain;
+
             addRequirements(drivetrain);
     }
 
@@ -64,13 +63,11 @@ public class ControllerDrive extends Command {
      * @param drivetrain
      */
     public ControllerDrive(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput, Swerve drivetrain) {
-        
         this(xInput, yInput, rInput, () -> true, () -> false, drivetrain);
     }
 
     @Override
     public void execute() {
-    
         translation = new Vector<>(new SimpleMatrix(new double[] {xInput.getAsDouble(), yInput.getAsDouble()}));
         translation = MathUtil.applyDeadband(translation, ControllerConstants.DEADBAND);
         translation = MathUtil.copyDirectionPow(translation, ControllerConstants.POW);
@@ -96,7 +93,7 @@ public class ControllerDrive extends Command {
                 .withRotationalRate(DriveConstants.MaxAngularRate.times(rot))
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
         }
-        
+
         drivetrain.setControl(request);
     }
 }

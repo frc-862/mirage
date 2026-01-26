@@ -171,7 +171,13 @@ out/
 # Simulation GUI and other tools window save file
 networktables.json
 simgui.json
+simgui-ds.json
 *-window.json
+
+# VS Code settings
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
 
 # Simulation data log directory
 logs/
@@ -185,3 +191,4 @@ compile_commands.json
 
 # Eclipse generated file for annotation processors
 .factorypath
+

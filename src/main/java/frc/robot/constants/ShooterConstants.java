@@ -9,19 +9,38 @@ import static edu.wpi.first.units.Units.Inches;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
 
-/** Add your docs here. */
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MomentOfInertia;
+
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import java.util.Map;
+
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+
 public class ShooterConstants {
-        // Shooter constants
-    public static final int SHOOTER_BOTTOM_MOTOR_ID = 3; //temp
-    public static final int SHOOTER_TOP_MOTOR_ID = 4; //temp
-    public static final boolean SHOOTER_BOTTOM_MOTOR_INVERTED = false; //temp
-    public static final boolean SHOOTER_TOP_MOTOR_INVERTED = false; //temp
-    public static final double SHOOTER_BOTTOM_MOTOR_STATOR_LIMIT = 120.0; //temp
-    public static final double SHOOTER_TOP_MOTOR_STATOR_LIMIT = 120.0; //temp
-    public static final boolean SHOOTER_BOTTOM_MOTOR_BRAKE = true; //temp
-    public static final boolean SHOOTER_TOP_MOTOR_BRAKE = true; //temp
+    public static final boolean INVERTED = false; // temp
+    public static final double STATOR_LIMIT = 120.0; // temp
+    public static final boolean BRAKE = false; // temp
+
+    public static final double kP = 0.1d;
+    public static final double kI = 0d;
+    public static final double kD = 0d;
+    public static final double kV = 0.12d;
+    public static final double kS = 0.5d;
+    public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
+
+    public static final double GEAR_RATIO = 1d; // temp
+
+    // Input is distance to target in meters, output is shooter speed in rotations per second
+    public static final InterpolatingDoubleTreeMap VELOCITY_MAP = InterpolatingDoubleTreeMap.ofEntries(
+            Map.entry(2d, 20d),
+            Map.entry(4d, 40d),
+            Map.entry(6d, 60d));
 
     // Sim
+    public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
     public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(0), Inches.of(9));
     public static final Distance SHOOTER_HEIGHT = Inches.of(18);
 }

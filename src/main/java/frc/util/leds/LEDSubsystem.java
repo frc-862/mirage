@@ -15,10 +15,10 @@ public class LEDSubsystem extends SubsystemBase {
     private final LEDBehavior[] ledBehaviors;
     private LEDBehavior defaultBehavior;
 
-    /** 
+    /**
      * Creates a new nLEDs. </p>
-     * nLEDs is a subsystem for managing complex sets of LED behaviors. 
-     * 
+     * nLEDs is a subsystem for managing complex sets of LED behaviors.
+     *
      * @param numStates The number of different LED states to manage.
      * @param numLEDs The number of LEDs in the LED controller.
      * @param pwmPort The PWM port the LED controller is connected to.
@@ -34,7 +34,7 @@ public class LEDSubsystem extends SubsystemBase {
 
     /**
      * Sets the LED behavior for a specific state ID.
-     * 
+     *
      * @param stateID The ID of the state to set the behavior for.
      * @param behavior The LED behavior to set for the state.
      */
@@ -44,7 +44,7 @@ public class LEDSubsystem extends SubsystemBase {
 
     /**
      * Sets the default LED behavior.
-     * 
+     *
      * @param behavior The default LED behavior to set.
      */
     public void setDefaultBehavior(LEDBehavior behavior) {
@@ -54,17 +54,17 @@ public class LEDSubsystem extends SubsystemBase {
     /**
      * Creates a command that enables a specific state. </p>
      * This command will enable the state when started and disable it when ended.
-     * 
+     *
      * @param stateID The ID of the state to set.
      * @return A command that enables the specified state.
      */
     public Command enableState(int stateID) {
         return new StartEndCommand(
-            () -> { 
-                enabledStates[stateID] = true; 
-            }, 
-            () -> { 
-                enabledStates[stateID] = false; 
+            () -> {
+                enabledStates[stateID] = true;
+            },
+            () -> {
+                enabledStates[stateID] = false;
             }
         ).ignoringDisable(true);
     }
@@ -72,7 +72,7 @@ public class LEDSubsystem extends SubsystemBase {
     /**
      * Creates a command that enables a specific state. </p>
      * This command will enable the state when started and disable it when ended.
-     * 
+     *
      * @param stateID The ID of the state to set.
      * @param timeoutSeconds The length of time to enable the state for.
      * @return A command that enables the specified state.
@@ -83,14 +83,14 @@ public class LEDSubsystem extends SubsystemBase {
 
     /**
      * Gets if a specific state is enabled.
-     * 
+     *
      * @param stateID The ID of the state to get.
      * @return true if the state is enabled, false otherwise.
      */
     public boolean getState(int stateID) {
         return enabledStates[stateID];
     }
-    
+
     @Override
     public void periodic() {
         defaultBehavior.apply(leds);
