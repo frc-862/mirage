@@ -4,8 +4,6 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
-import java.util.function.BooleanSupplier;
-
 import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
@@ -19,23 +17,35 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.CollectorConstants;
+import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.ShooterConstants;
 
 public class MapleSim extends SubsystemBase {
+
+    private final Collector collector;
+    private final Indexer indexer;
+    private final Turret turret;
+    private final Hood hood;
+    private final Shooter shooter;
+
 
     private final StructArrayPublisher<Pose3d> posePublisher;
     private final SimulatedArena arena = SimulatedArena.getInstance();
     private final SwerveDriveSimulation drivetrainSim;
     private final IntakeSimulation collectorSim;
 
-    private BooleanSupplier isShooting = () -> false;
-    private BooleanSupplier isCollecting = () -> false;
     private final Notifier shootNotifier;
 
-    public MapleSim(Swerve drivetrain) {
+    public MapleSim(Swerve drivetrain, Collector collector, Indexer indexer, Turret turret, Hood hood, Shooter shooter) {
+        this.collector = collector;
+        this.indexer = indexer;
+        this.turret = turret;
+        this.hood = hood;
+        this.shooter = shooter;
+
         drivetrainSim = drivetrain.swerveSim.mapleSimDrive;
         collectorSim = IntakeSimulation.OverTheBumperIntake("Fuel", drivetrainSim,
-            CollectorConstants.WIDTH, CollectorConstants.LENGTH_EXTENDED, IntakeSide.BACK, 5);
+            CollectorConstants.WIDTH, CollectorConstants.LENGTH_EXTENDED, IntakeSide.BACK, 50);
 
 
         arena.placeGamePiecesOnField();
@@ -50,39 +60,26 @@ public class MapleSim extends SubsystemBase {
     public void simulationPeriodic(){
         posePublisher.set(arena.getGamePiecesPosesByType("Fuel").toArray(new Pose3d[0]));
 
-        if (isCollecting.getAsBoolean()){
+        if (collector.getVelocity().gt(CollectorConstants.SIM_COLLECTING_THRESHOLD) && !collectorSim.isRunning()) {
             collectorSim.startIntake();
-        } else {
+        } else if (collector.getVelocity().lt(CollectorConstants.SIM_COLLECTING_THRESHOLD) && collectorSim.isRunning()) {
             collectorSim.stopIntake();
         }
 
-        if (isShooting.getAsBoolean()){
+        if (indexer.getSpindexerVelocity().gt(IndexerConstants.SIM_INDEX_THRESHOLD)) { // TODO: change to transfer when simulation merged
             shootNotifier.startPeriodic(Seconds.of(0.2));
-        } else {
+        } else if (indexer.getSpindexerVelocity().lt(IndexerConstants.SIM_INDEX_THRESHOLD)) {
             shootNotifier.stop();
         }
     }
 
     private void shootFuel(){
-        collectorSim.obtainGamePieceFromIntake();
-
-        arena.addGamePieceProjectile(new RebuiltFuelOnFly(
-            drivetrainSim.getSimulatedDriveTrainPose().getTranslation(), ShooterConstants.SHOOTER_POSITION_ON_ROBOT,
-            drivetrainSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(), new Rotation2d(), ShooterConstants.SHOOTER_HEIGHT,
-            MetersPerSecond.of(9), Degrees.of(60)));
-    }
-
-    public MapleSim withShooting(BooleanSupplier isShooting){
-        if(isShooting.getAsBoolean()){
-            this.isShooting = isShooting;
+        if (collectorSim.obtainGamePieceFromIntake()) {
+            
+            arena.addGamePieceProjectile(new RebuiltFuelOnFly(
+                drivetrainSim.getSimulatedDriveTrainPose().getTranslation(), ShooterConstants.SHOOTER_POSITION_ON_ROBOT,
+                drivetrainSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(), new Rotation2d(), ShooterConstants.SHOOTER_HEIGHT,
+                MetersPerSecond.of(9), Degrees.of(60)));
         }
-        return this;
-    }
-
-    public MapleSim withCollecting(BooleanSupplier isCollecting){
-        if(isCollecting.getAsBoolean()){
-            this.isCollecting = isCollecting;
-        }
-        return this;
     }
 }
