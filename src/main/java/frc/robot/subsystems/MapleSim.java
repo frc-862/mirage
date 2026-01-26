@@ -35,6 +35,7 @@ public class MapleSim extends SubsystemBase {
     private final IntakeSimulation collectorSim;
 
     private final Notifier shootNotifier;
+    private boolean isShooting = false;
 
     public MapleSim(Swerve drivetrain, Collector collector, Indexer indexer, Turret turret, Hood hood, Shooter shooter) {
         this.collector = collector;
@@ -66,16 +67,18 @@ public class MapleSim extends SubsystemBase {
             collectorSim.stopIntake();
         }
 
-        if (indexer.getSpindexerVelocity().gt(IndexerConstants.SIM_INDEX_THRESHOLD)) { // TODO: change to transfer when simulation merged
+        if (indexer.getSpindexerVelocity().gt(IndexerConstants.SIM_INDEX_THRESHOLD) && !isShooting) { // TODO: change to transfer when simulation merged
             shootNotifier.startPeriodic(Seconds.of(0.2));
-        } else if (indexer.getSpindexerVelocity().lt(IndexerConstants.SIM_INDEX_THRESHOLD)) {
+            isShooting = true;
+        } else if (indexer.getSpindexerVelocity().lt(IndexerConstants.SIM_INDEX_THRESHOLD) && isShooting) {
             shootNotifier.stop();
+            isShooting = false;
         }
     }
 
     private void shootFuel(){
         if (collectorSim.obtainGamePieceFromIntake()) {
-            
+
             arena.addGamePieceProjectile(new RebuiltFuelOnFly(
                 drivetrainSim.getSimulatedDriveTrainPose().getTranslation(), ShooterConstants.SHOOTER_POSITION_ON_ROBOT,
                 drivetrainSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(), new Rotation2d(), ShooterConstants.SHOOTER_HEIGHT,
