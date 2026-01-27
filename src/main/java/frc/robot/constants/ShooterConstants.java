@@ -11,9 +11,11 @@ import edu.wpi.first.units.measure.Distance;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Time;
 
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Map;
 
@@ -32,6 +34,7 @@ public class ShooterConstants {
     public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
 
     public static final double GEAR_RATIO = 1d; // temp
+    public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI).times(2);
 
     // Input is distance to target in meters, output is shooter speed in rotations per second
     public static final InterpolatingDoubleTreeMap VELOCITY_MAP = InterpolatingDoubleTreeMap.ofEntries(
@@ -43,4 +46,5 @@ public class ShooterConstants {
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
     public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(0), Inches.of(9));
     public static final Distance SHOOTER_HEIGHT = Inches.of(18);
+    public static final Time MAX_SHOOTING_PERIOD = Seconds.of(0.1); // 10 balls per second
 }

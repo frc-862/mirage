@@ -1,8 +1,9 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.SimulatedArena;
@@ -46,7 +47,7 @@ public class MapleSim extends SubsystemBase {
 
         drivetrainSim = drivetrain.swerveSim.mapleSimDrive;
         collectorSim = IntakeSimulation.OverTheBumperIntake("Fuel", drivetrainSim,
-            CollectorConstants.WIDTH, CollectorConstants.LENGTH_EXTENDED, IntakeSide.BACK, 50);
+            CollectorConstants.WIDTH, CollectorConstants.LENGTH_EXTENDED, IntakeSide.BACK, CollectorConstants.ROBOT_FUEL_CAPACITY);
 
 
         arena.placeGamePiecesOnField();
@@ -68,7 +69,7 @@ public class MapleSim extends SubsystemBase {
         }
 
         if (indexer.getSpindexerVelocity().gt(IndexerConstants.SIM_INDEX_THRESHOLD) && !isShooting) { // TODO: change to transfer when simulation merged
-            shootNotifier.startPeriodic(Seconds.of(0.2));
+            shootNotifier.startPeriodic(ShooterConstants.MAX_SHOOTING_PERIOD);
             isShooting = true;
         } else if (indexer.getSpindexerVelocity().lt(IndexerConstants.SIM_INDEX_THRESHOLD) && isShooting) {
             shootNotifier.stop();
@@ -78,11 +79,14 @@ public class MapleSim extends SubsystemBase {
 
     private void shootFuel(){
         if (collectorSim.obtainGamePieceFromIntake()) {
-
             arena.addGamePieceProjectile(new RebuiltFuelOnFly(
-                drivetrainSim.getSimulatedDriveTrainPose().getTranslation(), ShooterConstants.SHOOTER_POSITION_ON_ROBOT,
-                drivetrainSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(), new Rotation2d(), ShooterConstants.SHOOTER_HEIGHT,
-                MetersPerSecond.of(9), Degrees.of(60)));
+                drivetrainSim.getSimulatedDriveTrainPose().getTranslation(),
+                ShooterConstants.SHOOTER_POSITION_ON_ROBOT,
+                drivetrainSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
+                drivetrainSim.getSimulatedDriveTrainPose().getRotation().plus(new Rotation2d(turret.getAngle())),
+                ShooterConstants.SHOOTER_HEIGHT, MetersPerSecond.of(shooter.getVelocity().in(RotationsPerSecond)
+                * (ShooterConstants.FLYWHEEL_CIRCUMFERENCE.in(Meters))),
+                Degrees.of(60))); // TODO: change to use hood angle
         }
     }
 }

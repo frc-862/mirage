@@ -112,7 +112,7 @@ public class RobotContainer {
             // TEMP
             new Trigger(driver::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
 
-            new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> {
+            new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(50));
                 indexer.setSpindexerPower(1d);
             })).onFalse(new InstantCommand(() -> {
