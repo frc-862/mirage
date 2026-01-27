@@ -13,6 +13,7 @@ import frc.util.hardware.ThunderBird;
 import frc.robot.constants.RobotMap;
 import frc.robot.constants.HoodConstants;
 import edu.wpi.first.units.measure.Angle;
+import static frc.util.Units.clamp;
 
 
 public class Hood extends SubsystemBase {
@@ -22,10 +23,11 @@ public class Hood extends SubsystemBase {
 
     // create a Motion Magic request, voltage output
     final MotionMagicVoltage request;
+    private Angle targetAngle;
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
-        hoodMotor = new ThunderBird(RobotMap.HOOD_MOTOR_ID, RobotMap.CAN_BUS,
+        hoodMotor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
             HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
             HoodConstants.BRAKE);
 
@@ -69,11 +71,40 @@ public class Hood extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        hoodMotor.setControl(request.withPosition(position));
+        targetAngle = clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
+
+        hoodMotor.setControl(request.withPosition(targetAngle));
     }
 
     /**
-     * stops all movement to the hood motor
+     * Gets the current angle of the hood
+     * @return
+     * current angle
+     */
+    public Angle getAngle() {
+        return hoodMotor.getPosition().getValue();
+    }
+
+    /**
+     * Gets the target angle of the hood
+     * @return
+     * targetAngle
+     */
+    public Angle getTargetAngle() {
+        return targetAngle;
+    }
+
+    /**
+     * Returns true if the hood is on target
+     * @return
+     * True if on target, false otherwise
+     */
+    public boolean isOnTarget() {
+        return getAngle().isNear(getTargetAngle(), HoodConstants.POSITION_TOLERANCE);
+    }
+
+    /**
+     * Stops all movement to the hood motor
      */
     public void stop() {
         hoodMotor.stopMotor();

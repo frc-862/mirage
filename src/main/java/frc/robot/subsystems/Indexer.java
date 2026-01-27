@@ -35,10 +35,10 @@ public class Indexer extends SubsystemBase {
 
     /** Creates a new Spindexer Subsystem. */
     public Indexer() {
-        spindexerMotor = new ThunderBird(RobotMap.SPINDEXER_MOTOR_ID, RobotMap.CAN_BUS,
+        spindexerMotor = new ThunderBird(RobotMap.SPINDEXER, RobotMap.CAN_BUS,
             IndexerConstants.SPINDEXER_MOTOR_INVERTED, IndexerConstants.SPINDEXER_MOTOR_STATOR_LIMIT, IndexerConstants.SPINDEXER_MOTOR_BRAKE_MODE);
 
-        transferMotor = new ThunderBird(RobotMap.TRANSFER_MOTOR_ID, RobotMap.CAN_BUS,
+        transferMotor = new ThunderBird(RobotMap.TRANSFER, RobotMap.CAN_BUS,
             IndexerConstants.TRANSFER_MOTOR_INVERTED, IndexerConstants.TRANSFER_MOTOR_STATOR_LIMIT, IndexerConstants.TRANSFER_MOTOR_BRAKE_MODE);
 
         spindexerDutyCycle = new DutyCycleOut(0d);
