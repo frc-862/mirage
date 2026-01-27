@@ -80,10 +80,10 @@ public class MapleSim extends SubsystemBase {
     private void shootFuel(){
         if (collectorSim.obtainGamePieceFromIntake()) {
             arena.addGamePieceProjectile(new RebuiltFuelOnFly(
-                drivetrainSim.getSimulatedDriveTrainPose().getTranslation(),
+                drivetrainSim.getSimulatedDriveTrainPose().getTranslation(), // TODO: use turret
                 ShooterConstants.SHOOTER_POSITION_ON_ROBOT,
                 drivetrainSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
-                drivetrainSim.getSimulatedDriveTrainPose().getRotation().plus(new Rotation2d(turret.getAngle())),
+                drivetrainSim.getSimulatedDriveTrainPose().getRotation(),
                 ShooterConstants.SHOOTER_HEIGHT, MetersPerSecond.of(shooter.getVelocity().in(RotationsPerSecond)
                 * (ShooterConstants.FLYWHEEL_CIRCUMFERENCE.in(Meters))),
                 Degrees.of(60))); // TODO: change to use hood angle
