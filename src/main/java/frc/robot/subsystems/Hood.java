@@ -28,6 +28,8 @@ import frc.robot.constants.RobotMap;
 import frc.robot.constants.TurretConstants;
 import frc.robot.Robot;
 import frc.robot.constants.HoodConstants;
+import edu.wpi.first.units.measure.Angle;
+import static frc.util.Units.clamp;
 
 public class Hood extends SubsystemBase {
     private ThunderBird hoodMotor;
@@ -44,7 +46,7 @@ public class Hood extends SubsystemBase {
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
-        hoodMotor = new ThunderBird(RobotMap.HOOD_MOTOR_ID, RobotMap.CAN_BUS,
+        hoodMotor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
             HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
             HoodConstants.BRAKE);
 
