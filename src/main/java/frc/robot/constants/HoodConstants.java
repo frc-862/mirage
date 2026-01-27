@@ -8,6 +8,9 @@ import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meter;
 
+import java.util.Map;
+
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
@@ -25,7 +28,7 @@ public class HoodConstants {
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086); // Temp
     public static final Distance LENGTH = Meter.of(0.18); // Temp
     public static final double GEARING_RATIO = 5d; // temp
-    
+
     // Input is distance to target in meters, output is hood angle in degrees
     public static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
         Map.entry(2d, 10d),
