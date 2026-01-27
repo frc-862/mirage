@@ -82,7 +82,7 @@ public class Hood extends SubsystemBase {
 
             motorSim = new TalonFXSimState(hoodMotor);
 
-            motorSim.setRawRotorPosition(TurretConstants.MIN_ANGLE.in(Rotations));
+            motorSim.setRawRotorPosition(HoodConstants.MIN_ANGLE.in(Rotations));
         }
     }
 
@@ -149,7 +149,7 @@ public class Hood extends SubsystemBase {
         hoodSim.setInputVoltage(motorSim.getMotorVoltage());
         hoodSim.update(Robot.kDefaultPeriod);
 
-        Angle simAngle = Rotations.of(hoodSim.getAngleRads());
+        Angle simAngle = Radians.of(hoodSim.getAngleRads());
         AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getVelocityRadPerSec());
 
         motorSim.setRawRotorPosition(simAngle);
