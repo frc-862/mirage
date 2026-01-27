@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
@@ -90,7 +89,7 @@ public class RobotContainer {
                 ControllerConstants.POW), () -> -driver.getRightX()));
 
         if (Robot.isSimulation()){
-            turret.setDefaultCommand(new RunCommand(() -> turret.setAngle(Rotations.of(0))));
+            turret.setDefaultCommand(turret.run(() -> turret.setAngle(Rotations.of(0))));
         }
     }
 
