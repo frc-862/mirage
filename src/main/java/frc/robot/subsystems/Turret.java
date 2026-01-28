@@ -100,7 +100,7 @@ public class Turret extends SubsystemBase {
         turretSim.setInputVoltage(motorSim.getMotorVoltage());
         turretSim.update(Robot.kDefaultPeriod);
 
-        Angle simAngle = Rotations.of(turretSim.getAngleRads());
+        Angle simAngle = Radians.of(turretSim.getAngleRads());
         AngularVelocity simVeloc = RadiansPerSecond.of(turretSim.getVelocityRadPerSec());
         motorSim.setRawRotorPosition(simAngle);
         motorSim.setRotorVelocity(simVeloc);
