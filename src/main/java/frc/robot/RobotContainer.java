@@ -96,7 +96,7 @@ public class RobotContainer {
         /* Copilot */
         new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
 
-        // new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
+        // new Trigger(driver::getBButton).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
     }
 
     private void configureNamedCommands(){

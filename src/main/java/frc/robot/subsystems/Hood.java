@@ -10,9 +10,14 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.MathUtil;
@@ -25,64 +30,72 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.constants.RobotMap;
-import frc.robot.constants.TurretConstants;
+import frc.robot.constants.HoodConstants;
 import frc.robot.Robot;
 import frc.robot.constants.HoodConstants;
 import edu.wpi.first.units.measure.Angle;
 import static frc.util.Units.clamp;
 
 public class Hood extends SubsystemBase {
-    private ThunderBird hoodMotor;
+    private ThunderBird motor;
+    private CANcoder encoder;
 
     public final DutyCycleOut dutyCycle;
 
     // create a Motion Magic request, voltage output
-    final MotionMagicVoltage request;
+    public final PositionVoltage positionPid = new PositionVoltage(0);
     private Angle targetAngle;
 
     private SingleJointedArmSim hoodSim;
     private TalonFXSimState motorSim;
     private DCMotor gearbox;
+    private CANcoderSimState encoderSim;
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
-        hoodMotor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
+        motor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
             HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
             HoodConstants.BRAKE);
+        encoder = new CANcoder(RobotMap.HOOD_ENCODER, RobotMap.CAN_BUS);
 
         dutyCycle = new DutyCycleOut(0d);
 
-        request = new MotionMagicVoltage(0d);
-
         // in init function
-        var talonFXConfigs = new TalonFXConfiguration();
+        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+        CANcoderConfiguration angleConfig = new CANcoderConfiguration();
+        angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? HoodConstants.turretOffset : 0;
+        angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        encoder.getConfigurator().apply(angleConfig);
 
         // set slot 0 gains
-        var slot0Configs = talonFXConfigs.Slot0;
-        slot0Configs.kS = HoodConstants.kS; // Add 0.25 V output to overcome static friction
-        slot0Configs.kV = HoodConstants.kV; // A velocity target of 1 rps results in 0.12 V output
-        slot0Configs.kA = HoodConstants.kA; // An acceleration of 1 rps/s requires 0.01 V output
-        slot0Configs.kP = HoodConstants.kP; // A position error of 2.5 rotations results in 12 V output
-        slot0Configs.kI = HoodConstants.kI; // no output for integrated error
-        slot0Configs.kD = HoodConstants.kD; // A velocity error of 1 rps results in 0.1 V output
-        // set Motion Magic settings
-        var motionMagicConfigs = talonFXConfigs.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = HoodConstants.CRUISE_VELOCITY; // Target cruise velocity of 80 rps
-        motionMagicConfigs.MotionMagicAcceleration = HoodConstants.ACCELERATION; // Target acceleration of 160 rps/s (0.5 seconds)
-        motionMagicConfigs.MotionMagicJerk = HoodConstants.JERK; // Target jerk of 1600 rps/s/s (0.1 seconds)
+        var slot0Configs = motorConfig.Slot0;
+        slot0Configs.kS = HoodConstants.MOTOR_KS; // Add 0.25 V output to overcome static friction
+        slot0Configs.kV = HoodConstants.MOTOR_KV; // A velocity target of 1 rps results in 0.12 V output
+        slot0Configs.kA = HoodConstants.MOTOR_KA; // An acceleration of 1 rps/s requires 0.01 V output
+        slot0Configs.kP = HoodConstants.MOTOR_KP; // A position error of 2.5 rotations results in 12 V output
+        slot0Configs.kI = HoodConstants.MOTOR_KI; // no output for integrated error
+        slot0Configs.kD = HoodConstants.MOTOR_KD; // A velocity error of 1 rps results in 0.1 V output
 
-        hoodMotor.applyConfig(talonFXConfigs);
+        motorConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
+        motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+
+        motorConfig.Feedback.SensorToMechanismRatio = HoodConstants.ENCODER_TO_MECHANISM_RATIO;
+        motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
+
+        motor.applyConfig(motorConfig);
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
-            hoodSim = new SingleJointedArmSim(gearbox, HoodConstants.GEARING_RATIO,
+            hoodSim = new SingleJointedArmSim(gearbox, HoodConstants.ROTOR_TO_ENCODER_RATIO,
                 HoodConstants.MOI.magnitude(), HoodConstants.LENGTH.in(Meters),
                 HoodConstants.MIN_ANGLE.in(Radians), HoodConstants.MAX_ANGLE.in(Radians),
-                true, HoodConstants.MIN_ANGLE.in(Radians), 0d, 1d);
+                false, HoodConstants.MIN_ANGLE.in(Radians), 0d, 1d);
 
-            motorSim = new TalonFXSimState(hoodMotor);
+            motorSim = new TalonFXSimState(motor);
+            encoderSim = new CANcoderSimState(encoder);
 
             motorSim.setRawRotorPosition(HoodConstants.MIN_ANGLE.in(Rotations));
+            encoderSim.setRawPosition(HoodConstants.MIN_ANGLE.in(Rotations));
         }
     }
 
@@ -94,7 +107,7 @@ public class Hood extends SubsystemBase {
      * @param power duty cycle value from -1.0 to 1.0
      */
     public void setPower(double power) {
-        hoodMotor.setControl(dutyCycle.withOutput(power));
+        motor.setControl(dutyCycle.withOutput(power));
     }
 
     /**
@@ -102,9 +115,8 @@ public class Hood extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        targetAngle = Degrees.of(MathUtil.clamp(position.in(Degrees), HoodConstants.MIN_ANGLE.in(Degrees), HoodConstants.MAX_ANGLE.in(Degrees)));
-
-        hoodMotor.setControl(request.withPosition(targetAngle));
+        targetAngle = position;
+        motor.setControl(positionPid.withPosition(position.in(Rotations)));
     }
 
     /**
@@ -113,7 +125,7 @@ public class Hood extends SubsystemBase {
      * current angle
      */
     public Angle getAngle() {
-        return hoodMotor.getPosition().getValue();
+        return encoder.getPosition().getValue();
     }
 
     /**
@@ -131,29 +143,31 @@ public class Hood extends SubsystemBase {
      * True if on target, false otherwise
      */
     public boolean isOnTarget() {
-        return getAngle().isNear(getTargetAngle(), HoodConstants.POSITION_TOLERANCE);
+        return getAngle().isNear(getTargetAngle(), HoodConstants.HOOD_ANGLE_TOLERANCE);
     }
 
     /**
      * Stops all movement to the hood motor
      */
     public void stop() {
-        hoodMotor.stopMotor();
+        motor.stopMotor();
     }
 
         @Override
     public void simulationPeriodic() {
         double batteryVoltage = RobotController.getBatteryVoltage();
         motorSim.setSupplyVoltage(batteryVoltage);
+        encoderSim.setSupplyVoltage(batteryVoltage);
 
         hoodSim.setInputVoltage(motorSim.getMotorVoltage());
         hoodSim.update(Robot.kDefaultPeriod);
 
         Angle simAngle = Radians.of(hoodSim.getAngleRads());
         AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getVelocityRadPerSec());
-
         motorSim.setRawRotorPosition(simAngle);
         motorSim.setRotorVelocity(simVeloc);
+        encoderSim.setRawPosition(simAngle);
+        encoderSim.setVelocity(simVeloc);
 
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
     }
