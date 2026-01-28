@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
@@ -20,7 +21,13 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismObject2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -43,6 +50,11 @@ public class Hood extends SubsystemBase {
     private SingleJointedArmSim hoodSim;
     private TalonFXSimState motorSim;
     private DCMotor gearbox;
+    private MechanismLigament2d ligament;
+    private MechanismRoot2d root2d;
+    private Mechanism2d mech2d;
+
+
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
@@ -83,6 +95,17 @@ public class Hood extends SubsystemBase {
             motorSim = new TalonFXSimState(hoodMotor);
 
             motorSim.setRawRotorPosition(HoodConstants.MIN_ANGLE.in(Rotations));
+
+            mech2d = new Mechanism2d(3,  3);
+            root2d =  mech2d.getRoot("Hood", 2, 0);
+
+            ligament = root2d.append(new MechanismLigament2d("Hood", 3, 90));
+            SmartDashboard.putData("Mech2d", mech2d);
+
+
+
+
+
         }
     }
 
@@ -154,6 +177,7 @@ public class Hood extends SubsystemBase {
 
         motorSim.setRawRotorPosition(simAngle);
         motorSim.setRotorVelocity(simVeloc);
+        ligament.setAngle(-(simAngle.in(Degrees)) + 270);
 
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
     }
