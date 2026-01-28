@@ -36,12 +36,13 @@ public class HoodConstants {
         Map.entry(6d, 30d));
 
     // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html
-    public static final double kS = 0.0; // temp
-    public static final double kV = 0.0; // temp
-    public static final double kA = 0.0; // temp
-    public static final double kP = 0.0; // temp
+    public static final double kS = 1d; // temp
+    public static final double kV = 0.18; // temp
+    public static final double kA = 0.01; // temp
+    public static final double kP = 6.5; // temp
     public static final double kI = 0.0; // temp
     public static final double kD = 0.0; // temp
+    
     // Motion Magic parameters (https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html)
     public static final double CRUISE_VELOCITY = 80.0; // temp
     public static final double ACCELERATION = 160.0; // temp

@@ -141,7 +141,7 @@ public class Hood extends SubsystemBase {
         hoodMotor.stopMotor();
     }
 
-        @Override
+    @Override
     public void simulationPeriodic() {
         double batteryVoltage = RobotController.getBatteryVoltage();
         motorSim.setSupplyVoltage(batteryVoltage);
