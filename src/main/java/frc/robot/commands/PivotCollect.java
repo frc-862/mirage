@@ -16,8 +16,8 @@ public class PivotCollect extends Command {
   private Collector pivotCollector;
   private Angle position = Degrees.of(0);
   /** Creates a new PivotCollect.
-   * @param Collector pivotCollector
-   * @param Angle position
+   * @param pivotCollector
+   * @param position
    */
   public PivotCollect(Collector pivotCollecter, Angle position) {
     this.pivotCollector = pivotCollecter;
