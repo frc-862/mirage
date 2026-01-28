@@ -20,9 +20,8 @@ public class PivotCollect extends Command {
    * @param pivotCollector
    * @param position
    */
-  
-  public PivotCollect(Collector pivotCollecter, Angle position) {
-    this.pivotCollector = pivotCollecter;
+  public PivotCollect(Collector pivotCollector, Angle position) {
+    this.pivotCollector = pivotCollector;
     this.position = position;
 
     // Use addRequirements() here to declare subsystem dependencies.
