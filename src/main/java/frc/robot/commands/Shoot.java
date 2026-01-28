@@ -4,28 +4,29 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
 
 public class Shoot extends Command {
     private Shooter shooter;
-    private double power;
+    private AngularVelocity velocity;
 
     /**
      * Basic command for moving the shooter
      * @param shooter The Shooter subsystem
-     * @param power Motor power
+     * @param velocity Motor velocity
      */
-    public Shoot(Shooter shooter, double power) {
+    public Shoot(Shooter shooter, AngularVelocity velocity) {
         this.shooter = shooter;
-        this.power = power;
+        this.velocity = velocity;
 
         addRequirements(shooter);
     }
 
     @Override
     public void initialize() {
-        shooter.setPower(power);
+        shooter.setVelocity(velocity);
     }
 
     @Override
@@ -35,6 +36,6 @@ public class Shoot extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return shooter.velocityOnTarget();
     }
 }
