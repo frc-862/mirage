@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -80,13 +79,13 @@ public class MapleSim extends SubsystemBase {
     private void shootFuel(){
         if (collectorSim.obtainGamePieceFromIntake()) {
             arena.addGamePieceProjectile(new RebuiltFuelOnFly(
-                drivetrainSim.getSimulatedDriveTrainPose().getTranslation(), // TODO: use turret
+                drivetrainSim.getSimulatedDriveTrainPose().getTranslation(),
                 ShooterConstants.SHOOTER_POSITION_ON_ROBOT,
                 drivetrainSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
                 drivetrainSim.getSimulatedDriveTrainPose().getRotation().plus(new Rotation2d(turret.getAngle())),
                 ShooterConstants.SHOOTER_HEIGHT, MetersPerSecond.of(shooter.getVelocity().in(RotationsPerSecond)
                 * (ShooterConstants.FLYWHEEL_CIRCUMFERENCE.in(Meters))),
-                Degrees.of(60))); // TODO: change to use hood angle
+                hood.getAngle()));
         }
     }
 }

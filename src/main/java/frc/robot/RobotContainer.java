@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -18,16 +19,12 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
-import frc.robot.constants.HoodConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Collector;
-import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.Shooter;
@@ -94,6 +91,7 @@ public class RobotContainer {
 
         if (Robot.isSimulation()){
             turret.setDefaultCommand(turret.run(() -> turret.setAngle(Rotations.of(0))));
+            hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(60))));
         }
     }
 
