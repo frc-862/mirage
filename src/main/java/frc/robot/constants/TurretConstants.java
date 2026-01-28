@@ -37,35 +37,4 @@ public class TurretConstants {
 
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
     public static final Distance LENGTH = Meter.of(0.18);
-
-    public enum CannedShot {
-        HUB,
-        SQUARE_THING,
-        CORNER_BOTTOM,
-        CORNER_TOP,
-        TUNNEL_ENTRANCE_BOTTOM,
-        TUNNEL_ENTRANCE_TOP,
-    }
-
-    public static final HashMap<CannedShot, Double> SHOOTER_RPM_MAP = new HashMap<CannedShot, Double>() {
-        {
-            put(CannedShot.HUB, 1d);                   //placeholder value
-            put(CannedShot.SQUARE_THING, 1d);          //placeholder value
-            put(CannedShot.CORNER_BOTTOM, 1d);         //placeholder value
-            put(CannedShot.CORNER_TOP, 1d);            //placeholder value
-            put(CannedShot.TUNNEL_ENTRANCE_BOTTOM, 1d);//placeholder value
-            put(CannedShot.TUNNEL_ENTRANCE_TOP, 1d);   //placeholder value
-        }
-    };
-
-    public static final HashMap<CannedShot, Double> HOOD_ANGlE_MAP = new HashMap<CannedShot, Double>() {
-        {
-            put(CannedShot.HUB, 1d);                   //placeholder value
-            put(CannedShot.SQUARE_THING, 1d);          //placeholder value
-            put(CannedShot.CORNER_BOTTOM, 1d);         //placeholder value
-            put(CannedShot.CORNER_TOP, 1d);            //placeholder value
-            put(CannedShot.TUNNEL_ENTRANCE_BOTTOM, 1d);//placeholder value
-            put(CannedShot.TUNNEL_ENTRANCE_TOP, 1d);   //placeholder value
-        }
-    };
 }
