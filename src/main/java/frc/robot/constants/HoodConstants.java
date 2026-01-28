@@ -4,12 +4,16 @@
 
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meter;
+
 import java.util.Map;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import static edu.wpi.first.units.Units.Degrees;
-
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.MomentOfInertia;
 
 /** Constants for Hood */
 public class HoodConstants {
@@ -17,6 +21,13 @@ public class HoodConstants {
     public static final double STATOR_LIMIT = 40d; // temp
     public static final boolean BRAKE = false; // temp
     public static final double HOOD_MOTOR_POWER = 1d;
+
+    public static final Angle MIN_ANGLE = Degree.of(-90); // Temp
+    public static final Angle MAX_ANGLE = Degree.of(90); // Temp
+
+    public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086); // Temp
+    public static final Distance LENGTH = Meter.of(0.18); // Temp
+    public static final double GEARING_RATIO = 5d; // temp
 
     // Input is distance to target in meters, output is hood angle in degrees
     public static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
@@ -36,9 +47,7 @@ public class HoodConstants {
     public static final double ACCELERATION = 160.0; // temp
     public static final double JERK = 1600.0; // temp
     // Angle limits
-    public static final Angle MIN_ANGLE = Degrees.of(0); // temp
-    public static final Angle MAX_ANGLE = Degrees.of(90); // temp
-    // Tolerance for being "on target"
-    public static final Angle POSITION_TOLERANCE = Degrees.of(0.41); // temp
 
+    // Tolerance for being "on target"
+    public static final Angle POSITION_TOLERANCE = Degree.of(0.41); // temp
 }
