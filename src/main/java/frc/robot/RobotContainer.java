@@ -5,10 +5,18 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
+
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,6 +34,8 @@ import frc.robot.constants.HoodConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Collector;
+import frc.util.hardware.ThunderBird;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
@@ -34,6 +44,7 @@ import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.commands.Collect;
+import frc.robot.commands.PivotCollect;
 
 public class RobotContainer {
     private final XboxController driver;
@@ -75,6 +86,8 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        new Trigger(driver::getAButton).whileTrue(new PivotCollect(collector, Radians.of(Math.PI/2)));
+
         /* Driver */
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()
@@ -98,6 +111,9 @@ public class RobotContainer {
 
         // new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
     }
+
+
+
 
     private void configureNamedCommands(){
         NamedCommands.registerCommand("LED_SHOOT", leds.enableStateWithTimeout(LED_STATES.SHOOT.id(), 2));
@@ -130,4 +146,5 @@ public class RobotContainer {
 
         new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
     }
+
 }

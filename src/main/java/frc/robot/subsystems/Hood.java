@@ -31,6 +31,7 @@ import frc.robot.constants.HoodConstants;
 import edu.wpi.first.units.measure.Angle;
 import static frc.util.Units.clamp;
 
+
 public class Hood extends SubsystemBase {
     private ThunderBird hoodMotor;
 
