@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.constants.TurretConstants;
+import frc.robot.constants.TurretConstants.CannedShot;
 
 public class CannedShots extends Command {
     private final CannedShot shot;
@@ -14,7 +14,7 @@ public class CannedShots extends Command {
     public void initialize() {
 
         switch (shot) {
-            case Hub:
+            case HUB:
                 break;
             case SQUARE_THING:
                 break;
