@@ -20,13 +20,13 @@ public class CollectorConstants {
     public static final double COLLECTOR_SIM_kA = 0.8; // temp
 
     // collector pivot motor config
-    public static final double PIVOT_KP = 0.3d; // temp
+    public static final double PIVOT_KP = 3d; // temp
     public static final double PIVOT_KI = 0d; // temp
-    public static final double PIVOT_KD = 0.02d; // temp
+    public static final double PIVOT_KD = 1d; // temp
     public static final double PIVOT_KS = 0; // temp
     public static final double PIVOT_KV = 0; // temp
     public static final double PIVOT_KA = 0; // temp
-    public static final double PIVOT_KG = 0.3d; // temp
+    public static final double PIVOT_KG = 0d; // temp
 
     // collector pivot
     public static final boolean PIVOT_INVERTED = false; // Temp

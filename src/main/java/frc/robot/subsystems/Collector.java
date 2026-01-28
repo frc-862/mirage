@@ -5,10 +5,13 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
@@ -17,6 +20,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
@@ -32,6 +36,8 @@ public class Collector extends SubsystemBase {
     private ThunderBird pivotMotor;
     private TalonFXSimState pivotSim;
     private SingleJointedArmSim collectorPivotSim;
+
+    private CANcoder encoder;
 
     private double simMechanismPosition = 0.0; // Track position in rotations
 
@@ -114,7 +120,7 @@ public class Collector extends SubsystemBase {
         // pivot sim stuff
         pivotSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        Angle simAngle = Rotations.of(collectorPivotSim.getAngleRads());
+        Angle simAngle = Radians.of(collectorPivotSim.getAngleRads());
 
         // collector sim stuff
         collectorMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
@@ -149,7 +155,7 @@ public class Collector extends SubsystemBase {
         pivotSim.setRawRotorPosition(rotorPosition);
         pivotSim.setRotorVelocity(rotorVelocity);
 
-        LightningShuffleboard.setDouble("Collector", "Collector Pivot", getPosition());
+        LightningShuffleboard.setDouble("Collector", "Collector Pivot Position", getPosition());
         LightningShuffleboard.setDouble("Collector", "target angle", getTargetAngle().magnitude());
         LightningShuffleboard.setBool("Collector", "on target?", isOnTarget());
     }
