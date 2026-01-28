@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -32,8 +33,11 @@ import frc.util.leds.LEDSubsystem;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
+import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
+import frc.robot.commands.BasicAim;
 import frc.robot.commands.Collect;
+import frc.robot.commands.TurretAim;
 
 public class RobotContainer {
     private final XboxController driver;
@@ -41,6 +45,7 @@ public class RobotContainer {
 
     private final Swerve drivetrain;
     private final Collector collector;
+    private final Turret turret;
     private final LEDSubsystem leds;
 
     private final Telemetry logger;
@@ -53,6 +58,7 @@ public class RobotContainer {
 
         drivetrain = DriveConstants.createDrivetrain();
         collector = new Collector();
+        turret = new Turret();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
@@ -96,7 +102,9 @@ public class RobotContainer {
         /* Copilot */
         new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
 
-        // new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
+        // new Trigger(driver::getXButton).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
+
+        new Trigger(copilot::getBButton).whileTrue(new BasicAim(turret, Degrees.of(90)));
     }
 
     private void configureNamedCommands(){

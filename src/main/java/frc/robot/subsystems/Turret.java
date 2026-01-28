@@ -17,6 +17,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
@@ -26,6 +27,10 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
@@ -45,6 +50,10 @@ public class Turret extends SubsystemBase {
     private SingleJointedArmSim turretSim;
     private TalonFXSimState motorSim;
     private CANcoderSimState encoderSim;
+
+    private Mechanism2d mech2d;
+    private MechanismRoot2d root2d;
+    private MechanismLigament2d ligament;
 
     /** Creates a new Turret Subsystem. */
     public Turret() {
@@ -85,6 +94,12 @@ public class Turret extends SubsystemBase {
 
             motorSim.setRawRotorPosition(TurretConstants.MIN_ANGLE.in(Rotations));
             encoderSim.setRawPosition(TurretConstants.MIN_ANGLE.in(Rotations));
+
+            mech2d = new Mechanism2d(3, 3);
+            root2d = mech2d.getRoot("Turret", 2, 0);
+            ligament = root2d.append(new MechanismLigament2d("Turret", 3, 90));
+
+            SmartDashboard.putData("Mech2d", mech2d);
         }
     }
 
@@ -107,9 +122,10 @@ public class Turret extends SubsystemBase {
         encoderSim.setRawPosition(simAngle);
         encoderSim.setVelocity(simVeloc);
 
+        ligament.setAngle(-(simAngle.in(Degree) + 270));
+
         LightningShuffleboard.setDouble("Turret", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
         LightningShuffleboard.setDouble("Turret", "sim angle", simAngle.in(Degree));
-        LightningShuffleboard.setDouble("Turret", "getPose", getAngle().in(Degree));
 
         LightningShuffleboard.setDouble("Turret", "current angle", getAngle().in(Degree));
         LightningShuffleboard.setDouble("Turret", "target angle", getTargetAngle().in(Degree));
