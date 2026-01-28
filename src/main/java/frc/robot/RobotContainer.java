@@ -25,10 +25,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.HoodConstants;
+import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Collector;
@@ -106,6 +109,7 @@ public class RobotContainer {
         /* Copilot */
         new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
 
+        // new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
     }
 
 
