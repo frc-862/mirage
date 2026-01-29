@@ -38,41 +38,48 @@ import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.commands.Collect;
 
 public class RobotContainer {
-    private final XboxController driver;
-    private final XboxController copilot;
+    private XboxController driver;
+    private XboxController copilot;
 
-    private final Swerve drivetrain;
-    private final Collector collector;
-    private final LEDSubsystem leds;
+    private Swerve drivetrain;
+    private Collector collector;
+    private LEDSubsystem leds;
 
     private Hood hood;
     private Indexer indexer;
     private Shooter shooter;
 
-    private final Telemetry logger;
+    private Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     public RobotContainer() {
-        driver = new XboxController(ControllerConstants.DRIVER_PORT);
-        copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
-        drivetrain = DriveConstants.createDrivetrain();
-        collector = new Collector();
+
+
 
         if (Robot.isSimulation()) {
+            driver = new XboxController(ControllerConstants.DRIVER_PORT);
+            copilot = new XboxController(ControllerConstants.COPILOT_PORT);
+
+            drivetrain = DriveConstants.createDrivetrain();
+            collector = new Collector();
+
             hood = new Hood();
             indexer = new Indexer();
             shooter = new Shooter();
+            logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
+            leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
+
+            configureDefaultCommands();
+            configureBindings();
+            configureNamedCommands();
+            configureLeds();
         }
 
-        logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
-        leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
 
-        configureDefaultCommands();
-        configureBindings();
-        configureNamedCommands();
-        configureLeds();
+
+
     }
 
     private void configureDefaultCommands() {
