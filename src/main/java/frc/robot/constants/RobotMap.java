@@ -24,6 +24,6 @@ public class RobotMap {
 
     public static final int CLIMBER = 16;
 
-    public static final int PIVOT_ENCODER = 37; //TODO: remove when encoder removal is merged
+
 }
 
