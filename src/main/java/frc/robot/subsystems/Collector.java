@@ -33,7 +33,7 @@ import static frc.util.Units.clamp;
 public class Collector extends SubsystemBase {
     private final ThunderBird collectorMotor;
     private final ThunderBird pivotMotor;
-    private final CANcoder encoder;
+
 
     private LinearSystemSim<N1, N1, N1> collectorSim;
     private TalonFXSimState collectorMotorSim;
@@ -53,12 +53,12 @@ public class Collector extends SubsystemBase {
         pivotMotor = new ThunderBird(RobotMap.COLLECTOR_PIVOT, RobotMap.CAN_BUS,
             CollectorConstants.PIVOT_INVERTED, CollectorConstants.PIVOT_STATOR_LIMIT, CollectorConstants.PIVOT_BRAKE_MODE);
 
-        encoder = new CANcoder(RobotMap.PIVOT_ENCODER, RobotMap.CAN_BUS);
+
         CANcoderConfiguration angleConfig = new CANcoderConfiguration();
         angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
         angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? CollectorConstants.PIVOT_OFFSET : 0d;
         angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        encoder.getConfigurator().apply(angleConfig);
+
 
 
         collectorDutyCycle = new DutyCycleOut(0.0);
@@ -74,7 +74,7 @@ public class Collector extends SubsystemBase {
         config.Slot0.kG = CollectorConstants.PIVOT_KG;
         config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-        config.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
+
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         config.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
         config.Feedback.RotorToSensorRatio = CollectorConstants.ROTOR_TO_ENCODER_RATIO;
@@ -147,21 +147,6 @@ public class Collector extends SubsystemBase {
         return targetPivotPosition;
     }
 
-    /**
-     * Gets the current angle of the pivot
-     *
-     * @return Current angle of the pivot
-     */
-    public Angle getAngle() {
-        return encoder.getAbsolutePosition().getValue();
-    }
 
-    /**
-     * Checks if the wrist is on target
-     *
-     * @return True if the wrist is on target
-     */
-    public boolean isOnTarget() {
-        return targetPivotPosition.isNear(getAngle(), CollectorConstants.TOLERANCE);
-    }
+
 }
