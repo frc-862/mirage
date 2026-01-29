@@ -40,7 +40,7 @@ public class Shooter extends SubsystemBase {
 
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
-        this(new ThunderBird(RobotMap.SHOOTER_MOTOR_ID, RobotMap.CAN_BUS,
+        this(new ThunderBird(RobotMap.SHOOTER, RobotMap.CAN_BUS,
             ShooterConstants.INVERTED, ShooterConstants.STATOR_LIMIT, ShooterConstants.BRAKE));
     }
 

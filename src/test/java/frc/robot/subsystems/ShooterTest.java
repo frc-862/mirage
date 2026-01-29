@@ -35,7 +35,7 @@ public class ShooterTest {
     RoboRioSim.setVInVoltage(BATTERY_VOLTAGE);
 
     var motor = new frc.util.hardware.ThunderBird(
-        frc.robot.constants.RobotMap.SHOOTER_MOTOR_ID,
+        frc.robot.constants.RobotMap.SHOOTER,
         frc.robot.constants.RobotMap.CAN_BUS,
         frc.robot.constants.ShooterConstants.INVERTED,
         frc.robot.constants.ShooterConstants.STATOR_LIMIT,

@@ -15,19 +15,21 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.HoodConstants;
+import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
 import frc.robot.constants.LEDConstants;
-import frc.robot.constants.MirageTunerConstants;
-import frc.robot.constants.OasisTunerConstants;
-import frc.robot.constants.RobotMap;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -49,7 +51,7 @@ public class RobotContainer {
         driver = new XboxController(ControllerConstants.DRIVER_PORT);
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
-        drivetrain = RobotMap.IS_OASIS ? OasisTunerConstants.createDrivetrain() : MirageTunerConstants.createDrivetrain();
+        drivetrain = DriveConstants.createDrivetrain();
         collector = new Collector();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
@@ -93,6 +95,8 @@ public class RobotContainer {
 
         /* Copilot */
         new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
+
+        // new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
     }
 
     private void configureNamedCommands(){
