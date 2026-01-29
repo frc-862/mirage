@@ -101,12 +101,7 @@ public class Hood extends SubsystemBase {
             root2d =  mech2d.getRoot("Hood", 2, 0);
 
             ligament = root2d.append(new MechanismLigament2d("Hood", 3, 90));
-            SmartDashboard.putData("Mech2d", mech2d);
-
-
-
-
-
+            LightningShuffleboard.send("Hood", "Mech2d", mech2d);
         }
     }
 
