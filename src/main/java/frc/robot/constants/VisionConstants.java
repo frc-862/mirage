@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import static edu.wpi.first.units.Units.Inches;
 
 public class VisionConstants {
-
     public static final List<Short> TAG_IGNORE_LIST = List.of();
 
     // TODO: Update this to be the correect field layout for this season,
@@ -36,5 +35,4 @@ public class VisionConstants {
                 Inches.of(10.5),
                 new Rotation3d(0, 15, 45))),
     };
-
 }

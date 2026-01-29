@@ -16,28 +16,23 @@ import frc.robot.subsystems.Swerve;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class PoseBasedAutoAlign extends Command {
-    //creates drivetrain variable
     private Swerve drivetrain;
 
-    //create variables for all the pids as PIDControllers
     private PIDController pidX;
     private PIDController pidY;
     private PIDController pidR;
 
-    //Creates a variable for AUTO_REQUEST
     private SwerveRequest.FieldCentric AUTO_REQUEST;
 
     private Pose2d targetPose;
 
-    /** Creates a new PoseBasedAutoAlign.
+    /** Creates a new PoseBasedAutoAlign Command.
     * @param drivetrain
     * @param targetPose
     */
     public PoseBasedAutoAlign(Swerve drivetrain, Pose2d targetPose) {
-        //sets drivetrain
         this.drivetrain = drivetrain;
 
-        //sets the pid values to a pid controller
         pidX = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
         pidY = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
         pidR = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
@@ -46,10 +41,8 @@ public class PoseBasedAutoAlign extends Command {
         pidY.setTolerance(PoseConstants.DRIVE_TOLERANCE);
         pidR.setTolerance(PoseConstants.DRIVE_TOLERANCE);
 
-        //Instatiates AUTO_REQUEST
         AUTO_REQUEST = new SwerveRequest.FieldCentric();
 
-        //sets target pose
         this.targetPose = targetPose;
 
         addRequirements(drivetrain);
@@ -57,7 +50,7 @@ public class PoseBasedAutoAlign extends Command {
 
     @Override
     public void execute() {
-        //uses the autoRequest to set a control for the drivetrain pased on pids
+        // uses the autoRequest to set a control for the drivetrain pased on pids
         drivetrain.setControl(autoRequest());
     }
 
@@ -74,7 +67,6 @@ public class PoseBasedAutoAlign extends Command {
         return AUTO_REQUEST;
     }
 
-    // Returns true when the command should end.
     @Override
     public boolean isFinished() {
         return pidX.atSetpoint() && pidY.atSetpoint() && pidR.atSetpoint();

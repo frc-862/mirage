@@ -39,7 +39,6 @@ public class ShooterAim extends Command {
         addRequirements(shooter, hood);
     }
 
-    // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
         Pose2d robotPose = swerve.getPose();
@@ -52,14 +51,12 @@ public class ShooterAim extends Command {
         shooter.setVelocity(shooterVelocity);
     }
 
-    // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
         shooter.stopMotor();
         hood.stop();
     }
 
-    // Returns true when the command should end.
     @Override
     public boolean isFinished() {
         return false;
