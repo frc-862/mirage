@@ -24,6 +24,8 @@ import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
@@ -43,6 +45,10 @@ public class RobotContainer {
     private final Collector collector;
     private final LEDSubsystem leds;
 
+    private Hood hood;
+    private Indexer indexer;
+    private Shooter shooter;
+
     private final Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -53,6 +59,12 @@ public class RobotContainer {
 
         drivetrain = DriveConstants.createDrivetrain();
         collector = new Collector();
+
+        if (Robot.isSimulation()) {
+            hood = new Hood();
+            indexer = new Indexer();
+            shooter = new Shooter();
+        }
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
