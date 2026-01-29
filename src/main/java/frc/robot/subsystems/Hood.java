@@ -4,21 +4,25 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,6 +37,7 @@ import static frc.util.Units.clamp;
 
 public class Hood extends SubsystemBase {
     private ThunderBird hoodMotor;
+    private CANcoder encoder;
 
     public final DutyCycleOut dutyCycle;
 
@@ -43,12 +48,15 @@ public class Hood extends SubsystemBase {
     private SingleJointedArmSim hoodSim;
     private TalonFXSimState motorSim;
     private DCMotor gearbox;
+    private CANcoderSimState encoderSim;
+
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
         hoodMotor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
             HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
             HoodConstants.BRAKE);
+        encoder = new CANcoder(RobotMap.HOOD_ENCODER, RobotMap.CAN_BUS);
 
         dutyCycle = new DutyCycleOut(0d);
 
@@ -81,8 +89,10 @@ public class Hood extends SubsystemBase {
                 true, HoodConstants.MIN_ANGLE.in(Radians), 0d, 1d);
 
             motorSim = new TalonFXSimState(hoodMotor);
+            encoderSim = new CANcoderSimState(encoder);
 
             motorSim.setRawRotorPosition(HoodConstants.MIN_ANGLE.in(Rotations));
+            encoderSim.setRawPosition(HoodConstants.MIN_ANGLE.in(Rotations));
         }
     }
 
@@ -145,6 +155,7 @@ public class Hood extends SubsystemBase {
     public void simulationPeriodic() {
         double batteryVoltage = RobotController.getBatteryVoltage();
         motorSim.setSupplyVoltage(batteryVoltage);
+        encoderSim.setSupplyVoltage(batteryVoltage);
 
         hoodSim.setInputVoltage(motorSim.getMotorVoltage());
         hoodSim.update(Robot.kDefaultPeriod);
@@ -154,7 +165,10 @@ public class Hood extends SubsystemBase {
 
         motorSim.setRawRotorPosition(simAngle);
         motorSim.setRotorVelocity(simVeloc);
+        encoderSim.setRawPosition(simAngle);
+        encoderSim.setVelocity(simVeloc);
 
+        LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
     }
 }
