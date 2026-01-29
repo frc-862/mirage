@@ -146,7 +146,7 @@ public class Turret extends SubsystemBase {
      * @return whether turret on target
      */
     public boolean isOnTarget() {
-        return MathUtil.isNear(getTargetAngle().in(Degree), getAngle().in(Degree), TurretConstants.TURRET_ANGLE_TOLERANCE);
+        return MathUtil.isNear(getTargetAngle().in(Degree), getAngle().in(Degree), TurretConstants.TURRET_ANGLE_TOLERANCE.in(Degree));
     }
 
     /**

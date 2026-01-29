@@ -25,11 +25,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.constants.RobotMap;
-import frc.robot.constants.TurretConstants;
 import frc.robot.Robot;
 import frc.robot.constants.HoodConstants;
-import edu.wpi.first.units.measure.Angle;
-import static frc.util.Units.clamp;
 
 public class Hood extends SubsystemBase {
     private ThunderBird hoodMotor;
@@ -37,7 +34,7 @@ public class Hood extends SubsystemBase {
     public final DutyCycleOut dutyCycle;
 
     // create a Motion Magic request, voltage output
-    final MotionMagicVoltage request;
+    private final MotionMagicVoltage request;
     private Angle targetAngle;
 
     private SingleJointedArmSim hoodSim;
@@ -141,7 +138,7 @@ public class Hood extends SubsystemBase {
         hoodMotor.stopMotor();
     }
 
-        @Override
+    @Override
     public void simulationPeriodic() {
         double batteryVoltage = RobotController.getBatteryVoltage();
         motorSim.setSupplyVoltage(batteryVoltage);
