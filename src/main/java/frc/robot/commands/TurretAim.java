@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
-import frc.util.shuffleboard.LightningShuffleboard;
 
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Meters;
@@ -32,15 +31,11 @@ public class TurretAim extends Command {
      */
     public TurretAim(Swerve drivetrain, Turret turret, Translation2d target) {
         this.drivetrain = drivetrain;
-        this.target = target;
         this.turret = turret;
+        this.target = target;
 
         addRequirements(turret);
     }
-
-    // Called when the command is initially scheduled.
-    @Override
-    public void initialize() {}
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
