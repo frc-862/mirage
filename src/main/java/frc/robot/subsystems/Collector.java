@@ -4,17 +4,12 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
-
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
@@ -34,7 +29,6 @@ public class Collector extends SubsystemBase {
     private final ThunderBird collectorMotor;
     private final ThunderBird pivotMotor;
 
-
     private LinearSystemSim<N1, N1, N1> collectorSim;
     private TalonFXSimState collectorMotorSim;
 
@@ -53,11 +47,6 @@ public class Collector extends SubsystemBase {
         pivotMotor = new ThunderBird(RobotMap.COLLECTOR_PIVOT, RobotMap.CAN_BUS,
             CollectorConstants.PIVOT_INVERTED, CollectorConstants.PIVOT_STATOR_LIMIT, CollectorConstants.PIVOT_BRAKE_MODE);
 
-
-
-
-
-
         collectorDutyCycle = new DutyCycleOut(0.0);
         positionPID = new PositionVoltage(0);
 
@@ -71,10 +60,7 @@ public class Collector extends SubsystemBase {
         config.Slot0.kG = CollectorConstants.PIVOT_KG;
         config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-
-
         config.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
-
 
         pivotMotor.applyConfig(config);
 
@@ -147,6 +133,5 @@ public class Collector extends SubsystemBase {
     public Angle getAngle(){
         return pivotMotor.getPosition().getValue();
     }
-
 
 }
