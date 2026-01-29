@@ -54,10 +54,7 @@ public class Collector extends SubsystemBase {
             CollectorConstants.PIVOT_INVERTED, CollectorConstants.PIVOT_STATOR_LIMIT, CollectorConstants.PIVOT_BRAKE_MODE);
 
 
-        CANcoderConfiguration angleConfig = new CANcoderConfiguration();
-        angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
-        angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? CollectorConstants.PIVOT_OFFSET : 0d;
-        angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+
 
 
 
@@ -75,9 +72,9 @@ public class Collector extends SubsystemBase {
         config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
 
-        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+
         config.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
-        config.Feedback.RotorToSensorRatio = CollectorConstants.ROTOR_TO_ENCODER_RATIO;
+
 
         pivotMotor.applyConfig(config);
 
