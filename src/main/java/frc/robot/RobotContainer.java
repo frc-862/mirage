@@ -38,48 +38,42 @@ import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.commands.Collect;
 
 public class RobotContainer {
-    private XboxController driver;
-    private XboxController copilot;
+    private final XboxController driver;
+    private final XboxController copilot;
 
-    private Swerve drivetrain;
-    private Collector collector;
-    private LEDSubsystem leds;
+    private final Swerve drivetrain;
+    private final Collector collector;
+    private final LEDSubsystem leds;
 
     private Hood hood;
     private Indexer indexer;
     private Shooter shooter;
 
-    private Telemetry logger;
+    private final Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     public RobotContainer() {
+        driver = new XboxController(ControllerConstants.DRIVER_PORT);
+        copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
-
-
+        drivetrain = DriveConstants.createDrivetrain();
+        collector = new Collector();
 
         if (Robot.isSimulation()) {
-            driver = new XboxController(ControllerConstants.DRIVER_PORT);
-            copilot = new XboxController(ControllerConstants.COPILOT_PORT);
-
-            drivetrain = DriveConstants.createDrivetrain();
-            collector = new Collector();
-
+            // test subsytems that aren't on the robot yet in here!
             hood = new Hood();
             indexer = new Indexer();
             shooter = new Shooter();
-            logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
-            leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
-
-            configureDefaultCommands();
-            configureBindings();
-            configureNamedCommands();
-            configureLeds();
         }
 
+        logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
+        leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
 
-
-
+        configureDefaultCommands();
+        configureBindings();
+        configureNamedCommands();
+        configureLeds();
     }
 
     private void configureDefaultCommands() {
@@ -115,7 +109,10 @@ public class RobotContainer {
         /* Copilot */
         new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
 
-        // new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
+        if (Robot.isSimulation()){
+            // test subsytems that aren't on the robot yet in here!
+            new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
+        }
     }
 
     private void configureNamedCommands(){
