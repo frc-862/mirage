@@ -41,6 +41,7 @@ public class RobotContainer {
 
     private final Swerve drivetrain;
     private final Collector collector;
+    private final Hood hood;
     private final LEDSubsystem leds;
 
     private final Telemetry logger;
@@ -53,6 +54,7 @@ public class RobotContainer {
 
         drivetrain = DriveConstants.createDrivetrain();
         collector = new Collector();
+        hood = new Hood();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
