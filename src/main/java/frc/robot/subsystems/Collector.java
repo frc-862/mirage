@@ -136,13 +136,13 @@ public class Collector extends SubsystemBase {
         double motorVoltage = pivotSim.getMotorVoltage();
 
         //Update the physics simulation with voltage input
-        linearPivotSim.setInput(motorVoltage);
-        linearPivotSim.update(0.020); // 20ms period
+        collectorPivotSim.setInput(motorVoltage);
+        collectorPivotSim.update(0.020); // 20ms period
 
         // pivotSim = new SingleJointedArmSim(null, motorVoltage, motorVoltage, motorVoltage, motorVoltage, motorVoltage, false, motorVoltage, null);
 
         // Get simulated velocity (output of velocity system) in rotations/sec
-        double mechanismVelocity = linearPivotSim.getOutput(0);
+        double mechanismVelocity = collectorPivotSim.getOutput(0);
 
         //Integrate velocity to get position
         simMechanismPosition += mechanismVelocity * 0.020; // position in rotations

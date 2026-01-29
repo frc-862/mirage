@@ -44,7 +44,6 @@ import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.commands.Collect;
-import frc.robot.commands.PivotCollect;
 
 public class RobotContainer {
     private final XboxController driver;
@@ -86,7 +85,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        new Trigger(driver::getAButton).whileTrue(new PivotCollect(collector, Radians.of(Math.PI/2)));
+        new Trigger(driver::getAButton).whileTrue(new Collect(collector, 0, Radians.of(Math.PI/2)));
 
         /* Driver */
         new Trigger(driver::getXButton)
@@ -107,7 +106,7 @@ public class RobotContainer {
                 ControllerConstants.POW), () -> -driver.getRightX()));
 
         /* Copilot */
-        new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
+        new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER, Radians.of(0)));
 
         // new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
     }
