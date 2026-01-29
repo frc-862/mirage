@@ -71,7 +71,8 @@ public class RobotContainer {
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
                 VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
                 .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
-                ControllerConstants.POW), () -> -driver.getRightX()));
+                ControllerConstants.POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                ControllerConstants.DEADBAND), ControllerConstants.POW)));
     }
 
     private void configureBindings() {
@@ -91,7 +92,8 @@ public class RobotContainer {
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
                 VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
                 .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
-                ControllerConstants.POW), () -> -driver.getRightX()));
+                ControllerConstants.POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                ControllerConstants.DEADBAND), ControllerConstants.POW)));
 
         /* Copilot */
         new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));

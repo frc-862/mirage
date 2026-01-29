@@ -11,6 +11,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.constants.DriveConstants;
 import frc.robot.constants.PoseConstants;
 import frc.robot.subsystems.Swerve;
 
@@ -23,9 +24,6 @@ public class PoseBasedAutoAlign extends Command {
     private PIDController pidX;
     private PIDController pidY;
     private PIDController pidR;
-
-    //Creates a variable for AUTO_REQUEST
-    private SwerveRequest.FieldCentric AUTO_REQUEST;
 
     private Pose2d targetPose;
 
@@ -47,7 +45,6 @@ public class PoseBasedAutoAlign extends Command {
         pidR.setTolerance(PoseConstants.DRIVE_TOLERANCE);
 
         //Instatiates AUTO_REQUEST
-        AUTO_REQUEST = new SwerveRequest.FieldCentric();
 
         //sets target pose
         this.targetPose = targetPose;
@@ -58,20 +55,17 @@ public class PoseBasedAutoAlign extends Command {
     @Override
     public void execute() {
         //uses the autoRequest to set a control for the drivetrain pased on pids
-        drivetrain.setControl(autoRequest());
+        drivetrain.setControl(getRequest());
     }
 
-    private SwerveRequest autoRequest(){
+    private SwerveRequest getRequest(){
         Pose2d currentPose = drivetrain.getPose();
 
-        AUTO_REQUEST.withVelocityX(pidX.calculate(currentPose.getX(), targetPose.getX()));
-        AUTO_REQUEST.withVelocityY(pidY.calculate(currentPose.getY(), targetPose.getY()));
-        AUTO_REQUEST.withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()));
-
-        AUTO_REQUEST.withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
-        AUTO_REQUEST.withDriveRequestType(DriveRequestType.Velocity);
-
-        return AUTO_REQUEST;
+        return DriveConstants.fieldCentricRequest.withVelocityX(pidX.calculate(currentPose.getX(), targetPose.getX()))
+            .withVelocityY(pidY.calculate(currentPose.getY(), targetPose.getY()))
+            .withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()))
+            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
+            .withDriveRequestType(DriveRequestType.Velocity);
     }
 
     // Returns true when the command should end.

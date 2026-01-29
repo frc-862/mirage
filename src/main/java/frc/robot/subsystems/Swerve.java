@@ -383,7 +383,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             this::resetPose, // Consumer for seeding pose against auto
             this::getCurrentRobotChassisSpeeds,
                 (speeds, feedforwards) -> this
-                    .setControl(new SwerveRequest.ApplyRobotSpeeds().withSpeeds(speeds)
+                    .setControl(DriveConstants.autonRequest.withSpeeds(speeds)
                         .withDriveRequestType(DriveRequestType.Velocity)
                         .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX())
                         .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY())), // Consumer of
