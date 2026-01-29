@@ -12,6 +12,8 @@ import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
 
+import static frc.util.Units.inputModulus;
+
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.units.measure.Angle;
@@ -58,9 +60,7 @@ public class TurretAim extends Command {
         Angle turretAngle = fieldAngle.minus(Degree.of(robotPose.getRotation().getDegrees()));
 
         // Adjust the angle based on the minimum and maximum angles of the turret
-        Angle wrappedAngle = Degree
-                .of(MathUtil.inputModulus(turretAngle.in(Degree), TurretConstants.MIN_ANGLE.in(Degree),
-                        TurretConstants.MAX_ANGLE.in(Degree)));
+        Angle wrappedAngle = inputModulus(turretAngle, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
 
         turret.setAngle(wrappedAngle);
     }
