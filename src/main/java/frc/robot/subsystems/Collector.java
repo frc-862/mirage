@@ -147,6 +147,9 @@ public class Collector extends SubsystemBase {
         return targetPivotPosition;
     }
 
+    public Angle getAngle(){
+        return pivotMotor.getPosition().getValue();
+    }
 
 
 }
