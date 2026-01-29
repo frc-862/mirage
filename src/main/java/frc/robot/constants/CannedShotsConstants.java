@@ -2,11 +2,11 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.HashMap;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -23,10 +23,14 @@ public class CannedShotsConstants {
 
     public record ShotData(
         Translation2d target,
-        Translation2d shotPose,
+        Translation2d shotLocation,
         Angle hoodAngle,
         AngularVelocity shooterSpeed
-    ) {}
+    ) {
+        public Pose2d shotPose() {
+            return new Pose2d(shotLocation, target.minus(shotLocation).getAngle());
+        }
+    }
 
     public static final HashMap<CannedShot, ShotData> SHOTS = new HashMap<CannedShot, ShotData>() {
         {
