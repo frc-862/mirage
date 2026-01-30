@@ -200,9 +200,6 @@ public class Collector extends SubsystemBase {
      *
      * @return Current angle of the pivot
      */
-    public Angle getAngle() {
-        return pivotMotor.getPosition().getValue();
-    }
 
     public double getPosition(){
         return pivotMotor.getPosition().getValueAsDouble();
