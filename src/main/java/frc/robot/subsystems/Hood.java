@@ -17,6 +17,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
@@ -65,20 +66,19 @@ public class Hood extends SubsystemBase {
 
         encoder.getConfigurator().apply(angleConfig);
 
-        // in init function
-        var talonFXConfigs = new TalonFXConfiguration();
+        motorConfig.Slot0.kP = HoodConstants.kP;
+        motorConfig.Slot0.kI = HoodConstants.kI;
+        motorConfig.Slot0.kD = HoodConstants.kD;
+        motorConfig.Slot0.kS = HoodConstants.kS;
+        motorConfig.Slot0.kV = HoodConstants.kV;
+        motorConfig.Slot0.kA = HoodConstants.kA;
 
-        var slot0Configs = talonFXConfigs.Slot0;
-        slot0Configs.kP = HoodConstants.kP;
-        slot0Configs.kI = HoodConstants.kI;
-        slot0Configs.kD = HoodConstants.kD;
-        slot0Configs.kS = HoodConstants.kS;
-        slot0Configs.kV = HoodConstants.kV;
-        slot0Configs.kA = HoodConstants.kA;
+        motorConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
+        motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
 
         motorConfig.Feedback.SensorToMechanismRatio = HoodConstants.ENCODER_TO_MECHANISM_RATIO;
         motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
-        hoodMotor.applyConfig(talonFXConfigs);
+        hoodMotor.applyConfig(motorConfig);
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
