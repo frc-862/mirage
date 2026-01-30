@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Collector;
@@ -45,7 +46,6 @@ public class RobotContainer {
 
     private final Swerve drivetrain;
     private final Collector collector;
-    private final Turret turret;
     private final LEDSubsystem leds;
 
     private final Telemetry logger;
@@ -58,7 +58,6 @@ public class RobotContainer {
 
         drivetrain = DriveConstants.createDrivetrain();
         collector = new Collector();
-        turret = new Turret();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
@@ -104,7 +103,7 @@ public class RobotContainer {
 
         // new Trigger(driver::getXButton).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
 
-        new Trigger(copilot::getBButton).whileTrue(new BasicAim(turret, Degrees.of(90)));
+        // new Trigger(driver::getBButton).whileTrue(new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
     }
 
     private void configureNamedCommands(){
