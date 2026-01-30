@@ -19,7 +19,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
-import edu.wpi.first.math.MathUtil;
+
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -27,13 +27,12 @@ import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.util.Units;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.constants.RobotMap;
 import frc.robot.Robot;
 import frc.robot.constants.HoodConstants;
-import edu.wpi.first.units.measure.Angle;
-import static frc.util.Units.clamp;
 
 public class Hood extends SubsystemBase {
     private ThunderBird hoodMotor;
@@ -41,8 +40,7 @@ public class Hood extends SubsystemBase {
 
     public final DutyCycleOut dutyCycle;
 
-    // create a Motion Magic request, voltage output
-    final MotionMagicVoltage request;
+    final PositionVoltage request;
     private Angle targetAngle;
 
     private SingleJointedArmSim hoodSim;
@@ -62,26 +60,20 @@ public class Hood extends SubsystemBase {
 
         dutyCycle = new DutyCycleOut(0d);
 
-        request = new MotionMagicVoltage(0d);
+        request = new PositionVoltage(0d);
 
         encoder.getConfigurator().apply(angleConfig);
 
         // in init function
         var talonFXConfigs = new TalonFXConfiguration();
 
-        // set slot 0 gains
         var slot0Configs = talonFXConfigs.Slot0;
-        slot0Configs.kS = HoodConstants.kS; // Add 0.25 V output to overcome static friction
-        slot0Configs.kV = HoodConstants.kV; // A velocity target of 1 rps results in 0.12 V output
-        slot0Configs.kA = HoodConstants.kA; // An acceleration of 1 rps/s requires 0.01 V output
-        slot0Configs.kP = HoodConstants.kP; // A position error of 2.5 rotations results in 12 V output
-        slot0Configs.kI = HoodConstants.kI; // no output for integrated error
-        slot0Configs.kD = HoodConstants.kD; // A velocity error of 1 rps results in 0.1 V output
-        // set Motion Magic settings
-        var motionMagicConfigs = talonFXConfigs.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = HoodConstants.CRUISE_VELOCITY; // Target cruise velocity of 80 rps
-        motionMagicConfigs.MotionMagicAcceleration = HoodConstants.ACCELERATION; // Target acceleration of 160 rps/s (0.5 seconds)
-        motionMagicConfigs.MotionMagicJerk = HoodConstants.JERK; // Target jerk of 1600 rps/s/s (0.1 seconds)
+        slot0Configs.kP = HoodConstants.kP;
+        slot0Configs.kI = HoodConstants.kI;
+        slot0Configs.kD = HoodConstants.kD;
+        slot0Configs.kS = HoodConstants.kS;
+        slot0Configs.kV = HoodConstants.kV;
+        slot0Configs.kA = HoodConstants.kA;
 
         motorConfig.Feedback.SensorToMechanismRatio = HoodConstants.ENCODER_TO_MECHANISM_RATIO;
         motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
@@ -118,7 +110,7 @@ public class Hood extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        targetAngle = Degrees.of(MathUtil.clamp(position.in(Degrees), HoodConstants.MIN_ANGLE.in(Degrees), HoodConstants.MAX_ANGLE.in(Degrees)));
+        targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
 
         hoodMotor.setControl(request.withPosition(targetAngle));
     }
