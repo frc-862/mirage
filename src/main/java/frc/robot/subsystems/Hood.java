@@ -30,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.constants.RobotMap;
-import frc.robot.constants.TurretConstants;
 import frc.robot.Robot;
 import frc.robot.constants.HoodConstants;
 import edu.wpi.first.units.measure.Angle;
