@@ -15,7 +15,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 
-/** Constants for Hood */
 public class HoodConstants {
     public static final boolean INVERTED = false; // temp
     public static final double STATOR_LIMIT = 40d; // temp
@@ -46,8 +45,6 @@ public class HoodConstants {
     public static final double CRUISE_VELOCITY = 80.0; // temp
     public static final double ACCELERATION = 160.0; // temp
     public static final double JERK = 1600.0; // temp
-    // Angle limits
 
-    // Tolerance for being "on target"
     public static final Angle POSITION_TOLERANCE = Degree.of(0.41); // temp
 }

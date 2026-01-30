@@ -15,15 +15,15 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
@@ -43,6 +43,10 @@ public class RobotContainer {
     private final Collector collector;
     private final LEDSubsystem leds;
 
+    private Hood hood;
+    private Indexer indexer;
+    private Shooter shooter;
+
     private final Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -53,6 +57,13 @@ public class RobotContainer {
 
         drivetrain = DriveConstants.createDrivetrain();
         collector = new Collector();
+
+        if (Robot.isSimulation()) {
+            // test subsytems that aren't on the robot yet in here!
+            hood = new Hood();
+            indexer = new Indexer();
+            shooter = new Shooter();
+        }
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
@@ -65,8 +76,10 @@ public class RobotContainer {
 
     private void configureDefaultCommands() {
         /* Driver */
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
+        /*
+        * Note that X is defined as forward according to WPILib convention,
+        * Y is defined as to the left according to WPILib convention.
+        */
         drivetrain.setDefaultCommand(drivetrain.driveCommand(
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
                 VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
@@ -96,7 +109,10 @@ public class RobotContainer {
         /* Copilot */
         new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
 
-        // new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
+        if (Robot.isSimulation()){
+            // test subsytems that aren't on the robot yet in here!
+            new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
+        }
     }
 
     private void configureNamedCommands(){

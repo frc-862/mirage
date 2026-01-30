@@ -4,14 +4,10 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
@@ -33,7 +29,6 @@ import static frc.util.Units.clamp;
 public class Collector extends SubsystemBase {
     private final ThunderBird collectorMotor;
     private final ThunderBird pivotMotor;
-    private final CANcoder encoder;
 
     private LinearSystemSim<N1, N1, N1> collectorSim;
     private TalonFXSimState collectorMotorSim;
@@ -53,14 +48,6 @@ public class Collector extends SubsystemBase {
         pivotMotor = new ThunderBird(RobotMap.COLLECTOR_PIVOT, RobotMap.CAN_BUS,
             CollectorConstants.PIVOT_INVERTED, CollectorConstants.PIVOT_STATOR_LIMIT, CollectorConstants.PIVOT_BRAKE_MODE);
 
-        encoder = new CANcoder(RobotMap.PIVOT_ENCODER, RobotMap.CAN_BUS);
-        CANcoderConfiguration angleConfig = new CANcoderConfiguration();
-        angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
-        angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? CollectorConstants.PIVOT_OFFSET : 0d;
-        angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        encoder.getConfigurator().apply(angleConfig);
-
-
         collectorDutyCycle = new DutyCycleOut(0.0);
         positionPID = new PositionVoltage(0);
 
@@ -73,11 +60,6 @@ public class Collector extends SubsystemBase {
         config.Slot0.kA = CollectorConstants.PIVOT_KA;
         config.Slot0.kG = CollectorConstants.PIVOT_KG;
         config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-
-        config.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
-        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        config.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
-        config.Feedback.RotorToSensorRatio = CollectorConstants.ROTOR_TO_ENCODER_RATIO;
 
         pivotMotor.applyConfig(config);
 
@@ -148,20 +130,19 @@ public class Collector extends SubsystemBase {
     }
 
     /**
-     * Gets the current angle of the pivot
-     *
-     * @return Current angle of the pivot
-     */
-    public Angle getAngle() {
-        return encoder.getAbsolutePosition().getValue();
-    }
-
-    /**
      * Checks if the wrist is on target
      *
      * @return True if the wrist is on target
      */
     public boolean isOnTarget() {
         return targetPivotPosition.isNear(getAngle(), CollectorConstants.TOLERANCE);
+    }
+
+    /**
+     * Get the angle of the pivot
+     * @return angle of the pivot
+     */
+    public Angle getAngle(){
+        return pivotMotor.getPosition().getValue();
     }
 }
