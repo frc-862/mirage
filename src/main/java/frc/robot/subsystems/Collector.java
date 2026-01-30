@@ -131,6 +131,19 @@ public class Collector extends SubsystemBase {
         return targetPivotPosition;
     }
 
+    /**
+     * Checks if the wrist is on target
+     *
+     * @return True if the wrist is on target
+     */
+    public boolean isOnTarget() {
+        return targetPivotPosition.isNear(getAngle(), CollectorConstants.TOLERANCE);
+    }
+
+    /**
+     * Get the angle of the pivot
+     * @return angle of the pivot
+     */
     public Angle getAngle(){
         return pivotMotor.getPosition().getValue();
     }
