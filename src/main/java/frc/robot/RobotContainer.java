@@ -15,9 +15,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
@@ -78,8 +76,10 @@ public class RobotContainer {
 
     private void configureDefaultCommands() {
         /* Driver */
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
+        /*
+        * Note that X is defined as forward according to WPILib convention,
+        * Y is defined as to the left according to WPILib convention.
+        */
         drivetrain.setDefaultCommand(drivetrain.driveCommand(
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
                 VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
