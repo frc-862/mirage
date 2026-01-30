@@ -55,8 +55,6 @@ public class Hood extends SubsystemBase {
     private MechanismRoot2d root2d;
     private Mechanism2d mech2d;
 
-
-
     /** Creates a new Hood Subsystem. */
     public Hood() {
         hoodMotor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
