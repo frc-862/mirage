@@ -61,8 +61,6 @@ public class Collector extends SubsystemBase {
         config.Slot0.kG = CollectorConstants.PIVOT_KG;
         config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-        config.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
-
         pivotMotor.applyConfig(config);
 
         if (Robot.isSimulation()) {
