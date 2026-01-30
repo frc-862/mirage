@@ -22,6 +22,7 @@ public class CannedShotCommand{
      * @param turret Turret subsystem
      * @param drivetrain Drivetrain subsystem
      * @param leds LED Subsystem
+     * @return the command to run
      */
     public static Command runCannedShot(CannedShot shot, Shooter shooter, Hood hood, Turret turret, Swerve drivetrain, LEDSubsystem leds){
         var shotData = CannedShotsConstants.SHOTS.get(shot);
