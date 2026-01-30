@@ -128,7 +128,7 @@ public class Shooter extends SubsystemBase {
     /**
      * @return whether or not the current velocity is near the target velocity
      */
-    public boolean velocityOnTarget(){
+    public boolean isOnTarget(){
         return getVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
     }
 }

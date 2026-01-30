@@ -29,10 +29,9 @@ public class TurretAim extends Command {
      * @param turret a turret from the Turret subsytem
      * @param target a Translation2d representing where the turret should aim at
      */
-    public TurretAim(Swerve drivetrain, Turret turret, Translation2d target) {
+    public TurretAim(Swerve drivetrain, Turret turret) {
         this.drivetrain = drivetrain;
         this.turret = turret;
-        this.target = target;
 
         addRequirements(turret);
     }
@@ -40,6 +39,8 @@ public class TurretAim extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        // decide target based no position
+
         Pose2d robotPose = drivetrain.getPose();
 
         Translation2d delta = target.minus(robotPose.getTranslation());
