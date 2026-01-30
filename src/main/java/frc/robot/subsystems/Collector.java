@@ -10,6 +10,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
+
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
@@ -133,5 +134,4 @@ public class Collector extends SubsystemBase {
     public Angle getAngle(){
         return pivotMotor.getPosition().getValue();
     }
-
 }
