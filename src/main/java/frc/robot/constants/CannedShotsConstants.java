@@ -35,9 +35,9 @@ public class CannedShotsConstants {
     public static final HashMap<CannedShot, ShotData> SHOTS = new HashMap<CannedShot, ShotData>() {
         {
             put(CannedShot.HUB, new ShotData(
-                new Translation2d(Meters.of(0), Meters.of(0)),
-                new Translation2d(Meters.of(0), Meters.of(0)),
-                Degrees.of(0),
+                new Translation2d(Meters.of(1), Meters.of(1)),
+                new Translation2d(Meters.of(2), Meters.of(2)),
+                Degrees.of(70),
                 RotationsPerSecond.of(10)
             )); //placeholder value
             put(CannedShot.SQUARE_THING, new ShotData(
@@ -70,17 +70,6 @@ public class CannedShotsConstants {
                 Degrees.of(0),
                 RotationsPerSecond.of(10)
             )); //placeholder value
-        }
-    };
-
-    public static final HashMap<CannedShot, Double> HOOD_ANGlE_MAP = new HashMap<CannedShot, Double>() {
-        {
-            put(CannedShot.HUB, 1d);                   //placeholder value
-            put(CannedShot.SQUARE_THING, 1d);          //placeholder value
-            put(CannedShot.CORNER_BOTTOM, 1d);         //placeholder value
-            put(CannedShot.CORNER_TOP, 1d);            //placeholder value
-            put(CannedShot.TUNNEL_ENTRANCE_BOTTOM, 1d);//placeholder value
-            put(CannedShot.TUNNEL_ENTRANCE_TOP, 1d);   //placeholder value
         }
     };
 }
