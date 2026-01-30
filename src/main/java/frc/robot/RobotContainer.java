@@ -118,7 +118,7 @@ public class RobotContainer {
             // test subsytems that aren't on the robot yet in here!
             new Trigger(driver::getAButton).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
 
-            new Trigger(driver::getBButton).whileTrue(runCannedShot(CannedShot.HUB, shooter, hood, turret, drivetrain, leds));
+            new Trigger(driver::getBButton).whileTrue(runCannedShot(CannedShot.HUB, shooter, hood, turret, indexer, drivetrain, leds));
         }
     }
 
