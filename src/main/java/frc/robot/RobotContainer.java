@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.constants.CannedShotsConstants.CannedShot;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
@@ -34,8 +35,10 @@ import frc.util.leds.LEDSubsystem;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
+import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.commands.Collect;
+import static frc.robot.commands.CannedShotCommand.runCannedShot;
 
 public class RobotContainer {
     private final XboxController driver;
@@ -48,6 +51,7 @@ public class RobotContainer {
     private Hood hood;
     private Indexer indexer;
     private Shooter shooter;
+    private Turret turret;
 
     private final Telemetry logger;
 
@@ -65,6 +69,7 @@ public class RobotContainer {
             hood = new Hood();
             indexer = new Indexer();
             shooter = new Shooter();
+            turret = new Turret();
         }
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
@@ -111,7 +116,9 @@ public class RobotContainer {
 
         if (Robot.isSimulation()){
             // test subsytems that aren't on the robot yet in here!
-            new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
+            new Trigger(driver::getAButton).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
+
+            new Trigger(driver::getBButton).whileTrue(runCannedShot(CannedShot.HUB, shooter, hood, turret, drivetrain, leds));
         }
     }
 
