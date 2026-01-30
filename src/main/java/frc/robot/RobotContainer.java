@@ -30,7 +30,6 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.MapleSim;
-import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
@@ -67,13 +66,6 @@ public class RobotContainer {
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
         drivetrain = DriveConstants.createDrivetrain();
-
-        if (Robot.isSimulation()) {
-            // test subsytems that aren't on the robot yet in here!
-            hood = new Hood();
-            indexer = new Indexer();
-            shooter = new Shooter();
-        }
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
