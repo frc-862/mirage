@@ -53,10 +53,6 @@ public class RobotContainer {
     private Shooter shooter;
     private final LEDSubsystem leds;
 
-    private Hood hood;
-    private Indexer indexer;
-    private Shooter shooter;
-
     private final Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
