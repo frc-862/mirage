@@ -1,14 +1,12 @@
 package frc.robot.constants;
 
-import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Meter;
-
-import java.util.HashMap;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
+
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
 public class TurretConstants {
     public static final boolean INVERTED = false; // temp
