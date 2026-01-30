@@ -11,33 +11,29 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
-import edu.wpi.first.math.MathUtil;
+
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.util.Units;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.constants.RobotMap;
-import frc.robot.constants.TurretConstants;
 import frc.robot.Robot;
 import frc.robot.constants.HoodConstants;
-import edu.wpi.first.units.measure.Angle;
-import static frc.util.Units.clamp;
 
 public class Hood extends SubsystemBase {
     private ThunderBird hoodMotor;
 
     public final DutyCycleOut dutyCycle;
 
-    // create a Motion Magic request, voltage output
-    final MotionMagicVoltage request;
+    final PositionVoltage request;
     private Angle targetAngle;
 
     private SingleJointedArmSim hoodSim;
@@ -52,7 +48,7 @@ public class Hood extends SubsystemBase {
 
         dutyCycle = new DutyCycleOut(0d);
 
-        request = new MotionMagicVoltage(0d);
+        request = new PositionVoltage(0d);
 
         var talonFXConfigs = new TalonFXConfiguration();
 
@@ -63,11 +59,6 @@ public class Hood extends SubsystemBase {
         slot0Configs.kS = HoodConstants.kS;
         slot0Configs.kV = HoodConstants.kV;
         slot0Configs.kA = HoodConstants.kA;
-
-        var motionMagicConfigs = talonFXConfigs.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = HoodConstants.CRUISE_VELOCITY;
-        motionMagicConfigs.MotionMagicAcceleration = HoodConstants.ACCELERATION;
-        motionMagicConfigs.MotionMagicJerk = HoodConstants.JERK;
 
         hoodMotor.applyConfig(talonFXConfigs);
 
@@ -100,7 +91,7 @@ public class Hood extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        targetAngle = Degrees.of(MathUtil.clamp(position.in(Degrees), HoodConstants.MIN_ANGLE.in(Degrees), HoodConstants.MAX_ANGLE.in(Degrees)));
+        targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
 
         hoodMotor.setControl(request.withPosition(targetAngle));
     }
