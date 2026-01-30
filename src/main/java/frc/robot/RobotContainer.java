@@ -32,6 +32,8 @@ import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Collector;
@@ -53,6 +55,10 @@ public class RobotContainer {
     private final Collector collector;
     private final LEDSubsystem leds;
 
+    private Hood hood;
+    private Indexer indexer;
+    private Shooter shooter;
+
     private final Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -63,6 +69,13 @@ public class RobotContainer {
 
         drivetrain = DriveConstants.createDrivetrain();
         collector = new Collector();
+
+        if (Robot.isSimulation()) {
+            // test subsytems that aren't on the robot yet in here!
+            hood = new Hood();
+            indexer = new Indexer();
+            shooter = new Shooter();
+        }
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
@@ -108,7 +121,10 @@ public class RobotContainer {
         /* Copilot */
         new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER, Radians.of(0)));
 
-        // new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
+        if (Robot.isSimulation()){
+            // test subsytems that aren't on the robot yet in here!
+            new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
+        }
     }
 
 
