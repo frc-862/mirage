@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -50,7 +51,6 @@ public class Hood extends SubsystemBase {
     private DCMotor gearbox;
     private CANcoderSimState encoderSim;
 
-
     /** Creates a new Hood Subsystem. */
     public Hood() {
         hoodMotor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
@@ -58,9 +58,14 @@ public class Hood extends SubsystemBase {
             HoodConstants.BRAKE);
         encoder = new CANcoder(RobotMap.HOOD_ENCODER, RobotMap.CAN_BUS);
 
+        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+        CANcoderConfiguration angleConfig = new CANcoderConfiguration();
+
         dutyCycle = new DutyCycleOut(0d);
 
         request = new MotionMagicVoltage(0d);
+
+        encoder.getConfigurator().apply(angleConfig);
 
         // in init function
         var talonFXConfigs = new TalonFXConfiguration();
@@ -79,6 +84,8 @@ public class Hood extends SubsystemBase {
         motionMagicConfigs.MotionMagicAcceleration = HoodConstants.ACCELERATION; // Target acceleration of 160 rps/s (0.5 seconds)
         motionMagicConfigs.MotionMagicJerk = HoodConstants.JERK; // Target jerk of 1600 rps/s/s (0.1 seconds)
 
+        motorConfig.Feedback.SensorToMechanismRatio = HoodConstants.ENCODER_TO_MECHANISM_RATIO;
+        motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
         hoodMotor.applyConfig(talonFXConfigs);
 
         if (Robot.isSimulation()) {

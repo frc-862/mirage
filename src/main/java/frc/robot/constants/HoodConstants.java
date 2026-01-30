@@ -50,4 +50,8 @@ public class HoodConstants {
 
     // Tolerance for being "on target"
     public static final Angle POSITION_TOLERANCE = Degree.of(0.41); // temp
+
+    // Conversion ratios
+    public static final double ENCODER_TO_MECHANISM_RATIO = 0; // temp
+    public static final double ROTOR_TO_ENCODER_RATIO = 0; // temp
 }
