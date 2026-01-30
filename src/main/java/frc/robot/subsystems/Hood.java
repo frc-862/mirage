@@ -54,22 +54,20 @@ public class Hood extends SubsystemBase {
 
         request = new MotionMagicVoltage(0d);
 
-        // in init function
         var talonFXConfigs = new TalonFXConfiguration();
 
-        // set slot 0 gains
         var slot0Configs = talonFXConfigs.Slot0;
-        slot0Configs.kS = HoodConstants.kS; // Add 0.25 V output to overcome static friction
-        slot0Configs.kV = HoodConstants.kV; // A velocity target of 1 rps results in 0.12 V output
-        slot0Configs.kA = HoodConstants.kA; // An acceleration of 1 rps/s requires 0.01 V output
-        slot0Configs.kP = HoodConstants.kP; // A position error of 2.5 rotations results in 12 V output
-        slot0Configs.kI = HoodConstants.kI; // no output for integrated error
-        slot0Configs.kD = HoodConstants.kD; // A velocity error of 1 rps results in 0.1 V output
-        // set Motion Magic settings
+        slot0Configs.kP = HoodConstants.kP;
+        slot0Configs.kI = HoodConstants.kI;
+        slot0Configs.kD = HoodConstants.kD;
+        slot0Configs.kS = HoodConstants.kS;
+        slot0Configs.kV = HoodConstants.kV;
+        slot0Configs.kA = HoodConstants.kA;
+
         var motionMagicConfigs = talonFXConfigs.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = HoodConstants.CRUISE_VELOCITY; // Target cruise velocity of 80 rps
-        motionMagicConfigs.MotionMagicAcceleration = HoodConstants.ACCELERATION; // Target acceleration of 160 rps/s (0.5 seconds)
-        motionMagicConfigs.MotionMagicJerk = HoodConstants.JERK; // Target jerk of 1600 rps/s/s (0.1 seconds)
+        motionMagicConfigs.MotionMagicCruiseVelocity = HoodConstants.CRUISE_VELOCITY;
+        motionMagicConfigs.MotionMagicAcceleration = HoodConstants.ACCELERATION;
+        motionMagicConfigs.MotionMagicJerk = HoodConstants.JERK;
 
         hoodMotor.applyConfig(talonFXConfigs);
 
