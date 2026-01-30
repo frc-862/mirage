@@ -6,6 +6,7 @@ import frc.robot.constants.CannedShotsConstants;
 import frc.robot.constants.CannedShotsConstants.CannedShot;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
@@ -24,7 +25,7 @@ public class CannedShotCommand{
      * @param leds LED Subsystem
      * @return the command to run
      */
-    public static Command runCannedShot(CannedShot shot, Shooter shooter, Hood hood, Turret turret, Swerve drivetrain, LEDSubsystem leds){
+    public static Command runCannedShot(CannedShot shot, Shooter shooter, Hood hood, Turret turret, Indexer indexer, Swerve drivetrain, LEDSubsystem leds){
         var shotData = CannedShotsConstants.SHOTS.get(shot);
         return Commands.sequence(
             Commands.parallel(
@@ -32,7 +33,7 @@ public class CannedShotCommand{
                 shooter.runOnce(() -> shooter.setVelocity(shotData.shooterSpeed())).until(shooter::velocityOnTarget),
                 new MoveHood(hood, shotData.hoodAngle())
             ).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_START.id())),
-            leds.enableState(LED_STATES.CANNED_SHOT_READY.id())
+            new Index(indexer, 1).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_READY.id()))
         ).handleInterrupt(() -> shooter.stopMotor());
     }
 }
