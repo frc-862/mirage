@@ -24,7 +24,6 @@ public class Units {
         }
     }
 
-
     /**
      * Wraps a {@code Measure<U>} between a minimum and maximum.
      *
