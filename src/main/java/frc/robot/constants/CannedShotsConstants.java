@@ -35,26 +35,26 @@ public class CannedShotsConstants {
     public static final HashMap<CannedShot, ShotData> SHOTS = new HashMap<CannedShot, ShotData>() {
         {
             put(CannedShot.HUB, new ShotData(
-                new Translation2d(Meters.of(1), Meters.of(1)),
-                new Translation2d(Meters.of(2), Meters.of(2)),
+                new Translation2d(Meters.of(4.62), Meters.of(4)),
+                new Translation2d(Meters.of(3), Meters.of(4)),
                 Degrees.of(70),
                 RotationsPerSecond.of(10)
             )); //placeholder value
             put(CannedShot.SQUARE_THING, new ShotData(
                 new Translation2d(Meters.of(0), Meters.of(0)),
-                new Translation2d(Meters.of(0), Meters.of(0)),
+                new Translation2d(Meters.of(1.29), Meters.of(6)),
                 Degrees.of(0),
                 RotationsPerSecond.of(10)
             )); //placeholder value
             put(CannedShot.CORNER_BOTTOM, new ShotData(
                 new Translation2d(Meters.of(0), Meters.of(0)),
-                new Translation2d(Meters.of(0), Meters.of(0)),
+                new Translation2d(Meters.of(0.5), Meters.of(0.5)),
                 Degrees.of(0),
                 RotationsPerSecond.of(10)
             )); //placeholder value
             put(CannedShot.CORNER_TOP, new ShotData(
                 new Translation2d(Meters.of(0), Meters.of(0)),
-                new Translation2d(Meters.of(0), Meters.of(0)),
+                new Translation2d(Meters.of(0.5), Meters.of(7.5)),
                 Degrees.of(0),
                 RotationsPerSecond.of(10)
             )); //placeholder value
