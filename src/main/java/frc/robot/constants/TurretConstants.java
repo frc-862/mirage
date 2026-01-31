@@ -5,6 +5,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
@@ -13,8 +14,7 @@ public class TurretConstants {
     public static final double STATOR_LIMIT = 120.0; // temp
     public static final boolean BRAKE = false; // temp
 
-    // Tolerance in degrees
-    public static final double TURRET_ANGLE_TOLERANCE = 5;
+    public static final Angle TURRET_ANGLE_TOLERANCE = Degrees.of(5);
 
     public static final Angle MIN_ANGLE = Degree.of(-220);
     public static final Angle MAX_ANGLE = Degree.of(220);
