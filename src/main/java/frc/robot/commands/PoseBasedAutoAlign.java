@@ -42,7 +42,7 @@ public class PoseBasedAutoAlign extends Command {
         // sets the pid values to a pid controller
         pidX = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
         pidY = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
-        pidR = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
+        pidR = new PIDController(PoseConstants.ROT_P, PoseConstants.ROT_I, PoseConstants.ROT_D);
 
         pidX.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
         pidY.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
