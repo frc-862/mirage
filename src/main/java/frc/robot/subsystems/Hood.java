@@ -18,7 +18,6 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
-
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
@@ -35,7 +34,6 @@ import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.constants.RobotMap;
 import frc.robot.Robot;
 import frc.robot.constants.HoodConstants;
-
 
 public class Hood extends SubsystemBase {
     private ThunderBird hoodMotor;
