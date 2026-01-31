@@ -1,9 +1,13 @@
 package frc.robot.commands;
 
+import java.util.Map;
+
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.constants.CannedShotsConstants;
 import frc.robot.constants.CannedShotsConstants.CannedShot;
+import frc.robot.constants.CannedShotsConstants.ShotData;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
@@ -26,8 +30,25 @@ public class CannedShotCommand{
      * @param leds LED Subsystem
      * @return the command to run
      */
-    public static Command runCannedShot(CannedShot shot, Shooter shooter, Hood hood, Turret turret, Indexer indexer, Swerve drivetrain, LEDSubsystem leds){
-        var shotData = CannedShotsConstants.SHOTS.get(shot);
+    public static Command runCannedShot(Shooter shooter, Hood hood, Turret turret, Indexer indexer, Swerve drivetrain, LEDSubsystem leds){
+        CannedShot shot = CannedShot.HUB;
+        ShotData shotData = CannedShotsConstants.SHOTS.get(shot);
+        var robotLocation = drivetrain.getPose().getTranslation();
+        double currentDistance = Double.POSITIVE_INFINITY;
+
+        for (Map.Entry<CannedShot, ShotData> entry : CannedShotsConstants.SHOTS.entrySet()){
+            CannedShot key = entry.getKey();
+            ShotData value = entry.getValue();
+
+            double distance = value.shotLocation().minus(robotLocation).getNorm();
+
+            if (distance < currentDistance) {
+                currentDistance = distance;
+                shot = key;
+                shotData = value;
+            }
+        }
+
         return Commands.sequence(
             Commands.parallel(
                 new PoseBasedAutoAlign(drivetrain, shotData.shotPose()),
