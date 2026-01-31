@@ -63,6 +63,8 @@ public class Hood extends SubsystemBase {
 
         request = new PositionVoltage(0d);
 
+        targetAngle = Degrees.of(0);
+
         encoder.getConfigurator().apply(angleConfig);
 
         motorConfig.Slot0.kP = HoodConstants.kP;
@@ -71,7 +73,6 @@ public class Hood extends SubsystemBase {
         motorConfig.Slot0.kS = HoodConstants.kS;
         motorConfig.Slot0.kV = HoodConstants.kV;
         motorConfig.Slot0.kA = HoodConstants.kA;
-        targetAngle = Degrees.of(0);
 
         motorConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
         motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
@@ -83,7 +84,7 @@ public class Hood extends SubsystemBase {
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
             hoodSim = new DCMotorSim(
-                LinearSystemId.createDCMotorSystem(gearbox, HoodConstants.MOI.magnitude(), HoodConstants.GEARING_RATIO),
+                LinearSystemId.createDCMotorSystem(gearbox, HoodConstants.MOI.magnitude(), HoodConstants.ROTOR_TO_MECHANISM_RATIO),
                 gearbox
             );
 
@@ -160,12 +161,12 @@ public class Hood extends SubsystemBase {
         Angle simAngle = Radians.of(hoodSim.getAngularPositionRad());
         AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getAngularVelocityRadPerSec());
 
-        motorSim.setRawRotorPosition(simAngle.times(HoodConstants.GEARING_RATIO));
-        motorSim.setRotorVelocity(simVeloc.times(HoodConstants.GEARING_RATIO));
+        motorSim.setRawRotorPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+        motorSim.setRotorVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
 
         ligament.setAngle(simAngle.in(Degrees));
-        encoderSim.setRawPosition(simAngle.times(HoodConstants.GEARING_RATIO));
-        encoderSim.setVelocity(simVeloc.times(HoodConstants.GEARING_RATIO));
+        encoderSim.setRawPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+        encoderSim.setVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
 
         LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
