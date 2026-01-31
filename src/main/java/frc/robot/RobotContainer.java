@@ -33,7 +33,6 @@ import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.util.shuffleboard.LightningShuffleboard;
-import frc.robot.commands.Collect;
 
 public class RobotContainer {
     private final XboxController driver;
@@ -94,7 +93,7 @@ public class RobotContainer {
                 ControllerConstants.POW), () -> -driver.getRightX()));
 
         /* Copilot */
-        new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
+        new Trigger(copilot::getAButton).whileTrue(collector.Collect(CollectorConstants.COLLECT_POWER));
 
         // new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
     }

@@ -22,6 +22,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.Robot;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.RobotMap;
@@ -163,5 +165,22 @@ public class Collector extends SubsystemBase {
      */
     public boolean isOnTarget() {
         return targetPivotPosition.isNear(getAngle(), CollectorConstants.TOLERANCE);
+    }
+
+    public Command Collect(double power) {
+        Command collect = new Command() {
+
+            @Override
+            public void initialize() {
+                setCollectorPower(power);
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                stopCollector();
+            }
+        };
+
+        return collect;
     }
 }

@@ -16,6 +16,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.IndexerConstants;
@@ -117,5 +118,22 @@ public class Indexer extends SubsystemBase {
     public void stop() {
         stopSpindexer();
         stopTransfer();
+    }
+
+    public Command Index(double power) {
+        Command index = new Command() {
+
+            @Override
+            public void initialize() {
+                setSpindexerPower(power);
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                stop();
+            }
+        };
+
+        return index;
     }
 }
