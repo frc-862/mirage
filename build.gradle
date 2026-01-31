@@ -8,7 +8,6 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-
 def MAC_MAIN_CLASS = "frc.robot.mac.Main"
 
 sourceSets {
@@ -43,8 +42,6 @@ task macJar(type: Jar) {
 
     // Includes all dependencies from parent project
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-
-    // from { (configurations.runtimeClasspath + configurations.nativeRelease).collect { it.isDirectory() ? it : zipTree(it) } }
 
     // Handle duplicate files
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
