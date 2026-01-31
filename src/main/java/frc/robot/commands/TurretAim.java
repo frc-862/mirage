@@ -38,7 +38,6 @@ public class TurretAim extends Command {
         addRequirements(turret);
     }
 
-    // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
         Pose2d robotPose = drivetrain.getPose();
@@ -52,7 +51,7 @@ public class TurretAim extends Command {
         distanceToTargetMeters = Meters.of(delta.getNorm());
 
         /*
-        * Well add values if we have to based on however the angles acually get
+        * We'll add values if we have to based on however the angles acually get
         * calculated
         */
         Angle fieldAngle = delta.getAngle().getMeasure();
@@ -64,13 +63,11 @@ public class TurretAim extends Command {
         turret.setAngle(wrappedAngle);
     }
 
-    // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
         turret.stop();
     }
 
-    // Returns true when the command should end.
     @Override
     public boolean isFinished() {
         return turret.isOnTarget();

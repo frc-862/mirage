@@ -4,7 +4,10 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -17,14 +20,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
-import frc.robot.constants.HoodConstants;
 import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Collector;
+import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
@@ -32,6 +37,7 @@ import frc.util.leds.LEDSubsystem;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
+import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.commands.Collect;
 
@@ -40,7 +46,11 @@ public class RobotContainer {
     private final XboxController copilot;
 
     private final Swerve drivetrain;
-    private final Collector collector;
+    private Collector collector; //TODO: make final after subsystems are added
+    private Indexer indexer;
+    private Turret turret;
+    private Hood hood;
+    private Shooter shooter;
     private final LEDSubsystem leds;
 
     private final Telemetry logger;
@@ -52,10 +62,18 @@ public class RobotContainer {
         copilot = new XboxController(ControllerConstants.COPILOT_PORT);
 
         drivetrain = DriveConstants.createDrivetrain();
-        collector = new Collector();
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
+
+        if (Robot.isSimulation()) {
+            collector = new Collector();
+            indexer = new Indexer();
+            turret = new Turret();
+            hood = new Hood();
+            shooter = new Shooter();
+            new MapleSim(drivetrain, collector, indexer, turret, hood, shooter);
+        }
 
         configureDefaultCommands();
         configureBindings();
@@ -65,13 +83,20 @@ public class RobotContainer {
 
     private void configureDefaultCommands() {
         /* Driver */
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
+        /*
+        * Note that X is defined as forward according to WPILib convention,
+        * Y is defined as to the left according to WPILib convention.
+        */
         drivetrain.setDefaultCommand(drivetrain.driveCommand(
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
                 VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
                 .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
                 ControllerConstants.POW), () -> -driver.getRightX()));
+
+        if (Robot.isSimulation()){
+            turret.setDefaultCommand(turret.run(() -> turret.setAngle(Rotations.of(0))));
+            hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(60))));
+        }
     }
 
     private void configureBindings() {
@@ -94,9 +119,18 @@ public class RobotContainer {
                 ControllerConstants.POW), () -> -driver.getRightX()));
 
         /* Copilot */
-        new Trigger(copilot::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
+        if (Robot.isSimulation()) {
+            // TEMP
+            new Trigger(driver::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
 
-        // new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
+            new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
+                shooter.setVelocity(RotationsPerSecond.of(100));
+                indexer.setSpindexerPower(1d);
+            })).onFalse(new InstantCommand(() -> {
+                shooter.stopMotor();
+                indexer.stop();
+            }));
+        }
     }
 
     private void configureNamedCommands(){
