@@ -7,6 +7,8 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Radians;
+
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -100,6 +102,8 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        new Trigger(driver::getAButton).whileTrue(new Collect(collector, 0, Radians.of(Math.PI/2)));
+
         /* Driver */
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()
@@ -122,7 +126,7 @@ public class RobotContainer {
 
         /* Copilot */
         if (Robot.isSimulation()) {
-            new Trigger(driver::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
+            new Trigger(driver::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER, Degrees.of(0)));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));
@@ -132,9 +136,9 @@ public class RobotContainer {
                 indexer.stop();
             }));
 
-            new Trigger(copilot::getAButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().plus(Degrees.of(0.5)))));
+            new Trigger(copilot::getBButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().plus(Degrees.of(0.5)))));
 
-            new Trigger(copilot::getBButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
+            new Trigger(copilot::getXButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
         }
     }
 
@@ -169,4 +173,5 @@ public class RobotContainer {
 
         new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
     }
+
 }
