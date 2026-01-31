@@ -26,7 +26,7 @@ public class HoodConstants {
 
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
     public static final Distance LENGTH = Meter.of(0.18); // Temp
-    public static final double GEARING_RATIO = 50d/22d*165d/15d; // temp
+    public static final double GEARING_RATIO = 50d/22d*165d/15d; // Hood v2
 
     // Input is distance to target in meters, output is hood angle in degrees
     public static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
@@ -41,9 +41,9 @@ public class HoodConstants {
     public static final double kI = 0.0; // temp
     public static final double kD = 0.0; // temp
 
-    public static final Angle POSITION_TOLERANCE = Degree.of(0.41); // temp
+    public static final Angle POSITION_TOLERANCE = Degree.of(1); // temp
 
     // Conversion ratios
-    public static final double ENCODER_TO_MECHANISM_RATIO = 1d; // temp
+    public static final double ENCODER_TO_MECHANISM_RATIO = GEARING_RATIO; // temp
     public static final double ROTOR_TO_ENCODER_RATIO = 1d; // temp
 }

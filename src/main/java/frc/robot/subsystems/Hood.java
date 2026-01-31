@@ -7,14 +7,10 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -28,7 +24,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -43,8 +38,6 @@ import frc.robot.constants.HoodConstants;
 public class Hood extends SubsystemBase {
     private ThunderBird hoodMotor;
     private CANcoder encoder;
-
-    public final DutyCycleOut dutyCycle;
 
     final PositionVoltage request;
     private Angle targetAngle;
@@ -66,8 +59,6 @@ public class Hood extends SubsystemBase {
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
         CANcoderConfiguration angleConfig = new CANcoderConfiguration();
-
-        dutyCycle = new DutyCycleOut(0d);
 
         request = new PositionVoltage(0d);
 
@@ -101,10 +92,10 @@ public class Hood extends SubsystemBase {
             motorSim.setRawRotorPosition(HoodConstants.MIN_ANGLE.in(Rotations));
             encoderSim.setRawPosition(HoodConstants.MIN_ANGLE.in(Rotations));
 
-            mech2d = new Mechanism2d(3,  3);
-            root2d =  mech2d.getRoot("Hood", 2, 0);
+            mech2d = new Mechanism2d(2,  2);
+            root2d =  mech2d.getRoot("Hood", 0.2, 1);
 
-            ligament = root2d.append(new MechanismLigament2d("Hood", 3, 90));
+            ligament = root2d.append(new MechanismLigament2d("Hood", 1.5, 0));
             LightningShuffleboard.send("Hood", "Mech2d", mech2d);
         }
     }
@@ -171,7 +162,7 @@ public class Hood extends SubsystemBase {
         motorSim.setRawRotorPosition(simAngle);
         motorSim.setRotorVelocity(simVeloc);
 
-        ligament.setAngle(-(simAngle.in(Degrees)) + 270);
+        ligament.setAngle(simAngle.in(Degrees));
         encoderSim.setRawPosition(simAngle);
         encoderSim.setVelocity(simVeloc);
 
