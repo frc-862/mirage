@@ -5,6 +5,10 @@
 package frc.robot.commands;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
@@ -40,9 +44,9 @@ public class PoseBasedAutoAlign extends Command {
         pidY = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
         pidR = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
 
-        pidX.setTolerance(PoseConstants.DRIVE_TOLERANCE);
-        pidY.setTolerance(PoseConstants.DRIVE_TOLERANCE);
-        pidR.setTolerance(PoseConstants.DRIVE_TOLERANCE);
+        pidX.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
+        pidY.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
+        pidR.setTolerance(PoseConstants.ROT_TOLERANCE.in(Degrees));
 
         // sets target pose
         this.targetPose = targetPose;
