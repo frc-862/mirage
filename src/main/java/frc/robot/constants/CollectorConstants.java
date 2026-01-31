@@ -28,8 +28,6 @@ public class CollectorConstants {
     public static final double PIVOT_STATOR_LIMIT = 40d; // temp
     public static final boolean PIVOT_BRAKE_MODE = true; // temp
     public static final double PIVOT_OFFSET = -0.227; // temp
-    public static final double ROTOR_TO_ENCODER_RATIO = 74; // temp
-    public static final double ENCODER_TO_MECHANISM_RATIO = 1d; // temp
     public static final Angle MIN_ANGLE = Degrees.of(-85); // temp
     public static final Angle MAX_ANGLE = Degrees.of(85); // temp
     public static final Angle TOLERANCE = Degrees.of(5); // temp
