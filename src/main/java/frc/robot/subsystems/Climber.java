@@ -19,7 +19,7 @@ public class Climber extends SubsystemBase {
     private final DutyCycleOut dutyCycle;
     private final PositionVoltage positionPID;
 
-    /** Creates a new Climber. */
+    /** Creates a new Climber Subsystem. */
     public Climber() {
         climberMotor = new ThunderBird(RobotMap.CLIMBER, RobotMap.CAN_BUS,
             ClimberConstants.CLIMBER_MOTOR_INVERTED, ClimberConstants.CLIMBER_MOTOR_STATOR_LIMIT,
@@ -59,10 +59,18 @@ public class Climber extends SubsystemBase {
         climberMotor.setControl(positionPID);
     }
 
-    public double getTargetAngle() {
+    /**
+     * gets the position of the climber
+     * @return climber position
+     */
+    public double getTargetPosition() {
         return positionPID.Position;
     }
 
+    /**
+     * gets if the climber is on target
+     * @return if climber is on target
+     */
     public boolean onTarget() {
         return positionPID.getPositionMeasure().isNear(climberMotor.getPosition().getValue(), ClimberConstants.CLIMB_TOLERANCE);
     }
