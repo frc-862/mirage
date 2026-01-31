@@ -5,6 +5,10 @@
 package frc.robot.commands;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
@@ -38,11 +42,13 @@ public class PoseBasedAutoAlign extends Command {
         // sets the pid values to a pid controller
         pidX = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
         pidY = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
-        pidR = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
+        pidR = new PIDController(PoseConstants.ROT_P, PoseConstants.ROT_I, PoseConstants.ROT_D);
 
-        pidX.setTolerance(PoseConstants.DRIVE_TOLERANCE);
-        pidY.setTolerance(PoseConstants.DRIVE_TOLERANCE);
-        pidR.setTolerance(PoseConstants.DRIVE_TOLERANCE);
+        pidX.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
+        pidY.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
+        pidR.setTolerance(PoseConstants.ROT_TOLERANCE.in(Degrees));
+
+        pidR.enableContinuousInput(-180, 180);
 
         // sets target pose
         this.targetPose = targetPose;
@@ -64,6 +70,11 @@ public class PoseBasedAutoAlign extends Command {
             .withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()))
             .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
             .withDriveRequestType(DriveRequestType.Velocity);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        drivetrain.setControl(DriveConstants.brakeRequest);
     }
 
     @Override
