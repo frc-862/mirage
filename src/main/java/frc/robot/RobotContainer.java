@@ -95,7 +95,7 @@ public class RobotContainer {
 
         if (Robot.isSimulation()){
             turret.setDefaultCommand(turret.run(() -> turret.setAngle(Rotations.of(0))));
-            hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(60))));
+            hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(0))));
         }
     }
 
@@ -107,11 +107,11 @@ public class RobotContainer {
             );
 
         new Trigger(driver::getAButton)
-            .whileTrue(hood.run(() -> hood.setPosition(Degrees.of(-70)))
+            .whileTrue(hood.run(() -> hood.setPosition(Degrees.of(30)))
         );
 
         new Trigger(driver::getBButton)
-            .whileTrue(hood.run(() -> hood.setPosition(Degrees.of(50)))
+            .whileTrue(hood.run(() -> hood.setPosition(Degrees.of(15)))
         );
 
         // reset the field-centric heading

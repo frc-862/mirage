@@ -18,11 +18,11 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 public class HoodConstants {
     public static final boolean INVERTED = false; // temp
     public static final double STATOR_LIMIT = 40d; // temp
-    public static final boolean BRAKE = false; // temp
+    public static final boolean BRAKE = true; // temp
     public static final double HOOD_MOTOR_POWER = 1d;
 
-    public static final Angle MIN_ANGLE = Degree.of(-90); // Temp
-    public static final Angle MAX_ANGLE = Degree.of(90); // Temp
+    public static final Angle MIN_ANGLE = Degree.of(0); // Hood v2
+    public static final Angle MAX_ANGLE = Degree.of(30); // Hood v2
 
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
     public static final Distance LENGTH = Meter.of(0.18); // Temp
@@ -35,7 +35,7 @@ public class HoodConstants {
         Map.entry(6d, 30d));
 
     public static final double kS = 0.25d; // temp
-    public static final double kV = 0; // temp
+    public static final double kV = 2; // temp
     public static final double kA = 0.01; // temp
     public static final double kP = 2; // temp
     public static final double kI = 0.0; // temp

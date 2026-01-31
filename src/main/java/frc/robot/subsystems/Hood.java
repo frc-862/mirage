@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -93,7 +95,7 @@ public class Hood extends SubsystemBase {
             encoderSim.setRawPosition(HoodConstants.MIN_ANGLE.in(Rotations));
 
             mech2d = new Mechanism2d(2,  2);
-            root2d =  mech2d.getRoot("Hood", 0.2, 1);
+            root2d =  mech2d.getRoot("Hood", 0.2, 0.2);
 
             ligament = root2d.append(new MechanismLigament2d("Hood", 1.5, 0));
             LightningShuffleboard.send("Hood", "Mech2d", mech2d);
@@ -156,15 +158,15 @@ public class Hood extends SubsystemBase {
         hoodSim.setInputVoltage(motorSim.getMotorVoltage());
         hoodSim.update(Robot.kDefaultPeriod);
 
-        Angle simAngle = Degrees.of(hoodSim.getAngularPositionRad());
-        AngularVelocity simVeloc = DegreesPerSecond.of(hoodSim.getAngularVelocityRadPerSec());
+        Angle simAngle = Radians.of(hoodSim.getAngularPositionRad());
+        AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getAngularVelocityRadPerSec());
 
-        motorSim.setRawRotorPosition(simAngle);
-        motorSim.setRotorVelocity(simVeloc);
+        motorSim.setRawRotorPosition(simAngle.times(HoodConstants.GEARING_RATIO));
+        motorSim.setRotorVelocity(simVeloc.times(HoodConstants.GEARING_RATIO));
 
         ligament.setAngle(simAngle.in(Degrees));
-        encoderSim.setRawPosition(simAngle);
-        encoderSim.setVelocity(simVeloc);
+        encoderSim.setRawPosition(simAngle.times(HoodConstants.GEARING_RATIO));
+        encoderSim.setVelocity(simVeloc.times(HoodConstants.GEARING_RATIO));
 
         LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
