@@ -29,13 +29,12 @@ public class Collector extends SubsystemBase {
     private TalonFXSimState pivotSim;
     private SingleJointedArmSim collectorPivotSim;
 
-
     private double simMechanismPosition = 0.0; // Track position in rotations
     private TalonFXSimState collectorMotorSim;
 
     private final DutyCycleOut collectorDutyCycle;
 
-    private Angle targetPivotPosition = Degrees.of(0);
+    private Angle targetPivotPosition;
     private final PositionVoltage positionPID;
 
     private DCMotor gearbox;
@@ -49,6 +48,8 @@ public class Collector extends SubsystemBase {
 
         pivotMotor = new ThunderBird(RobotMap.COLLECTOR_PIVOT, RobotMap.CAN_BUS,
             CollectorConstants.PIVOT_INVERTED, CollectorConstants.PIVOT_STATOR_LIMIT, CollectorConstants.PIVOT_BRAKE_MODE);
+
+        targetPivotPosition = Degrees.of(0d);
 
         collectorDutyCycle = new DutyCycleOut(0.0);
         positionPID = new PositionVoltage(0);
@@ -70,8 +71,6 @@ public class Collector extends SubsystemBase {
 
         if(Robot.isSimulation()){
             // pivot sim stuff
-            // linearPivotSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
-            // CollectorConstants.COLLECTOR_SIM_kA));
             gearbox = DCMotor.getKrakenX44Foc(1);
 
             collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ROTOR_TO_ENCODER_RATIO, CollectorConstants.MOI.magnitude(),
@@ -82,17 +81,13 @@ public class Collector extends SubsystemBase {
             pivotSim.setRawRotorPosition(CollectorConstants.MIN_ANGLE.in(Radians));
 
             // collector sim stuff
-            // collectorSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
-            //     CollectorConstants.COLLECTOR_SIM_kA));
             collectorMotorSim = collectorMotor.getSimState();
             collectorMotorSim.setMotorType(MotorType.KrakenX60);
         }
     }
 
     @Override
-    public void periodic() {
-        pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
-    }
+    public void periodic() {}
 
     @Override
     public void simulationPeriodic() {
@@ -134,8 +129,8 @@ public class Collector extends SubsystemBase {
         pivotSim.setRawRotorPosition(rotorPosition);
         pivotSim.setRotorVelocity(rotorVelocity);
 
-        LightningShuffleboard.setDouble("Collector", "Collector Pivot Position", getPosition());
-        LightningShuffleboard.setDouble("Collector", "target angle", getTargetAngle().magnitude());
+        LightningShuffleboard.setDouble("Collector", "Collector Pivot Position", getAngle().in(Degrees));
+        LightningShuffleboard.setDouble("Collector", "target angle", getTargetAngle().in(Degrees));
         LightningShuffleboard.setBool("Collector", "on target?", isOnTarget());
     }
 
@@ -170,9 +165,7 @@ public class Collector extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        //targetPivotPosition = clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
         pivotMotor.setControl(positionPID.withPosition(position));
-        System.out.println("Set Position: " + getPosition());
     }
 
     /**
@@ -185,23 +178,12 @@ public class Collector extends SubsystemBase {
     }
 
     /**
-     * Gets the current angle of the pivot
-     *
-     * @return Current angle of the pivot
-     */
-
-    public double getPosition(){
-        return pivotMotor.getPosition().getValueAsDouble();
-    }
-
-
-    /**
      * Checks if the wrist is on target
      *
      * @return True if the wrist is on target
      */
     public boolean isOnTarget() {
-        return targetPivotPosition.isNear(CollectorConstants.TOLERANCE, getPosition());
+        return targetPivotPosition.isNear(CollectorConstants.TOLERANCE, getAngle());
     }
 
     /**
