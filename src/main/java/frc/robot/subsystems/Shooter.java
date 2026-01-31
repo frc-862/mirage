@@ -12,7 +12,6 @@ import static edu.wpi.first.units.Units.Volts;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
@@ -34,7 +33,6 @@ import frc.util.shuffleboard.LightningShuffleboard;
 public class Shooter extends SubsystemBase {
     private final ThunderBird motor;
 
-    private final DutyCycleOut dutyCycle;
     private final VelocityVoltage velocityPID;
 
     private AngularVelocity targetVelocity;
@@ -54,9 +52,6 @@ public class Shooter extends SubsystemBase {
      */
     public Shooter(ThunderBird motor) {
         this.motor = motor;
-
-        //instatiates duty cycle and velocity pid
-        dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
 
         //creates a config for the shooter motor
