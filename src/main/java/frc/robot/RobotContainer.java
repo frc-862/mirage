@@ -106,12 +106,12 @@ public class RobotContainer {
                 .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
             );
 
-        new Trigger(driver::getAButton)
-            .whileTrue(hood.run(() -> hood.setPosition(Degrees.of(30)))
+        new Trigger(copilot::getAButton)
+            .whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().plus(Degrees.of(0.5))))
         );
 
-        new Trigger(driver::getBButton)
-            .whileTrue(hood.run(() -> hood.setPosition(Degrees.of(15)))
+        new Trigger(copilot::getBButton)
+            .whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5))))
         );
 
         // reset the field-centric heading
