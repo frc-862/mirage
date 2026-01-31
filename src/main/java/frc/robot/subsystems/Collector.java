@@ -193,21 +193,9 @@ public class Collector extends SubsystemBase {
      * @return the command for running the shooter
      */
     public Command collectCommand(double power) {
-        Command collect = new Command() {
-            @Override
-            public void initialize() {
-                setCollectorPower(power);
-            }
-
-            @Override
-            public void end(boolean interrupted) {
-                stopCollector();
-            }
-        };
-
-        return collect;
+        return new StartEndCommand(() -> setCollectorPower(power), () -> stopCollector(), this);
     }
-  
+
     /**
      * Get the angle of the pivot
      * @return angle of the pivot
