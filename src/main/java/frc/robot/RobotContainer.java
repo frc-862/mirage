@@ -7,6 +7,8 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Radians;
+
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -19,7 +21,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
@@ -28,7 +29,6 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Collector;
-import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
@@ -39,7 +39,6 @@ import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
-import frc.robot.commands.Collect;
 
 public class RobotContainer {
     private final XboxController driver;
@@ -91,11 +90,13 @@ public class RobotContainer {
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
                 VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
                 .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
-                ControllerConstants.POW), () -> -driver.getRightX()));
+                ControllerConstants.POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                ControllerConstants.DEADBAND), ControllerConstants.POW) * (driver.getRightBumperButton()
+                ? ControllerConstants.SLOW_MODE_MULT : 1.0)));
 
         if (Robot.isSimulation()){
             turret.setDefaultCommand(turret.run(() -> turret.setAngle(Rotations.of(0))));
-            hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(60))));
+            hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(0))));
         }
     }
 
@@ -116,12 +117,14 @@ public class RobotContainer {
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
                 VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
                 .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
-                ControllerConstants.POW), () -> -driver.getRightX()));
+                ControllerConstants.POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                ControllerConstants.DEADBAND), ControllerConstants.POW) * (driver.getRightBumperButton()
+                ? ControllerConstants.SLOW_MODE_MULT : 1.0)));
 
         /* Copilot */
         if (Robot.isSimulation()) {
             // TEMP
-            new Trigger(driver::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
+            new Trigger(driver::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));
@@ -130,6 +133,10 @@ public class RobotContainer {
                 shooter.stopMotor();
                 indexer.stop();
             }));
+
+            new Trigger(copilot::getBButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().plus(Degrees.of(0.5)))));
+
+            new Trigger(copilot::getXButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
         }
     }
 
@@ -164,4 +171,5 @@ public class RobotContainer {
 
         new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
     }
+
 }
