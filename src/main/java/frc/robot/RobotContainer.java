@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.PivotCollect;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
@@ -45,7 +46,9 @@ public class RobotContainer {
     private final XboxController copilot;
 
     private final Swerve drivetrain;
-    private Collector collector; //TODO: make final after subsystems are added
+
+    // TODO: make final after subsystems are added
+    private Collector collector;
     private Indexer indexer;
     private Turret turret;
     private Hood hood;
@@ -123,8 +126,7 @@ public class RobotContainer {
 
         /* Copilot */
         if (Robot.isSimulation()) {
-            // TEMP
-            new Trigger(driver::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
+            new Trigger(copilot::getAButton).whileTrue(new PivotCollect(collector, CollectorConstants.COLLECT_POWER, Degrees.of(90)));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));

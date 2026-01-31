@@ -203,4 +203,9 @@ public class Collector extends SubsystemBase {
     public Angle getPivotAngle(){
         return pivotMotor.getPosition().getValue();
     }
+
+    public void setPosition(Angle position) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setPosition'");
+    }
 }
