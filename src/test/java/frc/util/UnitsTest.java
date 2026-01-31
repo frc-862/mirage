@@ -74,4 +74,72 @@ class UnitsTest {
 
         assertEquals(value, result);
     }
+
+    // Input Modulus Tests
+
+    @Test
+    void testModValueBelowMin() {
+        Distance value = Meters.of(5);
+        Distance min = Meters.of(10);
+        Distance max = Meters.of(20);
+
+        var result = Units.inputModulus(value, min, max);
+
+        assertEquals(Meters.of(15), result);
+    }
+
+    @Test
+    void testModValueAboveMax() {
+        Distance value = Meters.of(25);
+        Distance min = Meters.of(10);
+        Distance max = Meters.of(20);
+
+        var result = Units.inputModulus(value, min, max);
+
+        assertEquals(Meters.of(15), result);
+    }
+
+    @Test
+    void testModValueWithinRange() {
+        Distance value = Meters.of(15);
+        Distance min = Meters.of(10);
+        Distance max = Meters.of(20);
+
+        var result = Units.inputModulus(value, min, max);
+
+        assertEquals(value, result);
+    }
+
+    @Test
+    void testModValueEqualsMin() {
+        Distance value = Meters.of(10);
+        Distance min = Meters.of(10);
+        Distance max = Meters.of(20);
+
+        var result = Units.inputModulus(value, min, max);
+
+        assertEquals(max, result);
+    }
+
+    @Test
+    void testModValueEqualsMax() {
+        Distance value = Meters.of(20);
+        Distance min = Meters.of(10);
+        Distance max = Meters.of(20);
+
+        var result = Units.inputModulus(value, min, max);
+
+        assertEquals(value, result);
+    }
+
+    @Test
+    void testModWithDifferentUnit() {
+        LinearVelocity value = MetersPerSecond.of(50);
+        LinearVelocity min = MetersPerSecond.of(0);
+        LinearVelocity max = MetersPerSecond.of(100);
+
+        var result = Units.inputModulus(value, min, max);
+
+        assertEquals(value, result);
+    }
 }

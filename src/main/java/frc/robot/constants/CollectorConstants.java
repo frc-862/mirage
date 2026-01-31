@@ -1,8 +1,12 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 
 public class CollectorConstants {
     // collector motor for the rollers
@@ -31,4 +35,10 @@ public class CollectorConstants {
     public static final Angle MIN_ANGLE = Degrees.of(-85); // temp
     public static final Angle MAX_ANGLE = Degrees.of(85); // temp
     public static final Angle TOLERANCE = Degrees.of(5); // temp
+
+    // Sim
+    public static final Distance WIDTH = Inches.of(27); // temp
+    public static final Distance LENGTH_EXTENDED = Inches.of(7); // temp
+    public static final int ROBOT_FUEL_CAPACITY = 50; // temp
+    public static final AngularVelocity SIM_COLLECTING_THRESHOLD = RotationsPerSecond.of(1); // temp
 }
