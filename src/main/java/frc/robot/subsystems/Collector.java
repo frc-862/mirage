@@ -10,6 +10,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
@@ -85,8 +86,8 @@ public class Collector extends SubsystemBase {
             // collector sim stuff
             // collectorSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
             //     CollectorConstants.COLLECTOR_SIM_kA));
-            // collectorMotorSim = collectorMotor.getSimState();
-            // collectorMotorSim.setMotorType(MotorType.KrakenX60);
+            collectorMotorSim = collectorMotor.getSimState();
+            collectorMotorSim.setMotorType(MotorType.KrakenX60);
         }
     }
 
