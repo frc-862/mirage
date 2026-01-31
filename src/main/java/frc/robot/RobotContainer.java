@@ -91,7 +91,9 @@ public class RobotContainer {
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
                 VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
                 .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
-                ControllerConstants.POW), () -> -driver.getRightX()));
+                ControllerConstants.POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                ControllerConstants.DEADBAND), ControllerConstants.POW) * (driver.getRightBumperButton()
+                ? ControllerConstants.SLOW_MODE_MULT : 1.0)));
 
         if (Robot.isSimulation()){
             turret.setDefaultCommand(turret.run(() -> turret.setAngle(Rotations.of(0))));
@@ -116,7 +118,9 @@ public class RobotContainer {
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
                 VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
                 .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
-                ControllerConstants.POW), () -> -driver.getRightX()));
+                ControllerConstants.POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                ControllerConstants.DEADBAND), ControllerConstants.POW) * (driver.getRightBumperButton()
+                ? ControllerConstants.SLOW_MODE_MULT : 1.0)));
 
         /* Copilot */
         if (Robot.isSimulation()) {
