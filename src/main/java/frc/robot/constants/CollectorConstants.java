@@ -1,11 +1,17 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.MomentOfInertia;
 
 public class CollectorConstants {
-    // collector motor for the rollers
+    // motor rollers
     public static final boolean COLLECTOR_MOTOR_INVERTED = false; // temp
     public static final double COLLECTOR_MOTOR_STATOR_LIMIT = 40d; // temp
     public static final boolean COLLECTOR_MOTOR_BRAKE = true; // temp
@@ -14,16 +20,16 @@ public class CollectorConstants {
     public static final double COLLECTOR_SIM_kV = 0.24; // temp
     public static final double COLLECTOR_SIM_kA = 0.8; // temp
 
-    // collector pivot motor config
-    public static final double PIVOT_KP = 0.3d; // temp
+    // pivot motor config
+    public static final double PIVOT_KP = 3d; // temp
     public static final double PIVOT_KI = 0d; // temp
-    public static final double PIVOT_KD = 0.02d; // temp
+    public static final double PIVOT_KD = 1d; // temp
     public static final double PIVOT_KS = 0; // temp
     public static final double PIVOT_KV = 0; // temp
     public static final double PIVOT_KA = 0; // temp
-    public static final double PIVOT_KG = 0.3d; // temp
+    public static final double PIVOT_KG = 0d; // temp
 
-    // collector pivot
+    // pivot
     public static final boolean PIVOT_INVERTED = false; // temp
     public static final double PIVOT_STATOR_LIMIT = 40d; // temp
     public static final boolean PIVOT_BRAKE_MODE = true; // temp
@@ -33,4 +39,13 @@ public class CollectorConstants {
     public static final Angle MIN_ANGLE = Degrees.of(-85); // temp
     public static final Angle MAX_ANGLE = Degrees.of(85); // temp
     public static final Angle TOLERANCE = Degrees.of(5); // temp
+
+    public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // temp
+    public static final Distance LENGTH = Inches.of(6);
+
+    // Sim
+    public static final Distance WIDTH = Inches.of(27); // temp
+    public static final Distance LENGTH_EXTENDED = Inches.of(7); // temp
+    public static final int ROBOT_FUEL_CAPACITY = 50; // temp
+    public static final AngularVelocity SIM_COLLECTING_THRESHOLD = RotationsPerSecond.of(1); // temp
 }

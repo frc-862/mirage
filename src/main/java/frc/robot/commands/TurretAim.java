@@ -4,13 +4,14 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
+
+import static frc.util.Units.inputModulus;
 
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Meters;
@@ -37,7 +38,6 @@ public class TurretAim extends Command {
         addRequirements(turret);
     }
 
-    // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
         Pose2d robotPose = drivetrain.getPose();
@@ -51,27 +51,23 @@ public class TurretAim extends Command {
         distanceToTargetMeters = Meters.of(delta.getNorm());
 
         /*
-        * Well add values if we have to based on however the angles acually get
+        * We'll add values if we have to based on however the angles acually get
         * calculated
         */
         Angle fieldAngle = delta.getAngle().getMeasure();
         Angle turretAngle = fieldAngle.minus(Degree.of(robotPose.getRotation().getDegrees()));
 
         // Adjust the angle based on the minimum and maximum angles of the turret
-        Angle wrappedAngle = Degree
-                .of(MathUtil.inputModulus(turretAngle.in(Degree), TurretConstants.MIN_ANGLE.in(Degree),
-                        TurretConstants.MAX_ANGLE.in(Degree)));
+        Angle wrappedAngle = inputModulus(turretAngle, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
 
         turret.setAngle(wrappedAngle);
     }
 
-    // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
         turret.stop();
     }
 
-    // Returns true when the command should end.
     @Override
     public boolean isFinished() {
         return turret.isOnTarget();

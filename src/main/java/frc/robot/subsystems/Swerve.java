@@ -260,12 +260,16 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
+    @Override
+    public void simulationPeriodic() {
+        resetPose(swerveSim.mapleSimDrive.getSimulatedDriveTrainPose());
+    }
+
     private void startSimThread() {
         swerveSim = DriveConstants.getSwerveSim(this);
         /* Run simulation at a faster rate so PID gains behave more reasonably */
         m_simNotifier = new Notifier(swerveSim::update);
         m_simNotifier.startPeriodic(DriveConstants.kSimLoopPeriod.in(Seconds));
-
     }
 
     /**
@@ -383,7 +387,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             this::resetPose, // Consumer for seeding pose against auto
             this::getCurrentRobotChassisSpeeds,
                 (speeds, feedforwards) -> this
-                    .setControl(new SwerveRequest.ApplyRobotSpeeds().withSpeeds(speeds)
+                    .setControl(DriveConstants.autonRequest.withSpeeds(speeds)
                         .withDriveRequestType(DriveRequestType.Velocity)
                         .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX())
                         .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY())), // Consumer of
