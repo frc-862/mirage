@@ -10,7 +10,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
-
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -32,7 +32,7 @@ import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Shooter extends SubsystemBase {
     private final ThunderBird motor;
-
+    private final DutyCycleOut dutyCycle;
     private final VelocityVoltage velocityPID;
 
     private AngularVelocity targetVelocity;
@@ -52,6 +52,10 @@ public class Shooter extends SubsystemBase {
      */
     public Shooter(ThunderBird motor) {
         this.motor = motor;
+
+
+        //instatiates duty cycle and velocity pid
+        dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
 
         //creates a config for the shooter motor
@@ -93,6 +97,14 @@ public class Shooter extends SubsystemBase {
         LightningShuffleboard.setDouble("Shooter", "Velocity", getVelocity().in(RotationsPerSecond));
     }
 
+     /**
+     * Set the power of the shooter motor using duty cycle out
+     * @param power duty cycle value from -1.0 to 1.0
+     */
+    public void setPower(double power) {
+        motor.setControl(dutyCycle.withOutput(power));
+    }
+
     /**
      * stops all movement to the shooter motor
      */
@@ -124,10 +136,14 @@ public class Shooter extends SubsystemBase {
     }
 
     /**
+     * dutycycleout command for shooter
+     * @param power
      * velocity control command for shooter
      * @param velocity
      * @return the command for running the shooter
      */
+    public Command shootCommand(double power) {
+        return new StartEndCommand(() -> setPower(power), () -> stopMotor(), this);
     public Command shootCommand(AngularVelocity velocity) {
         return shootCommand(() -> velocity);
     }
