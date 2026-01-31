@@ -133,7 +133,7 @@ public class Shooter extends SubsystemBase {
         return getVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
     }
 
-    public Command Shoot(double power) {
+    public Command shootCommand(double power) {
         Command shoot = new Command() {
 
             @Override

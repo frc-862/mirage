@@ -167,7 +167,7 @@ public class Collector extends SubsystemBase {
         return targetPivotPosition.isNear(getAngle(), CollectorConstants.TOLERANCE);
     }
 
-    public Command Collect(double power) {
+    public Command collectCommand(double power) {
         Command collect = new Command() {
 
             @Override

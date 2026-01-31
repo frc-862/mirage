@@ -120,7 +120,7 @@ public class Indexer extends SubsystemBase {
         stopTransfer();
     }
 
-    public Command Index(double power) {
+    public Command indexCommand(double power) {
         Command index = new Command() {
 
             @Override
