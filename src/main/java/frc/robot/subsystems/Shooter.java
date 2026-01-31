@@ -136,14 +136,10 @@ public class Shooter extends SubsystemBase {
     }
 
     /**
-     * dutycycleout command for shooter
-     * @param power
      * velocity control command for shooter
      * @param velocity
      * @return the command for running the shooter
      */
-    public Command shootCommand(double power) {
-        return new StartEndCommand(() -> setPower(power), () -> stopMotor(), this);
     public Command shootCommand(AngularVelocity velocity) {
         return shootCommand(() -> velocity);
     }
