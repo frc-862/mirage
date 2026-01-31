@@ -73,6 +73,11 @@ public class PoseBasedAutoAlign extends Command {
     }
 
     @Override
+    public void end(boolean interrupted) {
+        drivetrain.setControl(DriveConstants.brakeRequest);
+    }
+
+    @Override
     public boolean isFinished() {
         return pidX.atSetpoint() && pidY.atSetpoint() && pidR.atSetpoint();
     }
