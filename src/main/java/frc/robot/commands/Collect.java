@@ -36,11 +36,11 @@ public class Collect extends Command {
 
     @Override
   public void execute() {
-    collector.setPosition(position);
+    collector.setPivotAngle(position);
   }
 
     @Override
     public void end(boolean interrupted) {
-        collector.stop();
+        collector.stopCollector();
     }
 }

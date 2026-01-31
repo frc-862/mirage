@@ -129,9 +129,9 @@ public class Collector extends SubsystemBase {
         pivotSim.setRawRotorPosition(rotorPosition);
         pivotSim.setRotorVelocity(rotorVelocity);
 
-        LightningShuffleboard.setDouble("Collector", "Collector Pivot Position", getAngle().in(Degrees));
-        LightningShuffleboard.setDouble("Collector", "target angle", getTargetAngle().in(Degrees));
-        LightningShuffleboard.setBool("Collector", "on target?", isOnTarget());
+        LightningShuffleboard.setDouble("Collector", "Collector Pivot Position", getPivotAngle().in(Degrees));
+        LightningShuffleboard.setDouble("Collector", "target angle", getPivotTargetAngle().in(Degrees));
+        LightningShuffleboard.setBool("Collector", "on target?", pivotOnTarget());
     }
 
     /**
@@ -142,11 +142,10 @@ public class Collector extends SubsystemBase {
         collectorMotor.setControl(collectorDutyCycle.withOutput(power));
     }
 
-
     /**
      * Stops all movement to the collector motor
      */
-    public void stop() {
+    public void stopCollector() {
         collectorMotor.stopMotor();
     }
 
@@ -160,11 +159,11 @@ public class Collector extends SubsystemBase {
     }
 
     /**
-     * Set the collector position in degrees
+     * Set the pivot position in degrees
      *
      * @param position in degrees
      */
-    public void setPosition(Angle position) {
+    public void setPivotAngle(Angle position) {
         pivotMotor.setControl(positionPID.withPosition(position));
     }
 
@@ -173,7 +172,7 @@ public class Collector extends SubsystemBase {
      *
      * @return Target angle of the pivot
      */
-    public Angle getTargetAngle() {
+    public Angle getPivotTargetAngle() {
         return targetPivotPosition;
     }
 
@@ -182,15 +181,15 @@ public class Collector extends SubsystemBase {
      *
      * @return True if the wrist is on target
      */
-    public boolean isOnTarget() {
-        return targetPivotPosition.isNear(CollectorConstants.TOLERANCE, getAngle());
+    public boolean pivotOnTarget() {
+        return targetPivotPosition.isNear(CollectorConstants.TOLERANCE, getPivotAngle());
     }
 
     /**
      * Get the angle of the pivot
      * @return angle of the pivot
      */
-    public Angle getAngle(){
+    public Angle getPivotAngle(){
         return pivotMotor.getPosition().getValue();
     }
 }
