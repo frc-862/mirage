@@ -7,7 +7,6 @@ import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
@@ -30,7 +29,6 @@ public class Collector extends SubsystemBase {
     private TalonFXSimState pivotSim;
     private SingleJointedArmSim collectorPivotSim;
 
-    private CANcoder encoder;
 
     private double simMechanismPosition = 0.0; // Track position in rotations
     private TalonFXSimState collectorMotorSim;
