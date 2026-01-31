@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
@@ -26,11 +28,13 @@ public class PoseBasedAutoAlign extends Command {
 
     private Pose2d targetPose;
 
+    private final Supplier<Pose2d>targetPoseSupplier;
+
     /** Creates a new PoseBasedAutoAlign Command.
     * @param drivetrain
     * @param targetPose
     */
-    public PoseBasedAutoAlign(Swerve drivetrain, Pose2d targetPose) {
+    public PoseBasedAutoAlign(Swerve drivetrain, Supplier<Pose2d> targetPoseSupplier) {
         this.drivetrain = drivetrain;
 
         pidX = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
@@ -43,9 +47,18 @@ public class PoseBasedAutoAlign extends Command {
 
         AUTO_REQUEST = new SwerveRequest.FieldCentric();
 
-        this.targetPose = targetPose;
+        this.targetPoseSupplier = targetPoseSupplier;
 
         addRequirements(drivetrain);
+    }
+
+    public PoseBasedAutoAlign(Swerve drivetrain, Pose2d targetPose) {
+        this(drivetrain, () -> targetPose);
+    }
+
+    @Override
+    public void initialize() {
+        targetPose = targetPoseSupplier.get();
     }
 
     @Override

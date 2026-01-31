@@ -4,13 +4,16 @@
 
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Hood;
 
 public class MoveHood extends Command {
   private final Hood hood;
-  private final Angle hoodAngle;
+  private Angle hoodAngle;
+  private final Supplier<Angle> hoodAngleSupplier;
 
   /**
    * Basic command for moving the hood
@@ -19,19 +22,19 @@ public class MoveHood extends Command {
    */
 
   public MoveHood(Hood hood, Angle hoodAngle) {
+    this(hood, () -> hoodAngle);
+  }
+
+  public MoveHood(Hood hood, Supplier<Angle> hoodAngleSupplier) {
     this.hood = hood;
-    this.hoodAngle = hoodAngle;
+    this.hoodAngleSupplier = hoodAngleSupplier;
     addRequirements(hood);
   }
 
   @Override
   public void initialize() {
+    hoodAngle = hoodAngleSupplier.get();
     hood.setPosition(hoodAngle);
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-    hood.stop();
   }
 
   @Override
