@@ -29,11 +29,11 @@ public class PoseBasedAutoAlign extends Command {
 
     private Pose2d targetPose;
 
-    private final Supplier<Pose2d>targetPoseSupplier;
+    private final Supplier<Pose2d> targetPoseSupplier;
 
     /** Creates a new PoseBasedAutoAlign Command.
     * @param drivetrain
-    * @param targetPose
+    * @param targetPoseSupplier
     */
     public PoseBasedAutoAlign(Swerve drivetrain, Supplier<Pose2d> targetPoseSupplier) {
 
