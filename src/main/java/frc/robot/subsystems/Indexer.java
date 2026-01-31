@@ -120,6 +120,12 @@ public class Indexer extends SubsystemBase {
         stopTransfer();
     }
 
+
+    /**
+     * dutycycleout command for indexer
+     * @param power
+     * @return the command for running the indexer
+     */
     public Command indexCommand(double power) {
         Command index = new Command() {
 

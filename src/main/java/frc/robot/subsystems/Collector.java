@@ -167,6 +167,11 @@ public class Collector extends SubsystemBase {
         return targetPivotPosition.isNear(getAngle(), CollectorConstants.TOLERANCE);
     }
 
+    /**
+     * dutycycleout command for shooter
+     * @param power
+     * @return the command for running the shooter
+     */
     public Command collectCommand(double power) {
         Command collect = new Command() {
 

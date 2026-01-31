@@ -93,7 +93,7 @@ public class RobotContainer {
                 ControllerConstants.POW), () -> -driver.getRightX()));
 
         /* Copilot */
-        new Trigger(copilot::getAButton).whileTrue(collector.Collect(CollectorConstants.COLLECT_POWER));
+        new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
         // new Trigger(driver::getBButtonPressed).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
     }

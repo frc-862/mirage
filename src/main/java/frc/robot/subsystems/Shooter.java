@@ -133,6 +133,11 @@ public class Shooter extends SubsystemBase {
         return getVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
     }
 
+    /**
+     * dutycycleout command for shooter
+     * @param power
+     * @return the command for running the shooter
+     */
     public Command shootCommand(double power) {
         Command shoot = new Command() {
 
