@@ -11,7 +11,9 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
@@ -28,19 +30,23 @@ import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Shooter extends SubsystemBase {
-    private final ThunderBird motor;
+    private final ThunderBird motorTop;
+    private final ThunderBird motorBottom;
 
     private final DutyCycleOut dutyCycle;
     private final VelocityVoltage velocityPID;
 
     private AngularVelocity targetVelocity;
 
-    private TalonFXSimState motorSim;
+    private TalonFXSimState motorTopSim;
+    private TalonFXSimState motorBottomSim;
     private FlywheelSim shooterSim;
 
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
-        this(new ThunderBird(RobotMap.SHOOTER, RobotMap.CAN_BUS,
+        this(new ThunderBird(RobotMap.SHOOTER_TOP, RobotMap.CAN_BUS,
+            ShooterConstants.INVERTED, ShooterConstants.STATOR_LIMIT, ShooterConstants.BRAKE),
+            new ThunderBird(RobotMap.SHOOTER_BOTTOM, RobotMap.CAN_BUS,
             ShooterConstants.INVERTED, ShooterConstants.STATOR_LIMIT, ShooterConstants.BRAKE));
     }
 
@@ -48,15 +54,16 @@ public class Shooter extends SubsystemBase {
      * Creates a new Shooter Subsystem.
      * @param motor the ThunderBird motor to use for the shooter
      */
-    public Shooter(ThunderBird motor) {
-        this.motor = motor;
+    public Shooter(ThunderBird motorTop, ThunderBird motorBottom) {
+        this.motorTop = motorTop;
+        this.motorBottom = motorBottom;
 
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
 
         //creates a config for the shooter motor
-        TalonFXConfiguration config = motor.getConfig();
+        TalonFXConfiguration config = motorTop.getConfig();
 
         config.Slot0.kP = ShooterConstants.kP;
         config.Slot0.kI = ShooterConstants.kI;
@@ -66,15 +73,15 @@ public class Shooter extends SubsystemBase {
 
         config.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO;
 
-        motor.applyConfig(config);
-
+        motorTop.applyConfig(config);
+        motorBottom.setControl(new Follower(RobotMap.SHOOTER_TOP, MotorAlignmentValue.Opposed));
 
         if (Robot.isSimulation()){
-            motorSim = motor.getSimState();
-            motorSim.setMotorType(MotorType.KrakenX60);
+            motorTopSim = motorTop.getSimState();
+            motorTopSim.setMotorType(MotorType.KrakenX60);
 
             shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(
-                DCMotor.getKrakenX60Foc(1), ShooterConstants.MOI.in(KilogramSquareMeters),
+                DCMotor.getKrakenX60Foc(2), ShooterConstants.MOI.in(KilogramSquareMeters),
                 ShooterConstants.GEAR_RATIO), DCMotor.getKrakenX60Foc(1));
         }
     }
@@ -84,12 +91,14 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        motorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+        motorTopSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+        motorBottomSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        shooterSim.setInput(motorSim.getMotorVoltageMeasure().in(Volts));
+        shooterSim.setInput(motorTopSim.getMotorVoltageMeasure().in(Volts));
         shooterSim.update(Robot.kDefaultPeriod);
 
-        motorSim.setRotorVelocity(shooterSim.getAngularVelocity());
+        motorTopSim.setRotorVelocity(shooterSim.getAngularVelocity());
+        motorBottomSim.setRotorVelocity(shooterSim.getAngularVelocity());
 
         LightningShuffleboard.setDouble("Shooter", "Velocity", getVelocity().in(RotationsPerSecond));
     }
@@ -99,14 +108,14 @@ public class Shooter extends SubsystemBase {
      * @param power duty cycle value from -1.0 to 1.0
      */
     public void setPower(double power) {
-        motor.setControl(dutyCycle.withOutput(power));
+        motorTop.setControl(dutyCycle.withOutput(power));
     }
 
     /**
      * stops all movement to the shooter motor
      */
     public void stopMotor() {
-        motor.stopMotor();
+        motorTop.stopMotor();
     }
 
     /**
@@ -115,14 +124,14 @@ public class Shooter extends SubsystemBase {
      */
     public void setVelocity(AngularVelocity velocity){
         targetVelocity = velocity;
-        motor.setControl(velocityPID.withVelocity(velocity));
+        motorTop.setControl(velocityPID.withVelocity(velocity));
     }
 
     /**
      * @return the velocity of the shooter motor
      */
     public AngularVelocity getVelocity(){
-        return motor.getVelocity().getValue();
+        return motorTop.getVelocity().getValue();
     }
 
     /**
