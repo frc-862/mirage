@@ -96,6 +96,7 @@ public class Hood extends SubsystemBase {
             encoderSim = new CANcoderSimState(encoder);
 
             motorSim.setRawRotorPosition(HoodConstants.MIN_ANGLE.in(Rotations));
+            encoderSim.setRawPosition(HoodConstants.MIN_ANGLE.in(Rotations));
 
             mech2d = new Mechanism2d(3,  3);
             root2d =  mech2d.getRoot("Hood", 2, 0);
