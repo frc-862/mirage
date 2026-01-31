@@ -21,7 +21,6 @@ public class CannedShotCommand{
      * Runs a parallel command to set the shooter motor's power, move hood, and auto align based on the target pose the robot needs to shoot to.
      * Enables an LED State to blink yellow whenever the parallel command is running, and enables an LED State to blink green when the parallel is done running.
      * After the LED blinks green and the parallel command is done running, the shooter motor will idle.
-     * @param shot CannedShot object
      * @param shooter Shooter subsystem
      * @param hood Hood subsystem
      * @param turret Turret subsystem
