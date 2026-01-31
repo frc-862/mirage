@@ -25,6 +25,7 @@ import frc.robot.constants.CannedShotsConstants.CannedShot;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.HoodConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Shooter;
@@ -50,7 +51,6 @@ public class RobotContainer {
     private final Swerve drivetrain;
     private Collector collector; //TODO: make final after subsystems are added
     private Indexer indexer;
-    private Turret turret;
     private Hood hood;
     private Shooter shooter;
     private Turret turret;
@@ -130,7 +130,7 @@ public class RobotContainer {
             new Trigger(driver::getAButton).whileTrue(new RunCommand(() -> hood.setPosition(HoodConstants.MAX_ANGLE), hood));
 
             new Trigger(driver::getBButton).whileTrue(runCannedShot(CannedShot.HUB, shooter, hood, turret, indexer, drivetrain, leds));
-        if (Robot.isSimulation()) {
+
             // TEMP
             new Trigger(driver::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
 
