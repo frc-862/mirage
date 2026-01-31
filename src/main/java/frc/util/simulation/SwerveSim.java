@@ -59,10 +59,10 @@ public class SwerveSim {
     private final SimSwerveModule[] simModules;
     public final SwerveDriveSimulation mapleSimDrive;
 
-    private final DoubleArrayPublisher fieldPub = 
+    private final DoubleArrayPublisher fieldPub =
         NetworkTableInstance.getDefault().getTable("Pose").getDoubleArrayTopic("robotPose").publish();
 
-    private final DoubleArraySubscriber fieldSub = 
+    private final DoubleArraySubscriber fieldSub =
         NetworkTableInstance.getDefault().getTable("Pose").getDoubleArrayTopic("robotPose").subscribe(new double[] {0.0, 0.0, 0.0});
 
     /**
@@ -229,7 +229,7 @@ public class SwerveSim {
      * purposes, ensuring compatibility and avoiding known bugs.
      *
      * @see #regulateModuleConstantForSimulation(SwerveModuleConstants)
-     * 
+     *
      * @param moduleConstants the array of {@link SwerveModuleConstants} to be regulated
      * @return the regulated array of {@link SwerveModuleConstants}
      */
@@ -259,7 +259,7 @@ public class SwerveSim {
      *
      * <h4>Note:This function is skipped when running on a real robot, ensuring no impact on constants used on real
      * robot hardware.</h4>
-     * 
+     *
      * @param moduleConstants the {@link SwerveModuleConstants} to be regulated
      */
     private static void regulateModuleConstantForSimulation(SwerveModuleConstants<?, ?, ?> moduleConstants) {
