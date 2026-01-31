@@ -48,6 +48,8 @@ public class PoseBasedAutoAlign extends Command {
         pidY.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
         pidR.setTolerance(PoseConstants.ROT_TOLERANCE.in(Degrees));
 
+        pidR.enableContinuousInput(-180, 180);
+
         // sets target pose
         this.targetPose = targetPose;
 
