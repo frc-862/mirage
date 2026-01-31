@@ -4,8 +4,10 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 
@@ -41,13 +43,6 @@ public class CollectorConstants {
 
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); //Temp
     public static final Distance LENGTH = Inches.of(6);
-    public static final boolean PIVOT_INVERTED = false; // temp
-    public static final double PIVOT_STATOR_LIMIT = 40d; // temp
-    public static final boolean PIVOT_BRAKE_MODE = true; // temp
-    public static final double PIVOT_OFFSET = -0.227; // temp
-    public static final Angle MIN_ANGLE = Degrees.of(-85); // temp
-    public static final Angle MAX_ANGLE = Degrees.of(85); // temp
-    public static final Angle TOLERANCE = Degrees.of(5); // temp
 
     // Sim
     public static final Distance WIDTH = Inches.of(27); // temp
