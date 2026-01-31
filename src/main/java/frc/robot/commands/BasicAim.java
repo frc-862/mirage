@@ -46,9 +46,8 @@ public class BasicAim extends Command {
     }
 
     /**
-     * dutycycleout command for shooter
-     * @param power
-     * @return the command for running the shooter
+     * aim command for turret
+     * @return the command for setting the turret angle
      */
     public Command aimCommand() {
         return new StartEndCommand(() -> turret.setAngle(angle), () -> turret.stop(), turret);
