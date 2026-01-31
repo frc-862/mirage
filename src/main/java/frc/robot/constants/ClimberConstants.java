@@ -5,6 +5,7 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meter;
@@ -33,10 +34,10 @@ public class ClimberConstants {
 
     public static final double GEARING_RATIO = 1d; //Temp
     public static final Mass WEIGHT = Pound.of(20); //Temp
-    public static final Distance LENGTH = Meter.of(0.2); //Temp
-    public static final Distance RADIUS = Meter.of(0.18); //Temp
-    public static final Distance MIN_HEIGHT = Meter.of(0.2); //Temp
-    public static final Distance MAX_HEIGHT = Meter.of(1); //Temp
-    public static final Distance START_HEIGHT  = Meter.of(0.3); //Temp
-    public static final double  STANDARD_DEVIATION = 0d;
+    public static final Distance LENGTH = Inches.of(0.5); //Temp
+    public static final Distance RADIUS = Inches.of(0.4); //Temp
+    public static final Distance MIN_HEIGHT = Inches.of(1); //Temp
+    public static final Distance MAX_HEIGHT = Inches.of(12); //Temp
+    public static final Distance START_HEIGHT  = Inches.of(3); //Temp
+    public static final double  STANDARD_DEVIATION = 0d; //Temp
 }

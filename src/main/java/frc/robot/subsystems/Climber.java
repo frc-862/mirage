@@ -4,12 +4,8 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Radians;
-
-import org.dyn4j.dynamics.Settings;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -61,8 +57,8 @@ public class Climber extends SubsystemBase {
         if (Robot.isSimulation()){
             gearbox = DCMotor.getKrakenX60Foc(1);
             climberSim = new ElevatorSim(gearbox, ClimberConstants.GEARING_RATIO, ClimberConstants.WEIGHT.in(Pounds),
-            ClimberConstants.LENGTH.in(Meter), ClimberConstants.MIN_HEIGHT.in(Meter), ClimberConstants.MAX_HEIGHT.in(Meter),
-             true, ClimberConstants.START_HEIGHT.in(Meter), ClimberConstants.STANDARD_DEVIATION);
+            ClimberConstants.LENGTH.in(Inches), ClimberConstants.MIN_HEIGHT.in(Inches), ClimberConstants.MAX_HEIGHT.in(Inches),
+             true, ClimberConstants.START_HEIGHT.in(Inches), ClimberConstants.STANDARD_DEVIATION);
             motorSim = new TalonFXSimState(climberMotor);
             encoderSim = new CANcoderSimState(encoder);
         }
@@ -79,7 +75,6 @@ public class Climber extends SubsystemBase {
         climberSim.setInputVoltage(motorSim.getMotorVoltage());
         climberSim.update(Robot.kDefaultPeriod);
         motorSim.setRawRotorPosition(Units.metersToInches(climberSim.getPositionMeters()));
-
     }
 
     /**
