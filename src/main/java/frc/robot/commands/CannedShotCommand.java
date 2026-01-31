@@ -31,23 +31,7 @@ public class CannedShotCommand{
      * @return the command to run
      */
     public static Command runCannedShot(Shooter shooter, Hood hood, Turret turret, Indexer indexer, Swerve drivetrain, LEDSubsystem leds){
-        CannedShot shot = CannedShot.HUB;
-        ShotData shotData = CannedShotsConstants.SHOTS.get(shot);
-        var robotLocation = drivetrain.getPose().getTranslation();
-        double currentDistance = Double.POSITIVE_INFINITY;
-
-        for (Map.Entry<CannedShot, ShotData> entry : CannedShotsConstants.SHOTS.entrySet()){
-            CannedShot key = entry.getKey();
-            ShotData value = entry.getValue();
-
-            double distance = value.shotLocation().minus(robotLocation).getNorm();
-
-            if (distance < currentDistance) {
-                currentDistance = distance;
-                shot = key;
-                shotData = value;
-            }
-        }
+        ShotData shotData = findClosestShot(drivetrain);
 
         return Commands.sequence(
             Commands.parallel(
@@ -57,5 +41,22 @@ public class CannedShotCommand{
             ).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_START.id())),
             new Index(indexer, 1).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_READY.id()))
         ).handleInterrupt(() -> shooter.stopMotor());
+    }
+
+    private static ShotData findClosestShot(Swerve drivetrain) {
+        ShotData shotData = CannedShotsConstants.SHOTS.get(CannedShot.HUB); //default shot
+        var robotLocation = drivetrain.getPose().getTranslation();
+        double currentDistance = Double.POSITIVE_INFINITY;
+
+        for (ShotData value : CannedShotsConstants.SHOTS.values()){
+            double distance = value.shotLocation().minus(robotLocation).getNorm();
+
+            if (distance < currentDistance) {
+                currentDistance = distance;
+                shotData = value;
+            }
+        }
+
+        return shotData;
     }
 }
