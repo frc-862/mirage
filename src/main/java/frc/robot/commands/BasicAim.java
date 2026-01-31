@@ -15,7 +15,10 @@ public class BasicAim extends Command {
     Turret turret;
     Angle angle;
 
-    /** Creates a new BasicAim. */
+    /**
+     * @param turret a turret from the Turret subsytem to call setAngle
+     * @param angle an angle to pass into the turret setAngle method
+     */
     public BasicAim(Turret turret, Angle angle) {
         this.turret = turret;
         this.angle = angle;
