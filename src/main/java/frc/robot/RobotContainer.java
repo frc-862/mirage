@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
@@ -28,7 +27,6 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Collector;
-import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.Swerve;
 import frc.util.leds.Color;
@@ -108,14 +106,6 @@ public class RobotContainer {
                 .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
             );
 
-        new Trigger(copilot::getAButton)
-            .whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().plus(Degrees.of(0.5))))
-        );
-
-        new Trigger(copilot::getBButton)
-            .whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5))))
-        );
-
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
             .onTrue(drivetrain.resetFieldCentricCommand());
@@ -132,7 +122,6 @@ public class RobotContainer {
 
         /* Copilot */
         if (Robot.isSimulation()) {
-            // TEMP
             new Trigger(driver::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
@@ -142,6 +131,10 @@ public class RobotContainer {
                 shooter.stopMotor();
                 indexer.stop();
             }));
+
+            new Trigger(copilot::getAButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().plus(Degrees.of(0.5)))));
+
+            new Trigger(copilot::getBButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
         }
     }
 
