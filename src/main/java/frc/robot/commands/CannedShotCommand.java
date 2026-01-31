@@ -37,10 +37,10 @@ public class CannedShotCommand {
             }),
             Commands.parallel(
                 new PoseBasedAutoAlign(drivetrain, () -> shotData.shotPose()),
-                new Shoot(shooter, () -> shotData.shooterSpeed()),
-                new MoveHood(hood, () -> shotData.hoodAngle())
+                shooter.shootCommand(() -> shotData.shooterSpeed()),
+                hood.hoodCommand(() -> shotData.hoodAngle())
             ).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_START.id())),
-            new Index(indexer, 1).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_READY.id()))
+            indexer.indexCommand(1d).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_READY.id()))
         ).handleInterrupt(() -> shooter.stopMotor());
     }
 

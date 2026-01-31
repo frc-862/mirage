@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -97,14 +99,6 @@ public class Shooter extends SubsystemBase {
     }
 
     /**
-     * Set the power of the shooter motor using duty cycle out
-     * @param power duty cycle value from -1.0 to 1.0
-     */
-    public void setPower(double power) {
-        motor.setControl(dutyCycle.withOutput(power));
-    }
-
-    /**
      * stops all movement to the shooter motor
      */
     public void stopMotor() {
@@ -135,11 +129,20 @@ public class Shooter extends SubsystemBase {
     }
 
     /**
-     * dutycycleout command for shooter
-     * @param power
+     * velocity control command for shooter
+     * @param velocity
      * @return the command for running the shooter
      */
-    public Command shootCommand(double power) {
-        return new StartEndCommand(() -> setPower(power), () -> stopMotor(), this);
+    public Command shootCommand(AngularVelocity velocity) {
+        return shootCommand(() -> velocity);
+    }
+
+    /**
+     * velocity control command for shooter
+     * @param velocitySupplier
+     * @return the command for running the shooter
+     */
+    public Command shootCommand(Supplier<AngularVelocity> velocitySupplier) {
+        return new StartEndCommand(() -> setVelocity(velocitySupplier.get()), () -> {}, this).until(this::velocityOnTarget);
     }
 }
