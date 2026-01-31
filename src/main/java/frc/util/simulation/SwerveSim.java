@@ -115,7 +115,11 @@ public class SwerveSim {
         SimulatedArena.overrideSimulationTimings(constants.k, 1);
         SimulatedArena.getInstance().addDriveTrainSimulation(mapleSimDrive);
 
-        fieldPub.set(new double[] {0.0, 0.0, 0.0});
+        if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue) {
+            fieldPub.set(new double[] {2.034536, 4.034536, 0.0});
+        } else {
+            fieldPub.set(new double[] {13.915394, 4.034536, 180.0});
+        }
     }
 
     /**
