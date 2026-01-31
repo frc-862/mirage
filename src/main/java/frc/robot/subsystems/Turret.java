@@ -65,7 +65,6 @@ public class Turret extends SubsystemBase {
     private Pose3d turretPose3d;
 
     private final Swerve drivetrain;
-    private final DoubleArrayPublisher turretPublisher;
 
     /**
      * Creates a new Turret Subsystem.
@@ -77,11 +76,6 @@ public class Turret extends SubsystemBase {
         motor = new ThunderBird(RobotMap.TURRET, RobotMap.CAN_BUS, TurretConstants.INVERTED,
                 TurretConstants.STATOR_LIMIT, TurretConstants.BRAKE);
         encoder = new CANcoder(RobotMap.TURRET_ENCODER, RobotMap.CAN_BUS);
-
-        turretPublisher = NetworkTableInstance.getDefault()
-                .getTable("FieldObjects")
-                .getDoubleArrayTopic("Turret")
-                .publish();
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
         CANcoderConfiguration angleConfig = new CANcoderConfiguration();
@@ -122,7 +116,7 @@ public class Turret extends SubsystemBase {
             root2d = mech2d.getRoot("Turret", 2, 0);
             ligament = root2d.append(new MechanismLigament2d("Turret", 3, 90));
 
-            SmartDashboard.putData("Mech2d", mech2d);
+            LightningShuffleboard.send("Turret", "mech 2d", mech2d);
         }
     }
 
@@ -171,7 +165,7 @@ public class Turret extends SubsystemBase {
                 turretPose3d.getY(),
                 turretPose3d.getRotation().getZ()
         };
-        turretPublisher.set(poseArray);
+        LightningShuffleboard.setDoubleArray("Turret", "Turret pose 3d", poseArray);
     }
 
     /**
