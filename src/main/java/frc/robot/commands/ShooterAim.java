@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
@@ -35,7 +36,9 @@ public class ShooterAim extends Command {
     private Translation2d target;
 
     private Pose2d pose = new Pose2d(2.312797, 0, Rotation2d.fromDegrees(0));
-    private Rectangle2d redAllianceZone = new Rectangle2d(pose, 0, 0);
+    private Rectangle2d redAllianceZone = new Rectangle2d(pose, 0, 0); //TEMP
+    private Rectangle2d neutralZone = new Rectangle2d(pose, 1, 1);
+    private Rectangle2d blueallianceZone = new Rectangle2d(pose, 2, 2);
 
     /**
      * Point the shooter and angle the hood so the fuel shot reaches the hub
@@ -65,7 +68,13 @@ public class ShooterAim extends Command {
         double distanceMeters = robotPose.getTranslation().getDistance(target);
 
         if(redAllianceZone.contains(robotPose.getTranslation())){
-            // target = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
+            target = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
+        }
+        else if (neutralZone.contains(robotPose.getTranslation())) {
+            target = FieldConstants.getTargetData(FieldConstants.DEPOT_POSITION);
+        }
+        else if(blueallianceZone.contains(robotPose.getTranslation())){
+            target = FieldConstants.getTargetData(FieldConstants.DEPOT_POSITION);
         }
 
 
