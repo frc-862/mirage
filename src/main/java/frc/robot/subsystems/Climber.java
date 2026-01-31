@@ -4,15 +4,12 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.ClimberConstants;
 import frc.robot.constants.ClimberConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
@@ -22,14 +19,11 @@ public class Climber extends SubsystemBase {
     private final DutyCycleOut dutyCycle;
     private final PositionVoltage positionPID;
 
-
-
     /** Creates a new Climber. */
     public Climber() {
         climberMotor = new ThunderBird(RobotMap.CLIMBER, RobotMap.CAN_BUS,
-         ClimberConstants.CLIMBER_MOTOR_INVERTED, ClimberConstants.CLIMBER_MOTOR_STATOR_LIMIT,
-          ClimberConstants.CLIMBER_MOTOR_BRAKE_MODE);
-
+            ClimberConstants.CLIMBER_MOTOR_INVERTED, ClimberConstants.CLIMBER_MOTOR_STATOR_LIMIT,
+            ClimberConstants.CLIMBER_MOTOR_BRAKE_MODE);
 
         dutyCycle = new DutyCycleOut(0.0);
         positionPID = new PositionVoltage(0);
@@ -43,7 +37,6 @@ public class Climber extends SubsystemBase {
         config.Slot0.kA = ClimberConstants.CLIMB_KA;
         config.Slot0.kG = ClimberConstants.CLIMB_KG;
         config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-
     }
 
     /**
@@ -73,5 +66,4 @@ public class Climber extends SubsystemBase {
     public boolean onTarget() {
         return positionPID.getPositionMeasure().isNear(climberMotor.getPosition().getValue(), ClimberConstants.CLIMB_TOLERANCE);
     }
-
 }
