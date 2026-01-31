@@ -13,18 +13,19 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.constants.DriveConstants;
 import frc.robot.constants.PoseConstants;
 import frc.robot.subsystems.Swerve;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class PoseBasedAutoAlign extends Command {
+    // creates drivetrain variable
     private Swerve drivetrain;
 
+    // create variables for all the pids as PIDControllers
     private PIDController pidX;
     private PIDController pidY;
     private PIDController pidR;
-
-    private SwerveRequest.FieldCentric AUTO_REQUEST;
 
     private Pose2d targetPose;
 
@@ -35,8 +36,10 @@ public class PoseBasedAutoAlign extends Command {
     * @param targetPose
     */
     public PoseBasedAutoAlign(Swerve drivetrain, Supplier<Pose2d> targetPoseSupplier) {
+
         this.drivetrain = drivetrain;
 
+        // sets the pid values to a pid controller
         pidX = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
         pidY = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
         pidR = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
@@ -44,8 +47,6 @@ public class PoseBasedAutoAlign extends Command {
         pidX.setTolerance(PoseConstants.DRIVE_TOLERANCE);
         pidY.setTolerance(PoseConstants.DRIVE_TOLERANCE);
         pidR.setTolerance(PoseConstants.DRIVE_TOLERANCE);
-
-        AUTO_REQUEST = new SwerveRequest.FieldCentric();
 
         this.targetPoseSupplier = targetPoseSupplier;
 
@@ -64,20 +65,17 @@ public class PoseBasedAutoAlign extends Command {
     @Override
     public void execute() {
         // uses the autoRequest to set a control for the drivetrain pased on pids
-        drivetrain.setControl(autoRequest());
+        drivetrain.setControl(getRequest());
     }
 
-    private SwerveRequest autoRequest(){
+    private SwerveRequest getRequest(){
         Pose2d currentPose = drivetrain.getPose();
 
-        AUTO_REQUEST.withVelocityX(pidX.calculate(currentPose.getX(), targetPose.getX()));
-        AUTO_REQUEST.withVelocityY(pidY.calculate(currentPose.getY(), targetPose.getY()));
-        AUTO_REQUEST.withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()));
-
-        AUTO_REQUEST.withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
-        AUTO_REQUEST.withDriveRequestType(DriveRequestType.Velocity);
-
-        return AUTO_REQUEST;
+        return DriveConstants.fieldCentricRequest.withVelocityX(pidX.calculate(currentPose.getX(), targetPose.getX()))
+            .withVelocityY(pidY.calculate(currentPose.getY(), targetPose.getY()))
+            .withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()))
+            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
+            .withDriveRequestType(DriveRequestType.Velocity);
     }
 
     @Override

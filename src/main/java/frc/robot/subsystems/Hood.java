@@ -6,27 +6,24 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
-
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
-
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -42,12 +39,10 @@ public class Hood extends SubsystemBase {
     private ThunderBird hoodMotor;
     private CANcoder encoder;
 
-    public final DutyCycleOut dutyCycle;
-
     final PositionVoltage request;
     private Angle targetAngle;
 
-    private SingleJointedArmSim hoodSim;
+    private DCMotorSim hoodSim;
     private TalonFXSimState motorSim;
     private DCMotor gearbox;
     private MechanismLigament2d ligament;
@@ -65,9 +60,9 @@ public class Hood extends SubsystemBase {
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
         CANcoderConfiguration angleConfig = new CANcoderConfiguration();
 
-        dutyCycle = new DutyCycleOut(0d);
-
         request = new PositionVoltage(0d);
+
+        targetAngle = Degrees.of(0);
 
         encoder.getConfigurator().apply(angleConfig);
 
@@ -87,10 +82,10 @@ public class Hood extends SubsystemBase {
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
-            hoodSim = new SingleJointedArmSim(gearbox, HoodConstants.GEARING_RATIO,
-                HoodConstants.MOI.magnitude(), HoodConstants.LENGTH.in(Meters),
-                HoodConstants.MIN_ANGLE.in(Radians), HoodConstants.MAX_ANGLE.in(Radians),
-                true, HoodConstants.MIN_ANGLE.in(Radians), 0d, 1d);
+            hoodSim = new DCMotorSim(
+                LinearSystemId.createDCMotorSystem(gearbox, HoodConstants.MOI.magnitude(), HoodConstants.ROTOR_TO_MECHANISM_RATIO),
+                gearbox
+            );
 
             motorSim = new TalonFXSimState(hoodMotor);
             encoderSim = new CANcoderSimState(encoder);
@@ -98,24 +93,16 @@ public class Hood extends SubsystemBase {
             motorSim.setRawRotorPosition(HoodConstants.MIN_ANGLE.in(Rotations));
             encoderSim.setRawPosition(HoodConstants.MIN_ANGLE.in(Rotations));
 
-            mech2d = new Mechanism2d(3,  3);
-            root2d =  mech2d.getRoot("Hood", 2, 0);
+            mech2d = new Mechanism2d(2,  2);
+            root2d =  mech2d.getRoot("Hood", 0.2, 0.2);
 
-            ligament = root2d.append(new MechanismLigament2d("Hood", 3, 90));
+            ligament = root2d.append(new MechanismLigament2d("Hood", 1.5, 0));
             LightningShuffleboard.send("Hood", "Mech2d", mech2d);
         }
     }
 
     @Override
     public void periodic() {}
-
-    /**
-     * Set the power of the hood motor using duty cycle out
-     * @param power duty cycle value from -1.0 to 1.0
-     */
-    public void setPower(double power) {
-        hoodMotor.setControl(dutyCycle.withOutput(power));
-    }
 
     /**
      * Sets position of the hood
@@ -170,16 +157,18 @@ public class Hood extends SubsystemBase {
         hoodSim.setInputVoltage(motorSim.getMotorVoltage());
         hoodSim.update(Robot.kDefaultPeriod);
 
-        Angle simAngle = Radians.of(hoodSim.getAngleRads());
-        AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getVelocityRadPerSec());
+        Angle simAngle = Radians.of(hoodSim.getAngularPositionRad());
+        AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getAngularVelocityRadPerSec());
 
-        motorSim.setRawRotorPosition(simAngle);
-        motorSim.setRotorVelocity(simVeloc);
-        ligament.setAngle(-(simAngle.in(Degrees)) + 270);
-        encoderSim.setRawPosition(simAngle);
-        encoderSim.setVelocity(simVeloc);
+        motorSim.setRawRotorPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+        motorSim.setRotorVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+
+        ligament.setAngle(simAngle.in(Degrees));
+        encoderSim.setRawPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+        encoderSim.setVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
 
         LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
+        LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
     }
 }
