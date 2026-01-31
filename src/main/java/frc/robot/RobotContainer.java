@@ -39,7 +39,6 @@ import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
-import frc.robot.commands.Collect;
 
 public class RobotContainer {
     private final XboxController driver;
@@ -102,8 +101,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        new Trigger(driver::getAButton).whileTrue(new Collect(collector, 0, Radians.of(Math.PI/2)));
-
         /* Driver */
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()
@@ -126,7 +123,8 @@ public class RobotContainer {
 
         /* Copilot */
         if (Robot.isSimulation()) {
-            new Trigger(driver::getAButton).whileTrue(new Collect(collector, CollectorConstants.COLLECT_POWER, Degrees.of(0)));
+            // TEMP
+            new Trigger(driver::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));

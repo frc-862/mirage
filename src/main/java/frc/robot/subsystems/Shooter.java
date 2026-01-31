@@ -20,6 +20,8 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.ShooterConstants;
@@ -130,5 +132,14 @@ public class Shooter extends SubsystemBase {
      */
     public boolean isOnTarget(){
         return getVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
+    }
+
+    /**
+     * dutycycleout command for shooter
+     * @param power
+     * @return the command for running the shooter
+     */
+    public Command shootCommand(double power) {
+        return new StartEndCommand(() -> setPower(power), () -> stopMotor(), this);
     }
 }
