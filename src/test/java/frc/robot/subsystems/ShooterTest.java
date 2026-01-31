@@ -26,7 +26,8 @@ public class ShooterTest {
   private static final double DEFAULT_TIMEOUT_S = 1.0;
 
   private Shooter shooter;
-  private MotorUnderTest motorUnderTest;
+  private MotorUnderTest motorUnderTestTop;
+  private MotorUnderTest motorUnderTestBottom;
 
   @BeforeEach
   void setup() {
@@ -34,23 +35,40 @@ public class ShooterTest {
 
     RoboRioSim.setVInVoltage(BATTERY_VOLTAGE);
 
-    var motor = new frc.util.hardware.ThunderBird(
-        frc.robot.constants.RobotMap.SHOOTER,
+    var motorTop = new frc.util.hardware.ThunderBird(
+        frc.robot.constants.RobotMap.SHOOTER_TOP,
         frc.robot.constants.RobotMap.CAN_BUS,
         frc.robot.constants.ShooterConstants.INVERTED,
         frc.robot.constants.ShooterConstants.STATOR_LIMIT,
         frc.robot.constants.ShooterConstants.BRAKE
     );
 
-    shooter = new Shooter(motor);
+    var motorBottom = new frc.util.hardware.ThunderBird(
+        frc.robot.constants.RobotMap.SHOOTER_BOTTOM,
+        frc.robot.constants.RobotMap.CAN_BUS,
+        frc.robot.constants.ShooterConstants.INVERTED,
+        frc.robot.constants.ShooterConstants.STATOR_LIMIT,
+        frc.robot.constants.ShooterConstants.BRAKE
+    );
 
-    motorUnderTest = new MotorUnderTest(
-        motor,
+    shooter = new Shooter(motorTop, motorBottom);
+
+    motorUnderTestTop = new MotorUnderTest(
+        motorTop,
         shooter::setPower,
         shooter::stopMotor,
-        motor.getSimState(),
+        motorTop.getSimState(),
         newKrakenSim()
     );
+
+    motorUnderTestBottom = new MotorUnderTest(
+        motorBottom,
+        shooter::setPower,
+        shooter::stopMotor,
+        motorTop.getSimState(),
+        newKrakenSim()
+    );
+
 
     DriverStationSim.setEnabled(true);
     DriverStationSim.notifyNewData();
@@ -63,17 +81,20 @@ public class ShooterTest {
   @AfterEach
   void tearDown() throws Exception {
     // Close motor (MotorUnderTest holds ThunderBird)
-    if (motorUnderTest != null && motorUnderTest.motor() != null) {
-      motorUnderTest.motor().close();
+    if (motorUnderTestTop != null && motorUnderTestTop.motor() != null) {
+      motorUnderTestTop.motor().close();
     }
 
+    if (motorUnderTestBottom != null && motorUnderTestBottom.motor() != null) {
+      motorUnderTestBottom.motor().close();
+    }
     DriverStationSim.setEnabled(false);
     DriverStationSim.notifyNewData();
   }
 
   private static DCMotorSim newKrakenSim() {
     // 1 motor, 1:1 ratio, 0.001 kg·m² inertia (same values you used)
-    var motor = DCMotor.getKrakenX60Foc(1);
+    var motor = DCMotor.getKrakenX60Foc(2);
     return new DCMotorSim(
         LinearSystemId.createDCMotorSystem(motor, 0.001, 1.0),
         motor
@@ -89,7 +110,8 @@ public class ShooterTest {
       Thread.currentThread().interrupt();
     }
 
-    motorUnderTest.updateSim(DT, BATTERY_VOLTAGE);
+    motorUnderTestTop.updateSim(DT, BATTERY_VOLTAGE);
+    motorUnderTestBottom.updateSim(DT, BATTERY_VOLTAGE);
     DriverStationSim.notifyNewData();
   }
 
@@ -142,9 +164,10 @@ public class ShooterTest {
   void dutyCycleReachesExpected(double power) {
     resetMotor();
 
-    motorUnderTest.setPower().accept(power);
+    motorUnderTestTop.setPower().accept(power);
 
-    assertDutyCycleEventually(motorUnderTest, power, DUTY_TOL, DEFAULT_TIMEOUT_S);
+    assertDutyCycleEventually(motorUnderTestTop, power, DUTY_TOL, DEFAULT_TIMEOUT_S);
+    assertDutyCycleEventually(motorUnderTestBottom, power, DUTY_TOL, DEFAULT_TIMEOUT_S);
   }
 
   static Stream<Arguments> stopCases() {
@@ -157,25 +180,33 @@ public class ShooterTest {
   @ParameterizedTest(name = "stop brings duty cycle to 0 (from {0})")
   @MethodSource("stopCases")
   void stopBringsDutyCycleToZero(double spinPower) {
-    motorUnderTest.setPower().accept(spinPower);
-    assertDutyCycleEventually(motorUnderTest, spinPower, DUTY_TOL, DEFAULT_TIMEOUT_S);
+    motorUnderTestTop.setPower().accept(spinPower);
+    assertDutyCycleEventually(motorUnderTestTop, spinPower, DUTY_TOL, DEFAULT_TIMEOUT_S);
+    motorUnderTestBottom.setPower().accept(spinPower);
+    assertDutyCycleEventually(motorUnderTestBottom, spinPower, DUTY_TOL, DEFAULT_TIMEOUT_S);
 
-    motorUnderTest.stop().run();
-    assertDutyCycleEventually(motorUnderTest, 0.0, DUTY_TOL, DEFAULT_TIMEOUT_S);
+    motorUnderTestTop.stop().run();
+    assertDutyCycleEventually(motorUnderTestTop, 0.0, DUTY_TOL, DEFAULT_TIMEOUT_S);
+    motorUnderTestBottom.stop().run();
+    assertDutyCycleEventually(motorUnderTestBottom, 0.0, DUTY_TOL, DEFAULT_TIMEOUT_S);
   }
 
   @Test
   void realisticShootingSequence() {
-    motorUnderTest.setPower().accept(0.9);
+    motorUnderTestTop.setPower().accept(0.9);
+    motorUnderTestBottom.setPower().accept(0.9);
 
-    assertDutyCycleEventually(motorUnderTest, 0.9, DUTY_TOL, DEFAULT_TIMEOUT_S);
+    assertDutyCycleEventually(motorUnderTestTop, 0.9, DUTY_TOL, DEFAULT_TIMEOUT_S);
+    assertDutyCycleEventually(motorUnderTestBottom, 0.9, DUTY_TOL, DEFAULT_TIMEOUT_S);
 
     runForSeconds(3 * DT);
 
-    assertDutyCycleEventually(motorUnderTest, 0.9, DUTY_TOL, DEFAULT_TIMEOUT_S);
+    assertDutyCycleEventually(motorUnderTestTop, 0.9, DUTY_TOL, DEFAULT_TIMEOUT_S);
+    assertDutyCycleEventually(motorUnderTestBottom, 0.9, DUTY_TOL, DEFAULT_TIMEOUT_S);
 
     resetMotor();
-    assertDutyCycleEventually(motorUnderTest, 0.0, DUTY_TOL, DEFAULT_TIMEOUT_S);
+    assertDutyCycleEventually(motorUnderTestTop, 0.0, DUTY_TOL, DEFAULT_TIMEOUT_S);
+    assertDutyCycleEventually(motorUnderTestBottom, 0.0, DUTY_TOL, DEFAULT_TIMEOUT_S);
   }
 
   @Test
@@ -183,8 +214,10 @@ public class ShooterTest {
     resetMotor();
 
     for (double power : new double[]{0.3, 0.6, 0.9, 0.0}) {
-      motorUnderTest.setPower().accept(power);
-      assertDutyCycleEventually(motorUnderTest, power, DUTY_TOL, DEFAULT_TIMEOUT_S);
+      motorUnderTestTop.setPower().accept(power);
+      assertDutyCycleEventually(motorUnderTestTop, power, DUTY_TOL, DEFAULT_TIMEOUT_S);
+      motorUnderTestBottom.setPower().accept(power);
+      assertDutyCycleEventually(motorUnderTestBottom, power, DUTY_TOL, DEFAULT_TIMEOUT_S);
     }
   }
 }
