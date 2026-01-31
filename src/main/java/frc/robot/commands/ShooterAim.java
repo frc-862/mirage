@@ -35,10 +35,10 @@ public class ShooterAim extends Command {
 
     private Translation2d target;
 
-    private Pose2d pose = new Pose2d(2.312797, 0, Rotation2d.fromDegrees(0));
-    private Rectangle2d redAllianceZone = new Rectangle2d(pose, 0, 0); //TEMP
-    private Rectangle2d neutralZone = new Rectangle2d(pose, 1, 1);
-    private Rectangle2d blueallianceZone = new Rectangle2d(pose, 2, 2);
+    private Pose2d pose = new Pose2d(0, 0, Rotation2d.fromDegrees(0)); //Temp
+    private Rectangle2d redAllianceZone = new Rectangle2d(pose, 0, 0); //Temp
+    private Rectangle2d neutralZone = new Rectangle2d(pose, 1, 1); //Temp
+    private Rectangle2d blueallianceZone = new Rectangle2d(pose, 2, 2); //Temp
 
     /**
      * Point the shooter and angle the hood so the fuel shot reaches the hub
@@ -46,6 +46,7 @@ public class ShooterAim extends Command {
      * @param swerve swerve to get robot pose
      * @param hood the hood susbsystem
      * @param turret the turret subsystem
+     * @param indexer the indexer subs
      */
     public ShooterAim(Shooter shooter, Swerve swerve, Hood hood, Turret turret, Indexer indexer){
         this.shooter = shooter;

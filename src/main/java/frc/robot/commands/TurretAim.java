@@ -5,8 +5,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rectangle2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
@@ -25,10 +28,13 @@ public class TurretAim extends Command {
     private Turret turret;
     private Distance distanceToTargetMeters;
 
+    private Pose2d pose = new Pose2d(0, 0, Rotation2d.fromDegrees(0)); //Temp
+    private Rectangle2d redAllianceZone = new Rectangle2d(pose, 0, 0); //Temp
+    private Rectangle2d neutralZone = new Rectangle2d(pose, 1, 1); //Temp
+    private Rectangle2d blueallianceZone = new Rectangle2d(pose, 2, 2); //Temp
     /**
      * @param drivetrain drivetrain from the Swerve class to get robot pose
      * @param turret a turret from the Turret subsytem
-     * @param target a Translation2d representing where the turret should aim at
      */
     public TurretAim(Swerve drivetrain, Turret turret) {
         this.drivetrain = drivetrain;
@@ -50,6 +56,16 @@ public class TurretAim extends Command {
         * translation
         */
         distanceToTargetMeters = Meters.of(delta.getNorm());
+
+        if(redAllianceZone.contains(robotPose.getTranslation())){
+            target = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
+        }
+        else if (neutralZone.contains(robotPose.getTranslation())) {
+            target = FieldConstants.getTargetData(FieldConstants.DEPOT_POSITION);
+        }
+        else if(blueallianceZone.contains(robotPose.getTranslation())){
+            target = FieldConstants.getTargetData(FieldConstants.DEPOT_POSITION);
+        }
 
         /*
         * We'll add values if we have to based on however the angles acually get
