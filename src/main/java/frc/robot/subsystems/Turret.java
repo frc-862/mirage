@@ -67,7 +67,10 @@ public class Turret extends SubsystemBase {
     private final Swerve drivetrain;
     private final DoubleArrayPublisher turretPublisher;
 
-    /** Creates a new Turret Subsystem. */
+    /**
+     * Creates a new Turret Subsystem.
+     * @param drivetrain the drivetrain to get the pose for the turret sim in advantage scope
+     */
     public Turret(Swerve drivetrain) {
         this.drivetrain = drivetrain;
 
