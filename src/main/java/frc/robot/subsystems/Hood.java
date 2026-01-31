@@ -10,6 +10,8 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -27,6 +29,8 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.util.Units;
 import frc.util.hardware.ThunderBird;
@@ -170,5 +174,23 @@ public class Hood extends SubsystemBase {
         LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
+    }
+
+    /**
+     * angle control command for hood
+     * @param hoodAngle
+     * @return the command for running the hood
+     */
+    public Command hoodCommand(Angle hoodAngle) {
+        return hoodCommand(() -> hoodAngle);
+    }
+
+    /**
+     * angle control command for hood
+     * @param hoodAngleSupplier
+     * @return the command for running the hood
+     */
+    public Command hoodCommand(Supplier<Angle> hoodAngleSupplier) {
+        return new StartEndCommand(() -> setPosition(hoodAngleSupplier.get()), () -> {}, this).until(this::isOnTarget);
     }
 }

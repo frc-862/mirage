@@ -18,6 +18,8 @@ public class LEDConstants {
         ERROR,
         AUTO,
         SHOOT,
+        CANNED_SHOT_START,
+        CANNED_SHOT_READY,
         CLIMB,
         COLLECT,
         BRAKE;

@@ -179,12 +179,12 @@ public class LightningShuffleboard {
     }
 
     /**
-     * Creates and grabs a double from NT through shuffleboard 
+     * Creates and grabs a double from NT through shuffleboard
      * @param tabName the tab to grab the value from
      * @param key the name of the shuffleboard entry
      * @param defaultValue the initial entry value
      * @return the value of the shuffleboard entry
-     * 
+     *
      * @implNote this causes some performance issues if used periodically.
      */
     public static double getDouble(String tabName, String key, double defaultValue) {
@@ -212,7 +212,7 @@ public class LightningShuffleboard {
      * @param key the name of the shuffleboard entry
      * @param defaultValue the initial entry value
      * @return the value of the shuffleboard entry
-     * 
+     *
      * @implNote this causes some performance issues if used periodically.
      */
     public static boolean getBool(String tabName, String key, boolean defaultValue) {
@@ -240,7 +240,7 @@ public class LightningShuffleboard {
      * @param key the name of the shuffleboard entry
      * @param defaultValue the initial entry value
      * @return the value of the shuffleboard entry
-     * 
+     *
      * @implNote this causes some performance issues if used periodically.
      */
     public static String getString(String tabName, String key, String defaultValue) {
@@ -262,7 +262,7 @@ public class LightningShuffleboard {
         }
     }
 
-    
+
     /**
      * Creates and sets a double array from NT through shuffleboard
      * @param tabName the tab to set the value to
@@ -361,6 +361,7 @@ public class LightningShuffleboard {
         if(!keyList.containsKey(index)) {
             keyList.put(index, value);
             poseList.put(index, NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getStructTopic(key, Pose2d.struct).publish());
+            poseList.get(index).accept(value);
         } else if(!keyList.get(index).equals(value)) {
             keyList.put(index, value);
             poseList.get(index).accept(value);
@@ -393,7 +394,7 @@ public class LightningShuffleboard {
      * @param subTable the subtable to grab the entry from (tab name for shuffleboard)
      * @param key the name of the NT entry
      * @return the NT entry
-     * 
+     *
      * @implNote if entry does not exist, returns null. will NOT create entry automatically.
      */
     public static NetworkTableEntry getEntry(String table, String subTable, String key) {
@@ -434,7 +435,7 @@ public class LightningShuffleboard {
 
     /**
      * @deprecated use {@link #send(String, String, Sendable)} instead
-     * 
+     *
      * Set a {@link <a href="https://docs.wpilib.org/en/stable/docs/software/telemetry/robot-telemetry-with-sendable.html">Sendable</a>} object to NT through shuffleboard
      * @param tabName the tab this shuffleboard entry will be placed in
      * @param key the name of the shuffleboard entry
