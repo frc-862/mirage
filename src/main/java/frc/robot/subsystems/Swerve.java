@@ -260,12 +260,16 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
+    @Override
+    public void simulationPeriodic() {
+        resetPose(swerveSim.mapleSimDrive.getSimulatedDriveTrainPose());
+    }
+
     private void startSimThread() {
         swerveSim = DriveConstants.getSwerveSim(this);
         /* Run simulation at a faster rate so PID gains behave more reasonably */
         m_simNotifier = new Notifier(swerveSim::update);
         m_simNotifier.startPeriodic(DriveConstants.kSimLoopPeriod.in(Seconds));
-
     }
 
     /**
