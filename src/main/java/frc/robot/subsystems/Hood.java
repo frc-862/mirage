@@ -4,14 +4,21 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
+
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 
@@ -20,6 +27,9 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.util.Units;
 import frc.util.hardware.ThunderBird;
@@ -30,6 +40,7 @@ import frc.robot.constants.HoodConstants;
 
 public class Hood extends SubsystemBase {
     private ThunderBird hoodMotor;
+    private CANcoder encoder;
 
     public final DutyCycleOut dutyCycle;
 
@@ -39,28 +50,40 @@ public class Hood extends SubsystemBase {
     private SingleJointedArmSim hoodSim;
     private TalonFXSimState motorSim;
     private DCMotor gearbox;
+    private MechanismLigament2d ligament;
+    private MechanismRoot2d root2d;
+    private Mechanism2d mech2d;
+    private CANcoderSimState encoderSim;
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
         hoodMotor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
             HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
             HoodConstants.BRAKE);
+        encoder = new CANcoder(RobotMap.HOOD_ENCODER, RobotMap.CAN_BUS);
+
+        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+        CANcoderConfiguration angleConfig = new CANcoderConfiguration();
 
         dutyCycle = new DutyCycleOut(0d);
 
         request = new PositionVoltage(0d);
 
-        var talonFXConfigs = new TalonFXConfiguration();
+        encoder.getConfigurator().apply(angleConfig);
 
-        var slot0Configs = talonFXConfigs.Slot0;
-        slot0Configs.kP = HoodConstants.kP;
-        slot0Configs.kI = HoodConstants.kI;
-        slot0Configs.kD = HoodConstants.kD;
-        slot0Configs.kS = HoodConstants.kS;
-        slot0Configs.kV = HoodConstants.kV;
-        slot0Configs.kA = HoodConstants.kA;
+        motorConfig.Slot0.kP = HoodConstants.kP;
+        motorConfig.Slot0.kI = HoodConstants.kI;
+        motorConfig.Slot0.kD = HoodConstants.kD;
+        motorConfig.Slot0.kS = HoodConstants.kS;
+        motorConfig.Slot0.kV = HoodConstants.kV;
+        motorConfig.Slot0.kA = HoodConstants.kA;
 
-        hoodMotor.applyConfig(talonFXConfigs);
+        motorConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
+        motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+
+        motorConfig.Feedback.SensorToMechanismRatio = HoodConstants.ENCODER_TO_MECHANISM_RATIO;
+        motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
+        hoodMotor.applyConfig(motorConfig);
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
@@ -70,8 +93,16 @@ public class Hood extends SubsystemBase {
                 true, HoodConstants.MIN_ANGLE.in(Radians), 0d, 1d);
 
             motorSim = new TalonFXSimState(hoodMotor);
+            encoderSim = new CANcoderSimState(encoder);
 
             motorSim.setRawRotorPosition(HoodConstants.MIN_ANGLE.in(Rotations));
+            encoderSim.setRawPosition(HoodConstants.MIN_ANGLE.in(Rotations));
+
+            mech2d = new Mechanism2d(3,  3);
+            root2d =  mech2d.getRoot("Hood", 2, 0);
+
+            ligament = root2d.append(new MechanismLigament2d("Hood", 3, 90));
+            LightningShuffleboard.send("Hood", "Mech2d", mech2d);
         }
     }
 
@@ -130,10 +161,11 @@ public class Hood extends SubsystemBase {
         hoodMotor.stopMotor();
     }
 
-        @Override
+    @Override
     public void simulationPeriodic() {
         double batteryVoltage = RobotController.getBatteryVoltage();
         motorSim.setSupplyVoltage(batteryVoltage);
+        encoderSim.setSupplyVoltage(batteryVoltage);
 
         hoodSim.setInputVoltage(motorSim.getMotorVoltage());
         hoodSim.update(Robot.kDefaultPeriod);
@@ -143,7 +175,11 @@ public class Hood extends SubsystemBase {
 
         motorSim.setRawRotorPosition(simAngle);
         motorSim.setRotorVelocity(simVeloc);
+        ligament.setAngle(-(simAngle.in(Degrees)) + 270);
+        encoderSim.setRawPosition(simAngle);
+        encoderSim.setVelocity(simVeloc);
 
+        LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
     }
 }

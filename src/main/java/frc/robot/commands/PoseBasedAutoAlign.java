@@ -27,7 +27,7 @@ public class PoseBasedAutoAlign extends Command {
 
     private Pose2d targetPose;
 
-    /** Creates a new PoseBasedAutoAlign.
+    /** Creates a new PoseBasedAutoAlign Command.
     * @param drivetrain
     * @param targetPose
     */
@@ -66,7 +66,6 @@ public class PoseBasedAutoAlign extends Command {
             .withDriveRequestType(DriveRequestType.Velocity);
     }
 
-    // Returns true when the command should end.
     @Override
     public boolean isFinished() {
         return pidX.atSetpoint() && pidY.atSetpoint() && pidR.atSetpoint();
