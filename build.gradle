@@ -8,6 +8,81 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+
+def MAC_MAIN_CLASS = "frc.robot.mac.Main"
+
+sourceSets {
+    macbot {
+        java {
+            srcDirs = ['src/main/java']
+            include 'frc/robot/mac/**/*.java'
+
+        }
+    }
+}
+
+// Force mac code to compile with main project's dependencies
+afterEvaluate {
+    // Make macbotImplementation inherit the project's implementation deps
+    if (configurations.findByName('macbotImplementation')) {
+        configurations.macbotImplementation.extendsFrom(configurations.implementation)
+    }
+
+    // Add main output + runtime deps to macbot compile/runtime classpath so mac files compile
+    sourceSets.macbot.compileClasspath += sourceSets.main.output + configurations.runtimeClasspath
+    sourceSets.macbot.runtimeClasspath += sourceSets.main.output + configurations.runtimeClasspath
+}
+
+// Define a new Jar task for the files in frc/robot/mac
+task macJar(type: Jar) {
+    group = 'application'
+    description = 'Assembles a JAR containing the files in frc/robot/mac.'
+
+    // Include files from the specified directory
+    from sourceSets.macbot.output
+
+    // Includes all dependencies from parent project
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+
+    // from { (configurations.runtimeClasspath + configurations.nativeRelease).collect { it.isDirectory() ? it : zipTree(it) } }
+
+    // Handle duplicate files
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    // Add a manifest if needed
+    manifest {
+        attributes(
+            'Main-Class': MAC_MAIN_CLASS // Replace with the actual main class for this JAR
+        )
+    }
+
+    // Set the output JAR file name
+    archiveBaseName.set('MacRobot')
+    destinationDirectory = file("src/main/deploy")
+}
+
+// Task to run the Mac standalone program locally
+task runMac(type: JavaExec) {
+    group = 'application'
+    description = 'Runs the Mac Mini vision processor standalone program'
+
+    classpath = files('/Users/lightning/MacRobot.jar')
+    mainClass = MAC_MAIN_CLASS
+
+    // Depend on native library extraction
+    dependsOn 'extractReleaseNative'
+
+    // Point to extracted native libraries
+    systemProperty 'java.library.path', "${buildDir}/jni/release"
+
+    // Configure this task with WPILib simulation libraries after project evaluation
+    project.afterEvaluate {
+        // Add native and simulation libraries to classpath
+        classpath += configurations.nativeRelease
+        classpath += configurations.simulationRelease
+    }
+}
+
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
