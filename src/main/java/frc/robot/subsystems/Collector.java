@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -11,16 +10,11 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
-import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
-import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -38,8 +32,6 @@ public class Collector extends SubsystemBase {
     private CANcoder encoder;
 
     private double simMechanismPosition = 0.0; // Track position in rotations
-
-    private LinearSystemSim<N1, N1, N1> collectorSim;
     private TalonFXSimState collectorMotorSim;
 
     private final DutyCycleOut collectorDutyCycle;
@@ -48,8 +40,6 @@ public class Collector extends SubsystemBase {
     private final PositionVoltage positionPID;
 
     private DCMotor gearbox;
-
-    private LinearSystemSim<N1, N1, N1> linearPivotSim;
 
     /**
      * Creates a new Collector Subsystem.
@@ -81,8 +71,8 @@ public class Collector extends SubsystemBase {
 
         if(Robot.isSimulation()){
             // pivot sim stuff
-            linearPivotSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
-            CollectorConstants.COLLECTOR_SIM_kA));
+            // linearPivotSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
+            // CollectorConstants.COLLECTOR_SIM_kA));
             gearbox = DCMotor.getKrakenX44Foc(1);
 
             collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ROTOR_TO_ENCODER_RATIO, CollectorConstants.MOI.magnitude(),
@@ -93,10 +83,10 @@ public class Collector extends SubsystemBase {
             pivotSim.setRawRotorPosition(CollectorConstants.MIN_ANGLE.in(Radians));
 
             // collector sim stuff
-            collectorSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
-                CollectorConstants.COLLECTOR_SIM_kA));
-            collectorMotorSim = collectorMotor.getSimState();
-            collectorMotorSim.setMotorType(MotorType.KrakenX60);
+            // collectorSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(CollectorConstants.COLLECTOR_SIM_kV,
+            //     CollectorConstants.COLLECTOR_SIM_kA));
+            // collectorMotorSim = collectorMotor.getSimState();
+            // collectorMotorSim.setMotorType(MotorType.KrakenX60);
         }
     }
 
@@ -115,10 +105,10 @@ public class Collector extends SubsystemBase {
         // collector sim stuff
         collectorMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        collectorSim.setInput(collectorMotorSim.getMotorVoltageMeasure().in(Volts));
-        collectorSim.update(Robot.kDefaultPeriod);
+        collectorPivotSim.setInput(collectorMotorSim.getMotorVoltageMeasure().in(Volts));
+        collectorPivotSim.update(Robot.kDefaultPeriod);
 
-        collectorMotorSim.setRotorVelocity(collectorSim.getOutput(0));
+        collectorMotorSim.setRotorVelocity(collectorPivotSim.getOutput(0));
 
         pivotSim.setRawRotorPosition(simAngle);
 
