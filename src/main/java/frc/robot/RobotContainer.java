@@ -106,6 +106,14 @@ public class RobotContainer {
                 .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
             );
 
+        new Trigger(driver::getAButton)
+            .whileTrue(hood.run(() -> hood.setPosition(Degrees.of(-70)))
+        );
+
+        new Trigger(driver::getBButton)
+            .whileTrue(hood.run(() -> hood.setPosition(Degrees.of(50)))
+        );
+
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
             .onTrue(drivetrain.resetFieldCentricCommand());
@@ -154,7 +162,7 @@ public class RobotContainer {
             () -> true
         ));
         leds.setBehavior(LED_STATES.ERROR.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
-        leds.setBehavior(LED_STATES.BRAKE.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
+        leds.setBehavior(LED_STATES.BRAKE.id(), LEDBehaviorFactory.rainbow(LEDConstants.stripAll, 2));
         leds.setBehavior(LED_STATES.SHOOT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.ORANGE));
         leds.setBehavior(LED_STATES.COLLECT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.BLUE));
         leds.setBehavior(LED_STATES.CLIMB.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.YELLOW));
