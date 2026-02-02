@@ -41,6 +41,7 @@ import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.commands.TurretAim;
+import static frc.robot.commands.CannedShotCommand.runCannedShot;
 
 public class RobotContainer {
     private final XboxController driver;
@@ -125,6 +126,8 @@ public class RobotContainer {
 
         /* Copilot */
         if (Robot.isSimulation()) {
+            new Trigger(driver::getBButton).whileTrue(runCannedShot(shooter, hood, turret, indexer, drivetrain, leds));
+
             // TEMP
             new Trigger(driver::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
@@ -169,7 +172,8 @@ public class RobotContainer {
         leds.setBehavior(LED_STATES.SHOOT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.ORANGE));
         leds.setBehavior(LED_STATES.COLLECT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.BLUE));
         leds.setBehavior(LED_STATES.CLIMB.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.YELLOW));
-
+        leds.setBehavior(LED_STATES.CANNED_SHOT_START.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.YELLOW));
+        leds.setBehavior(LED_STATES.CANNED_SHOT_READY.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREEN));
 
         new Trigger(DriverStation:: isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
 
