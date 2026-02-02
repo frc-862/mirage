@@ -20,8 +20,8 @@ public class RobotMap {
     public static final int TURRET_ENCODER = 35;
     public static final int HOOD = 14;
     public static final int HOOD_ENCODER = 36;
-    public static final int SHOOTER_TOP = 15;
-    public static final int SHOOTER_BOTTOM = 16;
+    public static final int SHOOTER_LEFT = 15;
+    public static final int SHOOTER_RIGHT = 16;
 
     public static final int CLIMBER = 17;
 

@@ -38,15 +38,14 @@ public class Shooter extends SubsystemBase {
 
     private AngularVelocity targetVelocity;
 
-    private TalonFXSimState motorTopSim;
-    private TalonFXSimState motorBottomSim;
+    private TalonFXSimState motorSim;
     private FlywheelSim shooterSim;
 
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
-        this(new ThunderBird(RobotMap.SHOOTER_TOP, RobotMap.CAN_BUS,
+        this(new ThunderBird(RobotMap.SHOOTER_LEFT, RobotMap.CAN_BUS,
             ShooterConstants.INVERTED, ShooterConstants.STATOR_LIMIT, ShooterConstants.BRAKE),
-            new ThunderBird(RobotMap.SHOOTER_BOTTOM, RobotMap.CAN_BUS,
+            new ThunderBird(RobotMap.SHOOTER_RIGHT, RobotMap.CAN_BUS,
             ShooterConstants.INVERTED, ShooterConstants.STATOR_LIMIT, ShooterConstants.BRAKE));
     }
 
@@ -74,11 +73,11 @@ public class Shooter extends SubsystemBase {
         config.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO;
 
         motorTop.applyConfig(config);
-        motorBottom.setControl(new Follower(RobotMap.SHOOTER_TOP, MotorAlignmentValue.Opposed));
+        motorBottom.setControl(new Follower(RobotMap.SHOOTER_LEFT, MotorAlignmentValue.Opposed));
 
         if (Robot.isSimulation()){
-            motorTopSim = motorTop.getSimState();
-            motorTopSim.setMotorType(MotorType.KrakenX60);
+            motorSim = motorTop.getSimState();
+            motorSim.setMotorType(MotorType.KrakenX60);
 
             shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(
                 DCMotor.getKrakenX60Foc(2), ShooterConstants.MOI.in(KilogramSquareMeters),
@@ -91,14 +90,12 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        motorTopSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-        motorBottomSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+        motorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        shooterSim.setInput(motorTopSim.getMotorVoltageMeasure().in(Volts));
+        shooterSim.setInput(motorSim.getMotorVoltageMeasure().in(Volts));
         shooterSim.update(Robot.kDefaultPeriod);
 
-        motorTopSim.setRotorVelocity(shooterSim.getAngularVelocity());
-        motorBottomSim.setRotorVelocity(shooterSim.getAngularVelocity());
+        motorSim.setRotorVelocity(shooterSim.getAngularVelocity());
 
         LightningShuffleboard.setDouble("Shooter", "Velocity", getVelocity().in(RotationsPerSecond));
     }
