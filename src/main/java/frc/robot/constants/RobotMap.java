@@ -24,6 +24,5 @@ public class RobotMap {
     public static final int SHOOTER_RIGHT = 16;
 
     public static final int CLIMBER = 17;
-
-
+    public static final int CLIMBER_ENCODER = 37;
 }
