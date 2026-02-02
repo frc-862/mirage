@@ -21,10 +21,8 @@ import frc.robot.subsystems.Swerve;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class PoseBasedAutoAlign extends Command {
-    // creates drivetrain variable
     private Swerve drivetrain;
 
-    // create variables for all the pids as PIDControllers
     private PIDController pidX;
     private PIDController pidY;
     private PIDController pidR;
@@ -36,10 +34,8 @@ public class PoseBasedAutoAlign extends Command {
     * @param targetPose
     */
     public PoseBasedAutoAlign(Swerve drivetrain, Pose2d targetPose) {
-        // sets drivetrain
         this.drivetrain = drivetrain;
 
-        // sets the pid values to a pid controller
         pidX = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
         pidY = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
         pidR = new PIDController(PoseConstants.ROT_P, PoseConstants.ROT_I, PoseConstants.ROT_D);
@@ -50,7 +46,6 @@ public class PoseBasedAutoAlign extends Command {
 
         pidR.enableContinuousInput(-180, 180);
 
-        // sets target pose
         this.targetPose = targetPose;
 
         addRequirements(drivetrain);
@@ -58,7 +53,6 @@ public class PoseBasedAutoAlign extends Command {
 
     @Override
     public void execute() {
-        // uses the autoRequest to set a control for the drivetrain pased on pids
         drivetrain.setControl(getRequest());
     }
 
