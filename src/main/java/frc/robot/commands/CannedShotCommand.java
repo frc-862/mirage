@@ -1,0 +1,63 @@
+package frc.robot.commands;
+
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.constants.CannedShotsConstants;
+import frc.robot.constants.CannedShotsConstants.CannedShot;
+import frc.robot.constants.CannedShotsConstants.ShotData;
+import frc.robot.constants.LEDConstants.LED_STATES;
+import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Turret;
+import frc.util.leds.LEDSubsystem;
+import frc.util.shuffleboard.LightningShuffleboard;
+
+public class CannedShotCommand {
+    private static ShotData shotData;
+    /**
+     * Runs a parallel command to set the shooter motor's power, move hood, and auto align based on the target pose the robot needs to shoot to.
+     * Enables an LED State to blink yellow whenever the parallel command is running, and enables an LED State to blink green when the parallel is done running.
+     * After the LED blinks green and the parallel command is done running, the shooter motor will idle.
+     * @param shooter Shooter subsystem
+     * @param hood Hood subsystem
+     * @param turret Turret subsystem
+     * @param indexer Indexer subsystem
+     * @param drivetrain Drivetrain subsystem
+     * @param leds LED Subsystem
+     * @return the command to run
+     */
+    public static Command runCannedShot(Shooter shooter, Hood hood, Turret turret, Indexer indexer, Swerve drivetrain, LEDSubsystem leds){
+        return Commands.sequence(
+            Commands.runOnce(() -> {
+                shotData = findClosestShot(drivetrain);
+                LightningShuffleboard.setPose2d("CannedShot", "ShotLocation", shotData.shotPose());
+            }),
+            Commands.parallel(
+                new PoseBasedAutoAlign(drivetrain, () -> shotData.shotPose()),
+                shooter.shootCommand(() -> shotData.shooterSpeed()),
+                hood.hoodCommand(() -> shotData.hoodAngle())
+            ).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_START.id())),
+            indexer.indexCommand(1d).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_READY.id()))
+        ).handleInterrupt(() -> shooter.stopMotor());
+    }
+
+    private static ShotData findClosestShot(Swerve drivetrain) {
+        ShotData shotData = CannedShotsConstants.SHOTS.get(CannedShot.HUB); //default shot
+        var robotLocation = drivetrain.getPose().getTranslation();
+        double currentDistance = Double.POSITIVE_INFINITY;
+
+        for (ShotData value : CannedShotsConstants.SHOTS.values()){
+            double distance = value.shotLocation().minus(robotLocation).getNorm();
+
+            if (distance < currentDistance) {
+                currentDistance = distance;
+                shotData = value;
+            }
+        }
+
+        return shotData;
+    }
+}

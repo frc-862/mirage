@@ -9,9 +9,10 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import java.util.function.Supplier;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -60,6 +61,7 @@ public class Shooter extends SubsystemBase {
         this.motorLeft = motorLeft;
         this.motorRight = motorRight;
 
+
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
@@ -103,7 +105,7 @@ public class Shooter extends SubsystemBase {
         LightningShuffleboard.setDouble("Shooter", "Velocity", getVelocity().in(RotationsPerSecond));
     }
 
-    /**
+     /**
      * Set the power of the shooter motor using duty cycle out
      * @param power duty cycle value from -1.0 to 1.0
      */
@@ -137,16 +139,25 @@ public class Shooter extends SubsystemBase {
     /**
      * @return whether or not the current velocity is near the target velocity
      */
-    public boolean velocityOnTarget(){
+    public boolean isOnTarget(){
         return getVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
     }
 
     /**
-     * dutycycleout command for shooter
-     * @param power
+     * velocity control command for shooter
+     * @param velocity
      * @return the command for running the shooter
      */
-    public Command shootCommand(double power) {
-        return new StartEndCommand(() -> setPower(power), () -> stopMotor(), this);
+    public Command shootCommand(AngularVelocity velocity) {
+        return shootCommand(() -> velocity);
+    }
+
+    /**
+     * velocity control command for shooter
+     * @param velocitySupplier
+     * @return the command for running the shooter
+     */
+    public Command shootCommand(Supplier<AngularVelocity> velocitySupplier) {
+        return new StartEndCommand(() -> setVelocity(velocitySupplier.get()), () -> {}, this).until(this::velocityOnTarget);
     }
 }
