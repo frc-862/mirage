@@ -85,6 +85,7 @@ public class TurretAim extends Command {
     /**
      * aim command for turret
      * @return the command for setting the turret angle
+     * @param angle the angle passed into the turret
      */
     public Command aimCommand(Angle angle) {
         return new StartEndCommand(() -> turret.setAngle(angle), () -> turret.stop(), turret);
