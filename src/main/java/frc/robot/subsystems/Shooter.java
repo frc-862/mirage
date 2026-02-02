@@ -32,8 +32,8 @@ import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Shooter extends SubsystemBase {
-    private final ThunderBird motorTop;
-    private final ThunderBird motorBottom;
+    private final ThunderBird motorLeft;
+    private final ThunderBird motorRight;
 
     private final DutyCycleOut dutyCycle;
     private final VelocityVoltage velocityPID;
@@ -53,18 +53,19 @@ public class Shooter extends SubsystemBase {
 
     /**
      * Creates a new Shooter Subsystem.
-     * @param motor the ThunderBird motor to use for the shooter
+     * @param motorLeft the ThunderBird motor to use for the shooter
+     * @param motorRight the ThunderBird motor that follows for the shooter
      */
-    public Shooter(ThunderBird motorTop, ThunderBird motorBottom) {
-        this.motorTop = motorTop;
-        this.motorBottom = motorBottom;
+    public Shooter(ThunderBird motorLeft, ThunderBird motorRight) {
+        this.motorLeft = motorLeft;
+        this.motorRight = motorRight;
 
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
 
         //creates a config for the shooter motor
-        TalonFXConfiguration config = motorTop.getConfig();
+        TalonFXConfiguration config = motorLeft.getConfig();
 
         config.Slot0.kP = ShooterConstants.kP;
         config.Slot0.kI = ShooterConstants.kI;
@@ -74,11 +75,11 @@ public class Shooter extends SubsystemBase {
 
         config.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO;
 
-        motorTop.applyConfig(config);
-        motorBottom.setControl(new Follower(RobotMap.SHOOTER_LEFT, MotorAlignmentValue.Opposed));
+        motorLeft.applyConfig(config);
+        motorRight.setControl(new Follower(RobotMap.SHOOTER_LEFT, MotorAlignmentValue.Opposed));
 
         if (Robot.isSimulation()){
-            motorSim = motorTop.getSimState();
+            motorSim = motorLeft.getSimState();
             motorSim.setMotorType(MotorType.KrakenX60);
 
             shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(
@@ -107,14 +108,14 @@ public class Shooter extends SubsystemBase {
      * @param power duty cycle value from -1.0 to 1.0
      */
     public void setPower(double power) {
-        motorTop.setControl(dutyCycle.withOutput(power));
+        motorLeft.setControl(dutyCycle.withOutput(power));
     }
 
     /**
      * stops all movement to the shooter motor
      */
     public void stopMotor() {
-        motorTop.stopMotor();
+        motorLeft.stopMotor();
     }
 
     /**
@@ -123,14 +124,14 @@ public class Shooter extends SubsystemBase {
      */
     public void setVelocity(AngularVelocity velocity){
         targetVelocity = velocity;
-        motorTop.setControl(velocityPID.withVelocity(velocity));
+        motorLeft.setControl(velocityPID.withVelocity(velocity));
     }
 
     /**
      * @return the velocity of the shooter motor
      */
     public AngularVelocity getVelocity(){
-        return motorTop.getVelocity().getValue();
+        return motorLeft.getVelocity().getValue();
     }
 
     /**
