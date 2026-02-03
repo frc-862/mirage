@@ -6,10 +6,12 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -20,10 +22,12 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -37,9 +41,40 @@ import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.constants.RobotMap;
 import frc.robot.Robot;
-import frc.robot.constants.HoodConstants;
 
 public class Hood extends SubsystemBase {
+
+    public class HoodConstants {
+        public static final boolean INVERTED = false; // temp
+        public static final double STATOR_LIMIT = 40d; // temp
+        public static final boolean BRAKE = true; // temp
+
+        public static final Angle MIN_ANGLE = Degree.of(0); // Hood v2
+        public static final Angle MAX_ANGLE = Degree.of(30); // Hood v2
+
+        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
+
+        // Input is distance to target in meters, output is hood angle in degrees
+        public static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
+            Map.entry(2d, 10d),
+            Map.entry(4d, 20d),
+            Map.entry(6d, 30d));
+
+        public static final double kS = 0.25d; // temp
+        public static final double kV = 2; // temp
+        public static final double kA = 0.01; // temp
+        public static final double kP = 2; // temp
+        public static final double kI = 0.0; // temp
+        public static final double kD = 0.0; // temp
+
+        public static final Angle POSITION_TOLERANCE = Degree.of(1); // temp
+
+        // Conversion ratios
+        public static final double ROTOR_TO_MECHANISM_RATIO = 25d; // Hood v2
+        public static final double ROTOR_TO_ENCODER_RATIO = 1d; // Cancoder mounted on motor
+        public static final double ENCODER_TO_MECHANISM_RATIO = ROTOR_TO_MECHANISM_RATIO / ROTOR_TO_ENCODER_RATIO;
+    }
+
     private ThunderBird hoodMotor;
     private CANcoder encoder;
 

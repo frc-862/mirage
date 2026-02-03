@@ -34,7 +34,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.constants.AutonomousConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
 import frc.util.simulation.SwerveSim;
@@ -393,8 +392,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                         .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY())), // Consumer of
                                                                                                     // ChassisSpeeds to
                                                                                                     // drive the robot
-            new PPHolonomicDriveController(AutonomousConstants.TRANSLATION_PID, AutonomousConstants.ROTATION_PID),
-            AutonomousConstants.getConfig(getModuleLocations()),
+            new PPHolonomicDriveController(DriveConstants.TRANSLATION_PID, DriveConstants.ROTATION_PID),
+            DriveConstants.getConfig(getModuleLocations()),
             () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
             this); // Subsystem for requirements
     }

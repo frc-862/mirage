@@ -5,10 +5,13 @@
 package frc.robot.subsystems;
 
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.Map;
 import java.util.function.Supplier;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
@@ -18,21 +21,54 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.constants.ShooterConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Shooter extends SubsystemBase {
+
+    public class ShooterConstants {
+        public static final boolean INVERTED = false; // temp
+        public static final double STATOR_LIMIT = 120.0; // temp
+        public static final boolean BRAKE = false; // temp
+
+        public static final double kP = 0.1d;
+        public static final double kI = 0d;
+        public static final double kD = 0d;
+        public static final double kV = 0.12d;
+        public static final double kS = 0.5d;
+        public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
+
+        public static final double GEAR_RATIO = 1d; // temp
+        public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI).times(2);
+
+        // Input is distance to target in meters, output is shooter speed in rotations per second
+        public static final InterpolatingDoubleTreeMap VELOCITY_MAP = InterpolatingDoubleTreeMap.ofEntries(
+                Map.entry(2d, 20d),
+                Map.entry(4d, 40d),
+                Map.entry(6d, 60d));
+
+        // Sim
+        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
+        public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(0), Inches.of(9));
+        public static final Distance SHOOTER_HEIGHT = Inches.of(18);
+        public static final Time MAX_SHOOTING_PERIOD = Seconds.of(0.1); // 10 balls per second
+    }
+
     private final ThunderBird motorLeft;
     private final ThunderBird motorRight;
 
@@ -155,8 +191,8 @@ public class Shooter extends SubsystemBase {
     /**
      * velocity control command for shooter
      * @param velocitySupplier
-     * @return the command for running the shooter
-     */
+        * @return the command for running the shooter
+        */
     public Command shootCommand(Supplier<AngularVelocity> velocitySupplier) {
         return new StartEndCommand(() -> setVelocity(velocitySupplier.get()), () -> {}, this).until(this::isOnTarget);
     }

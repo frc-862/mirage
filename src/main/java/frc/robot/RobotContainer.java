@@ -22,8 +22,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.constants.CollectorConstants;
-import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.Hood;
@@ -37,11 +35,11 @@ import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
+import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.commands.TurretAim;
-import static frc.robot.commands.CannedShotCommand.runCannedShot;
 
 public class RobotContainer {
     private final XboxController driver;
@@ -62,8 +60,8 @@ public class RobotContainer {
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     public RobotContainer() {
-        driver = new XboxController(ControllerConstants.DRIVER_PORT);
-        copilot = new XboxController(ControllerConstants.COPILOT_PORT);
+        driver = new XboxController(RobotMap.DRIVER_PORT);
+        copilot = new XboxController(RobotMap.COPILOT_PORT);
 
         drivetrain = DriveConstants.createDrivetrain();
 
@@ -93,12 +91,11 @@ public class RobotContainer {
         */
         drivetrain.setDefaultCommand(drivetrain.driveCommand(
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
-                VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
-                .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
-                ControllerConstants.POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                ControllerConstants.DEADBAND), ControllerConstants.POW) * (driver.getRightBumperButton()
-                ? ControllerConstants.SLOW_MODE_MULT : 1.0)));
-
+                VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), RobotMap.CONTROLLER_DEADBAND)
+                .times(driver.getRightBumperButton() ? DriveConstants.SLOW_MODE_MULT : 1.0),
+                RobotMap.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                RobotMap.CONTROLLER_DEADBAND), RobotMap.CONTROLLER_POW) * (driver.getRightBumperButton()
+                ? DriveConstants.SLOW_MODE_MULT : 1.0)));
         if (Robot.isSimulation()){
             turret.setDefaultCommand(turret.run(() -> turret.setAngle(Rotations.of(0))));
             hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(0))));
@@ -120,15 +117,15 @@ public class RobotContainer {
 
         new Trigger(driver::getLeftBumperButton).whileTrue(drivetrain.robotCentricDrive(
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
-                VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), ControllerConstants.DEADBAND)
-                .times(driver.getRightBumperButton() ? ControllerConstants.SLOW_MODE_MULT : 1.0),
-                ControllerConstants.POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                ControllerConstants.DEADBAND), ControllerConstants.POW) * (driver.getRightBumperButton()
-                ? ControllerConstants.SLOW_MODE_MULT : 1.0)));
+                VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), RobotMap.CONTROLLER_DEADBAND)
+                .times(driver.getRightBumperButton() ? DriveConstants.SLOW_MODE_MULT : 1.0),
+                RobotMap.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                RobotMap.CONTROLLER_DEADBAND), RobotMap.CONTROLLER_POW) * (driver.getRightBumperButton()
+                ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         /* Copilot */
         if (Robot.isSimulation()) {
-            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER, Degrees.of(90)));
+            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(Collector.CollectorConstants.COLLECT_POWER, Degrees.of(90)));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));
