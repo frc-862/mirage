@@ -155,8 +155,8 @@ public class Turret extends SubsystemBase {
         if (getZeroLimitSwitch() && !zeroed) { // TODO: add led strip indication?
             stop();
             setEncoderPosition(TurretConstants.ZERO_ANGLE);
-            setAngle(targetPosition);
             zeroed = true;
+            setAngle(targetPosition);
         }
     }
 
