@@ -138,7 +138,8 @@ public class Shooter extends SubsystemBase {
 
         motorSim.setRotorVelocity(shooterSim.getAngularVelocity());
 
-        LightningShuffleboard.setDouble("Shooter", "Velocity", getVelocity().in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Shooter", "Left Velocity", getVelocity().in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
     }
 
      /**
@@ -170,6 +171,10 @@ public class Shooter extends SubsystemBase {
      */
     public AngularVelocity getVelocity(){
         return motorLeft.getVelocity().getValue();
+    }
+
+    public AngularVelocity getRightVelocity(){
+        return motorRight.getVelocity().getValue();
     }
 
     /**
