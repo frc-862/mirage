@@ -63,14 +63,14 @@ public class Hood extends SubsystemBase {
         public static final double kS = 0.25d; // temp
         public static final double kV = 2; // temp
         public static final double kA = 0.01; // temp
-        public static final double kP = 2; // temp
+        public static final double kP = 20; // temp
         public static final double kI = 0.0; // temp
         public static final double kD = 0.0; // temp
 
         public static final Angle POSITION_TOLERANCE = Degree.of(1); // temp
 
         // Conversion ratios
-        public static final double ROTOR_TO_MECHANISM_RATIO = 25d; // Hood v2
+        public static final double ROTOR_TO_MECHANISM_RATIO = 23.63; // Hood v2
         public static final double ROTOR_TO_ENCODER_RATIO = 1d; // Cancoder mounted on motor
         public static final double ENCODER_TO_MECHANISM_RATIO = ROTOR_TO_MECHANISM_RATIO / ROTOR_TO_ENCODER_RATIO;
     }
