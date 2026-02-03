@@ -139,10 +139,7 @@ public class Hood extends SubsystemBase {
             LightningShuffleboard.send("Hood", "Mech2d", mech2d);
         }
     }
-
-    @Override
-    public void periodic() {}
-
+    
     /**
      * Sets position of the hood
      * @param position in degrees
