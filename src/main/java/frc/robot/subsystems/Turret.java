@@ -13,9 +13,18 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
@@ -25,6 +34,10 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
@@ -45,9 +58,23 @@ public class Turret extends SubsystemBase {
     private TalonFXSimState motorSim;
     private CANcoderSimState encoderSim;
 
-    /** Creates a new Turret Subsystem. */
-    public Turret() {
-        motor = new ThunderBird(RobotMap.TURRET, RobotMap.CAN_BUS, TurretConstants.INVERTED, TurretConstants.STATOR_LIMIT, TurretConstants.BRAKE);
+    private Mechanism2d mech2d;
+    private MechanismRoot2d root2d;
+    private MechanismLigament2d ligament;
+
+    private Pose3d turretPose3d;
+
+    private final Swerve drivetrain;
+
+    /**
+     * Creates a new Turret Subsystem.
+     * @param drivetrain the drivetrain to get the pose for the turret sim in advantage scope
+     */
+    public Turret(Swerve drivetrain) {
+        this.drivetrain = drivetrain;
+
+        motor = new ThunderBird(RobotMap.TURRET, RobotMap.CAN_BUS, TurretConstants.INVERTED,
+                TurretConstants.STATOR_LIMIT, TurretConstants.BRAKE);
         encoder = new CANcoder(RobotMap.TURRET_ENCODER, RobotMap.CAN_BUS);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
@@ -75,20 +102,27 @@ public class Turret extends SubsystemBase {
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
             turretSim = new SingleJointedArmSim(gearbox, TurretConstants.ROTOR_TO_ENCODER_RATIO,
-                TurretConstants.MOI.magnitude(), TurretConstants.LENGTH.in(Meters),
-                TurretConstants.MIN_ANGLE.in(Radians), TurretConstants.MAX_ANGLE.in(Radians),
-                false, TurretConstants.MIN_ANGLE.in(Radians), 0d, 1d);
+                    TurretConstants.MOI.magnitude(), TurretConstants.LENGTH.in(Meters),
+                    TurretConstants.MIN_ANGLE.in(Radians), TurretConstants.MAX_ANGLE.in(Radians),
+                    false, TurretConstants.MIN_ANGLE.in(Radians), 0d, 1d);
 
             motorSim = new TalonFXSimState(motor);
             encoderSim = new CANcoderSimState(encoder);
 
             motorSim.setRawRotorPosition(TurretConstants.MIN_ANGLE.in(Rotations));
             encoderSim.setRawPosition(TurretConstants.MIN_ANGLE.in(Rotations));
+
+            mech2d = new Mechanism2d(3, 3);
+            root2d = mech2d.getRoot("Turret", 2, 0);
+            ligament = root2d.append(new MechanismLigament2d("Turret", 3, 90));
+
+            LightningShuffleboard.send("Turret", "mech 2d", mech2d);
         }
     }
 
     @Override
-    public void periodic() {}
+    public void periodic() {
+    }
 
     @Override
     public void simulationPeriodic() {
@@ -106,17 +140,37 @@ public class Turret extends SubsystemBase {
         encoderSim.setRawPosition(simAngle);
         encoderSim.setVelocity(simVeloc);
 
-        LightningShuffleboard.setDouble("Turret", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
+        ligament.setAngle(simAngle.in(Degree));
+
+        LightningShuffleboard.setDouble("Turret", "CANcoder angle",
+                encoder.getAbsolutePosition().getValue().in(Degree));
         LightningShuffleboard.setDouble("Turret", "sim angle", simAngle.in(Degree));
-        LightningShuffleboard.setDouble("Turret", "getPose", getAngle().in(Degree));
 
         LightningShuffleboard.setDouble("Turret", "current angle", getAngle().in(Degree));
         LightningShuffleboard.setDouble("Turret", "target angle", getTargetAngle().in(Degree));
         LightningShuffleboard.setBool("Turret", "on target", isOnTarget());
+
+        Translation3d robotTranslation3d = new Translation3d(
+                drivetrain.getPose().getX(),
+                drivetrain.getPose().getY(),
+                0.0);
+
+        turretPose3d = new Pose3d(
+                robotTranslation3d,
+                new Rotation3d(0, 0, getAngle().in(Radians))
+        );
+
+        double[] poseArray = new double[] {
+                turretPose3d.getX(),
+                turretPose3d.getY(),
+                turretPose3d.getRotation().getZ()
+        };
+        LightningShuffleboard.setDoubleArray("Turret", "Turret pose 3d", poseArray);
     }
 
     /**
      * sets angle of the turret
+     *
      * @param angle sets the angle to the motor of the turret
      */
     public void setAngle(Angle angle) {
@@ -126,6 +180,7 @@ public class Turret extends SubsystemBase {
 
     /**
      * gets the current angle of the turret
+     *
      * @return angle of turret
      */
     public Angle getAngle() {
@@ -134,6 +189,7 @@ public class Turret extends SubsystemBase {
 
     /**
      * gets the current target angle of the turret
+     *
      * @return target angle of turret
      */
     public Angle getTargetAngle() {
@@ -142,6 +198,7 @@ public class Turret extends SubsystemBase {
 
     /**
      * gets whether the turret is currently on target with set target angle
+     *
      * @return whether turret on target
      */
     public boolean isOnTarget() {
