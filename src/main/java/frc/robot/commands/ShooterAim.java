@@ -53,13 +53,14 @@ public class ShooterAim extends Command {
         this.turret = turret;
         this.indexer = indexer;
 
-        addRequirements(shooter, hood, turret);
+        addRequirements(shooter, hood, turret, indexer);
     }
 
     @Override
     public void execute() {
         if (turret.isOnTarget() & hood.isOnTarget() & shooter.isOnTarget()) {
-            indexer.setPower(0); //TEMP
+            indexer.setSpindexerPower(Indexer.IndexerConstants.SPINDEXDER_POWER); //TEMP
+            indexer.setTransferPower(Indexer.IndexerConstants.TRANSFER_POWER);
         }
 
         Pose2d robotPose = swerve.getPose();
