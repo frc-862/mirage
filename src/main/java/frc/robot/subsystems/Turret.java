@@ -4,27 +4,18 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.DoubleArrayPublisher;
-import edu.wpi.first.networktables.NetworkTableInstance;
 
 import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
@@ -32,12 +23,12 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
@@ -47,22 +38,24 @@ import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Turret extends SubsystemBase {
     private ThunderBird motor;
-    private CANcoder encoder;
 
     private Angle targetPosition = Rotations.zero();
 
     public final PositionVoltage positionPID = new PositionVoltage(0);
+    private final DutyCycleOut dutyCycle = new DutyCycleOut(0.0);
 
     private DCMotor gearbox;
     private SingleJointedArmSim turretSim;
     private TalonFXSimState motorSim;
-    private CANcoderSimState encoderSim;
 
     private Mechanism2d mech2d;
     private MechanismRoot2d root2d;
     private MechanismLigament2d ligament;
 
     private Pose3d turretPose3d;
+
+    private final DigitalInput zeroLimitSwitch;
+    private final DigitalInput maxLimitSwitch;
 
     private final Swerve drivetrain;
 
@@ -75,13 +68,8 @@ public class Turret extends SubsystemBase {
 
         motor = new ThunderBird(RobotMap.TURRET, RobotMap.CAN_BUS, TurretConstants.INVERTED,
                 TurretConstants.STATOR_LIMIT, TurretConstants.BRAKE);
-        encoder = new CANcoder(RobotMap.TURRET_ENCODER, RobotMap.CAN_BUS);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-        CANcoderConfiguration angleConfig = new CANcoderConfiguration();
-        angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? TurretConstants.turretOffset : 0;
-        angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        encoder.getConfigurator().apply(angleConfig);
 
         motorConfig.Slot0.kP = TurretConstants.MOTOR_KP;
         motorConfig.Slot0.kI = TurretConstants.MOTOR_KI;
@@ -91,26 +79,23 @@ public class Turret extends SubsystemBase {
         motorConfig.Slot0.kA = TurretConstants.MOTOR_KA;
         motorConfig.Slot0.kG = TurretConstants.MOTOR_KG;
 
-        motorConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
-        motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-
         motorConfig.Feedback.SensorToMechanismRatio = TurretConstants.ENCODER_TO_MECHANISM_RATIO;
-        motorConfig.Feedback.RotorToSensorRatio = TurretConstants.ROTOR_TO_ENCODER_RATIO;
 
         motor.applyConfig(motorConfig);
 
+        zeroLimitSwitch = new DigitalInput(RobotMap.TURRET_ZERO_SWITCH);
+        maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
+
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
-            turretSim = new SingleJointedArmSim(gearbox, TurretConstants.ROTOR_TO_ENCODER_RATIO,
+            turretSim = new SingleJointedArmSim(gearbox, TurretConstants.ENCODER_TO_MECHANISM_RATIO,
                     TurretConstants.MOI.magnitude(), TurretConstants.LENGTH.in(Meters),
                     TurretConstants.MIN_ANGLE.in(Radians), TurretConstants.MAX_ANGLE.in(Radians),
                     false, TurretConstants.MIN_ANGLE.in(Radians), 0d, 1d);
 
             motorSim = new TalonFXSimState(motor);
-            encoderSim = new CANcoderSimState(encoder);
 
             motorSim.setRawRotorPosition(TurretConstants.MIN_ANGLE.in(Rotations));
-            encoderSim.setRawPosition(TurretConstants.MIN_ANGLE.in(Rotations));
 
             mech2d = new Mechanism2d(3, 3);
             root2d = mech2d.getRoot("Turret", 2, 0);
@@ -128,7 +113,6 @@ public class Turret extends SubsystemBase {
     public void simulationPeriodic() {
         double batteryVoltage = RobotController.getBatteryVoltage();
         motorSim.setSupplyVoltage(batteryVoltage);
-        encoderSim.setSupplyVoltage(batteryVoltage);
 
         turretSim.setInputVoltage(motorSim.getMotorVoltage());
         turretSim.update(Robot.kDefaultPeriod);
@@ -137,13 +121,11 @@ public class Turret extends SubsystemBase {
         AngularVelocity simVeloc = RadiansPerSecond.of(turretSim.getVelocityRadPerSec());
         motorSim.setRawRotorPosition(simAngle);
         motorSim.setRotorVelocity(simVeloc);
-        encoderSim.setRawPosition(simAngle);
-        encoderSim.setVelocity(simVeloc);
 
         ligament.setAngle(simAngle.in(Degree));
 
         LightningShuffleboard.setDouble("Turret", "CANcoder angle",
-                encoder.getAbsolutePosition().getValue().in(Degree));
+                motor.getPosition().getValue().in(Degree));
         LightningShuffleboard.setDouble("Turret", "sim angle", simAngle.in(Degree));
 
         LightningShuffleboard.setDouble("Turret", "current angle", getAngle().in(Degree));
@@ -184,7 +166,7 @@ public class Turret extends SubsystemBase {
      * @return angle of turret
      */
     public Angle getAngle() {
-        return encoder.getAbsolutePosition().getValue();
+        return motor.getPosition().getValue();
     }
 
     /**
@@ -196,6 +178,10 @@ public class Turret extends SubsystemBase {
         return targetPosition;
     }
 
+    public void setPower(double power) {
+        motor.setControl(dutyCycle.withOutput(power));
+    }
+
     /**
      * gets whether the turret is currently on target with set target angle
      *
@@ -203,6 +189,24 @@ public class Turret extends SubsystemBase {
      */
     public boolean isOnTarget() {
         return getTargetAngle().isNear(getAngle(), TurretConstants.TURRET_ANGLE_TOLERANCE);
+    }
+
+    public boolean getZeroLimitSwitch() {
+        return zeroLimitSwitch.get();
+    }
+
+    public boolean getMaxLimitSwitch() {
+        return maxLimitSwitch.get();
+    }
+
+    /**
+     * Sets the encoder position to a specific angle
+     * WANRING: This does not move the turret, only sets the encoder position
+     *
+     * @param angle
+     */
+    public void setEncoderPosition(Angle angle){
+        motor.setPosition(angle);
     }
 
     /**

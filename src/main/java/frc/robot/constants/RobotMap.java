@@ -17,7 +17,8 @@ public class RobotMap {
     public static final int TRANSFER = 12;
 
     public static final int TURRET = 13;
-    public static final int TURRET_ENCODER = 35;
+    public static final int TURRET_ZERO_SWITCH = 0;
+    public static final int TURRET_MAX_SWITCH = 1;
     public static final int HOOD = 14;
     public static final int HOOD_ENCODER = 36;
     public static final int SHOOTER_LEFT = 15;
