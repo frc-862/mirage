@@ -7,7 +7,11 @@ import org.ironmaple.simulation.drivesims.COTS;
 
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.swerve.*;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.*;
 
@@ -45,7 +49,7 @@ public class DriveConstants {
     @SuppressWarnings("unchecked")
     public static final SwerveSim getSwerveSim(Swerve drivetrain) {
         return new SwerveSim(
-            new Triplet<Time, Mass, Double>(kSimLoopPeriod, AutonomousConstants.ROBOT_MASS, COF),
+            new Triplet<Time, Mass, Double>(kSimLoopPeriod, ROBOT_MASS, COF),
             new Tuple<Distance, Distance>(RobotWidth, RobotWidth),
             new Tuple<DCMotor, DCMotor>(DCMotor.getKrakenX60Foc(1),
             RobotMap.IS_OASIS ? DCMotor.getFalcon500Foc(1) : DCMotor.getKrakenX60Foc(1)), //TODO: change to 44 once wpilib 2026
@@ -62,4 +66,21 @@ public class DriveConstants {
     public static final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric();
     public static final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     public static final SwerveRequest.ApplyRobotSpeeds autonRequest = new SwerveRequest.ApplyRobotSpeeds();
+
+    public static final double SLOW_MODE_MULT = 0.2;
+
+    public static final PIDConstants TRANSLATION_PID = new PIDConstants(50, 0, 0); // TODO: Tune
+    public static final PIDConstants ROTATION_PID = new PIDConstants(5, 0, 0);
+
+    protected static final Mass ROBOT_MASS = Pounds.of(88); // TODO: Update
+    private static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(3.3927854218);
+
+    private static final ModuleConfig MODULE_CONFIG = new ModuleConfig(
+        DriveConstants.kWheelRadius, DriveConstants.kSpeedAt12Volts,
+        DriveConstants.COF, DCMotor.getKrakenX60Foc(1).withReduction(DriveConstants.kDriveGearRatio),
+        Amps.of(120), 1);
+
+    public static final RobotConfig getConfig(Translation2d... moduleLocations) {
+        return new RobotConfig(ROBOT_MASS, ROBOT_MOI, MODULE_CONFIG, moduleLocations);
+    }
 }

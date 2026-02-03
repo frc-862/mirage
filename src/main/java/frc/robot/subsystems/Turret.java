@@ -16,6 +16,9 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
@@ -23,7 +26,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -32,11 +36,39 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
-import frc.robot.constants.TurretConstants;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Turret extends SubsystemBase {
+
+    public class TurretConstants {
+        public static final boolean INVERTED = false; // temp
+        public static final double STATOR_LIMIT = 120.0; // temp
+        public static final boolean BRAKE = false; // temp
+
+        public static final Angle TURRET_ANGLE_TOLERANCE = Degrees.of(5);
+
+        public static final Angle MIN_ANGLE = Degree.of(-220);
+        public static final Angle MAX_ANGLE = Degree.of(220);
+
+        public static final double MOTOR_KP = 6.5;
+        public static final double MOTOR_KI = 0;
+        public static final double MOTOR_KD = 0;
+        public static final double MOTOR_KF = 0;
+        public static final double MOTOR_KS = 1;
+        public static final double MOTOR_KV = 0.18;
+        public static final double MOTOR_KA = 0.01;
+        public static final double MOTOR_KG = 0;
+
+        public static final double ROTOR_TO_ENCODER_RATIO = 74;
+        public static final double ENCODER_TO_MECHANISM_RATIO = 1d;
+
+        public static final double turretOffset = -0.227;
+
+        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
+        public static final Distance LENGTH = Meter.of(0.18);
+    }
+
     private ThunderBird motor;
 
     private Angle targetPosition = Rotations.zero();
