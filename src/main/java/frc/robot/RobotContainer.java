@@ -48,7 +48,9 @@ public class RobotContainer {
     private final XboxController copilot;
 
     private final Swerve drivetrain;
-    private Collector collector; //TODO: make final after subsystems are added
+
+    // TODO: make final after subsystems are added
+    private Collector collector;
     private Indexer indexer;
     private Turret turret;
     private Hood hood;
@@ -126,10 +128,7 @@ public class RobotContainer {
 
         /* Copilot */
         if (Robot.isSimulation()) {
-            new Trigger(driver::getBButton).whileTrue(runCannedShot(shooter, hood, turret, indexer, drivetrain, leds));
-
-            // TEMP
-            new Trigger(driver::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
+            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER, Degrees.of(90)));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));

@@ -145,6 +145,16 @@ public class Collector extends SubsystemBase {
     }
 
     /**
+     * Deploys the collector with specified power and position
+     * @param power applying power with duty cycle
+     * @param position set the pivot position
+     */
+    public void deployCollector(double power, Angle position) {
+        setCollectorPower(power);
+        setPivotAngle(position);
+
+    }
+    /**
      * Stops all movement to the collector motor
      */
     public void stopCollector() {
@@ -190,10 +200,12 @@ public class Collector extends SubsystemBase {
     /**
      * dutycycleout command for shooter
      * @param power
+     * @param position
      * @return the command for running the shooter
      */
-    public Command collectCommand(double power) {
-        return new StartEndCommand(() -> setCollectorPower(power), () -> stopCollector(), this);
+    public Command collectCommand(double power, Angle position) {
+        return new StartEndCommand(() -> deployCollector(power, position), () -> deployCollector(0, Degrees.of(0)), this);
+
     }
 
     /**
@@ -202,5 +214,10 @@ public class Collector extends SubsystemBase {
      */
     public Angle getPivotAngle(){
         return pivotMotor.getPosition().getValue();
+    }
+
+    public void setPosition(Angle position) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setPosition'");
     }
 }
