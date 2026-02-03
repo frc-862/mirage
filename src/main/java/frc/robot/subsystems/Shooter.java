@@ -158,6 +158,6 @@ public class Shooter extends SubsystemBase {
      * @return the command for running the shooter
      */
     public Command shootCommand(Supplier<AngularVelocity> velocitySupplier) {
-        return new StartEndCommand(() -> setVelocity(velocitySupplier.get()), () -> {}, this).until(this::velocityOnTarget);
+        return new StartEndCommand(() -> setVelocity(velocitySupplier.get()), () -> {}, this).until(this::isOnTarget);
     }
 }
