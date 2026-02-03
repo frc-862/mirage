@@ -143,6 +143,30 @@ public class Hood extends SubsystemBase {
     @Override
     public void periodic() {}
 
+    @Override
+    public void simulationPeriodic() {
+        double batteryVoltage = RobotController.getBatteryVoltage();
+        motorSim.setSupplyVoltage(batteryVoltage);
+        encoderSim.setSupplyVoltage(batteryVoltage);
+
+        hoodSim.setInputVoltage(motorSim.getMotorVoltage());
+        hoodSim.update(Robot.kDefaultPeriod);
+
+        Angle simAngle = Radians.of(hoodSim.getAngularPositionRad());
+        AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getAngularVelocityRadPerSec());
+
+        motorSim.setRawRotorPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+        motorSim.setRotorVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+
+        ligament.setAngle(simAngle.in(Degrees));
+        encoderSim.setRawPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+        encoderSim.setVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+
+        LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
+        LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
+        LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
+    }
+
     /**
      * Sets position of the hood
      * @param position in degrees
@@ -185,30 +209,6 @@ public class Hood extends SubsystemBase {
      */
     public void stop() {
         hoodMotor.stopMotor();
-    }
-
-    @Override
-    public void simulationPeriodic() {
-        double batteryVoltage = RobotController.getBatteryVoltage();
-        motorSim.setSupplyVoltage(batteryVoltage);
-        encoderSim.setSupplyVoltage(batteryVoltage);
-
-        hoodSim.setInputVoltage(motorSim.getMotorVoltage());
-        hoodSim.update(Robot.kDefaultPeriod);
-
-        Angle simAngle = Radians.of(hoodSim.getAngularPositionRad());
-        AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getAngularVelocityRadPerSec());
-
-        motorSim.setRawRotorPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-        motorSim.setRotorVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-
-        ligament.setAngle(simAngle.in(Degrees));
-        encoderSim.setRawPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-        encoderSim.setVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-
-        LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
-        LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
-        LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
     }
 
     /**
