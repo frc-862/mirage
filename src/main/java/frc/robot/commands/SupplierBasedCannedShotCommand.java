@@ -24,9 +24,9 @@ import java.util.HashMap;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
-public class CannedShotCommand {
+public class SupplierBasedCannedShotCommand {
 
-    public class CannedShotsConstants {
+    public class SupplierBasedCannedShotsConstants {
 
         public enum CannedShot {
             HUB,
@@ -48,39 +48,39 @@ public class CannedShotCommand {
             }
         }
 
-        public static final HashMap<CannedShotsConstants.CannedShot, CannedShotsConstants.ShotData> SHOTS = new HashMap<CannedShotsConstants.CannedShot, CannedShotsConstants.ShotData>() {
+        public static final HashMap<SupplierBasedCannedShotsConstants.CannedShot, SupplierBasedCannedShotsConstants.ShotData> SHOTS = new HashMap<SupplierBasedCannedShotsConstants.CannedShot, SupplierBasedCannedShotsConstants.ShotData>() {
             {
-                put(CannedShotsConstants.CannedShot.HUB, new ShotData(
+                put(SupplierBasedCannedShotsConstants.CannedShot.HUB, new ShotData(
                     new Translation2d(Meters.of(4.62), Meters.of(4)),
                     new Translation2d(Meters.of(3), Meters.of(4)),
                     Degrees.of(70),
                     RotationsPerSecond.of(10)
                 )); //placeholder value
-                put(CannedShotsConstants.CannedShot.SQUARE_THING, new ShotData(
+                put(SupplierBasedCannedShotsConstants.CannedShot.SQUARE_THING, new ShotData(
                     new Translation2d(Meters.of(4.62), Meters.of(4)),
                     new Translation2d(Meters.of(1.29), Meters.of(6)),
                     Degrees.of(0),
                     RotationsPerSecond.of(10)
                 )); //placeholder value
-                put(CannedShotsConstants.CannedShot.CORNER_BOTTOM, new ShotData(
+                put(SupplierBasedCannedShotsConstants.CannedShot.CORNER_BOTTOM, new ShotData(
                     new Translation2d(Meters.of(4.62), Meters.of(4)),
                     new Translation2d(Meters.of(0.5), Meters.of(0.5)),
                     Degrees.of(0),
                     RotationsPerSecond.of(10)
                 )); //placeholder value
-                put(CannedShotsConstants.CannedShot.CORNER_TOP, new ShotData(
+                put(SupplierBasedCannedShotsConstants.CannedShot.CORNER_TOP, new ShotData(
                     new Translation2d(Meters.of(4.62), Meters.of(4)),
                     new Translation2d(Meters.of(0.5), Meters.of(7.5)),
                     Degrees.of(0),
                     RotationsPerSecond.of(10)
                 )); //placeholder value
-                put(CannedShotsConstants.CannedShot.TUNNEL_ENTRANCE_BOTTOM, new ShotData(
+                put(SupplierBasedCannedShotsConstants.CannedShot.TUNNEL_ENTRANCE_BOTTOM, new ShotData(
                     new Translation2d(Meters.of(4.62), Meters.of(4)),
                     new Translation2d(Meters.of(3.385), Meters.of(0.7)),
                     Degrees.of(0),
                     RotationsPerSecond.of(10)
                 )); //placeholder value
-                put(CannedShotsConstants.CannedShot.TUNNEL_ENTRANCE_TOP, new ShotData(
+                put(SupplierBasedCannedShotsConstants.CannedShot.TUNNEL_ENTRANCE_TOP, new ShotData(
                     new Translation2d(Meters.of(4.62), Meters.of(4)),
                     new Translation2d(Meters.of(3.385), Meters.of(7.325)),
                     Degrees.of(0),
@@ -90,7 +90,7 @@ public class CannedShotCommand {
         };
     }
 
-    private static CannedShotsConstants.ShotData shotData;
+    private static SupplierBasedCannedShotsConstants.ShotData shotData;
     /**
      * Runs a parallel command to set the shooter motor's power, move hood, and auto align based on the target pose the robot needs to shoot to.
      * Enables an LED State to blink yellow whenever the parallel command is running, and enables an LED State to blink green when the parallel is done running.
@@ -118,12 +118,12 @@ public class CannedShotCommand {
         ).handleInterrupt(() -> shooter.stopMotor());
     }
 
-    private static CannedShotsConstants.ShotData findClosestShot(Swerve drivetrain) {
-        CannedShotsConstants.ShotData shotData = CannedShotsConstants.SHOTS.get(CannedShotsConstants.CannedShot.HUB); //default shot
+    private static SupplierBasedCannedShotsConstants.ShotData findClosestShot(Swerve drivetrain) {
+        SupplierBasedCannedShotsConstants.ShotData shotData = SupplierBasedCannedShotsConstants.SHOTS.get(SupplierBasedCannedShotsConstants.CannedShot.HUB); //default shot
         var robotLocation = drivetrain.getPose().getTranslation();
         double currentDistance = Double.POSITIVE_INFINITY;
 
-        for (CannedShotsConstants.ShotData value : CannedShotsConstants.SHOTS.values()){
+        for (SupplierBasedCannedShotsConstants.ShotData value : SupplierBasedCannedShotsConstants.SHOTS.values()){
             double distance = value.shotLocation().minus(robotLocation).getNorm();
 
             if (distance < currentDistance) {
