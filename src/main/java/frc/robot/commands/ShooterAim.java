@@ -19,8 +19,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
 import frc.robot.constants.FieldConstants;
-import frc.robot.constants.HoodConstants;
-import frc.robot.constants.ShooterConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Swerve;
@@ -78,8 +76,8 @@ public class ShooterAim extends Command {
         }
 
 
-        AngularVelocity shooterVelocity = RotationsPerSecond.of(ShooterConstants.VELOCITY_MAP.get(distanceMeters));
-        Angle hoodAngle = Degrees.of(HoodConstants.HOOD_MAP.get(distanceMeters));
+        AngularVelocity shooterVelocity = RotationsPerSecond.of(Shooter.ShooterConstants.VELOCITY_MAP.get(distanceMeters));
+        Angle hoodAngle = Degrees.of(Hood.HoodConstants.HOOD_MAP.get(distanceMeters));
 
         hood.setPosition(hoodAngle);
         shooter.setVelocity(shooterVelocity);
