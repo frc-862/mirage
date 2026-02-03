@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.CollectorConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Shooter;
@@ -39,6 +40,7 @@ import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
+import frc.robot.commands.TurretAim;
 import static frc.robot.commands.CannedShotCommand.runCannedShot;
 
 public class RobotContainer {
@@ -69,7 +71,7 @@ public class RobotContainer {
         if (Robot.isSimulation()) {
             collector = new Collector();
             indexer = new Indexer();
-            turret = new Turret();
+            turret = new Turret(drivetrain);
             hood = new Hood();
             shooter = new Shooter();
             new MapleSim(drivetrain, collector, indexer, turret, hood, shooter);
@@ -140,6 +142,8 @@ public class RobotContainer {
             new Trigger(copilot::getBButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().plus(Degrees.of(0.5)))));
 
             new Trigger(copilot::getXButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
+
+            new Trigger(driver::getBButton).whileTrue(new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
         }
     }
 
