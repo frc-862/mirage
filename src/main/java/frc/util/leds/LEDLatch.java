@@ -30,8 +30,6 @@ public class LEDLatch implements BooleanSupplier {
 
     /**
      * Resets the latched state to false.
-     * 
-     * @return void
      */
     public void reset() {
         latchedState = false;
