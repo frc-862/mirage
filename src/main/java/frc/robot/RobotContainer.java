@@ -124,6 +124,8 @@ public class RobotContainer {
         if (Robot.isSimulation()) {
             new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(Collector.CollectorConstants.COLLECT_POWER, Degrees.of(90)));
 
+            new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(20))));
+
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));
                 indexer.setSpindexerPower(1d);

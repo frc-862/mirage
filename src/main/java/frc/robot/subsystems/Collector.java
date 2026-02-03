@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -17,6 +18,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.RobotController;
@@ -35,6 +37,7 @@ public class Collector extends SubsystemBase {
         // motor rollers
         public static final boolean COLLECTOR_MOTOR_INVERTED = false; // temp
         public static final double COLLECTOR_MOTOR_STATOR_LIMIT = 40d; // temp
+        public static final Current COLLECTOR_MOTOR_CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean COLLECTOR_MOTOR_BRAKE = true; // temp
         public static final double COLLECT_POWER = 1d;
 
@@ -130,6 +133,13 @@ public class Collector extends SubsystemBase {
             // collector sim stuff
             collectorMotorSim = collectorMotor.getSimState();
             collectorMotorSim.setMotorType(MotorType.KrakenX60);
+        }
+    }
+
+    @Override
+    public void periodic() {
+        if (pivotMotor.getStatorCurrent().getValue().gt((CollectorConstants.COLLECTOR_MOTOR_CURRENT_THRESHOLD))) {
+            setPivotAngle(Degrees.of(90));
         }
     }
 
