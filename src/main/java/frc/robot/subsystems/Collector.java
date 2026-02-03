@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -89,7 +90,11 @@ public class Collector extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {}
+    public void periodic() {
+        if (pivotMotor.getStatorCurrent().getValue().gt(Amps.of(CollectorConstants.COLLECTOR_MOTOR_STATOR_LIMIT))) {
+            setPivotAngle(Degrees.of(90));
+        }
+    }
 
     @Override
     public void simulationPeriodic() {

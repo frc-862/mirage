@@ -14,6 +14,7 @@ public class CollectorConstants {
     // motor rollers
     public static final boolean COLLECTOR_MOTOR_INVERTED = false; // temp
     public static final double COLLECTOR_MOTOR_STATOR_LIMIT = 40d; // temp
+    public static final double COLLECTOR_MOTOR_CURRENT_LIMIT = 20d;
     public static final boolean COLLECTOR_MOTOR_BRAKE = true; // temp
     public static final double COLLECT_POWER = 1d;
 
