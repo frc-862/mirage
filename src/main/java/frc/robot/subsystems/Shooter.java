@@ -11,8 +11,10 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
@@ -31,7 +33,9 @@ import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Shooter extends SubsystemBase {
-    private final ThunderBird motor;
+    private final ThunderBird motorLeft;
+    private final ThunderBird motorRight;
+
     private final DutyCycleOut dutyCycle;
     private final VelocityVoltage velocityPID;
 
@@ -42,16 +46,20 @@ public class Shooter extends SubsystemBase {
 
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
-        this(new ThunderBird(RobotMap.SHOOTER, RobotMap.CAN_BUS,
+        this(new ThunderBird(RobotMap.SHOOTER_LEFT, RobotMap.CAN_BUS,
+            ShooterConstants.INVERTED, ShooterConstants.STATOR_LIMIT, ShooterConstants.BRAKE),
+            new ThunderBird(RobotMap.SHOOTER_RIGHT, RobotMap.CAN_BUS,
             ShooterConstants.INVERTED, ShooterConstants.STATOR_LIMIT, ShooterConstants.BRAKE));
     }
 
     /**
      * Creates a new Shooter Subsystem.
-     * @param motor the ThunderBird motor to use for the shooter
+     * @param motorLeft the ThunderBird motor to use for the shooter
+     * @param motorRight the ThunderBird motor that follows for the shooter
      */
-    public Shooter(ThunderBird motor) {
-        this.motor = motor;
+    public Shooter(ThunderBird motorLeft, ThunderBird motorRight) {
+        this.motorLeft = motorLeft;
+        this.motorRight = motorRight;
 
 
         //instatiates duty cycle and velocity pid
@@ -59,7 +67,7 @@ public class Shooter extends SubsystemBase {
         velocityPID = new VelocityVoltage(0d);
 
         //creates a config for the shooter motor
-        TalonFXConfiguration config = motor.getConfig();
+        TalonFXConfiguration config = motorLeft.getConfig();
 
         config.Slot0.kP = ShooterConstants.kP;
         config.Slot0.kI = ShooterConstants.kI;
@@ -69,15 +77,15 @@ public class Shooter extends SubsystemBase {
 
         config.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO;
 
-        motor.applyConfig(config);
-
+        motorLeft.applyConfig(config);
+        motorRight.setControl(new Follower(RobotMap.SHOOTER_LEFT, MotorAlignmentValue.Opposed));
 
         if (Robot.isSimulation()){
-            motorSim = motor.getSimState();
+            motorSim = motorLeft.getSimState();
             motorSim.setMotorType(MotorType.KrakenX60);
 
             shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(
-                DCMotor.getKrakenX60Foc(1), ShooterConstants.MOI.in(KilogramSquareMeters),
+                DCMotor.getKrakenX60Foc(2), ShooterConstants.MOI.in(KilogramSquareMeters),
                 ShooterConstants.GEAR_RATIO), DCMotor.getKrakenX60Foc(1));
         }
     }
@@ -102,14 +110,14 @@ public class Shooter extends SubsystemBase {
      * @param power duty cycle value from -1.0 to 1.0
      */
     public void setPower(double power) {
-        motor.setControl(dutyCycle.withOutput(power));
+        motorLeft.setControl(dutyCycle.withOutput(power));
     }
 
     /**
      * stops all movement to the shooter motor
      */
     public void stopMotor() {
-        motor.stopMotor();
+        motorLeft.stopMotor();
     }
 
     /**
@@ -118,14 +126,14 @@ public class Shooter extends SubsystemBase {
      */
     public void setVelocity(AngularVelocity velocity){
         targetVelocity = velocity;
-        motor.setControl(velocityPID.withVelocity(velocity));
+        motorLeft.setControl(velocityPID.withVelocity(velocity));
     }
 
     /**
      * @return the velocity of the shooter motor
      */
     public AngularVelocity getVelocity(){
-        return motor.getVelocity().getValue();
+        return motorLeft.getVelocity().getValue();
     }
 
     /**

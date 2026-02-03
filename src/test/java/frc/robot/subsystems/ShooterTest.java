@@ -34,21 +34,29 @@ public class ShooterTest {
 
     RoboRioSim.setVInVoltage(BATTERY_VOLTAGE);
 
-    var motor = new frc.util.hardware.ThunderBird(
-        frc.robot.constants.RobotMap.SHOOTER,
+    var motorLeft = new frc.util.hardware.ThunderBird(
+        frc.robot.constants.RobotMap.SHOOTER_LEFT,
         frc.robot.constants.RobotMap.CAN_BUS,
         frc.robot.constants.ShooterConstants.INVERTED,
         frc.robot.constants.ShooterConstants.STATOR_LIMIT,
         frc.robot.constants.ShooterConstants.BRAKE
     );
 
-    shooter = new Shooter(motor);
+    var motorRight = new frc.util.hardware.ThunderBird(
+        frc.robot.constants.RobotMap.SHOOTER_RIGHT,
+        frc.robot.constants.RobotMap.CAN_BUS,
+        frc.robot.constants.ShooterConstants.INVERTED,
+        frc.robot.constants.ShooterConstants.STATOR_LIMIT,
+        frc.robot.constants.ShooterConstants.BRAKE
+    );
+
+    shooter = new Shooter(motorLeft, motorRight);
 
     motorUnderTest = new MotorUnderTest(
-        motor,
+        motorLeft,
         shooter::setPower,
         shooter::stopMotor,
-        motor.getSimState(),
+        motorLeft.getSimState(),
         newKrakenSim()
     );
 
