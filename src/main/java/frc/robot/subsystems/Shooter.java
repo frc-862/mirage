@@ -127,9 +127,6 @@ public class Shooter extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {}
-
-    @Override
     public void simulationPeriodic() {
         motorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
