@@ -151,9 +151,8 @@ public class Turret extends SubsystemBase {
             setPower(-TurretConstants.ZEROING_POWER);
         }
 
-        // Zero limit switch is precise, so stop and set encoder position when zero is hit
+        // Zero limit switch is precise, so set encoder position when zero is hit
         if (getZeroLimitSwitch() && !zeroed) { // TODO: add led strip indication?
-            stop();
             setEncoderPosition(TurretConstants.ZERO_ANGLE);
             zeroed = true;
             setAngle(targetPosition);
