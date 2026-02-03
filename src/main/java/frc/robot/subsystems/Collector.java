@@ -134,9 +134,6 @@ public class Collector extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {}
-
-    @Override
     public void simulationPeriodic() {
         // pivot sim stuff
         pivotSim.setSupplyVoltage(RobotController.getBatteryVoltage());
