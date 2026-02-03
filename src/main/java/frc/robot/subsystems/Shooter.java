@@ -46,7 +46,7 @@ public class Shooter extends SubsystemBase {
         public static final double STATOR_LIMIT = 120.0; // temp
         public static final boolean BRAKE = false; // temp
 
-        public static final double kP = 0.1d;
+        public static final double kP = 20d;
         public static final double kI = 0d;
         public static final double kD = 0d;
         public static final double kV = 0.12d;
@@ -135,8 +135,8 @@ public class Shooter extends SubsystemBase {
 
         motorSim.setRotorVelocity(shooterSim.getAngularVelocity());
 
-        LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
-        LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Shooter", "Velocity", getLeftVelocity().in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Shooter", "TargetVelocity", getLeftVelocity().in(RotationsPerSecond));
     }
 
      /**
