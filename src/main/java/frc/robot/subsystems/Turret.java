@@ -173,7 +173,7 @@ public class Turret extends SubsystemBase {
 
         ligament.setAngle(simAngle.in(Degree));
 
-        LightningShuffleboard.setDouble("Turret", "CANcoder angle",
+        LightningShuffleboard.setDouble("Turret", "Motor encoder angle",
                 motor.getPosition().getValue().in(Degree));
         LightningShuffleboard.setDouble("Turret", "sim angle", simAngle.in(Degree));
 
