@@ -80,7 +80,7 @@ public class MapleSim extends SubsystemBase {
                 Shooter.ShooterConstants.SHOOTER_POSITION_ON_ROBOT,
                 drivetrainSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
                 drivetrainSim.getSimulatedDriveTrainPose().getRotation().plus(new Rotation2d(turret.getAngle())),
-                Shooter.ShooterConstants.SHOOTER_HEIGHT, MetersPerSecond.of(shooter.getVelocity().in(RotationsPerSecond)
+                Shooter.ShooterConstants.SHOOTER_HEIGHT, MetersPerSecond.of(shooter.getLeftVelocity().in(RotationsPerSecond)
                 * (Shooter.ShooterConstants.FLYWHEEL_CIRCUMFERENCE.in(Meters))),
                 hood.getAngle()));
         }
