@@ -40,7 +40,6 @@ import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.commands.TurretAim;
-import static frc.robot.commands.CannedShotCommand.runCannedShot;
 
 public class RobotContainer {
     private final XboxController driver;
