@@ -37,17 +37,17 @@ public class ShooterTest {
     var motorLeft = new frc.util.hardware.ThunderBird(
         frc.robot.constants.RobotMap.SHOOTER_LEFT,
         frc.robot.constants.RobotMap.CAN_BUS,
-        frc.robot.constants.ShooterConstants.INVERTED,
-        frc.robot.constants.ShooterConstants.STATOR_LIMIT,
-        frc.robot.constants.ShooterConstants.BRAKE
+        frc.robot.subsystems.Shooter.ShooterConstants.INVERTED,
+        frc.robot.subsystems.Shooter.ShooterConstants.STATOR_LIMIT,
+        frc.robot.subsystems.Shooter.ShooterConstants.BRAKE
     );
 
     var motorRight = new frc.util.hardware.ThunderBird(
         frc.robot.constants.RobotMap.SHOOTER_RIGHT,
         frc.robot.constants.RobotMap.CAN_BUS,
-        frc.robot.constants.ShooterConstants.INVERTED,
-        frc.robot.constants.ShooterConstants.STATOR_LIMIT,
-        frc.robot.constants.ShooterConstants.BRAKE
+        frc.robot.subsystems.Shooter.ShooterConstants.INVERTED,
+        frc.robot.subsystems.Shooter.ShooterConstants.STATOR_LIMIT,
+        frc.robot.subsystems.Shooter.ShooterConstants.BRAKE
     );
 
     shooter = new Shooter(motorLeft, motorRight);
