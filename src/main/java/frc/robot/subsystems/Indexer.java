@@ -20,12 +20,30 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Indexer extends SubsystemBase {
+
+    public class IndexerConstants {
+        // spindexer
+        public static final boolean SPINDEXER_MOTOR_INVERTED = false; // temp
+        public static final double SPINDEXER_MOTOR_STATOR_LIMIT = 40d; // temp
+        public static final boolean SPINDEXER_MOTOR_BRAKE_MODE = true; // temp
+
+        public static final double SPINDEXER_SIM_kV = 0.24;
+        public static final double SPINDEXER_SIM_kA = 0.8;
+
+        // transfer
+        public static final boolean TRANSFER_MOTOR_INVERTED = false; // temp
+        public static final double TRANSFER_MOTOR_STATOR_LIMIT = 40d; // temp
+        public static final boolean TRANSFER_MOTOR_BRAKE_MODE = true; // temp
+
+        // sim
+        public static final AngularVelocity SIM_INDEX_THRESHOLD = RotationsPerSecond.of(1); // temp
+    }
+
     private final ThunderBird spindexerMotor;
     private final ThunderBird transferMotor;
 

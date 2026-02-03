@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Inches;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,15 +25,47 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.VisionConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class PhotonVision extends SubsystemBase {
+
+    public class VisionConstants {
+        public static final List<Short> TAG_IGNORE_LIST = List.of();
+
+        // TODO: Update this to be the correect field layout for this season,
+        public static final AprilTagFieldLayout DEFAULT_TAG_LAYOUT = AprilTagFieldLayout
+                .loadField(AprilTagFields.k2026RebuiltWelded);
+
+        public static final double POSE_AMBIGUITY_TOLERANCE = 1;
+        public static final double TAG_DISTANCE_TOLERANCE = 10;
+
+        public record CameraConstant(String name, Transform3d offset) {};
+
+        public static final CameraConstant[] CAMERA_CONSTANTS = new CameraConstant[] {
+            new CameraConstant("leftCam",
+                new Transform3d(
+                    Inches.of(11.25),
+                    Inches.of(-11.25),   // RIGHT side
+                    Inches.of(10.5),
+                    new Rotation3d(0, 15, -45))),
+
+            new CameraConstant("rightCam",
+                new Transform3d(
+                    Inches.of(11.25),
+                    Inches.of(11.25),    // LEFT side
+                    Inches.of(10.5),
+                    new Rotation3d(0, 15, 45))),
+        };
+    }
+
     private record VisionInfo(PhotonPipelineResult result, EstimatedRobotPose pose) {};
 
     // The drivetrain to add vision measurments

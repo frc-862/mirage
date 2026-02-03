@@ -16,9 +16,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.CollectorConstants;
-import frc.robot.constants.IndexerConstants;
-import frc.robot.constants.ShooterConstants;
 
 public class MapleSim extends SubsystemBase {
 
@@ -46,7 +43,7 @@ public class MapleSim extends SubsystemBase {
 
         drivetrainSim = drivetrain.swerveSim.mapleSimDrive;
         collectorSim = IntakeSimulation.OverTheBumperIntake("Fuel", drivetrainSim,
-            CollectorConstants.WIDTH, CollectorConstants.LENGTH_EXTENDED, IntakeSide.BACK, CollectorConstants.ROBOT_FUEL_CAPACITY);
+            Collector.CollectorConstants.WIDTH, Collector.CollectorConstants.LENGTH_EXTENDED, IntakeSide.BACK, Collector.CollectorConstants.ROBOT_FUEL_CAPACITY);
 
 
         arena.placeGamePiecesOnField();
@@ -61,16 +58,16 @@ public class MapleSim extends SubsystemBase {
     public void simulationPeriodic(){
         posePublisher.set(arena.getGamePiecesPosesByType("Fuel").toArray(new Pose3d[0]));
 
-        if (collector.getVelocity().gt(CollectorConstants.SIM_COLLECTING_THRESHOLD) && !collectorSim.isRunning()) {
+        if (collector.getVelocity().gt(Collector.CollectorConstants.SIM_COLLECTING_THRESHOLD) && !collectorSim.isRunning()) {
             collectorSim.startIntake();
-        } else if (collector.getVelocity().lt(CollectorConstants.SIM_COLLECTING_THRESHOLD) && collectorSim.isRunning()) {
+        } else if (collector.getVelocity().lt(Collector.CollectorConstants.SIM_COLLECTING_THRESHOLD) && collectorSim.isRunning()) {
             collectorSim.stopIntake();
         }
 
-        if (indexer.getSpindexerVelocity().gt(IndexerConstants.SIM_INDEX_THRESHOLD) && !isShooting) { // TODO: change to transfer when simulation merged
-            shootNotifier.startPeriodic(ShooterConstants.MAX_SHOOTING_PERIOD);
+        if (indexer.getSpindexerVelocity().gt(Indexer.IndexerConstants.SIM_INDEX_THRESHOLD) && !isShooting) { // TODO: change to transfer when simulation merged
+            shootNotifier.startPeriodic(Shooter.ShooterConstants.MAX_SHOOTING_PERIOD);
             isShooting = true;
-        } else if (indexer.getSpindexerVelocity().lt(IndexerConstants.SIM_INDEX_THRESHOLD) && isShooting) {
+        } else if (indexer.getSpindexerVelocity().lt(Indexer.IndexerConstants.SIM_INDEX_THRESHOLD) && isShooting) {
             shootNotifier.stop();
             isShooting = false;
         }
@@ -80,11 +77,11 @@ public class MapleSim extends SubsystemBase {
         if (collectorSim.obtainGamePieceFromIntake()) {
             arena.addGamePieceProjectile(new RebuiltFuelOnFly(
                 drivetrainSim.getSimulatedDriveTrainPose().getTranslation(),
-                ShooterConstants.SHOOTER_POSITION_ON_ROBOT,
+                Shooter.ShooterConstants.SHOOTER_POSITION_ON_ROBOT,
                 drivetrainSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
                 drivetrainSim.getSimulatedDriveTrainPose().getRotation().plus(new Rotation2d(turret.getAngle())),
-                ShooterConstants.SHOOTER_HEIGHT, MetersPerSecond.of(shooter.getVelocity().in(RotationsPerSecond)
-                * (ShooterConstants.FLYWHEEL_CIRCUMFERENCE.in(Meters))),
+                Shooter.ShooterConstants.SHOOTER_HEIGHT, MetersPerSecond.of(shooter.getVelocity().in(RotationsPerSecond)
+                * (Shooter.ShooterConstants.FLYWHEEL_CIRCUMFERENCE.in(Meters))),
                 hood.getAngle()));
         }
     }
