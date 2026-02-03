@@ -40,7 +40,6 @@ import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.robot.commands.TurretAim;
-import static frc.robot.commands.CannedShotCommand.runCannedShot;
 
 public class RobotContainer {
     private final XboxController driver;
@@ -127,6 +126,8 @@ public class RobotContainer {
         /* Copilot */
         if (Robot.isSimulation()) {
             new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(Collector.CollectorConstants.COLLECT_POWER, Degrees.of(90)));
+
+            new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(20))));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));
