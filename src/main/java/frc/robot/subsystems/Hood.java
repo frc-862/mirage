@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Radians;
@@ -49,8 +48,8 @@ public class Hood extends SubsystemBase {
         public static final double STATOR_LIMIT = 40d; // temp
         public static final boolean BRAKE = true; // temp
 
-        public static final Angle MIN_ANGLE = Degree.of(0); // Hood v2
-        public static final Angle MAX_ANGLE = Degree.of(30); // Hood v2
+        public static final Angle MIN_ANGLE = Degrees.of(0); // Hood v2
+        public static final Angle MAX_ANGLE = Degrees.of(30); // Hood v2
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
 
@@ -67,7 +66,7 @@ public class Hood extends SubsystemBase {
         public static final double kI = 0.0; // temp
         public static final double kD = 0.0; // temp
 
-        public static final Angle POSITION_TOLERANCE = Degree.of(1); // temp
+        public static final Angle POSITION_TOLERANCE = Degrees.of(1); // temp
 
         // Conversion ratios
         public static final double ROTOR_TO_MECHANISM_RATIO = 23.63; // Hood v2
@@ -162,7 +161,7 @@ public class Hood extends SubsystemBase {
         encoderSim.setRawPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
         encoderSim.setVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
 
-        LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
+        LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
     }

@@ -119,7 +119,7 @@ public class Turret extends SubsystemBase {
         zeroLimitSwitch = new DigitalInput(RobotMap.TURRET_ZERO_SWITCH);
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
 
-        zeroed = Robot.isSimulation(); // only zero when real
+        zeroed = Robot.isSimulation() || RobotMap.IS_OASIS; // only zero when real // TODO: remove isOasis check after limit switches added
         if (!zeroed) {
             setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
         }
