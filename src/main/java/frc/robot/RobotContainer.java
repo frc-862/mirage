@@ -37,6 +37,7 @@ import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.shuffleboard.LightningShuffleboard;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 public class RobotContainer {
     private final XboxController driver;
@@ -101,10 +102,16 @@ public class RobotContainer {
 
     private void configureBindings() {
         /* Driver */
-        new Trigger(driver::getXButton)
-            .whileTrue(drivetrain.brakeCommand()
-                .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
-            );
+        // new Trigger(driver::getXButton)
+        //     .whileTrue(drivetrain.brakeCommand()
+        //         .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
+        //     );
+
+        new Trigger(driver::getAButton).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        new Trigger(driver::getBButton).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        new Trigger(driver::getXButton).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        new Trigger(driver::getYButton).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+
 
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))

@@ -81,7 +81,7 @@ public class MirageTunerConstants {
     private static final double kCoupleRatio = 3.857142857142857;
 
     public static final double kDriveGearRatio = 6.026785714285714;
-    public static final double kSteerGearRatio = 26;
+    private static final double kSteerGearRatio = 26;
     public static final Distance kWheelRadius = Inches.of(2);
 
     private static final boolean kInvertLeftSide = true;
@@ -129,7 +129,7 @@ public class MirageTunerConstants {
     private static final int kFrontLeftDriveMotorId = 1;
     private static final int kFrontLeftSteerMotorId = 2;
     private static final int kFrontLeftEncoderId = 31;
-    private static final Angle kFrontLeftEncoderOffset = Rotations.of(-0.176025390625);
+    private static final Angle kFrontLeftEncoderOffset = Rotations.of(0.31982421875);
     private static final boolean kFrontLeftSteerMotorInverted = false;
     private static final boolean kFrontLeftEncoderInverted = false;
 
@@ -140,7 +140,7 @@ public class MirageTunerConstants {
     private static final int kFrontRightDriveMotorId = 3;
     private static final int kFrontRightSteerMotorId = 4;
     private static final int kFrontRightEncoderId = 32;
-    private static final Angle kFrontRightEncoderOffset = Rotations.of(-0.0693359375);
+    private static final Angle kFrontRightEncoderOffset = Rotations.of(0.4326171875);
     private static final boolean kFrontRightSteerMotorInverted = false;
     private static final boolean kFrontRightEncoderInverted = false;
 
@@ -151,7 +151,7 @@ public class MirageTunerConstants {
     private static final int kBackLeftDriveMotorId = 5;
     private static final int kBackLeftSteerMotorId = 6;
     private static final int kBackLeftEncoderId = 33;
-    private static final Angle kBackLeftEncoderOffset = Rotations.of(-0.26513671875);
+    private static final Angle kBackLeftEncoderOffset = Rotations.of(0.24951171875);
     private static final boolean kBackLeftSteerMotorInverted = false;
     private static final boolean kBackLeftEncoderInverted = false;
 
@@ -162,7 +162,7 @@ public class MirageTunerConstants {
     private static final int kBackRightDriveMotorId = 7;
     private static final int kBackRightSteerMotorId = 8;
     private static final int kBackRightEncoderId = 34;
-    private static final Angle kBackRightEncoderOffset = Rotations.of(-0.22802734375);
+    private static final Angle kBackRightEncoderOffset = Rotations.of(0.274169921875);
     private static final boolean kBackRightSteerMotorInverted = false;
     private static final boolean kBackRightEncoderInverted = false;
 
@@ -192,7 +192,7 @@ public class MirageTunerConstants {
         );
 
     /**
-     * Creates a CommandSwerveDrivetrain instance.
+     * Creates a Swerve instance.
      * This should only be called once in your robot program,.
      */
     public static Swerve createDrivetrain() {
