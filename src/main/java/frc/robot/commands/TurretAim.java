@@ -58,7 +58,7 @@ public class TurretAim extends Command {
         */
         distanceToTargetMeters = Meters.of(delta.getNorm());
 
-         if(redAllianceZone.contains(robotPose.getTranslation())){
+        if(redAllianceZone.contains(robotPose.getTranslation())){
             target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION);
         }
         else if (neutralZone.contains(robotPose.getTranslation())) {
