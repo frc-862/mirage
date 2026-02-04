@@ -20,6 +20,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
@@ -58,6 +59,16 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
+    public class FieldConstants {
+    private record Target(Translation2d blue, Translation2d red) {}
+
+    public static final Target GOAL_POSITION = new Target(new Translation2d(4.625594, 4.034536), new Translation2d(11.915394, 4.034536));
+    public static final Target DEPOT_POSITION = new Target(new Translation2d(0.3937, 0.665988), new Translation2d(16.147288, 7.403338));
+
+    public static Translation2d getTargetData(Target target) {
+        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue ? target.blue() : target.red();
+        }
+    }
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
         new SysIdRoutine.Config(
