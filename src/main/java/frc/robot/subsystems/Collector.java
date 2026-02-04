@@ -35,10 +35,10 @@ public class Collector extends SubsystemBase {
 
     public class CollectorConstants {
         // motor rollers
-        public static final boolean COLLECTOR_MOTOR_INVERTED = true; // temp
-        public static final double COLLECTOR_MOTOR_STATOR_LIMIT = 40d; // temp
-        public static final Current COLLECTOR_MOTOR_CURRENT_THRESHOLD = Amps.of(20); // temp
-        public static final boolean COLLECTOR_MOTOR_BRAKE = true; // temp
+        public static final boolean INVERTED = true; // temp
+        public static final double STATOR_LIMIT = 40d; // temp
+        public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
+        public static final boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 1d;
 
         public static final double COLLECTOR_SIM_kV = 0.24; // temp
@@ -92,7 +92,7 @@ public class Collector extends SubsystemBase {
      */
     public Collector() {
         collectorMotor = new ThunderBird(RobotMap.COLLECTOR, RobotMap.CAN_BUS,
-            CollectorConstants.COLLECTOR_MOTOR_INVERTED, CollectorConstants.COLLECTOR_MOTOR_STATOR_LIMIT, CollectorConstants.COLLECTOR_MOTOR_BRAKE);
+            CollectorConstants.INVERTED, CollectorConstants.STATOR_LIMIT, CollectorConstants.BRAKE);
 
         pivotMotor = new ThunderBird(RobotMap.COLLECTOR_PIVOT, RobotMap.CAN_BUS,
             CollectorConstants.PIVOT_INVERTED, CollectorConstants.PIVOT_STATOR_LIMIT, CollectorConstants.PIVOT_BRAKE_MODE);
@@ -135,7 +135,7 @@ public class Collector extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (pivotMotor.getStatorCurrent().getValue().gt((CollectorConstants.COLLECTOR_MOTOR_CURRENT_THRESHOLD))) {
+        if (pivotMotor.getStatorCurrent().getValue().gt((CollectorConstants.CURRENT_THRESHOLD))) {
             setPivotAngle(Degrees.of(90));
         }
     }
@@ -267,10 +267,5 @@ public class Collector extends SubsystemBase {
      */
     public Angle getPivotAngle(){
         return pivotMotor.getPosition().getValue();
-    }
-
-    public void setPosition(Angle position) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setPosition'");
     }
 }
