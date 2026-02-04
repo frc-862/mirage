@@ -134,6 +134,11 @@ public class Indexer extends SubsystemBase {
         setTransferPower(power);
     }
 
+    public void setPower(double spindexerPower, double transferPower) {
+        setSpindexerPower(spindexerPower);
+        setTransferPower(transferPower);
+    }
+
     /**
      * stops all movement to the overall indexer
      */
@@ -150,5 +155,9 @@ public class Indexer extends SubsystemBase {
      */
     public Command indexCommand(double power) {
         return new StartEndCommand(() -> setPower(power), () -> stop(), this);
+    }
+
+    public Command indexCommand(double spindexerPower, double transferPower) {
+        return new StartEndCommand(() -> setPower(spindexerPower, transferPower), () -> stop(), this);
     }
 }

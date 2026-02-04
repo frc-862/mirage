@@ -60,9 +60,9 @@ public class Collector extends SubsystemBase {
         public static final double PIVOT_OFFSET = -0.227; // temp
         public static final double ROTOR_TO_ENCODER_RATIO = 74; // temp
         public static final double ENCODER_TO_MECHANISM_RATIO = 1d; // temp
-        public static final Angle MIN_ANGLE = Degrees.of(-85); // temp
-        public static final Angle MAX_ANGLE = Degrees.of(85); // temp
-        public static final Angle TOLERANCE = Degrees.of(5); // temp
+        public static final Angle MIN_ANGLE = Degrees.of(0); // temp
+        public static final Angle MAX_ANGLE = Degrees.of(90); // temp
+        public static final Angle TOLERANCE = Degrees.of(2); // temp
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // temp
         public static final Distance LENGTH = Inches.of(6);
@@ -258,6 +258,10 @@ public class Collector extends SubsystemBase {
     public Command collectCommand(double power, Angle position) {
         return new StartEndCommand(() -> deployCollector(power, position), () -> deployCollector(0, Degrees.of(0)), this);
 
+    }
+
+    public Command collectCommand(double power) {
+        return new StartEndCommand(() -> setCollectorPower(power), () -> setCollectorPower(0), this);
     }
 
     /**
