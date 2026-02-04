@@ -45,7 +45,7 @@ import frc.robot.Robot;
 public class Hood extends SubsystemBase {
 
     public class HoodConstants {
-        public static final boolean INVERTED = false; // temp
+        public static final boolean INVERTED = true; // temp
         public static final double STATOR_LIMIT = 40d; // temp
         public static final boolean BRAKE = true; // temp
 

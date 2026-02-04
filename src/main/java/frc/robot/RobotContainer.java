@@ -68,7 +68,7 @@ public class RobotContainer {
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
 
         if (RobotMap.IS_OASIS) {
-            collector = new Collector();
+            // collector = new Collector();
             indexer = new Indexer();
             hood = new Hood();
             shooter = new Shooter();
@@ -151,8 +151,8 @@ public class RobotContainer {
         }
 
         if (RobotMap.IS_OASIS) {
-            new Trigger(copilot::getLeftBumperButton).whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER, CollectorConstants.MAX_ANGLE));
-            new Trigger(copilot::getRightBumperButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
+            // new Trigger(copilot::getLeftBumperButton).whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER, CollectorConstants.MAX_ANGLE));
+            // new Trigger(copilot::getRightBumperButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
             new Trigger(copilot::getXButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, -IndexerConstants.TRANSFER_POWER));
             new Trigger(copilot::getBButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER));
