@@ -34,6 +34,7 @@ public class TurretAim extends Command {
     /**
      * @param drivetrain drivetrain from the Swerve class to get robot pose
      * @param turret a turret from the Turret subsytem
+     * @param target Translation2d for the target
      */
     public TurretAim(Swerve drivetrain, Turret turret, Translation2d target) {
         this.drivetrain = drivetrain;
