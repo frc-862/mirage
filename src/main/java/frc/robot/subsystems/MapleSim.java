@@ -43,7 +43,7 @@ public class MapleSim extends SubsystemBase {
 
         drivetrainSim = drivetrain.swerveSim.mapleSimDrive;
         collectorSim = IntakeSimulation.OverTheBumperIntake("Fuel", drivetrainSim,
-            Collector.CollectorConstants.WIDTH, Collector.CollectorConstants.LENGTH_EXTENDED, IntakeSide.BACK, Collector.CollectorConstants.ROBOT_FUEL_CAPACITY);
+            Collector.CollectorConstants.WIDTH, Collector.CollectorConstants.LENGTH_EXTENDED, IntakeSide.FRONT, Collector.CollectorConstants.ROBOT_FUEL_CAPACITY);
 
 
         arena.placeGamePiecesOnField();
