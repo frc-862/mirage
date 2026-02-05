@@ -46,11 +46,11 @@ public class Shooter extends SubsystemBase {
         public static final double STATOR_LIMIT = 120.0; // temp
         public static final boolean BRAKE = false; // temp
 
-        public static final double kP = 0d;
+        public static final double kP = 1d;
         public static final double kI = 0d;
         public static final double kD = 0d;
-        public static final double kV = 20d;
-        public static final double kS = 0.5d;
+        public static final double kV = 0.125d;
+        public static final double kS = 0d;
         public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
 
         public static final double GEAR_RATIO = 1d; // temp
@@ -63,7 +63,7 @@ public class Shooter extends SubsystemBase {
                 Map.entry(6d, 60d));
 
         // Sim
-        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.0005); // temp
+        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.005); // temp
         public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(0), Inches.of(9));
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
         public static final Time MAX_SHOOTING_PERIOD = Seconds.of(0.1); // 10 balls per second
@@ -78,7 +78,6 @@ public class Shooter extends SubsystemBase {
     private AngularVelocity targetVelocity;
 
     private TalonFXSimState leftMotorSim;
-    private TalonFXSimState rightMotorSim;
     private FlywheelSim shooterSim;
 
     /** Creates a new Shooter Subsystem. */
@@ -120,9 +119,7 @@ public class Shooter extends SubsystemBase {
 
         if (Robot.isSimulation()){
             leftMotorSim = motorLeft.getSimState();
-            rightMotorSim = motorRight.getSimState();
             leftMotorSim.setMotorType(MotorType.KrakenX60);
-            rightMotorSim.setMotorType(MotorType.KrakenX60);
 
             shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(
                 DCMotor.getKrakenX60Foc(2), ShooterConstants.MOI.in(KilogramSquareMeters),
@@ -133,14 +130,11 @@ public class Shooter extends SubsystemBase {
     @Override
     public void simulationPeriodic() {
         leftMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-        rightMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
         shooterSim.setInput(leftMotorSim.getMotorVoltageMeasure().in(Volts));
-        shooterSim.setInput(rightMotorSim.getMotorVoltageMeasure().in(Volts));
         shooterSim.update(Robot.kDefaultPeriod);
 
         leftMotorSim.setRotorVelocity(shooterSim.getAngularVelocity());
-        rightMotorSim.setRotorVelocity(shooterSim.getAngularVelocity());
 
         LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
         LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
@@ -160,6 +154,7 @@ public class Shooter extends SubsystemBase {
      */
     public void stopMotor() {
         motorLeft.stopMotor();
+        targetVelocity = RotationsPerSecond.of(0);
     }
 
     /**

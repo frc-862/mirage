@@ -127,7 +127,7 @@ public class RobotContainer {
             new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(20))));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
-                shooter.setVelocity(RotationsPerSecond.of(50));
+                shooter.setVelocity(RotationsPerSecond.of(100));
                 indexer.setSpindexerPower(1d);
             })).onFalse(new InstantCommand(() -> {
                 shooter.stopMotor();
