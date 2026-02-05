@@ -36,6 +36,7 @@ import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
@@ -122,7 +123,7 @@ public class RobotContainer {
 
         /* Copilot */
         if (Robot.isSimulation()) {
-            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(Collector.CollectorConstants.COLLECT_POWER, Degrees.of(90)));
+            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(Collector.CollectorConstants.COLLECT_POWER, Collector.CollectorConstants.DEPLOYED_ANGLE));
 
             new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(20))));
 
