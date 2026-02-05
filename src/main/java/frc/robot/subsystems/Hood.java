@@ -96,7 +96,7 @@ public class Hood extends SubsystemBase {
             HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
             HoodConstants.BRAKE);
 
-        // Do not instansiate if Oasis b/c Oasis doesn't have a CANcoder yet
+        // Do not instantiate if Oasis b/c Oasis doesn't have a CANcoder yet
         if (hasEncoder()) {
             encoder = new CANcoder(RobotMap.HOOD_ENCODER, RobotMap.CAN_BUS);
         }
@@ -148,8 +148,8 @@ public class Hood extends SubsystemBase {
         }
     }
 
-    private hasEncoder() {
-        return RobotMap.IS_MIRAGE || Robot.isSimulation();
+    private boolean hasEncoder() {
+        return !RobotMap.IS_OASIS || Robot.isSimulation();
     }
 
     @Override
