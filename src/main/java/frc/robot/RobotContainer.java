@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -19,6 +20,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.DriveConstants;
@@ -53,7 +55,7 @@ public class RobotContainer {
     private Shooter shooter;
     private final LEDSubsystem leds;
 
-    private final Telemetry logger;
+    // private final Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -63,7 +65,7 @@ public class RobotContainer {
 
         drivetrain = DriveConstants.createDrivetrain();
 
-        logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
+        // logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
 
         if (Robot.isSimulation()) {
@@ -112,12 +114,17 @@ public class RobotContainer {
         new Trigger(driver::getXButton).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         new Trigger(driver::getYButton).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
+        new Trigger(() -> driver.getLeftTriggerAxis() > 0.25).onTrue(Commands.runOnce(() -> SignalLogger.start())
+            .alongWith(Commands.print("Started Logging")));
+        new Trigger(() -> driver.getRightTriggerAxis() > 0.25).onTrue(Commands.runOnce(() -> SignalLogger.stop())
+            .alongWith(Commands.print("Stopped Logging")));
+
 
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
             .onTrue(drivetrain.resetFieldCentricCommand());
 
-        drivetrain.registerTelemetry(logger::telemeterize);
+        // drivetrain.registerTelemetry(logger::telemeterize);
 
         new Trigger(driver::getLeftBumperButton).whileTrue(drivetrain.robotCentricDrive(
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
