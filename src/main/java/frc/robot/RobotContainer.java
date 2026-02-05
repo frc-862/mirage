@@ -122,7 +122,7 @@ public class RobotContainer {
 
         /* Copilot */
         if (Robot.isSimulation()) {
-            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(Collector.CollectorConstants.COLLECT_POWER, Degrees.of(90)));
+            new Trigger(driver::getAButton).whileTrue(collector.collectCommand(Collector.CollectorConstants.COLLECT_POWER, Degrees.of(90)));
 
             new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(20))));
 
