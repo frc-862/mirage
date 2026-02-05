@@ -127,11 +127,11 @@ public class Collector extends SubsystemBase {
             gearbox = DCMotor.getKrakenX60Foc(1);
 
             collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ROTOR_TO_ENCODER_RATIO, CollectorConstants.MOI.magnitude(),
-            CollectorConstants.LENGTH.magnitude(), CollectorConstants.MIN_ANGLE.in(Radians), CollectorConstants.MAX_ANGLE.in(Radians), false,
-            CollectorConstants.MIN_ANGLE.in(Radians));
+            CollectorConstants.LENGTH.magnitude(), CollectorConstants.MIN_ANGLE.in(Radians), CollectorConstants.MAX_ANGLE.in(Radians), true,
+            CollectorConstants.MAX_ANGLE.in(Radians));
 
             pivotMotorSim = pivotMotor.getSimState();
-            pivotMotorSim.setRawRotorPosition(CollectorConstants.MAX_ANGLE.in(Radians));
+            pivotMotorSim.setRawRotorPosition(CollectorConstants.MAX_ANGLE.times(CollectorConstants.ROTOR_TO_ENCODER_RATIO).in(Radians));
 
             // collector sim stuff
             collectorGearbox = DCMotor.getKrakenX60(1);
