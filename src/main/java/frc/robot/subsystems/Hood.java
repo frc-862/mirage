@@ -93,17 +93,22 @@ public class Hood extends SubsystemBase {
         hoodMotor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
             HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
             HoodConstants.BRAKE);
-        encoder = new CANcoder(RobotMap.HOOD_ENCODER, RobotMap.CAN_BUS);
+
+        // Do not instantiate if Oasis b/c Oasis doesn't have a CANcoder yet
+        if (hasEncoder()) {
+            encoder = new CANcoder(RobotMap.HOOD_ENCODER, RobotMap.CAN_BUS);
+        }
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-        CANcoderConfiguration angleConfig = new CANcoderConfiguration();
 
         request = new PositionVoltage(0d);
 
         targetAngle = Degrees.of(0);
 
-        encoder.getConfigurator().apply(angleConfig);
-
+        if (hasEncoder()) {
+            CANcoderConfiguration angleConfig = new CANcoderConfiguration();
+            encoder.getConfigurator().apply(angleConfig);
+        }
         motorConfig.Slot0.kP = HoodConstants.kP;
         motorConfig.Slot0.kI = HoodConstants.kI;
         motorConfig.Slot0.kD = HoodConstants.kD;
@@ -111,8 +116,10 @@ public class Hood extends SubsystemBase {
         motorConfig.Slot0.kV = HoodConstants.kV;
         motorConfig.Slot0.kA = HoodConstants.kA;
 
-        motorConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
-        motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        if (hasEncoder()) {
+            motorConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
+            motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        }
 
         motorConfig.Feedback.SensorToMechanismRatio = HoodConstants.ENCODER_TO_MECHANISM_RATIO;
         motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
@@ -137,6 +144,10 @@ public class Hood extends SubsystemBase {
             ligament = root2d.append(new MechanismLigament2d("Hood", 1.5, 0));
             LightningShuffleboard.send("Hood", "Mech2d", mech2d);
         }
+    }
+
+    private boolean hasEncoder() {
+        return !RobotMap.IS_OASIS || Robot.isSimulation();
     }
 
     @Override
