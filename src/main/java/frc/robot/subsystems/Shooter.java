@@ -46,10 +46,10 @@ public class Shooter extends SubsystemBase {
         public static final double STATOR_LIMIT = 120.0; // temp
         public static final boolean BRAKE = false; // temp
 
-        public static final double kP = 0.1d;
+        public static final double kP = 0d;
         public static final double kI = 0d;
         public static final double kD = 0d;
-        public static final double kV = 0.12d;
+        public static final double kV = 20d;
         public static final double kS = 0.5d;
         public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
 
@@ -63,7 +63,7 @@ public class Shooter extends SubsystemBase {
                 Map.entry(6d, 60d));
 
         // Sim
-        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
+        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.0005); // temp
         public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(0), Inches.of(9));
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
         public static final Time MAX_SHOOTING_PERIOD = Seconds.of(0.1); // 10 balls per second
@@ -77,7 +77,8 @@ public class Shooter extends SubsystemBase {
 
     private AngularVelocity targetVelocity;
 
-    private TalonFXSimState motorSim;
+    private TalonFXSimState leftMotorSim;
+    private TalonFXSimState rightMotorSim;
     private FlywheelSim shooterSim;
 
     /** Creates a new Shooter Subsystem. */
@@ -101,6 +102,7 @@ public class Shooter extends SubsystemBase {
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
+        targetVelocity = RotationsPerSecond.of(0);
 
         //creates a config for the shooter motor
         TalonFXConfiguration config = motorLeft.getConfig();
@@ -117,26 +119,32 @@ public class Shooter extends SubsystemBase {
         motorRight.setControl(new Follower(RobotMap.SHOOTER_LEFT, MotorAlignmentValue.Opposed));
 
         if (Robot.isSimulation()){
-            motorSim = motorLeft.getSimState();
-            motorSim.setMotorType(MotorType.KrakenX60);
+            leftMotorSim = motorLeft.getSimState();
+            rightMotorSim = motorRight.getSimState();
+            leftMotorSim.setMotorType(MotorType.KrakenX60);
+            rightMotorSim.setMotorType(MotorType.KrakenX60);
 
             shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(
                 DCMotor.getKrakenX60Foc(2), ShooterConstants.MOI.in(KilogramSquareMeters),
-                ShooterConstants.GEAR_RATIO), DCMotor.getKrakenX60Foc(1));
+                ShooterConstants.GEAR_RATIO), DCMotor.getKrakenX60Foc(2));
         }
     }
 
     @Override
     public void simulationPeriodic() {
-        motorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+        leftMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+        rightMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        shooterSim.setInput(motorSim.getMotorVoltageMeasure().in(Volts));
+        shooterSim.setInput(leftMotorSim.getMotorVoltageMeasure().in(Volts));
+        shooterSim.setInput(rightMotorSim.getMotorVoltageMeasure().in(Volts));
         shooterSim.update(Robot.kDefaultPeriod);
 
-        motorSim.setRotorVelocity(shooterSim.getAngularVelocity());
+        leftMotorSim.setRotorVelocity(shooterSim.getAngularVelocity());
+        rightMotorSim.setRotorVelocity(shooterSim.getAngularVelocity());
 
         LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
         LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Shooter", "Target Velocity", getTargetVelocity().in(RotationsPerSecond));
     }
 
      /**
@@ -172,6 +180,9 @@ public class Shooter extends SubsystemBase {
 
     public AngularVelocity getRightVelocity(){
         return motorRight.getVelocity().getValue();
+    }
+    public AngularVelocity getTargetVelocity(){
+        return targetVelocity;
     }
 
     /**
