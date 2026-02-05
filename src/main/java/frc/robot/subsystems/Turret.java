@@ -54,13 +54,12 @@ public class Turret extends SubsystemBase {
         public static final double MOTOR_KP = 6.5;
         public static final double MOTOR_KI = 0;
         public static final double MOTOR_KD = 0;
-        public static final double MOTOR_KF = 0;
         public static final double MOTOR_KS = 1;
         public static final double MOTOR_KV = 0.18;
         public static final double MOTOR_KA = 0.01;
         public static final double MOTOR_KG = 0;
 
-        public static final double ENCODER_TO_MECHANISM_RATIO = 74d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = 22/185d;
 
         public static final Angle ZERO_ANGLE = Degree.of(0);
         public static final double ZEROING_POWER = 0.5;
