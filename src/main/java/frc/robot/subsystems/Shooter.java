@@ -102,6 +102,8 @@ public class Shooter extends SubsystemBase {
         dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
 
+        targetVelocity = RotationsPerSecond.of(0);
+
         //creates a config for the shooter motor
         TalonFXConfiguration config = motorLeft.getConfig();
 
@@ -122,7 +124,7 @@ public class Shooter extends SubsystemBase {
 
             shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(
                 DCMotor.getKrakenX60Foc(2), ShooterConstants.MOI.in(KilogramSquareMeters),
-                ShooterConstants.GEAR_RATIO), DCMotor.getKrakenX60Foc(1));
+                ShooterConstants.GEAR_RATIO), DCMotor.getKrakenX60Foc(2));
         }
     }
 
