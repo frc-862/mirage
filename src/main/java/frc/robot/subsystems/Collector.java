@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
+import frc.util.Units;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 
@@ -49,9 +50,9 @@ public class Collector extends SubsystemBase {
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
 
         // pivot motor config
-        public static final double PIVOT_KP = 3d; // temp
+        public static final double PIVOT_KP = 1d; // temp
         public static final double PIVOT_KI = 0d; // temp
-        public static final double PIVOT_KD = 1d; // temp
+        public static final double PIVOT_KD = 0d; // temp
         public static final double PIVOT_KS = 0; // temp
         public static final double PIVOT_KV = 0; // temp
         public static final double PIVOT_KA = 0; // temp
@@ -66,6 +67,8 @@ public class Collector extends SubsystemBase {
         public static final double ENCODER_TO_MECHANISM_RATIO = 1d; // temp
         public static final Angle MIN_ANGLE = Degrees.of(0); // temp
         public static final Angle MAX_ANGLE = Degrees.of(90); // temp
+        public static final Angle DEPLOYED_ANGLE = MIN_ANGLE;
+        public static final Angle STOWED_ANGLE = MAX_ANGLE;
         public static final Angle TOLERANCE = Degrees.of(5); // temp
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.01); // temp
@@ -131,10 +134,10 @@ public class Collector extends SubsystemBase {
 
             collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ROTOR_TO_ENCODER_RATIO, CollectorConstants.MOI.magnitude(),
             CollectorConstants.LENGTH.magnitude(), CollectorConstants.MIN_ANGLE.in(Radians), CollectorConstants.MAX_ANGLE.in(Radians), true,
-            CollectorConstants.MAX_ANGLE.in(Radians));
+            CollectorConstants.STOWED_ANGLE.in(Radians));
 
             pivotMotorSim = pivotMotor.getSimState();
-            pivotMotorSim.setRawRotorPosition(CollectorConstants.MAX_ANGLE.times(CollectorConstants.ROTOR_TO_ENCODER_RATIO).in(Radians));
+            pivotMotorSim.setRawRotorPosition(CollectorConstants.STOWED_ANGLE.in(Radians));
 
             // collector sim stuff
             collectorGearbox = DCMotor.getKrakenX60(1);
@@ -150,9 +153,9 @@ public class Collector extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (pivotMotor.getStatorCurrent().getValue().gt((CollectorConstants.COLLECTOR_MOTOR_CURRENT_THRESHOLD))) {
-            setPivotAngle(Degrees.of(90));
-        }
+        // if (pivotMotor.getStatorCurrent().getValue().gt((CollectorConstants.COLLECTOR_MOTOR_CURRENT_THRESHOLD))) {
+        //     setPivotAngle(Degrees.of(90));
+        // }
     }
 
     @Override
@@ -227,7 +230,9 @@ public class Collector extends SubsystemBase {
      * @param position in degrees
      */
     public void setPivotAngle(Angle position) {
-        pivotMotor.setControl(positionPID.withPosition(position));
+        targetPivotPosition = Units.clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
+        
+        pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
     }
 
     /**
@@ -255,7 +260,7 @@ public class Collector extends SubsystemBase {
      * @return the command for running the shooter
      */
     public Command collectCommand(double power, Angle position) {
-        return new StartEndCommand(() -> deployCollector(power, position), () -> deployCollector(0, Degrees.of(0)), this);
+        return new StartEndCommand(() -> deployCollector(power, position), () -> deployCollector(0, CollectorConstants.STOWED_ANGLE), this);
 
     }
 
