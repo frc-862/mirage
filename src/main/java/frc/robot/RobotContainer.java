@@ -36,6 +36,7 @@ import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
