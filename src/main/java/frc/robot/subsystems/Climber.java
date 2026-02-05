@@ -92,9 +92,6 @@ public class Climber extends SubsystemBase {
         }
     }
 
-    @Override
-    public void periodic(){}
-
     public void simulationPeriodic(){
         double batteryVoltage = RobotController.getBatteryVoltage();
         motorSim.setSupplyVoltage(batteryVoltage);

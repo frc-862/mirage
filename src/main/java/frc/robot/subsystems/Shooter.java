@@ -127,9 +127,6 @@ public class Shooter extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {}
-
-    @Override
     public void simulationPeriodic() {
         motorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
@@ -138,7 +135,8 @@ public class Shooter extends SubsystemBase {
 
         motorSim.setRotorVelocity(shooterSim.getAngularVelocity());
 
-        LightningShuffleboard.setDouble("Shooter", "Velocity", getVelocity().in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
     }
 
      /**
@@ -168,15 +166,19 @@ public class Shooter extends SubsystemBase {
     /**
      * @return the velocity of the shooter motor
      */
-    public AngularVelocity getVelocity(){
+    public AngularVelocity getLeftVelocity(){
         return motorLeft.getVelocity().getValue();
+    }
+
+    public AngularVelocity getRightVelocity(){
+        return motorRight.getVelocity().getValue();
     }
 
     /**
      * @return whether or not the current velocity is near the target velocity
      */
     public boolean isOnTarget(){
-        return getVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
+        return getLeftVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
     }
 
     /**
