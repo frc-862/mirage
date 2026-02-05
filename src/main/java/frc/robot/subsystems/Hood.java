@@ -48,8 +48,8 @@ public class Hood extends SubsystemBase {
         public static final double STATOR_LIMIT = 40d; // temp
         public static final boolean BRAKE = true; // temp
 
-        public static final Angle MIN_ANGLE = Degrees.of(0); // Hood v2
-        public static final Angle MAX_ANGLE = Degrees.of(30); // Hood v2
+        public static final Angle MIN_ANGLE = Degrees.of(45); 
+        public static final Angle MAX_ANGLE = Degrees.of(80); 
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
 
