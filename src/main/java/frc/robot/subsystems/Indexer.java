@@ -29,7 +29,7 @@ public class Indexer extends SubsystemBase {
     public class IndexerConstants {
         // spindexer
         public static final boolean SPINDEXER_MOTOR_INVERTED = true; // temp
-        public static final double SPINDEXER_MOTOR_STATOR_LIMIT = 40d; // temp
+        public static final double SPINDEXER_MOTOR_STATOR_LIMIT = 80d; // temp
         public static final boolean SPINDEXER_MOTOR_BRAKE_MODE = true; // temp
 
         public static final double SPINDEXER_SIM_kV = 0.24;

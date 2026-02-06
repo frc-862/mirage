@@ -39,7 +39,7 @@ public class Collector extends SubsystemBase {
     public class CollectorConstants {
         // motor rollers
         public static final boolean INVERTED = true; // temp
-        public static final double STATOR_LIMIT = 40d; // temp
+        public static final double STATOR_LIMIT = 80d; // temp
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 1d;

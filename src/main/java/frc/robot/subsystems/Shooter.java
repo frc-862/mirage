@@ -32,6 +32,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -43,15 +44,17 @@ public class Shooter extends SubsystemBase {
 
     public class ShooterConstants {
         public static final boolean INVERTED = false; // temp
-        public static final double STATOR_LIMIT = 120.0; // temp
+        public static final double STATOR_LIMIT = 160.0; // temp
         public static final boolean BRAKE = false; // temp
 
-        public static final double kP = 0.25d;
+        public static final double SLOT0_kP = 0.25d;
+        public static final double SLOT1_kP = 0.5;
         public static final double kI = 0d;
         public static final double kD = 0d;
         public static final double kV = 0.1185d;
         public static final double kS = 0.38d;
         public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(1);
+        public static final AngularVelocity SLOT1_THRESHOLD = RotationsPerSecond.of(5);
 
         public static final double GEAR_RATIO = 1d; // temp
         public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI).times(2);
@@ -107,11 +110,17 @@ public class Shooter extends SubsystemBase {
         //creates a config for the shooter motor
         TalonFXConfiguration config = motorLeft.getConfig();
 
-        config.Slot0.kP = ShooterConstants.kP;
+        config.Slot0.kP = ShooterConstants.SLOT0_kP;
         config.Slot0.kI = ShooterConstants.kI;
         config.Slot0.kD = ShooterConstants.kD;
         config.Slot0.kV = ShooterConstants.kV;
         config.Slot0.kS = ShooterConstants.kS;
+
+        config.Slot1.kP = ShooterConstants.SLOT1_kP;
+        config.Slot1.kI = ShooterConstants.kI;
+        config.Slot1.kD = ShooterConstants.kD;
+        config.Slot1.kV = ShooterConstants.kV;
+        config.Slot1.kS = ShooterConstants.kS;
 
         config.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO;
 
@@ -162,7 +171,7 @@ public class Shooter extends SubsystemBase {
      */
     public void setVelocity(AngularVelocity velocity){
         targetVelocity = velocity;
-        motorLeft.setControl(velocityPID.withVelocity(velocity));
+        motorLeft.setControl(velocityPID.withVelocity(velocity).withSlot(0));
     }
 
     /**
@@ -181,6 +190,18 @@ public class Shooter extends SubsystemBase {
      */
     public boolean isOnTarget(){
         return getLeftVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
+    }
+
+    /**
+     * switch to slot 1 for more aggressive velocity control
+     */
+    public void switchSlot() {
+        motorLeft.setControl(velocityPID.withVelocity(targetVelocity).withSlot(1));
+    }
+
+    public Command switchSlotCommand() {
+        return Commands.idle().until(() -> motorLeft.getClosedLoopError().getValue() > 
+            ShooterConstants.SLOT1_THRESHOLD.in(RotationsPerSecond)).andThen(this::switchSlot);
     }
 
     /**

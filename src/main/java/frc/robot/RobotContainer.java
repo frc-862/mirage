@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Shooter;
@@ -37,7 +38,6 @@ import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.Collector.CollectorConstants;
-import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
@@ -71,6 +71,7 @@ public class RobotContainer {
             collector = new Collector();
             indexer = new Indexer();
             shooter = new Shooter();
+            turret = new Turret(drivetrain);
         }
 
         if (Robot.isSimulation()) {
@@ -153,11 +154,16 @@ public class RobotContainer {
             new Trigger(copilot::getLeftBumperButton).whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
             new Trigger(copilot::getRightBumperButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
-            new Trigger(copilot::getXButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, -IndexerConstants.TRANSFER_POWER));
-            new Trigger(copilot::getBButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER));
-
             new Trigger(copilot::getYButton).whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
-                .andThen(indexer.indexCommand(0.5, 1).andThen(shooter::stop)));
+                .andThen(shooter.switchSlotCommand()).alongWith(indexer.indexCommand(1, 1)
+                .finallyDo(shooter::stop)));
+
+            new Trigger(copilot::getAButton).whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
+                .andThen(shooter.switchSlotCommand()).alongWith(indexer.indexCommand(0.5, 1)
+                .finallyDo(shooter::stop)));
+            
+            new Trigger(copilot::getXButton).whileTrue(turret.startEnd(() -> turret.setAngle(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)
+                .minus(drivetrain.getPose().getTranslation()).getAngle().minus(drivetrain.getPose().getRotation()).getMeasure()), turret::stop));
         }
     }
     private void configureNamedCommands(){

@@ -52,18 +52,14 @@ public class Turret extends SubsystemBase {
         public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Degrees.of(-100): Degrees.of(-220); // limit range temporarily
         public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Degrees.of(100): Degrees.of(220);
 
-        public static final double MOTOR_KP = 6.5;
-        public static final double MOTOR_KI = 0;
-        public static final double MOTOR_KD = 0;
-        public static final double MOTOR_KS = 1;
-        public static final double MOTOR_KV = 0.18;
-        public static final double MOTOR_KA = 0.01;
-        public static final double MOTOR_KG = 0;
+        public static final double kP = 8;
+        public static final double kI = 0;
+        public static final double kD = 0;
+        public static final double kS = 0.49;
 
-        public static final double MOTION_MAGIC_CRUISE_VELOCITY = 5; // Slow down for testing will not use motion magic for comp
-        public static final double MOTION_MAGIC_ACCELERATION = 10;
 
-        public static final double ENCODER_TO_MECHANISM_RATIO = 22/185d;
+
+        public static final double ENCODER_TO_MECHANISM_RATIO = 185/22 * 5;
 
         public static final Angle ZERO_ANGLE = Degree.of(0);
         public static final double ZEROING_POWER = 0.5;
@@ -76,7 +72,7 @@ public class Turret extends SubsystemBase {
 
     private Angle targetPosition = Rotations.zero();
 
-    public final MotionMagicVoltage positionPID = new MotionMagicVoltage(0); // TODO: change back to position voltage
+    public final PositionVoltage positionPID = new PositionVoltage(0);
     private final DutyCycleOut dutyCycle = new DutyCycleOut(0.0);
 
     private DCMotor gearbox;
@@ -107,16 +103,14 @@ public class Turret extends SubsystemBase {
 
         TalonFXConfiguration config = new TalonFXConfiguration();
 
-        config.Slot0.kP = TurretConstants.MOTOR_KP;
-        config.Slot0.kI = TurretConstants.MOTOR_KI;
-        config.Slot0.kD = TurretConstants.MOTOR_KD;
-        config.Slot0.kS = TurretConstants.MOTOR_KS;
-        config.Slot0.kV = TurretConstants.MOTOR_KV;
-        config.Slot0.kA = TurretConstants.MOTOR_KA;
-        config.Slot0.kG = TurretConstants.MOTOR_KG;
+        config.Slot0.kP = TurretConstants.kP;
+        config.Slot0.kI = TurretConstants.kI;
+        config.Slot0.kD = TurretConstants.kD;
+        config.Slot0.kS = TurretConstants.kS;
 
-        config.MotionMagic.MotionMagicCruiseVelocity = TurretConstants.MOTION_MAGIC_CRUISE_VELOCITY; // To be removed
-        config.MotionMagic.MotionMagicAcceleration = TurretConstants.MOTION_MAGIC_ACCELERATION;
+        config.Voltage.PeakForwardVoltage = 3; // TODO: remove
+        config.Voltage.PeakReverseVoltage = -3; // temp
+
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = TurretConstants.MAX_ANGLE.in(Rotations);
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
