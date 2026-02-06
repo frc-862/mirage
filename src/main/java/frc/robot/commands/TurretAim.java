@@ -98,7 +98,9 @@ public class TurretAim extends Command {
     public Translation2d findTargetPosition() {
         Pose2d robotPose = drivetrain.getPose();
         
-        if (robotPose == null) return new Translation2d(0,0);
+        if (robotPose == null) {
+            return new Translation2d(0,0);
+        }
 
         if (redAllianceZone.contains(robotPose.getTranslation())) {
                 return (Swerve.FieldConstants.getTargetData(
