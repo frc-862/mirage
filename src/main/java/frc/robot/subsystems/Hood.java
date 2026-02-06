@@ -51,6 +51,7 @@ public class Hood extends SubsystemBase {
 
         public static final Angle MIN_ANGLE = Degree.of(0); // Hood v2
         public static final Angle MAX_ANGLE = Degree.of(30); // Hood v2
+        public static final Angle HOOD_OFFSET = Degree.of(70);
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
 
