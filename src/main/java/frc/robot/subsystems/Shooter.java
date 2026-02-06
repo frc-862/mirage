@@ -189,6 +189,11 @@ public class Shooter extends SubsystemBase {
     public Command shootCommand(AngularVelocity velocity) {
         return shootCommand(() -> velocity);
     }
+    public Command coastshooter(Velocity velocity)
+    {
+        DutyCycleOut(velocity);
+    }
+    
 
     /**
      * velocity control command for shooter
