@@ -49,7 +49,7 @@ public class Collector extends SubsystemBase {
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
 
         // pivot motor config
-        public static final double PIVOT_KP = 1d; // temp
+        public static final double PIVOT_KP = 50d; // temp
         public static final double PIVOT_KI = 0d; // temp
         public static final double PIVOT_KD = 0d; // temp
         public static final double PIVOT_KS = 0; // temp
@@ -61,7 +61,9 @@ public class Collector extends SubsystemBase {
         public static final boolean PIVOT_INVERTED = false; // temp
         public static final double PIVOT_STATOR_LIMIT = 40d; // temp
         public static final boolean PIVOT_BRAKE_MODE = true; // temp
-        public static final double ENCODER_TO_MECHANISM_RATIO = 1d; // temp
+        public static final double PIVOT_OFFSET = -0.227; // temp
+        public static final double ROTOR_TO_ENCODER_RATIO = 1d; // temp
+        public static final double ENCODER_TO_MECHANISM_RATIO = 36d; // temp
         public static final Angle MIN_ANGLE = Degrees.of(0); // temp
         public static final Angle MAX_ANGLE = Degrees.of(90); // temp
         public static final Angle TOLERANCE = Degrees.of(2); // temp
