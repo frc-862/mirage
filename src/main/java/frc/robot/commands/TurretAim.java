@@ -49,7 +49,7 @@ public class TurretAim extends Command {
     public TurretAim(Swerve drivetrain, Turret turret) {
         this.drivetrain = drivetrain;
         this.turret = turret;
-        this.target = null;
+        this.target = findTargetPosition();
 
         addRequirements(turret);
     }
@@ -58,24 +58,8 @@ public class TurretAim extends Command {
     public void execute() {
 
         Pose2d robotPose = drivetrain.getPose();
-        Translation2d currentTarget;
 
-        if (target != null) {
-            currentTarget = target;
-        } else {
-            if (redAllianceZone.contains(robotPose.getTranslation())) {
-                currentTarget = Swerve.FieldConstants.getTargetData(
-                        Swerve.FieldConstants.GOAL_POSITION);
-            } else if (neutralZone.contains(robotPose.getTranslation())) {
-                currentTarget = Swerve.FieldConstants.getTargetData(
-                        Swerve.FieldConstants.DEPOT_POSITION);
-            } else {
-                currentTarget = Swerve.FieldConstants.getTargetData(
-                        Swerve.FieldConstants.DEPOT_POSITION);
-            }
-        }
-
-        Translation2d delta = currentTarget.minus(robotPose.getTranslation());
+        Translation2d delta = target.minus(robotPose.getTranslation());
         distanceToTargetMeters = Meters.of(delta.getNorm());
 
         Angle fieldAngle = delta.getAngle().getMeasure();
@@ -109,5 +93,20 @@ public class TurretAim extends Command {
      */
     public Distance getDistanceToTargetMeters() {
         return distanceToTargetMeters;
+    }
+
+    public Translation2d findTargetPosition() {
+        Pose2d robotPose = drivetrain.getPose();
+
+        if (redAllianceZone.contains(robotPose.getTranslation())) {
+                return (Swerve.FieldConstants.getTargetData(
+                        Swerve.FieldConstants.GOAL_POSITION));
+            } else if (neutralZone.contains(robotPose.getTranslation())) {
+                return (Swerve.FieldConstants.getTargetData(
+                        Swerve.FieldConstants.DEPOT_POSITION));
+            } else {
+                return (Swerve.FieldConstants.getTargetData(
+                        Swerve.FieldConstants.DEPOT_POSITION));
+            }
     }
 }
