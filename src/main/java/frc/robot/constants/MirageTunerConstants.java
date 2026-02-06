@@ -26,6 +26,8 @@ public class MirageTunerConstants {
     private static final Slot0Configs steerGains = new Slot0Configs()
         .withKP(100).withKI(0).withKD(0.5)
         .withKS(0.1).withKV(2.49).withKA(0)
+        // .withKP(2.8295).withKI(0).withKD(0)
+        // .withKS(0.41143).withKV(2.5155).withKA(0.086701)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
