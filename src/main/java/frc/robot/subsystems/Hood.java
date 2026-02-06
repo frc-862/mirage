@@ -125,6 +125,11 @@ public class Hood extends SubsystemBase {
         motorConfig.Slot0.kV = HoodConstants.kV;
         motorConfig.Slot0.kA = HoodConstants.kA;
 
+        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = HoodConstants.MAX_ANGLE.in(Rotations);
+        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = HoodConstants.MIN_ANGLE.in(Rotations);
+
         if (hasEncoder()) {
             motorConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
             motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
