@@ -45,6 +45,7 @@ public class Shooter extends SubsystemBase {
         public static final boolean INVERTED = false; // temp
         public static final double STATOR_LIMIT = 120.0; // temp
         public static final boolean BRAKE = false; // temp
+        public static final double COAST_SHOOTER_VELOCITY = 5.0; //temp
 
         public static final double kP = 0.1d;
         public static final double kI = 0d;
@@ -189,17 +190,20 @@ public class Shooter extends SubsystemBase {
     public Command shootCommand(AngularVelocity velocity) {
         return shootCommand(() -> velocity);
     }
-    public Command coastshooter(Velocity velocity)
-    {
-        DutyCycleOut(velocity);
-    }
     
+    /**
+     * Sets shooter motor into an idle velocity
+     * @return the command for running the shooter at coast velocity
+     */
+    public Command coast() {
+        return shootCommand(RotationsPerSecond.of(ShooterConstants.COAST_SHOOTER_VELOCITY));
+    }
 
     /**
      * velocity control command for shooter
      * @param velocitySupplier
-        * @return the command for running the shooter
-        */
+     * @return the command for running the shooter
+     */
     public Command shootCommand(Supplier<AngularVelocity> velocitySupplier) {
         return new StartEndCommand(() -> setVelocity(velocitySupplier.get()), () -> {}, this).until(this::isOnTarget);
     }
