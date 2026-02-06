@@ -138,7 +138,7 @@ public class RobotContainer {
                 shooter.setVelocity(RotationsPerSecond.of(100));
                 indexer.setSpindexerPower(1d);
             })).onFalse(new InstantCommand(() -> {
-                shooter.stopMotor();
+                shooter.stop();
                 indexer.stop();
             }));
 
@@ -156,8 +156,8 @@ public class RobotContainer {
             new Trigger(copilot::getXButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, -IndexerConstants.TRANSFER_POWER));
             new Trigger(copilot::getBButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER));
 
-            new Trigger(copilot::getYButton).whileTrue(shooter.shootCommand(RotationsPerSecond.of(70))
-                .andThen(indexer.indexCommand(0.5, 1)));
+            new Trigger(copilot::getYButton).whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
+                .andThen(indexer.indexCommand(0.5, 1).andThen(shooter::stop)));
         }
     }
     private void configureNamedCommands(){
