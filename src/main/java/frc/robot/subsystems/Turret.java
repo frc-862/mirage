@@ -13,16 +13,14 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
-
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-
+import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -169,8 +167,8 @@ public class Turret extends SubsystemBase {
 
         Angle simAngle = Radians.of(turretSim.getAngleRads());
         AngularVelocity simVeloc = RadiansPerSecond.of(turretSim.getVelocityRadPerSec());
-        motorSim.setRawRotorPosition(simAngle);
-        motorSim.setRotorVelocity(simVeloc);
+        motorSim.setRawRotorPosition(simAngle.times(TurretConstants.ENCODER_TO_MECHANISM_RATIO));
+        motorSim.setRotorVelocity(simVeloc.times(TurretConstants.ENCODER_TO_MECHANISM_RATIO));
 
         ligament.setAngle(simAngle.in(Degree));
 
@@ -240,7 +238,11 @@ public class Turret extends SubsystemBase {
      * @return whether turret on target
      */
     public boolean isOnTarget() {
-        return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE) && zeroed; // only on target if zeroed
+        if (Robot.isReal()) {
+            return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE) && zeroed; // only on target if zeroed
+        } else {
+            return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE); // in sim, never returns true because zeroed is set to false
+        }
     }
 
     /**
