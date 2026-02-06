@@ -20,6 +20,13 @@ sourceSets {
     }
 }
 
+// Configure Eclipse to exclude macbot source set from classpath to avoid duplicate entry warnings
+eclipse {
+    classpath {
+        sourceSets -= sourceSets.macbot
+    }
+}
+
 // Force mac code to compile with main project's dependencies
 afterEvaluate {
     // Make macbotImplementation inherit the project's implementation deps
