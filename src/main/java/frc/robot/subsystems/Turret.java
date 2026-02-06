@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
@@ -48,8 +49,8 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = Degree.of(-220);
-        public static final Angle MAX_ANGLE = Degree.of(220);
+        public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Degrees.of(-100): Degrees.of(-220); // limit range temporarily
+        public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Degrees.of(100): Degrees.of(220);
 
         public static final double MOTOR_KP = 6.5;
         public static final double MOTOR_KI = 0;
@@ -58,6 +59,9 @@ public class Turret extends SubsystemBase {
         public static final double MOTOR_KV = 0.18;
         public static final double MOTOR_KA = 0.01;
         public static final double MOTOR_KG = 0;
+
+        public static final double MOTION_MAGIC_CRUISE_VELOCITY = 5; // Slow down for testing will not use motion magic for comp
+        public static final double MOTION_MAGIC_ACCELERATION = 10;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 22/185d;
 
@@ -72,7 +76,7 @@ public class Turret extends SubsystemBase {
 
     private Angle targetPosition = Rotations.zero();
 
-    public final PositionVoltage positionPID = new PositionVoltage(0);
+    public final MotionMagicVoltage positionPID = new MotionMagicVoltage(0); // TODO: change back to position voltage
     private final DutyCycleOut dutyCycle = new DutyCycleOut(0.0);
 
     private DCMotor gearbox;
@@ -101,19 +105,22 @@ public class Turret extends SubsystemBase {
         motor = new ThunderBird(RobotMap.TURRET, RobotMap.CAN_BUS, TurretConstants.INVERTED,
                 TurretConstants.STATOR_LIMIT, TurretConstants.BRAKE);
 
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+        TalonFXConfiguration config = new TalonFXConfiguration();
 
-        motorConfig.Slot0.kP = TurretConstants.MOTOR_KP;
-        motorConfig.Slot0.kI = TurretConstants.MOTOR_KI;
-        motorConfig.Slot0.kD = TurretConstants.MOTOR_KD;
-        motorConfig.Slot0.kS = TurretConstants.MOTOR_KS;
-        motorConfig.Slot0.kV = TurretConstants.MOTOR_KV;
-        motorConfig.Slot0.kA = TurretConstants.MOTOR_KA;
-        motorConfig.Slot0.kG = TurretConstants.MOTOR_KG;
+        config.Slot0.kP = TurretConstants.MOTOR_KP;
+        config.Slot0.kI = TurretConstants.MOTOR_KI;
+        config.Slot0.kD = TurretConstants.MOTOR_KD;
+        config.Slot0.kS = TurretConstants.MOTOR_KS;
+        config.Slot0.kV = TurretConstants.MOTOR_KV;
+        config.Slot0.kA = TurretConstants.MOTOR_KA;
+        config.Slot0.kG = TurretConstants.MOTOR_KG;
 
-        motorConfig.Feedback.SensorToMechanismRatio = TurretConstants.ENCODER_TO_MECHANISM_RATIO;
+        config.MotionMagic.MotionMagicCruiseVelocity = TurretConstants.MOTION_MAGIC_CRUISE_VELOCITY; // To be removed
+        config.MotionMagic.MotionMagicAcceleration = TurretConstants.MOTION_MAGIC_ACCELERATION;
 
-        motor.applyConfig(motorConfig);
+        config.Feedback.SensorToMechanismRatio = TurretConstants.ENCODER_TO_MECHANISM_RATIO;
+
+        motor.applyConfig(config);
 
         zeroLimitSwitch = new DigitalInput(RobotMap.TURRET_ZERO_SWITCH);
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
