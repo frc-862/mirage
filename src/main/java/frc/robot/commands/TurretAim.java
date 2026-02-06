@@ -25,8 +25,8 @@ public class TurretAim extends Command {
     private Distance distanceToTargetMeters;
 
     private Pose2d pose = new Pose2d(0, 0, Rotation2d.fromDegrees(0)); //Temp
-    private Rectangle2d redAllianceZone = new Rectangle2d(pose, 0, 0); //Temp
-    private Rectangle2d neutralZone = new Rectangle2d(pose, 1, 1); //Temp
+    private Rectangle2d redAllianceZone = new Rectangle2d(pose, 1, 2); //Temp
+    private Rectangle2d neutralZone = new Rectangle2d(pose, 2, 1); //Temp
     private Rectangle2d blueallianceZone = new Rectangle2d(pose, 2, 2); //Temp
 
     /**
