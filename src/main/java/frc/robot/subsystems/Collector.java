@@ -34,7 +34,9 @@ import frc.robot.constants.RobotMap;
 import frc.util.Units;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
-
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 public class Collector extends SubsystemBase {
 
     public class CollectorConstants {
@@ -92,7 +94,9 @@ public class Collector extends SubsystemBase {
     private ThunderBird pivotMotor;
     private TalonFXSimState pivotMotorSim;
     private SingleJointedArmSim collectorPivotSim;
-
+    private Mechanism2d mech2d;
+    private MechanismRoot2d root2d;
+    private MechanismLigament2d ligament;
     private Angle targetPivotPosition;
     private final PositionVoltage positionPID;
 
@@ -148,6 +152,12 @@ public class Collector extends SubsystemBase {
 
             collectorMotorSim = collectorMotor.getSimState();
             collectorMotorSim.setMotorType(MotorType.KrakenX60);
+
+            mech2d = new Mechanism2d(3, 3);
+            root2d = mech2d.getRoot("Collector", 0.5, 0.5);
+            ligament = root2d.append(new MechanismLigament2d("Collector", 2, 90));
+            
+            LightningShuffleboard.send("Collector", "mech 2d", mech2d);
         }
     }
 
@@ -171,6 +181,7 @@ public class Collector extends SubsystemBase {
         
         pivotMotorSim.setRawRotorPosition(pivotSimAngle.times(CollectorConstants.ROTOR_TO_ENCODER_RATIO));
         pivotMotorSim.setRotorVelocity(pivotSimVelocity.times(CollectorConstants.ROTOR_TO_ENCODER_RATIO));
+        ligament.setAngle(getPivotAngle().in(Degrees));      
 
         // collector sim stuff
         collectorMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
