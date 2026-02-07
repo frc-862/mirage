@@ -45,12 +45,12 @@ import frc.robot.Robot;
 public class Hood extends SubsystemBase {
 
     public class HoodConstants {
-        public static final boolean INVERTED = true; // temp
+        public static final boolean INVERTED = false; // temp
         public static final double STATOR_LIMIT = 40d; // temp
         public static final boolean BRAKE = true; // temp
 
-        public static final Angle MIN_ANGLE = Degrees.of(45); 
-        public static final Angle MAX_ANGLE = Degrees.of(75); 
+        public static final Angle MIN_ANGLE = Degrees.of(50); 
+        public static final Angle MAX_ANGLE = Degrees.of(80); 
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
 
@@ -115,7 +115,7 @@ public class Hood extends SubsystemBase {
             angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
             encoder.getConfigurator().apply(angleConfig);
         } else {
-            motor.setPosition(HoodConstants.MIN_ANGLE);
+            motor.setPosition(HoodConstants.MAX_ANGLE);
         }
 
         motorConfig.Slot0.kP = HoodConstants.kP;
