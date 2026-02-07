@@ -28,6 +28,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
@@ -52,6 +53,7 @@ public class Shooter extends SubsystemBase {
         public static final double kV = 0.12d;
         public static final double kS = 0.5d;
         public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
+        public static final AngularVelocity BIAS_DELTA = RotationsPerSecond.of(1);
 
         public static final double GEAR_RATIO = 1d; // temp
         public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI).times(2);
@@ -76,6 +78,7 @@ public class Shooter extends SubsystemBase {
     private final VelocityVoltage velocityPID;
 
     private AngularVelocity targetVelocity;
+    private MutAngularVelocity shooterBias;
 
     private TalonFXSimState motorSim;
     private FlywheelSim shooterSim;
@@ -101,6 +104,8 @@ public class Shooter extends SubsystemBase {
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
+        shooterBias = RotationsPerSecond.mutable(0);
+        targetVelocity = RotationsPerSecond.zero();
 
         //creates a config for the shooter motor
         TalonFXConfiguration config = motorLeft.getConfig();
@@ -137,6 +142,8 @@ public class Shooter extends SubsystemBase {
 
         LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
         LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Shooter", "Target Velocity", targetVelocity.in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Shooter", "Bias", shooterBias.in(RotationsPerSecond));
     }
 
      /**
@@ -145,6 +152,7 @@ public class Shooter extends SubsystemBase {
      */
     public void setPower(double power) {
         motorLeft.setControl(dutyCycle.withOutput(power));
+        targetVelocity = RotationsPerSecond.zero();
     }
 
     /**
@@ -152,6 +160,7 @@ public class Shooter extends SubsystemBase {
      */
     public void stopMotor() {
         motorLeft.stopMotor();
+        targetVelocity = RotationsPerSecond.zero();
     }
 
     /**
@@ -160,9 +169,27 @@ public class Shooter extends SubsystemBase {
      */
     public void setVelocity(AngularVelocity velocity){
         targetVelocity = velocity;
-        motorLeft.setControl(velocityPID.withVelocity(velocity));
+        motorLeft.setControl(velocityPID.withVelocity(velocity.in(RotationsPerSecond) + shooterBias.in(RotationsPerSecond)));
     }
 
+    /**
+     * Change the bias of the shooter velocity. If the shooter is currently running it will update the velocity with the bias.
+     * @param bias in rotations per second
+     */
+    public void changeBias(AngularVelocity bias) {
+        shooterBias.mut_plus(bias);
+        if (targetVelocity.gt(RotationsPerSecond.zero())) {
+            setVelocity(targetVelocity);
+        }
+    }
+
+    /**
+     * Get the current bias of the shooter velocity.
+     * @return the current bias in rotations per second
+     */
+    public AngularVelocity getBias() {
+        return shooterBias;
+    } 
     /**
      * @return the velocity of the shooter motor
      */
