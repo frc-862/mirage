@@ -27,8 +27,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -69,6 +69,7 @@ public class Hood extends SubsystemBase {
         public static final double kD = 0.0; // temp
 
         public static final Angle POSITION_TOLERANCE = Degree.of(1); // temp
+        public static final Angle BIAS_DELTA = Degree.of(0.5); // temp
 
         // Conversion ratios
         public static final double ROTOR_TO_MECHANISM_RATIO = 23.63; // Hood v2
@@ -81,6 +82,7 @@ public class Hood extends SubsystemBase {
 
     final PositionVoltage request;
     private Angle targetAngle;
+    private MutAngle hoodBias;
 
     private DCMotorSim hoodSim;
     private TalonFXSimState motorSim;
@@ -89,7 +91,6 @@ public class Hood extends SubsystemBase {
     private MechanismRoot2d root2d;
     private Mechanism2d mech2d;
     private CANcoderSimState encoderSim;
-    private Angle hoodBias;
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
@@ -108,7 +109,7 @@ public class Hood extends SubsystemBase {
 
         targetAngle = Degrees.of(0);
 
-        hoodBias = Degrees.of(0); // temp
+        hoodBias = Degrees.mutable(0);
 
         if (hasEncoder()) {
             CANcoderConfiguration angleConfig = new CANcoderConfiguration();
@@ -180,6 +181,7 @@ public class Hood extends SubsystemBase {
         LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
+        LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
     }
 
     /**
@@ -188,13 +190,13 @@ public class Hood extends SubsystemBase {
      */
     public void setPosition(Angle position) {
         targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
-        targetAngle = targetAngle.plus(hoodBias);
-        hoodMotor.setControl(request.withPosition(targetAngle));
+        Angle angleWithBiasTarget = Units.clamp(targetAngle.plus(hoodBias), HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
+        hoodMotor.setControl(request.withPosition(angleWithBiasTarget));
     }
 
-    public void setBias(Angle bias){
-        hoodBias = bias;
-        targetAngle = targetAngle.plus(hoodBias);
+    public void changeBias(Angle bias){
+        hoodBias.mut_plus(bias);
+        setPosition(targetAngle);
     }
     /**
      * Gets the current angle of the hood

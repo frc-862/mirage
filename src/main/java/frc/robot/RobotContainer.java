@@ -139,8 +139,8 @@ public class RobotContainer {
 
             new Trigger(copilot::getXButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
 
-            new Trigger(() -> copilot.getPOV() == 270).onTrue(new InstantCommand(() -> hood.setBias(hood.getBias().minus(Degrees.of(0.1))))); // Assign a trigger soon
-            new Trigger(() -> copilot.getPOV() == 90).onTrue(new InstantCommand(() -> hood.setBias(hood.getBias().plus(Degrees.of(0.1))))); // Assign a trigger soon
+            new Trigger(() -> copilot.getPOV() == 270).onTrue(new InstantCommand(() -> hood.changeBias(Hood.HoodConstants.BIAS_DELTA.unaryMinus()))); // Assign a trigger soon
+            new Trigger(() -> copilot.getPOV() == 90).onTrue(new InstantCommand(() -> hood.changeBias(Hood.HoodConstants.BIAS_DELTA))); // Assign a trigger soon
             new Trigger(() -> copilot.getPOV() == 0).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA)));
 
             new Trigger(() -> copilot.getPOV() == 180).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA.unaryMinus())));
