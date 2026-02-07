@@ -50,7 +50,7 @@ public class Collector extends SubsystemBase {
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
 
         // pivot motor config
-        public static final double PIVOT_KP = 1d; // temp
+        public static final double PIVOT_KP = 50d; // temp
         public static final double PIVOT_KI = 0d; // temp
         public static final double PIVOT_KD = 0d; // temp
         public static final double PIVOT_KS = 0; // temp
@@ -63,8 +63,8 @@ public class Collector extends SubsystemBase {
         public static final double PIVOT_STATOR_LIMIT = 40d; // temp
         public static final boolean PIVOT_BRAKE_MODE = true; // temp
         public static final double PIVOT_OFFSET = -0.227; // temp
-        public static final double ROTOR_TO_ENCODER_RATIO = 36d; // temp
-        public static final double ENCODER_TO_MECHANISM_RATIO = 1d; // temp
+        public static final double ROTOR_TO_ENCODER_RATIO = 1d; // temp
+        public static final double ENCODER_TO_MECHANISM_RATIO = 36d; // temp
         public static final Angle MIN_ANGLE = Degrees.of(0); // temp
         public static final Angle MAX_ANGLE = Degrees.of(90); // temp
         public static final Angle DEPLOYED_ANGLE = MIN_ANGLE;
@@ -132,7 +132,7 @@ public class Collector extends SubsystemBase {
             // pivot sim stuff
             gearbox = DCMotor.getKrakenX60Foc(1);
 
-            collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ROTOR_TO_ENCODER_RATIO, CollectorConstants.MOI.magnitude(),
+            collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ENCODER_TO_MECHANISM_RATIO, CollectorConstants.MOI.magnitude(),
             CollectorConstants.LENGTH.magnitude(), CollectorConstants.MIN_ANGLE.in(Radians), CollectorConstants.MAX_ANGLE.in(Radians), true,
             CollectorConstants.STOWED_ANGLE.in(Radians));
 
@@ -169,8 +169,8 @@ public class Collector extends SubsystemBase {
         Angle pivotSimAngle = Radians.of(collectorPivotSim.getAngleRads());
         AngularVelocity pivotSimVelocity = RadiansPerSecond.of(collectorPivotSim.getVelocityRadPerSec());
         
-        pivotMotorSim.setRawRotorPosition(pivotSimAngle.times(CollectorConstants.ROTOR_TO_ENCODER_RATIO));
-        pivotMotorSim.setRotorVelocity(pivotSimVelocity.times(CollectorConstants.ROTOR_TO_ENCODER_RATIO));
+        pivotMotorSim.setRawRotorPosition(pivotSimAngle.times(CollectorConstants.ENCODER_TO_MECHANISM_RATIO));
+        pivotMotorSim.setRotorVelocity(pivotSimVelocity.times(CollectorConstants.ENCODER_TO_MECHANISM_RATIO));
 
         // collector sim stuff
         collectorMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
@@ -270,10 +270,5 @@ public class Collector extends SubsystemBase {
      */
     public Angle getPivotAngle(){
         return pivotMotor.getPosition().getValue();
-    }
-
-    public void setPosition(Angle position) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setPosition'");
     }
 }
