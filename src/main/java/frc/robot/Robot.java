@@ -31,13 +31,13 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         // Only start WPILIB data logging on the real robot
-        if(!edu.wpi.first.wpilibj.RobotBase.isSimulation()){
+        if(!isSimulation()){
             DataLogManager.start("/home/lvuser/logs");
             DriverStation.startDataLog(DataLogManager.getLog());
         }
 
         //Silence joystick warnings in simulation
-        if (edu.wpi.first.wpilibj.RobotBase.isSimulation()){
+        if (isSimulation()){
             DriverStation.silenceJoystickConnectionWarning(true);
         }
         
