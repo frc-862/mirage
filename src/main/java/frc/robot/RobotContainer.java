@@ -36,6 +36,7 @@ import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
@@ -96,8 +97,6 @@ public class RobotContainer {
         if (Robot.isSimulation()){
             turret.setDefaultCommand(turret.run(() -> turret.setAngle(Rotations.of(0))));
             hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(0))));
-            shooter.setDefaultCommand(shooter.run(() -> shooter.setVelocity(RotationsPerSecond.of(80))));
-            indexer.setDefaultCommand(indexer.run(() -> indexer.stopSpindexer()));
         }
     }
 
@@ -124,12 +123,9 @@ public class RobotContainer {
 
         /* Copilot */
         if (Robot.isSimulation()) {
-            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(Collector.CollectorConstants.COLLECT_POWER, 
-            Collector.CollectorConstants.DEPLOYED_ANGLE));
+            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(Collector.CollectorConstants.COLLECT_POWER, Collector.CollectorConstants.DEPLOYED_ANGLE));
 
             new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(20))));
-
-            new Trigger(driver::getXButton).whileTrue(indexer.run(() -> indexer.setSpindexerPower(1d)));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));
