@@ -20,7 +20,6 @@ sourceSets {
     }
 }
 
-// Configure Eclipse to exclude macbot source set from classpath to avoid duplicate entry warnings
 eclipse {
     classpath {
         sourceSets -= sourceSets.macbot
