@@ -82,7 +82,7 @@ public class ShooterAim extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        shooter.stopMotor();
+        shooter.stop();
         hood.stop();
     }
 
