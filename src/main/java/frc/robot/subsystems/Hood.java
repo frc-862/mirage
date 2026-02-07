@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Radians;
@@ -19,6 +18,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
@@ -45,7 +45,7 @@ import frc.robot.Robot;
 public class Hood extends SubsystemBase {
 
     public class HoodConstants {
-        public static final boolean INVERTED = false; // temp
+        public static final boolean INVERTED = true; // temp
         public static final double STATOR_LIMIT = 40d; // temp
         public static final boolean BRAKE = true; // temp
 
@@ -68,15 +68,17 @@ public class Hood extends SubsystemBase {
         public static final double kI = 0.0; // temp
         public static final double kD = 0.0; // temp
 
-        public static final Angle POSITION_TOLERANCE = Degree.of(1); // temp
+        public static final Angle POSITION_TOLERANCE = Degrees.of(1); // temp
 
         // Conversion ratios
-        public static final double ROTOR_TO_MECHANISM_RATIO = 23.63; // Hood v2
-        public static final double ROTOR_TO_ENCODER_RATIO = 1d; // Cancoder mounted on motor
-        public static final double ENCODER_TO_MECHANISM_RATIO = ROTOR_TO_MECHANISM_RATIO / ROTOR_TO_ENCODER_RATIO;
+        public static final double ROTOR_TO_ENCODER_RATIO = RobotMap.IS_OASIS ? 1 : 50/22;
+        public static final double ENCODER_TO_MECHANISM_RATIO = RobotMap.IS_OASIS ? 50/22 * 156/15 : 156/15;
+        public static final double ROTOR_TO_MECHANISM_RATIO = ROTOR_TO_ENCODER_RATIO * ENCODER_TO_MECHANISM_RATIO; // only used in sim
+
+        public static final Angle ANGLE_OFFSET = Degrees.of(0); // temp
     }
 
-    private ThunderBird hoodMotor;
+    private ThunderBird motor;
     private CANcoder encoder;
 
     final PositionVoltage request;
@@ -92,7 +94,7 @@ public class Hood extends SubsystemBase {
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
-        hoodMotor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
+        motor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
             HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
             HoodConstants.BRAKE);
 
@@ -109,8 +111,14 @@ public class Hood extends SubsystemBase {
 
         if (hasEncoder()) {
             CANcoderConfiguration angleConfig = new CANcoderConfiguration();
+            angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
+            angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? HoodConstants.ANGLE_OFFSET.in(Rotations) : 0d;
+            angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
             encoder.getConfigurator().apply(angleConfig);
+        } else {
+            motor.setPosition(HoodConstants.MIN_ANGLE);
         }
+
         motorConfig.Slot0.kP = HoodConstants.kP;
         motorConfig.Slot0.kI = HoodConstants.kI;
         motorConfig.Slot0.kD = HoodConstants.kD;
@@ -125,7 +133,7 @@ public class Hood extends SubsystemBase {
 
         motorConfig.Feedback.SensorToMechanismRatio = HoodConstants.ENCODER_TO_MECHANISM_RATIO;
         motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
-        hoodMotor.applyConfig(motorConfig);
+        motor.applyConfig(motorConfig);
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
@@ -134,7 +142,7 @@ public class Hood extends SubsystemBase {
                 gearbox
             );
 
-            motorSim = new TalonFXSimState(hoodMotor);
+            motorSim = new TalonFXSimState(motor);
             encoderSim = new CANcoderSimState(encoder);
 
             motorSim.setRawRotorPosition(HoodConstants.MIN_ANGLE.in(Rotations));
@@ -167,14 +175,14 @@ public class Hood extends SubsystemBase {
         Angle simAngle = Radians.of(hoodSim.getAngularPositionRad());
         AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getAngularVelocityRadPerSec());
 
-        motorSim.setRawRotorPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-        motorSim.setRotorVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+        motorSim.setRawRotorPosition(simAngle);
+        motorSim.setRotorVelocity(simVeloc);
 
         ligament.setAngle(simAngle.in(Degrees));
-        encoderSim.setRawPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-        encoderSim.setVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+        encoderSim.setRawPosition(simAngle);
+        encoderSim.setVelocity(simVeloc);
 
-        LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
+        LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
     }
@@ -186,7 +194,7 @@ public class Hood extends SubsystemBase {
     public void setPosition(Angle position) {
         targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
 
-        hoodMotor.setControl(request.withPosition(targetAngle));
+        motor.setControl(request.withPosition(targetAngle));
     }
 
     /**
@@ -195,7 +203,7 @@ public class Hood extends SubsystemBase {
      * current angle
      */
     public Angle getAngle() {
-        return hoodMotor.getPosition().getValue();
+        return motor.getPosition().getValue();
     }
 
     /**
@@ -220,7 +228,7 @@ public class Hood extends SubsystemBase {
      * Stops all movement to the hood motor
      */
     public void stop() {
-        hoodMotor.stopMotor();
+        motor.stopMotor();
     }
 
     /**
