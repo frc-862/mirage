@@ -4,13 +4,9 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -31,6 +27,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -46,10 +43,10 @@ public class Turret extends SubsystemBase {
 
     public class TurretConstants {
         public static final boolean INVERTED = false; // temp
-        public static final double STATOR_LIMIT = 120.0; // temp
+        public static final double STATOR_LIMIT = 40d; // temp
         public static final boolean BRAKE = false; // temp
 
-        public static final Angle TURRET_ANGLE_TOLERANCE = Degrees.of(5);
+        public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
         public static final Angle MIN_ANGLE = Degree.of(-220);
         public static final Angle MAX_ANGLE = Degree.of(220);
@@ -57,38 +54,40 @@ public class Turret extends SubsystemBase {
         public static final double MOTOR_KP = 6.5;
         public static final double MOTOR_KI = 0;
         public static final double MOTOR_KD = 0;
-        public static final double MOTOR_KF = 0;
         public static final double MOTOR_KS = 1;
         public static final double MOTOR_KV = 0.18;
         public static final double MOTOR_KA = 0.01;
         public static final double MOTOR_KG = 0;
 
-        public static final double ROTOR_TO_ENCODER_RATIO = 74;
-        public static final double ENCODER_TO_MECHANISM_RATIO = 1d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = 22/185d;
 
-        public static final double turretOffset = -0.227;
+        public static final Angle ZERO_ANGLE = Degree.of(0);
+        public static final double ZEROING_POWER = 0.5;
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
         public static final Distance LENGTH = Meter.of(0.18);
     }
 
-    private ThunderBird motor;
-    private CANcoder encoder;
+    private final ThunderBird motor;
 
     private Angle targetPosition = Rotations.zero();
 
     public final PositionVoltage positionPID = new PositionVoltage(0);
+    private final DutyCycleOut dutyCycle = new DutyCycleOut(0.0);
 
     private DCMotor gearbox;
     private SingleJointedArmSim turretSim;
     private TalonFXSimState motorSim;
-    private CANcoderSimState encoderSim;
 
     private Mechanism2d mech2d;
     private MechanismRoot2d root2d;
     private MechanismLigament2d ligament;
 
     private Pose3d turretPose3d;
+
+    private final DigitalInput zeroLimitSwitch;
+    private final DigitalInput maxLimitSwitch;
+    private boolean zeroed;
 
     private final Swerve drivetrain;
 
@@ -101,13 +100,8 @@ public class Turret extends SubsystemBase {
 
         motor = new ThunderBird(RobotMap.TURRET, RobotMap.CAN_BUS, TurretConstants.INVERTED,
                 TurretConstants.STATOR_LIMIT, TurretConstants.BRAKE);
-        encoder = new CANcoder(RobotMap.TURRET_ENCODER, RobotMap.CAN_BUS);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-        CANcoderConfiguration angleConfig = new CANcoderConfiguration();
-        angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? TurretConstants.turretOffset : 0;
-        angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        encoder.getConfigurator().apply(angleConfig);
 
         motorConfig.Slot0.kP = TurretConstants.MOTOR_KP;
         motorConfig.Slot0.kI = TurretConstants.MOTOR_KI;
@@ -117,26 +111,28 @@ public class Turret extends SubsystemBase {
         motorConfig.Slot0.kA = TurretConstants.MOTOR_KA;
         motorConfig.Slot0.kG = TurretConstants.MOTOR_KG;
 
-        motorConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
-        motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-
         motorConfig.Feedback.SensorToMechanismRatio = TurretConstants.ENCODER_TO_MECHANISM_RATIO;
-        motorConfig.Feedback.RotorToSensorRatio = TurretConstants.ROTOR_TO_ENCODER_RATIO;
 
         motor.applyConfig(motorConfig);
 
+        zeroLimitSwitch = new DigitalInput(RobotMap.TURRET_ZERO_SWITCH);
+        maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
+
+        zeroed = Robot.isSimulation() || RobotMap.IS_OASIS; // only zero when real // TODO: remove isOasis check after limit switches added
+        if (!zeroed) {
+            setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
+        }
+
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
-            turretSim = new SingleJointedArmSim(gearbox, TurretConstants.ROTOR_TO_ENCODER_RATIO,
+            turretSim = new SingleJointedArmSim(gearbox, TurretConstants.ENCODER_TO_MECHANISM_RATIO,
                     TurretConstants.MOI.magnitude(), TurretConstants.LENGTH.in(Meters),
                     TurretConstants.MIN_ANGLE.in(Radians), TurretConstants.MAX_ANGLE.in(Radians),
                     false, TurretConstants.MIN_ANGLE.in(Radians), 0d, 1d);
 
             motorSim = new TalonFXSimState(motor);
-            encoderSim = new CANcoderSimState(encoder);
 
             motorSim.setRawRotorPosition(TurretConstants.MIN_ANGLE.in(Rotations));
-            encoderSim.setRawPosition(TurretConstants.MIN_ANGLE.in(Rotations));
 
             mech2d = new Mechanism2d(3, 3);
             root2d = mech2d.getRoot("Turret", 2, 0);
@@ -147,10 +143,25 @@ public class Turret extends SubsystemBase {
     }
 
     @Override
+    public void periodic() {
+
+        // Max limit switch will be imprecise, so go the other direction toward zero switch when max is hit
+        if (getMaxLimitSwitch() && !zeroed) {
+            setPower(-TurretConstants.ZEROING_POWER);
+        }
+
+        // Zero limit switch is precise, so set encoder position when zero is hit
+        if (getZeroLimitSwitch() && !zeroed) { // TODO: add led strip indication?
+            setEncoderPosition(TurretConstants.ZERO_ANGLE);
+            zeroed = true;
+            setAngle(targetPosition);
+        }
+    }
+
+    @Override
     public void simulationPeriodic() {
         double batteryVoltage = RobotController.getBatteryVoltage();
         motorSim.setSupplyVoltage(batteryVoltage);
-        encoderSim.setSupplyVoltage(batteryVoltage);
 
         turretSim.setInputVoltage(motorSim.getMotorVoltage());
         turretSim.update(Robot.kDefaultPeriod);
@@ -159,13 +170,11 @@ public class Turret extends SubsystemBase {
         AngularVelocity simVeloc = RadiansPerSecond.of(turretSim.getVelocityRadPerSec());
         motorSim.setRawRotorPosition(simAngle);
         motorSim.setRotorVelocity(simVeloc);
-        encoderSim.setRawPosition(simAngle);
-        encoderSim.setVelocity(simVeloc);
 
         ligament.setAngle(simAngle.in(Degree));
 
-        LightningShuffleboard.setDouble("Turret", "CANcoder angle",
-                encoder.getAbsolutePosition().getValue().in(Degree));
+        LightningShuffleboard.setDouble("Turret", "Motor encoder angle",
+                motor.getPosition().getValue().in(Degree));
         LightningShuffleboard.setDouble("Turret", "sim angle", simAngle.in(Degree));
 
         LightningShuffleboard.setDouble("Turret", "current angle", getAngle().in(Degree));
@@ -197,7 +206,9 @@ public class Turret extends SubsystemBase {
      */
     public void setAngle(Angle angle) {
         targetPosition = angle;
-        motor.setControl(positionPID.withPosition(targetPosition));
+        if (zeroed) { // only allow position control if turret has been zeroed but store to apply when zeroed
+            motor.setControl(positionPID.withPosition(targetPosition));
+        }
     }
 
     /**
@@ -206,7 +217,7 @@ public class Turret extends SubsystemBase {
      * @return angle of turret
      */
     public Angle getAngle() {
-        return encoder.getAbsolutePosition().getValue();
+        return motor.getPosition().getValue();
     }
 
     /**
@@ -218,13 +229,46 @@ public class Turret extends SubsystemBase {
         return targetPosition;
     }
 
+    public void setPower(double power) {
+        motor.setControl(dutyCycle.withOutput(power));
+    }
+
     /**
      * gets whether the turret is currently on target with set target angle
      *
      * @return whether turret on target
      */
     public boolean isOnTarget() {
-        return getTargetAngle().isNear(getAngle(), TurretConstants.TURRET_ANGLE_TOLERANCE);
+        return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE) && zeroed; // only on target if zeroed
+    }
+
+    /**
+     * Limit Switch at zero position
+     * 
+     * @return if zero limit switch triggered
+     */
+    public boolean getZeroLimitSwitch() {
+        return zeroLimitSwitch.get();
+    }
+
+    /**
+     * On E-Chain
+     * Only really tells us that we are near min or max
+     * 
+     * @return if max limit switch triggered
+     */
+    public boolean getMaxLimitSwitch() {
+        return maxLimitSwitch.get();
+    }
+
+    /**
+     * Sets the encoder position to a specific angle
+     * WANRING: This does not move the turret, only sets the encoder position
+     *
+     * @param angle
+     */
+    public void setEncoderPosition(Angle angle){
+        motor.setPosition(angle);
     }
 
     /**

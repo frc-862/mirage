@@ -38,6 +38,8 @@ import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Collector.CollectorConstants;
+import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
@@ -67,6 +69,12 @@ public class RobotContainer {
 
         // logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
+
+        if (RobotMap.IS_OASIS) {
+            collector = new Collector();
+            indexer = new Indexer();
+            shooter = new Shooter();
+        }
 
         if (Robot.isSimulation()) {
             collector = new Collector();
@@ -136,7 +144,7 @@ public class RobotContainer {
 
         /* Copilot */
         if (Robot.isSimulation()) {
-            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(Collector.CollectorConstants.COLLECT_POWER, Degrees.of(90)));
+            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER, CollectorConstants.MAX_ANGLE));
 
             new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(20))));
 
@@ -144,7 +152,7 @@ public class RobotContainer {
                 shooter.setVelocity(RotationsPerSecond.of(100));
                 indexer.setSpindexerPower(1d);
             })).onFalse(new InstantCommand(() -> {
-                shooter.stopMotor();
+                shooter.stop();
                 indexer.stop();
             }));
 
@@ -154,8 +162,18 @@ public class RobotContainer {
 
             // new Trigger(driver::getBButton).whileTrue(new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION))); //todo fix
         }
-    }
 
+        if (RobotMap.IS_OASIS) {
+            new Trigger(copilot::getLeftBumperButton).whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
+            new Trigger(copilot::getRightBumperButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
+
+            new Trigger(copilot::getXButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, -IndexerConstants.TRANSFER_POWER));
+            new Trigger(copilot::getBButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER));
+
+            new Trigger(copilot::getYButton).whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
+                .andThen(indexer.indexCommand(0.5, 1).andThen(shooter::stop)));
+        }
+    }
     private void configureNamedCommands(){
         NamedCommands.registerCommand("LED_SHOOT", leds.enableStateWithTimeout(LED_STATES.SHOOT.id(), 2));
         NamedCommands.registerCommand("LED_COLLECT", leds.enableStateWithTimeout(LED_STATES.COLLECT.id(), 2));
