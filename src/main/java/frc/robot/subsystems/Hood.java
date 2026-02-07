@@ -58,9 +58,9 @@ public class Hood extends SubsystemBase {
 
         // Input is distance to target in meters, output is hood angle in degrees
         public static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(2d, 10d),
-            Map.entry(4d, 20d),
-            Map.entry(6d, 30d));
+            Map.entry(2d, 50d),
+            Map.entry(4d, 60d),
+            Map.entry(6d, 70d));
 
         public static final double kS = 0.25d; // temp
         public static final double kV = 2; // temp
