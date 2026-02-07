@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -39,10 +38,10 @@ public class Collector extends SubsystemBase {
 
     public class CollectorConstants {
         // motor rollers
-        public static final boolean COLLECTOR_MOTOR_INVERTED = false; // temp
-        public static final double COLLECTOR_MOTOR_STATOR_LIMIT = 40d; // temp
-        public static final Current COLLECTOR_MOTOR_CURRENT_THRESHOLD = Amps.of(20); // temp
-        public static final boolean COLLECTOR_MOTOR_BRAKE = true; // temp
+        public static final boolean INVERTED = true; // temp
+        public static final double STATOR_LIMIT = 40d; // temp
+        public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
+        public static final boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 1d;
 
 
@@ -67,9 +66,7 @@ public class Collector extends SubsystemBase {
         public static final double ENCODER_TO_MECHANISM_RATIO = 36d; // temp
         public static final Angle MIN_ANGLE = Degrees.of(0); // temp
         public static final Angle MAX_ANGLE = Degrees.of(90); // temp
-        public static final Angle DEPLOYED_ANGLE = MIN_ANGLE;
-        public static final Angle STOWED_ANGLE = MAX_ANGLE;
-        public static final Angle TOLERANCE = Degrees.of(5); // temp
+        public static final Angle TOLERANCE = Degrees.of(2); // temp
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.01); // temp
         public static final Distance LENGTH = Inches.of(6);
@@ -103,7 +100,7 @@ public class Collector extends SubsystemBase {
      */
     public Collector() {
         collectorMotor = new ThunderBird(RobotMap.COLLECTOR, RobotMap.CAN_BUS,
-            CollectorConstants.COLLECTOR_MOTOR_INVERTED, CollectorConstants.COLLECTOR_MOTOR_STATOR_LIMIT, CollectorConstants.COLLECTOR_MOTOR_BRAKE);
+            CollectorConstants.INVERTED, CollectorConstants.STATOR_LIMIT, CollectorConstants.BRAKE);
 
         pivotMotor = new ThunderBird(RobotMap.COLLECTOR_PIVOT, RobotMap.CAN_BUS,
             CollectorConstants.PIVOT_INVERTED, CollectorConstants.PIVOT_STATOR_LIMIT, CollectorConstants.PIVOT_BRAKE_MODE);
@@ -124,7 +121,6 @@ public class Collector extends SubsystemBase {
         config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         config.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
-        config.Feedback.RotorToSensorRatio = CollectorConstants.ROTOR_TO_ENCODER_RATIO;
 
         pivotMotor.applyConfig(config);
 
@@ -134,10 +130,10 @@ public class Collector extends SubsystemBase {
 
             collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ENCODER_TO_MECHANISM_RATIO, CollectorConstants.MOI.magnitude(),
             CollectorConstants.LENGTH.magnitude(), CollectorConstants.MIN_ANGLE.in(Radians), CollectorConstants.MAX_ANGLE.in(Radians), true,
-            CollectorConstants.STOWED_ANGLE.in(Radians));
+            CollectorConstants.MIN_ANGLE.in(Radians), 0d,1d);
 
             pivotMotorSim = pivotMotor.getSimState();
-            pivotMotorSim.setRawRotorPosition(CollectorConstants.STOWED_ANGLE.in(Radians));
+            pivotMotorSim.setRawRotorPosition(CollectorConstants.MIN_ANGLE);
 
             // collector sim stuff
             collectorGearbox = DCMotor.getKrakenX60(1);
@@ -206,7 +202,6 @@ public class Collector extends SubsystemBase {
     public void deployCollector(double power, Angle position) {
         setCollectorPower(power);
         setPivotAngle(position);
-
     }
     /**
      * Stops all movement to the collector motor
@@ -260,8 +255,12 @@ public class Collector extends SubsystemBase {
      * @return the command for running the shooter
      */
     public Command collectCommand(double power, Angle position) {
-        return new StartEndCommand(() -> deployCollector(power, position), () -> deployCollector(0, CollectorConstants.STOWED_ANGLE), this);
+        return new StartEndCommand(() -> deployCollector(power, position), () -> stopCollector(), this);
 
+    }
+
+    public Command collectCommand(double power) {
+        return new StartEndCommand(() -> setCollectorPower(power), () -> stopCollector(), this);
     }
 
     /**

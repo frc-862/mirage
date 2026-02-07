@@ -49,12 +49,12 @@ public class Shooter extends SubsystemBase {
         public static final boolean BRAKE = false; // temp
         public static final double COAST_DC = 0.05; // Shooter power when coasting
 
-        public static final double kP = 0.1d;
+        public static final double kP = 0.25d;
         public static final double kI = 0d;
         public static final double kD = 0d;
-        public static final double kV = 0.12d;
-        public static final double kS = 0.5d;
-        public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
+        public static final double kV = 0.1185d;
+        public static final double kS = 0.38d;
+        public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(1);
 
         public static final double GEAR_RATIO = 1d; // temp
         public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI).times(2);
@@ -105,6 +105,8 @@ public class Shooter extends SubsystemBase {
         dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
 
+        targetVelocity = RotationsPerSecond.of(0);
+
         //creates a config for the shooter motor
         TalonFXConfiguration config = motorLeft.getConfig();
 
@@ -125,7 +127,7 @@ public class Shooter extends SubsystemBase {
 
             shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(
                 DCMotor.getKrakenX60Foc(2), ShooterConstants.MOI.in(KilogramSquareMeters),
-                ShooterConstants.GEAR_RATIO), DCMotor.getKrakenX60Foc(1));
+                ShooterConstants.GEAR_RATIO), DCMotor.getKrakenX60Foc(2));
         }
     }
 
@@ -153,7 +155,7 @@ public class Shooter extends SubsystemBase {
     /**
      * stops all movement to the shooter motor
      */
-    public void stopMotor() {
+    public void stop() {
         motorLeft.stopMotor();
     }
 

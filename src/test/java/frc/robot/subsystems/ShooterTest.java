@@ -55,7 +55,7 @@ public class ShooterTest {
     motorUnderTest = new MotorUnderTest(
         motorLeft,
         shooter::setPower,
-        shooter::stopMotor,
+        shooter::stop,
         motorLeft.getSimState(),
         newKrakenSim()
     );
