@@ -46,7 +46,6 @@ public class Collector extends SubsystemBase {
         public static final boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 1d;
 
-
         public static final MomentOfInertia COLLECTOR_MOI = KilogramSquareMeters.of(0.001); //temp 
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
 
@@ -166,19 +165,6 @@ public class Collector extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        // pivot sim stuff
-        pivotMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-
-        collectorPivotSim.setInputVoltage(pivotMotorSim.getMotorVoltage());
-        collectorPivotSim.update(Robot.kDefaultPeriod);
-
-        Angle pivotSimAngle = Radians.of(collectorPivotSim.getAngleRads());
-        AngularVelocity pivotSimVelocity = RadiansPerSecond.of(collectorPivotSim.getVelocityRadPerSec());
-        
-        pivotMotorSim.setRawRotorPosition(pivotSimAngle.times(CollectorConstants.ENCODER_TO_MECHANISM_RATIO));
-        pivotMotorSim.setRotorVelocity(pivotSimVelocity.times(CollectorConstants.ENCODER_TO_MECHANISM_RATIO));
-        ligament.setAngle(90 - getPivotAngle().in(Degrees));  
-
         // collector sim stuff
         collectorMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
@@ -190,6 +176,19 @@ public class Collector extends SubsystemBase {
 
         collectorMotorSim.setRawRotorPosition(collectorSimAngle.times(CollectorConstants.COLLECTOR_GEAR_RATIO));
         collectorMotorSim.setRotorVelocity(collectorSimVelocity.times(CollectorConstants.COLLECTOR_GEAR_RATIO));
+
+        // pivot sim stuff
+        pivotMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+        collectorPivotSim.setInputVoltage(pivotMotorSim.getMotorVoltage());
+        collectorPivotSim.update(Robot.kDefaultPeriod);
+
+        Angle pivotSimAngle = Radians.of(collectorPivotSim.getAngleRads());
+        AngularVelocity pivotSimVelocity = RadiansPerSecond.of(collectorPivotSim.getVelocityRadPerSec());
+        
+        pivotMotorSim.setRawRotorPosition(pivotSimAngle.times(CollectorConstants.ENCODER_TO_MECHANISM_RATIO));
+        pivotMotorSim.setRotorVelocity(pivotSimVelocity.times(CollectorConstants.ENCODER_TO_MECHANISM_RATIO));
+        ligament.setAngle(90 - getPivotAngle().in(Degrees));
 
         LightningShuffleboard.setDouble("Collector", "Collector Pivot Position", getPivotAngle().in(Degrees));
         LightningShuffleboard.setDouble("Collector", "Collector Target Angle", getPivotTargetAngle().in(Degrees));
@@ -214,6 +213,7 @@ public class Collector extends SubsystemBase {
         setCollectorPower(power);
         setPivotAngle(position);
     }
+
     /**
      * Stops all movement to the collector motor
      */
