@@ -105,6 +105,7 @@ public class RobotContainer {
             turret.setDefaultCommand(turret.run(() -> turret.setAngle(Rotations.of(0))));
             hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(0))));
         }
+        shooter.setDefaultCommand(shooter.coast());
     }
 
     private void configureBindings() {
