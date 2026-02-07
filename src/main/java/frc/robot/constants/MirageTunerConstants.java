@@ -24,13 +24,12 @@ public class MirageTunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     private static final Slot0Configs steerGains = new Slot0Configs()
-        .withKP(100).withKI(0).withKD(0.5)
-        .withKS(0.1).withKV(2.49).withKA(0)
-        // .withKP(2.8295).withKI(0).withKD(0)
-        // .withKS(0.41143).withKV(2.5155).withKA(0.086701)
+        .withKP(100).withKI(0).withKD(0)
+        .withKS(0.52218).withKV(2.5467).withKA(0.12864)
+        // When using closed-loop control, the drive motor uses the control
+        // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
-    // When using closed-loop control, the drive motor uses the control
-    // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
+        
     private static final Slot0Configs driveGains = new Slot0Configs()
         .withKP(0.13602).withKI(0).withKD(0)
         .withKS(0.21549).withKV(0.1208).withKA(0.0057772); 

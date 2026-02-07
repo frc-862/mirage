@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
+import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.simulation.SwerveSim;
 
 /**

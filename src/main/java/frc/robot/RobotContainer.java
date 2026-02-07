@@ -112,15 +112,15 @@ public class RobotContainer {
 
     private void configureBindings() {
         /* Driver */
-        // new Trigger(driver::getXButton)
-        //     .whileTrue(drivetrain.brakeCommand()
-        //         .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
-        //     );
+        new Trigger(driver::getXButton)
+            .whileTrue(drivetrain.brakeCommand()
+                .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
+            );
 
-        new Trigger(driver::getAButton).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        new Trigger(driver::getBButton).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        new Trigger(driver::getXButton).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        new Trigger(driver::getYButton).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // new Trigger(driver::getAButton).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        // new Trigger(driver::getBButton).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        // new Trigger(driver::getXButton).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        // new Trigger(driver::getYButton).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         new Trigger(() -> driver.getLeftTriggerAxis() > 0.25).onTrue(Commands.runOnce(() -> SignalLogger.start())
             .alongWith(Commands.print("Started Logging")));
