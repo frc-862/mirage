@@ -4,7 +4,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Meters;
@@ -23,8 +22,6 @@ public class TurretAim extends Command {
     private Translation2d target;
     private Turret turret;
     private Distance distanceToTargetMeters;
-
-    private Pose2d pose = new Pose2d(0, 0, Rotation2d.fromDegrees(0)); //Temp
 
     /**
      * @param drivetrain drivetrain from the Swerve class to get robot pose
@@ -53,15 +50,13 @@ public class TurretAim extends Command {
 
     @Override
     public void execute() {
-
         Pose2d robotPose = drivetrain.getPose();
 
         Translation2d delta = target.minus(robotPose.getTranslation());
         distanceToTargetMeters = Meters.of(delta.getNorm());
 
         Angle fieldAngle = delta.getAngle().getMeasure();
-        Angle turretAngle
-                = fieldAngle.minus(Degree.of(robotPose.getRotation().getDegrees()));
+        Angle turretAngle = fieldAngle.minus(Degree.of(robotPose.getRotation().getDegrees()));
 
         Angle wrappedAngle
                 = inputModulus(
@@ -92,6 +87,10 @@ public class TurretAim extends Command {
         return distanceToTargetMeters;
     }
 
+    /**
+     * Finds the optimal target position on the field based on the robot's pose
+     * @return Translation2d of the target position
+     */
     public Translation2d findTargetPosition() {
         Pose2d robotPose = drivetrain.getPose();
         
@@ -115,6 +114,10 @@ public class TurretAim extends Command {
         }
     }
 
+    /**
+     * Checks if the robot's pose is within the current alliance's zone
+     * @return true if the robot is in the zone, false otherwise
+     */
     public boolean isInZone() {
         Pose2d robotPose = drivetrain.getPose();
         
