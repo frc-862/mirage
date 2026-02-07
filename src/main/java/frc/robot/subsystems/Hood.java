@@ -146,8 +146,9 @@ public class Hood extends SubsystemBase {
             motorSim = motor.getSimState();
             encoderSim = encoder.getSimState();
 
-            motorSim.Orientation = ChassisReference.Clockwise_Positive;
+            encoderSim.Orientation = ChassisReference.Clockwise_Positive;
 
+            hoodSim.setState(HoodConstants.MAX_ANGLE.in(Radians), 0);
             motorSim.setRawRotorPosition(HoodConstants.MAX_ANGLE.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
             encoderSim.setRawPosition(HoodConstants.MAX_ANGLE.times(HoodConstants.ENCODER_TO_MECHANISM_RATIO));
 
