@@ -9,9 +9,9 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
@@ -19,6 +19,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -68,6 +69,20 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     public static Translation2d getTargetData(Target target) {
         return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue ? target.blue() : target.red();
         }
+
+    
+    public static final Rectangle2d BLUE_ALLIANCE_RECT = new Rectangle2d(new Pose2d(2.312797, 4.034663, new Rotation2d()), 4.625594, 8.069326);
+    public static final Rectangle2d RED_ALLIANCE_RECT = new Rectangle2d(new Pose2d(14.228191, 4.034663, new Rotation2d()), 4.625594, 8.069326);
+    public static final Rectangle2d BOTTOM_HALF_RECT = new Rectangle2d(new Pose2d(8.270494, 2.017268, new Rotation2d()), 16.540988, 4.034663);
+    public static final Rectangle2d TOP_HALF_RECT = new Rectangle2d(new Pose2d(8.270494, 6.052291, new Rotation2d()), 16.540988, 4.034663);
+
+    public static final Translation2d ZONE_POSITION_BLUE_TOP = new Translation2d(2.034536, 5.963158);
+    public static final Translation2d ZONE_POSITION_BLUE_BOTTOM = new Translation2d(2.034536, 2.105914);
+
+    public static final Translation2d ZONE_POSITION_RED_TOP = new Translation2d(13.915394, 5.963158);
+    public static final Translation2d ZONE_POSITION_RED_BOTTOM = new Translation2d(13.915394, 2.105914);
+
+    public static final double FIELD_MIDDLE_Y = 4.034663;
     }
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(

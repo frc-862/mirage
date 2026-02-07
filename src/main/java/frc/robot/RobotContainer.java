@@ -1,7 +1,6 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -11,7 +10,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
@@ -30,7 +28,6 @@ import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.Swerve.FieldConstants;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.leds.Color;
@@ -39,6 +36,7 @@ import frc.util.leds.LEDSubsystem;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
+
     private final XboxController driver;
     private final XboxController copilot;
 
@@ -82,19 +80,18 @@ public class RobotContainer {
 
     private void configureDefaultCommands() {
         /* Driver */
-        /*
+ /*
         * Note that X is defined as forward according to WPILib convention,
         * Y is defined as to the left according to WPILib convention.
-        */
+         */
         drivetrain.setDefaultCommand(drivetrain.driveCommand(
-            () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
-                VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), RobotMap.CONTROLLER_DEADBAND)
-                .times(driver.getRightBumperButton() ? DriveConstants.SLOW_MODE_MULT : 1.0),
-                RobotMap.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                RobotMap.CONTROLLER_DEADBAND), RobotMap.CONTROLLER_POW) * (driver.getRightBumperButton()
+                () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
+                        VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), RobotMap.CONTROLLER_DEADBAND)
+                        .times(driver.getRightBumperButton() ? DriveConstants.SLOW_MODE_MULT : 1.0),
+                        RobotMap.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                        RobotMap.CONTROLLER_DEADBAND), RobotMap.CONTROLLER_POW) * (driver.getRightBumperButton()
                 ? DriveConstants.SLOW_MODE_MULT : 1.0)));
-        if (Robot.isSimulation()){
-            turret.setDefaultCommand(turret.run(() -> turret.setAngle(Rotations.of(0))));
+        if (Robot.isSimulation()) {
             hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(0))));
         }
     }
@@ -102,22 +99,22 @@ public class RobotContainer {
     private void configureBindings() {
         /* Driver */
         new Trigger(driver::getXButton)
-            .whileTrue(drivetrain.brakeCommand()
-                .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
-            );
+                .whileTrue(drivetrain.brakeCommand()
+                        .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
+                );
 
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
-            .onTrue(drivetrain.resetFieldCentricCommand());
+                .onTrue(drivetrain.resetFieldCentricCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
         new Trigger(driver::getLeftBumperButton).whileTrue(drivetrain.robotCentricDrive(
-            () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
-                VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), RobotMap.CONTROLLER_DEADBAND)
-                .times(driver.getRightBumperButton() ? DriveConstants.SLOW_MODE_MULT : 1.0),
-                RobotMap.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                RobotMap.CONTROLLER_DEADBAND), RobotMap.CONTROLLER_POW) * (driver.getRightBumperButton()
+                () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
+                        VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), RobotMap.CONTROLLER_DEADBAND)
+                        .times(driver.getRightBumperButton() ? DriveConstants.SLOW_MODE_MULT : 1.0),
+                        RobotMap.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                        RobotMap.CONTROLLER_DEADBAND), RobotMap.CONTROLLER_POW) * (driver.getRightBumperButton()
                 ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         /* Copilot */
@@ -138,11 +135,11 @@ public class RobotContainer {
 
             new Trigger(copilot::getXButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
 
-            new Trigger(driver::getBButton).whileTrue(new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
+            new Trigger(driver::getBButton).whileTrue(new TurretAim(drivetrain, turret, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
         }
     }
 
-    private void configureNamedCommands(){
+    private void configureNamedCommands() {
         NamedCommands.registerCommand("LED_SHOOT", leds.enableStateWithTimeout(LED_STATES.SHOOT.id(), 2));
         NamedCommands.registerCommand("LED_COLLECT", leds.enableStateWithTimeout(LED_STATES.COLLECT.id(), 2));
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
@@ -159,8 +156,8 @@ public class RobotContainer {
         leds.setDefaultBehavior(LEDBehaviorFactory.swirl(LEDConstants.stripAll, 10, 5, Color.ORANGE, Color.BLUE));
 
         leds.setBehavior(LED_STATES.TEST.id(), LEDBehaviorFactory.testStrip(LEDConstants.stripAll,
-            () -> false,
-            () -> true
+                () -> false,
+                () -> true
         ));
         leds.setBehavior(LED_STATES.ERROR.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
         leds.setBehavior(LED_STATES.BRAKE.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
@@ -170,7 +167,7 @@ public class RobotContainer {
         leds.setBehavior(LED_STATES.CANNED_SHOT_START.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.YELLOW));
         leds.setBehavior(LED_STATES.CANNED_SHOT_READY.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREEN));
 
-        new Trigger(DriverStation:: isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
+        new Trigger(DriverStation::isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
 
         new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
     }

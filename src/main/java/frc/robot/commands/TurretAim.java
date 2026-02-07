@@ -4,13 +4,13 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
@@ -25,9 +25,6 @@ public class TurretAim extends Command {
     private Distance distanceToTargetMeters;
 
     private Pose2d pose = new Pose2d(0, 0, Rotation2d.fromDegrees(0)); //Temp
-    private Rectangle2d redAllianceZone = new Rectangle2d(pose, 1, 2); //Temp
-    private Rectangle2d neutralZone = new Rectangle2d(pose, 2, 1); //Temp
-    private Rectangle2d blueallianceZone = new Rectangle2d(pose, 2, 2); //Temp
 
     /**
      * @param drivetrain drivetrain from the Swerve class to get robot pose
@@ -98,19 +95,33 @@ public class TurretAim extends Command {
     public Translation2d findTargetPosition() {
         Pose2d robotPose = drivetrain.getPose();
         
-        if (robotPose == null) {
-            return new Translation2d(0,0);
-        }
-
-        if (redAllianceZone.contains(robotPose.getTranslation())) {
-                return (Swerve.FieldConstants.getTargetData(
-                        Swerve.FieldConstants.GOAL_POSITION));
-            } else if (neutralZone.contains(robotPose.getTranslation())) {
-                return (Swerve.FieldConstants.getTargetData(
-                        Swerve.FieldConstants.DEPOT_POSITION));
+        if (isInZone()) {
+            return (Swerve.FieldConstants.getTargetData(
+                    Swerve.FieldConstants.GOAL_POSITION));
+        } else {
+            if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Red) {
+                if (robotPose.getY() > Swerve.FieldConstants.FIELD_MIDDLE_Y) {
+                    return Swerve.FieldConstants.ZONE_POSITION_RED_TOP;
+                } else {
+                    return Swerve.FieldConstants.ZONE_POSITION_RED_BOTTOM;
+                }
             } else {
-                return (Swerve.FieldConstants.getTargetData(
-                        Swerve.FieldConstants.DEPOT_POSITION));
+                if (robotPose.getY() > Swerve.FieldConstants.FIELD_MIDDLE_Y) {
+                    return Swerve.FieldConstants.ZONE_POSITION_BLUE_TOP;
+                } else {
+                    return Swerve.FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
+                }
             }
+        }
+    }
+
+    public boolean isInZone() {
+        Pose2d robotPose = drivetrain.getPose();
+        
+        if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Red) {
+            return (Swerve.FieldConstants.RED_ALLIANCE_RECT.contains(robotPose.getTranslation()));
+        } else {
+            return (Swerve.FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
+        }
     }
 }
