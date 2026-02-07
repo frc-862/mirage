@@ -33,6 +33,10 @@ import frc.util.Units;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+
 public class Collector extends SubsystemBase {
 
     public class CollectorConstants {
@@ -46,7 +50,6 @@ public class Collector extends SubsystemBase {
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 1d;
-
 
         public static final MomentOfInertia COLLECTOR_MOI = KilogramSquareMeters.of(0.001); //temp 
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
@@ -92,7 +95,9 @@ public class Collector extends SubsystemBase {
     private ThunderBird pivotMotor;
     private TalonFXSimState pivotMotorSim;
     private SingleJointedArmSim collectorPivotSim;
-
+    private Mechanism2d mech2d;
+    private MechanismRoot2d root2d;
+    private MechanismLigament2d ligament;
     private Angle targetPivotPosition;
     private final PositionVoltage positionPID;
 
@@ -147,6 +152,12 @@ public class Collector extends SubsystemBase {
 
             collectorMotorSim = collectorMotor.getSimState();
             collectorMotorSim.setMotorType(MotorType.KrakenX60);
+
+            mech2d = new Mechanism2d(3, 3);
+            root2d = mech2d.getRoot("Collector", 0.5, 0.5);
+            ligament = root2d.append(new MechanismLigament2d("Collector", 2, 90));
+            
+            LightningShuffleboard.send("Collector", "mech 2d", mech2d);
         }
     }
 
@@ -159,18 +170,6 @@ public class Collector extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        // pivot sim stuff
-        pivotMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-
-        collectorPivotSim.setInputVoltage(pivotMotorSim.getMotorVoltage());
-        collectorPivotSim.update(Robot.kDefaultPeriod);
-
-        Angle pivotSimAngle = Radians.of(collectorPivotSim.getAngleRads());
-        AngularVelocity pivotSimVelocity = RadiansPerSecond.of(collectorPivotSim.getVelocityRadPerSec());
-        
-        pivotMotorSim.setRawRotorPosition(pivotSimAngle.times(CollectorConstants.ENCODER_TO_MECHANISM_RATIO));
-        pivotMotorSim.setRotorVelocity(pivotSimVelocity.times(CollectorConstants.ENCODER_TO_MECHANISM_RATIO));
-
         // collector sim stuff
         collectorMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
@@ -182,6 +181,19 @@ public class Collector extends SubsystemBase {
 
         collectorMotorSim.setRawRotorPosition(collectorSimAngle.times(CollectorConstants.COLLECTOR_GEAR_RATIO));
         collectorMotorSim.setRotorVelocity(collectorSimVelocity.times(CollectorConstants.COLLECTOR_GEAR_RATIO));
+
+        // pivot sim stuff
+        pivotMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+        collectorPivotSim.setInputVoltage(pivotMotorSim.getMotorVoltage());
+        collectorPivotSim.update(Robot.kDefaultPeriod);
+
+        Angle pivotSimAngle = Radians.of(collectorPivotSim.getAngleRads());
+        AngularVelocity pivotSimVelocity = RadiansPerSecond.of(collectorPivotSim.getVelocityRadPerSec());
+        
+        pivotMotorSim.setRawRotorPosition(pivotSimAngle.times(CollectorConstants.ENCODER_TO_MECHANISM_RATIO));
+        pivotMotorSim.setRotorVelocity(pivotSimVelocity.times(CollectorConstants.ENCODER_TO_MECHANISM_RATIO));
+        ligament.setAngle(getPivotAngle().in(Degrees));
 
         LightningShuffleboard.setDouble("Collector", "Collector Pivot Position", getPivotAngle().in(Degrees));
         LightningShuffleboard.setDouble("Collector", "Collector Target Angle", getPivotTargetAngle().in(Degrees));
@@ -206,6 +218,7 @@ public class Collector extends SubsystemBase {
         setCollectorPower(power);
         setPivotAngle(position);
     }
+
     /**
      * Stops all movement to the collector motor
      */
