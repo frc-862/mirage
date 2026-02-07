@@ -30,12 +30,17 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-        // Starts WPILIB data logging
-        DataLogManager.start("/home/lvuser/logs");
+        // Only start WPILIB data logging on the real robot
+        if(!isSimulation()){
+            DataLogManager.start("/home/lvuser/logs");
+            DriverStation.startDataLog(DataLogManager.getLog());
+        }
 
-        // Start logging driverstation
-        DriverStation.startDataLog(DataLogManager.getLog());
-
+        //Silence joystick warnings in simulation
+        if (isSimulation()){
+            DriverStation.silenceJoystickConnectionWarning(true);
+        }
+        
         // No Live Window for now
         LiveWindow.disableAllTelemetry();
     }
