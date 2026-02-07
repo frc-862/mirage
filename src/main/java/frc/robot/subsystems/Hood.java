@@ -51,9 +51,8 @@ public class Hood extends SubsystemBase {
         public static final double STATOR_LIMIT = 40d; // temp
         public static final boolean BRAKE = true; // temp
 
-        public static final Angle MIN_ANGLE = Degree.of(0); // Hood v2
-        public static final Angle MAX_ANGLE = Degree.of(30); // Hood v2
-        public static final Angle HOOD_OFFSET = Degree.of(70);
+        public static final Angle MIN_ANGLE = Degree.of(45); // Hood v2
+        public static final Angle MAX_ANGLE = Degree.of(80); // Hood v2
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
 
@@ -118,7 +117,7 @@ public class Hood extends SubsystemBase {
             angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
             encoder.getConfigurator().apply(angleConfig);
         } else {
-            motor.setPosition(HoodConstants.MIN_ANGLE);
+            motor.setPosition(HoodConstants.MAX_ANGLE);
         }
 
         motorConfig.Slot0.kP = HoodConstants.kP;
@@ -149,13 +148,13 @@ public class Hood extends SubsystemBase {
 
             motorSim.Orientation = ChassisReference.Clockwise_Positive;
 
-            motorSim.setRawRotorPosition(HoodConstants.MIN_ANGLE.in(Rotations));
-            encoderSim.setRawPosition(HoodConstants.MIN_ANGLE.in(Rotations));
+            motorSim.setRawRotorPosition(HoodConstants.MAX_ANGLE.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+            encoderSim.setRawPosition(HoodConstants.MAX_ANGLE.times(HoodConstants.ENCODER_TO_MECHANISM_RATIO));
 
             mech2d = new Mechanism2d(2,  2);
             root2d =  mech2d.getRoot("Hood", 0.2, 0.2);
 
-            ligament = root2d.append(new MechanismLigament2d("Hood", 1.5, 0));
+            ligament = root2d.append(new MechanismLigament2d("Hood", 1.5, 80));
             LightningShuffleboard.send("Hood", "Mech2d", mech2d);
         }
     }
@@ -179,12 +178,12 @@ public class Hood extends SubsystemBase {
         Angle simAngle = Radians.of(hoodSim.getAngularPositionRad());
         AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getAngularVelocityRadPerSec());
 
-        motorSim.setRawRotorPosition(simAngle);
-        motorSim.setRotorVelocity(simVeloc);
+        motorSim.setRawRotorPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+        motorSim.setRotorVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
 
         ligament.setAngle(simAngle.in(Degrees));
-        encoderSim.setRawPosition(simAngle);
-        encoderSim.setVelocity(simVeloc);
+        encoderSim.setRawPosition(simAngle.times(HoodConstants.ENCODER_TO_MECHANISM_RATIO));
+        encoderSim.setVelocity(simVeloc.times(HoodConstants.ENCODER_TO_MECHANISM_RATIO));
 
         LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
