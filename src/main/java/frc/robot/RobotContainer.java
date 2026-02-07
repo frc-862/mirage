@@ -108,6 +108,7 @@ public class RobotContainer {
         if (Robot.isSimulation()) {
             hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(0))));
         }
+        shooter.setDefaultCommand(shooter.coast());
     }
 
     private void configureBindings() {
