@@ -139,7 +139,9 @@ public class RobotContainer {
 
             new Trigger(copilot::getXButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
 
-            new Trigger(copilot::getYButton).onTrue(hood.run(() -> hood.setBias(hood.getBias().plus(Degrees.of(1)))));
+            // new Trigger(copilot::getBButton).onTrue(new InstantCommand(() -> hood.setBias(hood.getBias().minus(Degrees.of(0.1))))); // Assign a trigger soon
+            // new Trigger(copilot::getYButton).onTrue(new InstantCommand(() -> hood.setBias(hood.getBias().plus(Degrees.of(0.1))))); // Assign a trigger soon
+            
             // new Trigger(driver::getBButton).whileTrue(new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION))); //todo fix
         }
     }
