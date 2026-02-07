@@ -34,6 +34,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -47,6 +48,7 @@ public class Shooter extends SubsystemBase {
         public static final boolean INVERTED = false; // temp
         public static final Current STATOR_LIMIT = Amps.of(120); // temp
         public static final boolean BRAKE = false; // temp
+        public static final double COAST_DC = 0.05; // Shooter power when coasting
 
         public static final double kP = 0.25d;
         public static final double kI = 0d;
@@ -56,8 +58,10 @@ public class Shooter extends SubsystemBase {
         public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(1);
 
         public static final double GEAR_RATIO = 1d; // temp
-        public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI).times(2);
+        public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(2).times(Math.PI).times(2);
 
+        // for sim to account for movement between shooter, fuel, and hood
+        public static final double SHOOTER_EFFICIENCY = 0.3; 
         // Input is distance to target in meters, output is shooter speed in rotations per second
         public static final InterpolatingDoubleTreeMap VELOCITY_MAP = InterpolatingDoubleTreeMap.ofEntries(
                 Map.entry(2d, 20d),
@@ -197,9 +201,17 @@ public class Shooter extends SubsystemBase {
     /**
      * velocity control command for shooter
      * @param velocitySupplier
-        * @return the command for running the shooter
-        */
+     * @return the command for running the shooter
+     */
     public Command shootCommand(Supplier<AngularVelocity> velocitySupplier) {
         return new StartEndCommand(() -> setVelocity(velocitySupplier.get()), () -> {}, this).until(this::isOnTarget);
+    }
+
+    /**
+     * Sets shooter motor into an idle power
+     * @return the command for running the shooter at coast power
+     */
+    public Command coast() {
+        return new InstantCommand(() -> setPower(ShooterConstants.COAST_DC), this);
     }
 }
