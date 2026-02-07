@@ -20,6 +20,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
+import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
@@ -70,8 +71,8 @@ public class Hood extends SubsystemBase {
         public static final Angle POSITION_TOLERANCE = Degrees.of(1); // temp
 
         // Conversion ratios
-        public static final double ROTOR_TO_ENCODER_RATIO = RobotMap.IS_OASIS ? 1 : 50/22;
-        public static final double ENCODER_TO_MECHANISM_RATIO = RobotMap.IS_OASIS ? 50/22 * 156/15 : 156/15;
+        public static final double ROTOR_TO_ENCODER_RATIO = RobotMap.IS_OASIS ? 1 : 50d/22d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = RobotMap.IS_OASIS ? 50d/22d * 156d/15d : 156d/15d;
         public static final double ROTOR_TO_MECHANISM_RATIO = ROTOR_TO_ENCODER_RATIO * ENCODER_TO_MECHANISM_RATIO; // only used in sim
 
         public static final Angle ANGLE_OFFSET = Degrees.of(0); // temp
@@ -141,8 +142,10 @@ public class Hood extends SubsystemBase {
                 gearbox
             );
 
-            motorSim = new TalonFXSimState(motor);
-            encoderSim = new CANcoderSimState(encoder);
+            motorSim = motor.getSimState();
+            encoderSim = encoder.getSimState();
+
+            motorSim.Orientation = ChassisReference.Clockwise_Positive;
 
             motorSim.setRawRotorPosition(HoodConstants.MIN_ANGLE.in(Rotations));
             encoderSim.setRawPosition(HoodConstants.MIN_ANGLE.in(Rotations));
