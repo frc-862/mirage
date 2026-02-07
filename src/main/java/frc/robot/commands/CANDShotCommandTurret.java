@@ -22,11 +22,6 @@ public class CANDShotCommandTurret extends CANDShotCommand {
     }
 
     @Override
-    public void execute() {
-
-    }
-
-    @Override
     public void end(boolean interrupted) {
         super.end(interrupted);
 

@@ -35,11 +35,6 @@ public class CANDShotCommand extends LEDCommand {
     }
 
     @Override
-    public void execute() {
-
-    }
-
-    @Override
     public void end(boolean interrupted) {
         shooter.stopMotor();
         hood.stop();
