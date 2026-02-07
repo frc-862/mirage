@@ -56,8 +56,10 @@ public class Shooter extends SubsystemBase {
         public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(1);
 
         public static final double GEAR_RATIO = 1d; // temp
-        public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI).times(2);
+        public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(2).times(Math.PI).times(2);
 
+        // for sim to account for movement between shooter, fuel, and hood
+        public static final double SHOOTER_EFFICIENCY = 0.3; 
         // Input is distance to target in meters, output is shooter speed in rotations per second
         public static final InterpolatingDoubleTreeMap VELOCITY_MAP = InterpolatingDoubleTreeMap.ofEntries(
                 Map.entry(2d, 20d),
