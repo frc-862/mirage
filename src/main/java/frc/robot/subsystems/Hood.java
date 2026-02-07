@@ -155,7 +155,7 @@ public class Hood extends SubsystemBase {
             mech2d = new Mechanism2d(2,  2);
             root2d =  mech2d.getRoot("Hood", 0.2, 0.2);
 
-            ligament = root2d.append(new MechanismLigament2d("Hood", 1.5, 80));
+            ligament = root2d.append(new MechanismLigament2d("Hood", 1.5, HoodConstants.MAX_ANGLE.in(Degrees)));
             LightningShuffleboard.send("Hood", "Mech2d", mech2d);
         }
     }
