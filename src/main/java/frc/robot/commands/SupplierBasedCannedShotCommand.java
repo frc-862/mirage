@@ -114,7 +114,7 @@ public class SupplierBasedCannedShotCommand {
                 hood.hoodCommand(() -> shotData.hoodAngle())
             ).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_START.id())),
             indexer.indexCommand(1d).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_READY.id()))
-        ).handleInterrupt(() -> shooter.stopMotor());
+        ).handleInterrupt(() -> shooter.stop());
     }
 
     private static SupplierBasedCannedShotsConstants.ShotData findClosestShot(Swerve drivetrain) {

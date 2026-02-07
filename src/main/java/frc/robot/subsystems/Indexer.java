@@ -30,7 +30,7 @@ public class Indexer extends SubsystemBase {
 
     public class IndexerConstants {
         // spindexer
-        public static final boolean SPINDEXER_MOTOR_INVERTED = false; // temp
+        public static final boolean SPINDEXER_MOTOR_INVERTED = true; // temp
         public static final Current SPINDEXER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean SPINDEXER_MOTOR_BRAKE_MODE = true; // temp
 
@@ -39,7 +39,7 @@ public class Indexer extends SubsystemBase {
         public static final double SPINDEXDER_POWER = 0.5;
 
         // transfer
-        public static final boolean TRANSFER_MOTOR_INVERTED = false; // temp
+        public static final boolean TRANSFER_MOTOR_INVERTED = true; // temp
         public static final Current TRANSFER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean TRANSFER_MOTOR_BRAKE_MODE = true; // temp
 
@@ -136,6 +136,11 @@ public class Indexer extends SubsystemBase {
         setTransferPower(power);
     }
 
+    public void setPower(double spindexerPower, double transferPower) {
+        setSpindexerPower(spindexerPower);
+        setTransferPower(transferPower);
+    }
+
     /**
      * stops all movement to the overall indexer
      */
@@ -152,5 +157,9 @@ public class Indexer extends SubsystemBase {
      */
     public Command indexCommand(double power) {
         return new StartEndCommand(() -> setPower(power), () -> stop(), this);
+    }
+
+    public Command indexCommand(double spindexerPower, double transferPower) {
+        return new StartEndCommand(() -> setPower(spindexerPower, transferPower), () -> stop(), this);
     }
 }

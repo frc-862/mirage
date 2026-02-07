@@ -54,13 +54,12 @@ public class Turret extends SubsystemBase {
         public static final double MOTOR_KP = 6.5;
         public static final double MOTOR_KI = 0;
         public static final double MOTOR_KD = 0;
-        public static final double MOTOR_KF = 0;
         public static final double MOTOR_KS = 1;
         public static final double MOTOR_KV = 0.18;
         public static final double MOTOR_KA = 0.01;
         public static final double MOTOR_KG = 0;
 
-        public static final double ENCODER_TO_MECHANISM_RATIO = 74d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = 22/185d;
 
         public static final Angle ZERO_ANGLE = Degree.of(0);
         public static final double ZEROING_POWER = 0.5;
@@ -119,7 +118,7 @@ public class Turret extends SubsystemBase {
         zeroLimitSwitch = new DigitalInput(RobotMap.TURRET_ZERO_SWITCH);
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
 
-        zeroed = Robot.isSimulation(); // only zero when real
+        zeroed = Robot.isSimulation() || RobotMap.IS_OASIS; // only zero when real // TODO: remove isOasis check after limit switches added
         if (!zeroed) {
             setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
         }
@@ -151,12 +150,11 @@ public class Turret extends SubsystemBase {
             setPower(-TurretConstants.ZEROING_POWER);
         }
 
-        // Zero limit switch is precise, so stop and set encoder position when zero is hit
+        // Zero limit switch is precise, so set encoder position when zero is hit
         if (getZeroLimitSwitch() && !zeroed) { // TODO: add led strip indication?
-            stop();
             setEncoderPosition(TurretConstants.ZERO_ANGLE);
-            setAngle(targetPosition);
             zeroed = true;
+            setAngle(targetPosition);
         }
     }
 
