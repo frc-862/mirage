@@ -67,6 +67,8 @@ public class Collector extends SubsystemBase {
         public static final double ENCODER_TO_MECHANISM_RATIO = 36d; // temp
         public static final Angle MIN_ANGLE = Degrees.of(0); // temp
         public static final Angle MAX_ANGLE = Degrees.of(90); // temp
+        public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
+        public static final Angle STOWED_ANGLE = MIN_ANGLE;
         public static final Angle TOLERANCE = Degrees.of(2); // temp
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.01); // temp
@@ -108,7 +110,7 @@ public class Collector extends SubsystemBase {
         pivotMotor = new ThunderBird(RobotMap.COLLECTOR_PIVOT, RobotMap.CAN_BUS,
             CollectorConstants.PIVOT_INVERTED, CollectorConstants.PIVOT_STATOR_LIMIT, CollectorConstants.PIVOT_BRAKE_MODE);
 
-        targetPivotPosition = CollectorConstants.MAX_ANGLE;
+        targetPivotPosition = CollectorConstants.STOWED_ANGLE;
 
         collectorDutyCycle = new DutyCycleOut(0.0);
         positionPID = new PositionVoltage(0);
@@ -133,10 +135,10 @@ public class Collector extends SubsystemBase {
 
             collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ENCODER_TO_MECHANISM_RATIO, CollectorConstants.MOI.magnitude(),
             CollectorConstants.LENGTH.magnitude(), CollectorConstants.MIN_ANGLE.in(Radians), CollectorConstants.MAX_ANGLE.in(Radians), true,
-            CollectorConstants.MIN_ANGLE.in(Radians));
+            CollectorConstants.STOWED_ANGLE.in(Radians));
 
             pivotMotorSim = pivotMotor.getSimState();
-            pivotMotorSim.setRawRotorPosition(CollectorConstants.MIN_ANGLE);
+            pivotMotorSim.setRawRotorPosition(CollectorConstants.STOWED_ANGLE);
 
             // collector sim stuff
             collectorGearbox = DCMotor.getKrakenX60(1);
