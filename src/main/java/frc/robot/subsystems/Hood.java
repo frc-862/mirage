@@ -27,6 +27,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -88,6 +89,7 @@ public class Hood extends SubsystemBase {
     private MechanismRoot2d root2d;
     private Mechanism2d mech2d;
     private CANcoderSimState encoderSim;
+    private Angle hoodBias;
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
@@ -105,6 +107,8 @@ public class Hood extends SubsystemBase {
         request = new PositionVoltage(0d);
 
         targetAngle = Degrees.of(0);
+
+        hoodBias = Degrees.of(0); // temp
 
         if (hasEncoder()) {
             CANcoderConfiguration angleConfig = new CANcoderConfiguration();
@@ -184,10 +188,14 @@ public class Hood extends SubsystemBase {
      */
     public void setPosition(Angle position) {
         targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
-
+        targetAngle = targetAngle.plus(hoodBias);
         hoodMotor.setControl(request.withPosition(targetAngle));
     }
 
+    public void setBias(Angle bias){
+        hoodBias = bias;
+        targetAngle = targetAngle.plus(hoodBias);
+    }
     /**
      * Gets the current angle of the hood
      * @return
@@ -238,5 +246,14 @@ public class Hood extends SubsystemBase {
      */
     public Command hoodCommand(Supplier<Angle> hoodAngleSupplier) {
         return new StartEndCommand(() -> setPosition(hoodAngleSupplier.get()), () -> {}, this).until(this::isOnTarget);
+    }
+
+    /**
+     * Gets the bias of the hood
+     * @param bias in degrees
+     * @return
+     */
+    public Angle getBias() {
+        return hoodBias;
     }
 }
