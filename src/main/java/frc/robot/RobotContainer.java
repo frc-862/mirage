@@ -10,11 +10,14 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import org.dyn4j.geometry.Shape;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.spline.SplineHelper;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -97,6 +100,8 @@ public class RobotContainer {
         if (Robot.isSimulation()){
             turret.setDefaultCommand(turret.run(() -> turret.setAngle(Rotations.of(0))));
             hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(0))));
+            shooter.setDefaultCommand(shooter.run(() -> shooter.setVelocity(RotationsPerSecond.of(80))));
+            indexer.setDefaultCommand(indexer.run(() -> indexer.stopSpindexer()));
         }
     }
 
@@ -126,6 +131,8 @@ public class RobotContainer {
             new Trigger(driver::getAButton).whileTrue(collector.collectCommand(Collector.CollectorConstants.COLLECT_POWER, Degrees.of(90)));
 
             new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(20))));
+
+            new Trigger(driver::getXButton).whileTrue(indexer.run(() -> indexer.setSpindexerPower(1d)));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));
