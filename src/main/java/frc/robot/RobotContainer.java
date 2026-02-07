@@ -71,6 +71,7 @@ public class RobotContainer {
             collector = new Collector();
             indexer = new Indexer();
             shooter = new Shooter();
+            hood = new Hood();
             turret = new Turret(drivetrain);
         }
 

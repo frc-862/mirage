@@ -50,7 +50,7 @@ public class Hood extends SubsystemBase {
         public static final boolean BRAKE = true; // temp
 
         public static final Angle MIN_ANGLE = Degrees.of(45); 
-        public static final Angle MAX_ANGLE = Degrees.of(80); 
+        public static final Angle MAX_ANGLE = Degrees.of(75); 
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
 
@@ -165,7 +165,9 @@ public class Hood extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {}
+    public void periodic() {
+        LightningShuffleboard.setDouble("Hood", "Angle", getAngle().in(Degrees));
+    }
 
     @Override
     public void simulationPeriodic() {

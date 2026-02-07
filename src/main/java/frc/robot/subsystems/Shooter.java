@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
@@ -57,7 +58,7 @@ public class Shooter extends SubsystemBase {
         public static final AngularVelocity SLOT1_THRESHOLD = RotationsPerSecond.of(5);
 
         public static final double GEAR_RATIO = 1d; // temp
-        public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI).times(2);
+        public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI);
 
         // Input is distance to target in meters, output is shooter speed in rotations per second
         public static final InterpolatingDoubleTreeMap VELOCITY_MAP = InterpolatingDoubleTreeMap.ofEntries(
@@ -99,7 +100,6 @@ public class Shooter extends SubsystemBase {
     public Shooter(ThunderBird motorLeft, ThunderBird motorRight) {
         this.motorLeft = motorLeft;
         this.motorRight = motorRight;
-
 
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
@@ -200,8 +200,8 @@ public class Shooter extends SubsystemBase {
     }
 
     public Command switchSlotCommand() {
-        return Commands.idle().until(() -> motorLeft.getClosedLoopError().getValue() > 
-            ShooterConstants.SLOT1_THRESHOLD.in(RotationsPerSecond)).andThen(this::switchSlot);
+        return new WaitUntilCommand(() -> RotationsPerSecond.of(Math.abs(motorLeft.getClosedLoopError().getValue()))
+            .gt(ShooterConstants.SLOT1_THRESHOLD)).andThen(this::switchSlot);
     }
 
     /**

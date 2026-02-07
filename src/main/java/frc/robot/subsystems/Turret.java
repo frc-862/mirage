@@ -6,16 +6,15 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meter;
@@ -49,19 +48,17 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Degrees.of(-100): Degrees.of(-220); // limit range temporarily
-        public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Degrees.of(100): Degrees.of(220);
+        public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Degrees.of(-120): Degrees.of(-220); // limit range temporarily
+        public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Degrees.of(120): Degrees.of(220);
 
-        public static final double kP = 8;
+        public static final double kP = 25;
         public static final double kI = 0;
         public static final double kD = 0;
-        public static final double kS = 0.49;
-
-
+        public static final double kS = 0.45;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 185/22 * 5;
 
-        public static final Angle ZERO_ANGLE = Degree.of(0);
+        public static final Angle ZERO_ANGLE = Degrees.of(0);
         public static final double ZEROING_POWER = 0.5;
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
@@ -108,8 +105,8 @@ public class Turret extends SubsystemBase {
         config.Slot0.kD = TurretConstants.kD;
         config.Slot0.kS = TurretConstants.kS;
 
-        config.Voltage.PeakForwardVoltage = 3; // TODO: remove
-        config.Voltage.PeakReverseVoltage = -3; // temp
+        config.Voltage.PeakForwardVoltage = 2; // TODO: remove
+        config.Voltage.PeakReverseVoltage = -2; // temp
 
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = TurretConstants.MAX_ANGLE.in(Rotations);
@@ -137,7 +134,7 @@ public class Turret extends SubsystemBase {
 
             motorSim = new TalonFXSimState(motor);
 
-            motorSim.setRawRotorPosition(TurretConstants.MIN_ANGLE.in(Rotations));
+            motorSim.setRawRotorPosition(TurretConstants.MIN_ANGLE);
 
             mech2d = new Mechanism2d(3, 3);
             root2d = mech2d.getRoot("Turret", 2, 0);
@@ -176,14 +173,14 @@ public class Turret extends SubsystemBase {
         motorSim.setRawRotorPosition(simAngle);
         motorSim.setRotorVelocity(simVeloc);
 
-        ligament.setAngle(simAngle.in(Degree));
+        ligament.setAngle(new Rotation2d(simAngle));
 
         LightningShuffleboard.setDouble("Turret", "Motor encoder angle",
-                motor.getPosition().getValue().in(Degree));
-        LightningShuffleboard.setDouble("Turret", "sim angle", simAngle.in(Degree));
+                motor.getPosition().getValue().in(Degrees));
+        LightningShuffleboard.setDouble("Turret", "sim angle", simAngle.in(Degrees));
 
-        LightningShuffleboard.setDouble("Turret", "current angle", getAngle().in(Degree));
-        LightningShuffleboard.setDouble("Turret", "target angle", getTargetAngle().in(Degree));
+        LightningShuffleboard.setDouble("Turret", "current angle", getAngle().in(Degrees));
+        LightningShuffleboard.setDouble("Turret", "target angle", getTargetAngle().in(Degrees));
         LightningShuffleboard.setBool("Turret", "on target", isOnTarget());
 
         Translation3d robotTranslation3d = new Translation3d(
