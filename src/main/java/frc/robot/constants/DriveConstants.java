@@ -69,7 +69,7 @@ public class DriveConstants {
 
     public static final double SLOW_MODE_MULT = 0.2;
 
-    public static final PIDConstants TRANSLATION_PID = new PIDConstants(50, 0, 0); // TODO: Tune
+    public static final PIDConstants TRANSLATION_PID = new PIDConstants(5, 0, 0); // TODO: Tune
     public static final PIDConstants ROTATION_PID = new PIDConstants(5, 0, 0);
 
     protected static final Mass ROBOT_MASS = Pounds.of(88); // TODO: Update
