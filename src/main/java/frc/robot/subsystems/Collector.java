@@ -1,13 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Amps;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -17,6 +9,13 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -25,9 +24,9 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.Units;
@@ -41,7 +40,7 @@ public class Collector extends SubsystemBase {
     public class CollectorConstants {
         // motor rollers
         public static final boolean INVERTED = true; // temp
-        public static final double STATOR_LIMIT = 40d; // temp
+        public static final Current STATOR_LIMIT = Amps.of(40); // temp
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 1d;
@@ -60,7 +59,7 @@ public class Collector extends SubsystemBase {
 
         // pivot
         public static final boolean PIVOT_INVERTED = false; // temp
-        public static final double PIVOT_STATOR_LIMIT = 40d; // temp
+        public static final Current PIVOT_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean PIVOT_BRAKE_MODE = true; // temp
         public static final double PIVOT_OFFSET = -0.227; // temp
         public static final double ROTOR_TO_ENCODER_RATIO = 1d; // temp
