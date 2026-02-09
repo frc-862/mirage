@@ -98,7 +98,7 @@ public class Turret extends SubsystemBase {
         motor = new ThunderBird(RobotMap.TURRET, RobotMap.CAN_BUS, TurretConstants.INVERTED,
                 TurretConstants.STATOR_LIMIT, TurretConstants.BRAKE);
 
-        TalonFXConfiguration config = new TalonFXConfiguration();
+        TalonFXConfiguration config = motor.getConfig();
 
         config.Slot0.kP = TurretConstants.kP;
         config.Slot0.kI = TurretConstants.kI;

@@ -13,11 +13,13 @@ import static edu.wpi.first.units.Units.Rotations;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -29,6 +31,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -45,7 +48,7 @@ import frc.robot.Robot;
 public class Hood extends SubsystemBase {
 
     public class HoodConstants {
-        public static final boolean INVERTED = false; // temp
+        public static final boolean INVERTED = true; // temp
         public static final double STATOR_LIMIT = 40d; // temp
         public static final boolean BRAKE = true; // temp
 
@@ -102,7 +105,7 @@ public class Hood extends SubsystemBase {
             encoder = new CANcoder(RobotMap.HOOD_ENCODER, RobotMap.CAN_BUS);
         }
 
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+        TalonFXConfiguration motorConfig = motor.getConfig();
 
         request = new PositionVoltage(0d);
 
@@ -137,6 +140,7 @@ public class Hood extends SubsystemBase {
 
         motorConfig.Feedback.SensorToMechanismRatio = HoodConstants.ENCODER_TO_MECHANISM_RATIO;
         motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
+
         motor.applyConfig(motorConfig);
 
         if (Robot.isSimulation()) {
@@ -162,11 +166,6 @@ public class Hood extends SubsystemBase {
 
     private boolean hasEncoder() {
         return !RobotMap.IS_OASIS || Robot.isSimulation();
-    }
-
-    @Override
-    public void periodic() {
-        LightningShuffleboard.setDouble("Hood", "Angle", getAngle().in(Degrees));
     }
 
     @Override
