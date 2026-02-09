@@ -20,6 +20,12 @@ sourceSets {
     }
 }
 
+eclipse {
+    classpath {
+        sourceSets -= sourceSets.macbot
+    }
+}
+
 // Force mac code to compile with main project's dependencies
 afterEvaluate {
     // Make macbotImplementation inherit the project's implementation deps

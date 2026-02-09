@@ -15,7 +15,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
-import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Swerve;
@@ -64,13 +63,13 @@ public class ShooterAim extends Command {
         double distanceMeters = robotPose.getTranslation().getDistance(target);
 
         if(redAllianceZone.contains(robotPose.getTranslation())){
-            target = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
+            target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION);
         }
         else if (neutralZone.contains(robotPose.getTranslation())) {
-            target = FieldConstants.getTargetData(FieldConstants.DEPOT_POSITION);
+            target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
         }
         else if(blueallianceZone.contains(robotPose.getTranslation())){
-            target = FieldConstants.getTargetData(FieldConstants.DEPOT_POSITION);
+            target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
         }
 
 
@@ -83,7 +82,7 @@ public class ShooterAim extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        shooter.stopMotor();
+        shooter.stop();
         hood.stop();
     }
 

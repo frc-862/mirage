@@ -13,18 +13,18 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
-
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-
+import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -43,7 +43,7 @@ public class Turret extends SubsystemBase {
 
     public class TurretConstants {
         public static final boolean INVERTED = false; // temp
-        public static final double STATOR_LIMIT = 40d; // temp
+        public static final Current STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean BRAKE = false; // temp
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
@@ -54,13 +54,12 @@ public class Turret extends SubsystemBase {
         public static final double MOTOR_KP = 6.5;
         public static final double MOTOR_KI = 0;
         public static final double MOTOR_KD = 0;
-        public static final double MOTOR_KF = 0;
         public static final double MOTOR_KS = 1;
         public static final double MOTOR_KV = 0.18;
         public static final double MOTOR_KA = 0.01;
         public static final double MOTOR_KG = 0;
 
-        public static final double ENCODER_TO_MECHANISM_RATIO = 74d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = 22/185d;
 
         public static final Angle ZERO_ANGLE = Degree.of(0);
         public static final double ZEROING_POWER = 0.5;
@@ -119,7 +118,7 @@ public class Turret extends SubsystemBase {
         zeroLimitSwitch = new DigitalInput(RobotMap.TURRET_ZERO_SWITCH);
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
 
-        zeroed = Robot.isSimulation(); // only zero when real
+        zeroed = Robot.isSimulation() || RobotMap.IS_OASIS; // only zero when real // TODO: remove isOasis check after limit switches added
         if (!zeroed) {
             setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
         }
@@ -169,8 +168,8 @@ public class Turret extends SubsystemBase {
 
         Angle simAngle = Radians.of(turretSim.getAngleRads());
         AngularVelocity simVeloc = RadiansPerSecond.of(turretSim.getVelocityRadPerSec());
-        motorSim.setRawRotorPosition(simAngle);
-        motorSim.setRotorVelocity(simVeloc);
+        motorSim.setRawRotorPosition(simAngle.times(TurretConstants.ENCODER_TO_MECHANISM_RATIO));
+        motorSim.setRotorVelocity(simVeloc.times(TurretConstants.ENCODER_TO_MECHANISM_RATIO));
 
         ligament.setAngle(simAngle.in(Degree));
 
@@ -240,7 +239,11 @@ public class Turret extends SubsystemBase {
      * @return whether turret on target
      */
     public boolean isOnTarget() {
-        return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE) && zeroed; // only on target if zeroed
+        if (Robot.isReal()) {
+            return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE) && zeroed; // only on target if zeroed
+        } else {
+            return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE); // in sim, never returns true because zeroed is set to false
+        }
     }
 
     /**

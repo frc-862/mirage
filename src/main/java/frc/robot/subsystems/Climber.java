@@ -4,9 +4,6 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Pound;
-import static edu.wpi.first.units.Units.Pounds;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -17,6 +14,11 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Pound;
+import static edu.wpi.first.units.Units.Pounds;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.RobotController;
@@ -30,7 +32,7 @@ public class Climber extends SubsystemBase {
 
     public class ClimberConstants {
         public static final boolean CLIMBER_MOTOR_INVERTED = false; // temp
-        public static final double CLIMBER_MOTOR_STATOR_LIMIT = 40d; // temp
+        public static final Current CLIMBER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean CLIMBER_MOTOR_BRAKE_MODE = false; // temp
 
         public static final double CLIMB_KP = 0.0; // temp

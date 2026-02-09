@@ -5,17 +5,12 @@
 package frc.robot.subsystems;
 
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-
 import java.util.Map;
 import java.util.function.Supplier;
+
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -25,7 +20,14 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.MutAngularVelocity;
@@ -33,6 +35,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -44,10 +47,11 @@ public class Shooter extends SubsystemBase {
 
     public class ShooterConstants {
         public static final boolean INVERTED = false; // temp
-        public static final double STATOR_LIMIT = 120.0; // temp
+        public static final Current STATOR_LIMIT = Amps.of(120); // temp
         public static final boolean BRAKE = false; // temp
+        public static final double COAST_DC = 0.05; // Shooter power when coasting
 
-        public static final double kP = 0.1d;
+        public static final double kP = 0.25d;
         public static final double kI = 0d;
         public static final double kD = 0d;
         public static final double kV = 0.12d;
@@ -56,8 +60,10 @@ public class Shooter extends SubsystemBase {
         public static final AngularVelocity BIAS_DELTA = RotationsPerSecond.of(1);
 
         public static final double GEAR_RATIO = 1d; // temp
-        public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI).times(2);
+        public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(2).times(Math.PI).times(2);
 
+        // for sim to account for movement between shooter, fuel, and hood
+        public static final double SHOOTER_EFFICIENCY = 0.3; 
         // Input is distance to target in meters, output is shooter speed in rotations per second
         public static final InterpolatingDoubleTreeMap VELOCITY_MAP = InterpolatingDoubleTreeMap.ofEntries(
                 Map.entry(2d, 20d),
@@ -107,6 +113,8 @@ public class Shooter extends SubsystemBase {
         shooterBias = RotationsPerSecond.mutable(0);
         targetVelocity = RotationsPerSecond.zero();
 
+        targetVelocity = RotationsPerSecond.of(0);
+
         //creates a config for the shooter motor
         TalonFXConfiguration config = motorLeft.getConfig();
 
@@ -127,7 +135,7 @@ public class Shooter extends SubsystemBase {
 
             shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(
                 DCMotor.getKrakenX60Foc(2), ShooterConstants.MOI.in(KilogramSquareMeters),
-                ShooterConstants.GEAR_RATIO), DCMotor.getKrakenX60Foc(1));
+                ShooterConstants.GEAR_RATIO), DCMotor.getKrakenX60Foc(2));
         }
     }
 
@@ -158,7 +166,7 @@ public class Shooter extends SubsystemBase {
     /**
      * stops all movement to the shooter motor
      */
-    public void stopMotor() {
+    public void stop() {
         motorLeft.stopMotor();
         targetVelocity = RotationsPerSecond.zero();
     }
@@ -220,9 +228,17 @@ public class Shooter extends SubsystemBase {
     /**
      * velocity control command for shooter
      * @param velocitySupplier
-        * @return the command for running the shooter
-        */
+     * @return the command for running the shooter
+     */
     public Command shootCommand(Supplier<AngularVelocity> velocitySupplier) {
         return new StartEndCommand(() -> setVelocity(velocitySupplier.get()), () -> {}, this).until(this::isOnTarget);
+    }
+
+    /**
+     * Sets shooter motor into an idle power
+     * @return the command for running the shooter at coast power
+     */
+    public Command coast() {
+        return new InstantCommand(() -> setPower(ShooterConstants.COAST_DC), this);
     }
 }
