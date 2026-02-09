@@ -14,6 +14,8 @@ import static edu.wpi.first.units.Units.Rotations;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import javax.swing.text.Position.Bias;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -170,29 +172,6 @@ public class Hood extends SubsystemBase {
     @Override
     public void periodic() {}
     
-    @Override
-    public void simulationPeriodic() {
-        double batteryVoltage = RobotController.getBatteryVoltage();
-        motorSim.setSupplyVoltage(batteryVoltage);
-        encoderSim.setSupplyVoltage(batteryVoltage);
-
-        hoodSim.setInputVoltage(motorSim.getMotorVoltage());
-        hoodSim.update(Robot.kDefaultPeriod);
-
-        Angle simAngle = Radians.of(hoodSim.getAngularPositionRad());
-        AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getAngularVelocityRadPerSec());
-
-        motorSim.setRawRotorPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-        motorSim.setRotorVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-
-        ligament.setAngle(simAngle.in(Degrees));
-        encoderSim.setRawPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-        encoderSim.setVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-
-        LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degree));
-        LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
-        LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
-    }
 
     @Override
     public void simulationPeriodic() {
