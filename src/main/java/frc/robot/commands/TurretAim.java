@@ -56,21 +56,19 @@ public class TurretAim extends Command {
         distanceToTargetMeters = Meters.of(delta.getNorm());
 
         Angle fieldAngle = delta.getAngle().getMeasure();
-        Angle turretAngle = fieldAngle.minus(Degree.of(robotPose.getRotation().getDegrees()));
+
+        Angle turretAngle
+                = fieldAngle.minus(robotPose.getRotation().getMeasure());
 
         Angle wrappedAngle
-                = inputModulus(
-                        turretAngle,
-                        Turret.TurretConstants.MIN_ANGLE,
-                        Turret.TurretConstants.MAX_ANGLE
-                );
+                = inputModulus(turretAngle, Degree.of(-180), Degree.of(180));
 
         turret.setAngle(wrappedAngle);
     }
 
     @Override
     public void end(boolean interrupted) {
-        turret.stop();
+        // turret.stop();
     }
 
     @Override
@@ -89,11 +87,12 @@ public class TurretAim extends Command {
 
     /**
      * Finds the optimal target position on the field based on the robot's pose
+     *
      * @return Translation2d of the target position
      */
     public Translation2d findTargetPosition() {
         Pose2d robotPose = drivetrain.getPose();
-        
+
         if (isInZone()) {
             return (Swerve.FieldConstants.getTargetData(
                     Swerve.FieldConstants.GOAL_POSITION));
@@ -116,11 +115,12 @@ public class TurretAim extends Command {
 
     /**
      * Checks if the robot's pose is within the current alliance's zone
+     *
      * @return true if the robot is in the zone, false otherwise
      */
     public boolean isInZone() {
         Pose2d robotPose = drivetrain.getPose();
-        
+
         if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Red) {
             return (Swerve.FieldConstants.RED_ALLIANCE_RECT.contains(robotPose.getTranslation()));
         } else {
