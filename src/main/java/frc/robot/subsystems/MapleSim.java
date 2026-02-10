@@ -77,9 +77,13 @@ public class MapleSim extends SubsystemBase {
             isShooting = false;
         }
         Pose3d cannonPose = new Pose3d(drivetrainSim.getSimulatedDriveTrainPose())
-        .plus(new Transform3d(Shooter.ShooterConstants.SHOOTER_POSITION_ON_ROBOT.getX(), Shooter.ShooterConstants.SHOOTER_POSITION_ON_ROBOT.getY(), Shooter.ShooterConstants.SHOOTER_HEIGHT.in(Meters), new Rotation3d(Degrees.zero(), hood.getAngle(), turret.getAngle())));
+            .plus(new Transform3d(
+                Shooter.ShooterConstants.SHOOTER_POSITION_ON_ROBOT.getX(), 
+                Shooter.ShooterConstants.SHOOTER_POSITION_ON_ROBOT.getY(), 
+                Shooter.ShooterConstants.SHOOTER_HEIGHT.in(Meters), 
+                new Rotation3d(Degrees.zero(), hood.getAngle(), turret.getAngle().plus(Degrees.of(180)))
+            ));
         LightningShuffleboard.setPose3d("Cannon", "Pose", cannonPose);
-        LightningShuffleboard.setDouble("Cannon","Yaw", 0);
     }
 
     private void shootFuel(){
