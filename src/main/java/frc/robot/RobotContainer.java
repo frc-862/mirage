@@ -112,7 +112,7 @@ public class RobotContainer {
             hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(80))));
             collector.setDefaultCommand(collector.run(() -> collector.setPivotAngle(CollectorConstants.DEPLOY_ANGLE)));
         }
-        shooter.setDefaultCommand(shooter.coast());
+        // shooter.setDefaultCommand(shooter.coast());
     }
 
     private void configureBindings() {
