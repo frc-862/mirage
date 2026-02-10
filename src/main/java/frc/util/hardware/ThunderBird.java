@@ -7,6 +7,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import static edu.wpi.first.units.Units.Amp;
+import edu.wpi.first.units.measure.Current;
+
 public class ThunderBird extends TalonFX {
     private TalonFXConfiguration config;
 
@@ -21,7 +24,7 @@ public class ThunderBird extends TalonFX {
      * @param statorLimit Stator current limit for the motor (zero to disable)
      * @param brake       boolean (true = brake, false = coast)
      */
-    public ThunderBird(int deviceId, CANBus canbus, boolean invert, double statorLimit, boolean brake) {
+    public ThunderBird(int deviceId, CANBus canbus, boolean invert, Current statorLimit, boolean brake) {
         super(deviceId, canbus);
         this.config = new TalonFXConfiguration();
         configInvert(invert);
@@ -62,9 +65,9 @@ public class ThunderBird extends TalonFX {
      *                    </p>
      * @see #applyConfig()
      */
-    public void configSupplyLimit(double supplyLimit) {
-        config.CurrentLimits.SupplyCurrentLimitEnable = supplyLimit > 0;
-        config.CurrentLimits.SupplyCurrentLimit = supplyLimit;
+    public void configSupplyLimit(Current supplyLimit) {
+        config.CurrentLimits.SupplyCurrentLimitEnable = supplyLimit.gt(Amp.of(0));
+        config.CurrentLimits.SupplyCurrentLimit = supplyLimit.in(Amp);
     }
 
     /**
@@ -77,7 +80,7 @@ public class ThunderBird extends TalonFX {
      *                         </p>
      * @see #applyConfig()
      */
-    public void configSupplyLimit(double supplyLimit, double triggerThreshold, double timeThreshold) {
+    public void configSupplyLimit(Current supplyLimit, double triggerThreshold, double timeThreshold) {
         configSupplyLimit(supplyLimit);
         /*
          * According to CTRE in 2025,
@@ -102,9 +105,9 @@ public class ThunderBird extends TalonFX {
      *                    </p>
      * @see #applyConfig()
      */
-    public void configStatorLimit(double statorLimit) {
-        config.CurrentLimits.StatorCurrentLimitEnable = statorLimit > 0;
-        config.CurrentLimits.StatorCurrentLimit = statorLimit;
+    public void configStatorLimit(Current statorLimit) {
+        config.CurrentLimits.StatorCurrentLimitEnable = statorLimit.gt(Amp.of(0));
+        config.CurrentLimits.StatorCurrentLimit = statorLimit.in(Amp);
     }
 
     /**

@@ -109,8 +109,8 @@ public class RobotContainer {
                 ? DriveConstants.SLOW_MODE_MULT : 1.0)));
         
         if (Robot.isSimulation()) {
-            hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(0))));
-            collector.setDefaultCommand(collector.run(() -> collector.setPivotAngle(CollectorConstants.MAX_ANGLE)));
+            hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(80))));
+            collector.setDefaultCommand(collector.run(() -> collector.setPivotAngle(CollectorConstants.DEPLOY_ANGLE)));
         }
         shooter.setDefaultCommand(shooter.coast());
     }
@@ -149,9 +149,9 @@ public class RobotContainer {
 
         /* Copilot */
         if (Robot.isSimulation()) {
-            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER, CollectorConstants.MIN_ANGLE));
+            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER, CollectorConstants.DEPLOY_ANGLE));
 
-            new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(20))));
+            new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(60))));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));
