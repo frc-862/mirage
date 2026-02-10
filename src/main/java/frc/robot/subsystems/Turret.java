@@ -59,7 +59,7 @@ public class Turret extends SubsystemBase {
         public static final double MOTOR_KA = 0.01;
         public static final double MOTOR_KG = 0;
 
-        public static final double ENCODER_TO_MECHANISM_RATIO = 22/185d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = 185d/22d;
 
         public static final Angle ZERO_ANGLE = Degree.of(0);
         public static final double ZEROING_POWER = 0.5;
@@ -128,11 +128,11 @@ public class Turret extends SubsystemBase {
             turretSim = new SingleJointedArmSim(gearbox, TurretConstants.ENCODER_TO_MECHANISM_RATIO,
                     TurretConstants.MOI.magnitude(), TurretConstants.LENGTH.in(Meters),
                     TurretConstants.MIN_ANGLE.in(Radians), TurretConstants.MAX_ANGLE.in(Radians),
-                    false, TurretConstants.MIN_ANGLE.in(Radians), 0d, 1d);
+                    false, 0);
 
             motorSim = new TalonFXSimState(motor);
 
-            motorSim.setRawRotorPosition(TurretConstants.MIN_ANGLE.in(Rotations));
+            motorSim.setRawRotorPosition(Degrees.zero());
 
             mech2d = new Mechanism2d(3, 3);
             root2d = mech2d.getRoot("Turret", 2, 0);
