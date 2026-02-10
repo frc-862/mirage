@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Turret.TurretConstants;
 import static frc.util.Units.inputModulus;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -63,7 +64,7 @@ public class TurretAim extends Command {
         Angle wrappedAngle
                 = inputModulus(turretAngle, Degree.of(-180), Degree.of(180));
 
-        turret.setAngle(wrappedAngle);
+        turret.setAngle(optimizeTurretAngle(wrappedAngle));
     }
 
     @Override
@@ -127,4 +128,40 @@ public class TurretAim extends Command {
             return (Swerve.FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
         }
     }
+
+    /**
+     * Extend angle past 180 / -180 if possible while remaining within -220 /
+     * 220
+     *
+     * @param desiredAngle the angle between -180 and 180 calculated for the
+     * turret
+     * @return the angle optimized between -220 and 220
+     */
+    private Angle optimizeTurretAngle(Angle desiredAngle) {
+        double desired = desiredAngle.in(Degree);
+        double current = turret.getAngle().in(Degree);
+
+        double bestAngle = desired;
+        double bestError = Double.MAX_VALUE;
+
+        // Try equivalent angles spaced by 360°
+        for (int i = -2; i <= 2; i++) {
+            double candidate = desired + i * 360.0;
+
+            if (candidate < TurretConstants.MIN_ANGLE.in(Degree)
+                    || candidate > TurretConstants.MAX_ANGLE.in(Degree)) {
+                continue;
+            }
+
+            double error = Math.abs(candidate - current);
+
+            if (error < bestError) {
+                bestError = error;
+                bestAngle = candidate;
+            }
+        }
+
+        return Degree.of(bestAngle);
+    }
+
 }
