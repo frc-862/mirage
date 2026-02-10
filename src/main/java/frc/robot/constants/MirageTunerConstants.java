@@ -194,7 +194,8 @@ public class MirageTunerConstants {
 
     /**
      * Creates a Swerve instance.
-     * This should only be called once in your robot program,.
+     * This should only be called once in your robot program.
+     * @return A new Swerve instance with the constants specified in this class
      */
     public static Swerve createDrivetrain() {
         return new Swerve(
