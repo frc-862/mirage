@@ -5,7 +5,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
-import frc.robot.subsystems.Turret.TurretConstants;
 import static frc.util.Units.inputModulus;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -62,9 +61,9 @@ public class TurretAim extends Command {
                 = fieldAngle.minus(robotPose.getRotation().getMeasure());
 
         Angle wrappedAngle
-                = inputModulus(turretAngle, Degree.of(-180), Degree.of(180));
+                = inputModulus(optimizeTurretAngle(turretAngle), Turret.TurretConstants.MIN_ANGLE, Turret.TurretConstants.MAX_ANGLE);
 
-        turret.setAngle(optimizeTurretAngle(wrappedAngle));
+        turret.setAngle(wrappedAngle);
     }
 
     @Override
@@ -133,35 +132,21 @@ public class TurretAim extends Command {
      * Extend angle past 180 / -180 if possible while remaining within -220 /
      * 220
      *
-     * @param desiredAngle the angle between -180 and 180 calculated for the
-     * turret
+     * @param desired the angle between -180 and 180 calculated for the turret
      * @return the angle optimized between -220 and 220
      */
-    private Angle optimizeTurretAngle(Angle desiredAngle) {
-        double desired = desiredAngle.in(Degree);
-        double current = turret.getAngle().in(Degree);
+    private Angle optimizeTurretAngle(Angle desired) {
+        double targetDeg = desired.in(Degrees);
+        double current = turret.getAngle().in(Degrees);
 
-        double bestAngle = desired;
-        double bestError = Double.MAX_VALUE;
+        double error = targetDeg - current;
 
-        // Try equivalent angles spaced by 360°
-        for (int i = -2; i <= 2; i++) {
-            double candidate = desired + i * 360.0;
-
-            if (candidate < TurretConstants.MIN_ANGLE.in(Degree)
-                    || candidate > TurretConstants.MAX_ANGLE.in(Degree)) {
-                continue;
-            }
-
-            double error = Math.abs(candidate - current);
-
-            if (error < bestError) {
-                bestError = error;
-                bestAngle = candidate;
-            }
+        if (error > 180) {
+            targetDeg -= 360;
+        } else if (error < -180) {
+            targetDeg += 360;
         }
 
-        return Degree.of(bestAngle);
+        return Degrees.of(targetDeg);
     }
-
 }
