@@ -38,6 +38,7 @@ import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.Collector.CollectorConstants;
+import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
@@ -156,12 +157,15 @@ public class RobotContainer {
             new Trigger(copilot::getRightBumperButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
             new Trigger(copilot::getYButton).whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
-                .andThen(shooter.switchSlotCommand()).alongWith(indexer.indexCommand(1, 1)
-                .finallyDo(shooter::stop)));
+                .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
+                .finallyDo(shooter::stop));
 
             new Trigger(copilot::getAButton).whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
-                .andThen(shooter.switchSlotCommand()).alongWith(indexer.indexCommand(0.5, 1)
-                .finallyDo(shooter::stop)));
+                .andThen(indexer.indexCommand(0.5, 1))
+                .finallyDo(shooter::stop));
+
+            new Trigger(copilot::getBButton).whileTrue(hood.hoodCommand(() -> 
+                Degrees.of(LightningShuffleboard.getDouble("Hood", "Angle (Degrees)", 80))));
             
             new Trigger(copilot::getXButton).whileTrue(turret.startEnd(() -> turret.setAngle(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)
                 .minus(drivetrain.getPose().getTranslation()).getAngle().minus(drivetrain.getPose().getRotation()).getMeasure()), turret::stop));

@@ -34,7 +34,7 @@ public class Indexer extends SubsystemBase {
 
         public static final double SPINDEXER_SIM_kV = 0.24;
         public static final double SPINDEXER_SIM_kA = 0.8;
-        public static final double SPINDEXDER_POWER = 0.5;
+        public static final double SPINDEXDER_POWER = 1d;
 
         // transfer
         public static final boolean TRANSFER_MOTOR_INVERTED = true; // temp

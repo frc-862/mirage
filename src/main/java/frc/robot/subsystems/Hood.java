@@ -13,13 +13,11 @@ import static edu.wpi.first.units.Units.Rotations;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -31,7 +29,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -48,7 +45,7 @@ import frc.robot.Robot;
 public class Hood extends SubsystemBase {
 
     public class HoodConstants {
-        public static final boolean INVERTED = true; // temp
+        public static final boolean INVERTED = false; // temp
         public static final double STATOR_LIMIT = 40d; // temp
         public static final boolean BRAKE = true; // temp
 
@@ -63,12 +60,11 @@ public class Hood extends SubsystemBase {
             Map.entry(4d, 20d),
             Map.entry(6d, 30d));
 
-        public static final double kS = 0.25d; // temp
-        public static final double kV = 2; // temp
-        public static final double kA = 0.01; // temp
-        public static final double kP = 20; // temp
-        public static final double kI = 0.0; // temp
-        public static final double kD = 0.0; // temp
+        public static final double kS = 0.05d;
+        public static final double kG = -0.3d; // negative because negative power is up
+        public static final double kP = 50d;
+        public static final double kI = 0.0;
+        public static final double kD = 1d;
 
         public static final Angle POSITION_TOLERANCE = Degrees.of(1); // temp
 
@@ -117,21 +113,13 @@ public class Hood extends SubsystemBase {
             angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? HoodConstants.ANGLE_OFFSET.in(Rotations) : 0d;
             angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
             encoder.getConfigurator().apply(angleConfig);
-        } else {
-            motor.setPosition(HoodConstants.MAX_ANGLE);
         }
 
         motorConfig.Slot0.kP = HoodConstants.kP;
         motorConfig.Slot0.kI = HoodConstants.kI;
         motorConfig.Slot0.kD = HoodConstants.kD;
         motorConfig.Slot0.kS = HoodConstants.kS;
-        motorConfig.Slot0.kV = HoodConstants.kV;
-        motorConfig.Slot0.kA = HoodConstants.kA;
-
-        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = HoodConstants.MAX_ANGLE.in(Rotations);
-        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = HoodConstants.MIN_ANGLE.in(Rotations);
+        motorConfig.Slot0.kG = HoodConstants.kG;
 
         if (hasEncoder()) {
             motorConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
@@ -142,6 +130,10 @@ public class Hood extends SubsystemBase {
         motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
 
         motor.applyConfig(motorConfig);
+
+        if (!hasEncoder()){
+            motor.setPosition(HoodConstants.MAX_ANGLE); // needs to be after config
+        }
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
@@ -166,6 +158,11 @@ public class Hood extends SubsystemBase {
 
     private boolean hasEncoder() {
         return !RobotMap.IS_OASIS || Robot.isSimulation();
+    }
+
+    @Override
+    public void periodic() {
+        LightningShuffleboard.setDouble("Hood", "Angle (Degrees)", getAngle().in(Degrees));
     }
 
     @Override
