@@ -191,12 +191,7 @@ public class Turret extends SubsystemBase {
                 new Rotation3d(0, 0, getAngle().in(Radians))
         );
 
-        double[] poseArray = new double[] {
-                turretPose3d.getX(),
-                turretPose3d.getY(),
-                turretPose3d.getRotation().getZ()
-        };
-        LightningShuffleboard.setDoubleArray("Turret", "Turret pose 3d", poseArray);
+        LightningShuffleboard.setPose3d("Turret", "Turret pose 3d", turretPose3d);
     }
 
     /**
