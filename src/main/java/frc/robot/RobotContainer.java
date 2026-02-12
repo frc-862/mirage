@@ -8,6 +8,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Translation2d;
+
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -33,11 +35,6 @@ import frc.robot.subsystems.Turret;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
-import frc.robot.constants.LEDConstants;
-import frc.robot.constants.LEDConstants.LED_STATES;
-import frc.robot.constants.RobotMap;
-import frc.robot.subsystems.Telemetry;
-import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -186,6 +183,7 @@ public class RobotContainer {
                 () -> true
         ));
         leds.setBehavior(LED_STATES.ERROR.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
+        leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.RED));
         leds.setBehavior(LED_STATES.BRAKE.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
         leds.setBehavior(LED_STATES.SHOOT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.ORANGE));
         leds.setBehavior(LED_STATES.COLLECT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.BLUE));
@@ -196,5 +194,10 @@ public class RobotContainer {
         new Trigger(DriverStation::isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
 
         new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
+
+        // if the robot is disabled, and the vision target is not visible, turn on the "vision bad" LED state. Turn it off once the robot starts moving (indicating that we likely have a valid pose estimate).
+        leds.setState(LED_STATES.VISION_BAD.id(), true);
+
+        new Trigger(() -> (drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)));
     }
 }

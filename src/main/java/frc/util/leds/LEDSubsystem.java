@@ -81,6 +81,10 @@ public class LEDSubsystem extends SubsystemBase {
         return enableState(stateID).withTimeout(timeoutSeconds);
     }
 
+    public void setState(int stateID, boolean enabled) {
+        enabledStates[stateID] = enabled;
+    }
+
     /**
      * Gets if a specific state is enabled.
      *
