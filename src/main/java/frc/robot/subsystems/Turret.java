@@ -236,11 +236,7 @@ public class Turret extends SubsystemBase {
      * @return whether turret on target
      */
     public boolean isOnTarget() {
-        if (Robot.isReal()) {
-            return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE) && zeroed; // only on target if zeroed
-        } else {
-            return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE); // in sim, never returns true because zeroed is set to false
-        }
+        return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE);
     }
 
     /**
