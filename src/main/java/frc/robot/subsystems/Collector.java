@@ -135,7 +135,7 @@ public class Collector extends SubsystemBase {
 
             collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ENCODER_TO_MECHANISM_RATIO, CollectorConstants.MOI.magnitude(),
             CollectorConstants.LENGTH.magnitude(), CollectorConstants.MIN_ANGLE.in(Radians), CollectorConstants.MAX_ANGLE.in(Radians), true,
-            CollectorConstants.MIN_ANGLE.in(Radians), 0d,1d);
+            CollectorConstants.STOWED_ANGLE.in(Radians));
 
             pivotMotorSim = pivotMotor.getSimState();
             pivotMotorSim.setRawRotorPosition(CollectorConstants.STOWED_ANGLE);

@@ -185,8 +185,8 @@ public class Hood extends SubsystemBase {
         Angle simAngle = Radians.of(hoodSim.getAngularPositionRad());
         AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getAngularVelocityRadPerSec());
 
-        motorSim.setRawRotorPosition(simAngle);
-        motorSim.setRotorVelocity(simVeloc);
+        motorSim.setRawRotorPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+        motorSim.setRotorVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
 
         ligament.setAngle(simAngle.in(Degrees));
         encoderSim.setRawPosition(simAngle.times(HoodConstants.ENCODER_TO_MECHANISM_RATIO));

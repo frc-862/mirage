@@ -169,7 +169,7 @@ public class Shooter extends SubsystemBase {
      */
     public void setVelocity(AngularVelocity velocity){
         targetVelocity = velocity;
-        motorLeft.setControl(velocityPID.withVelocity(velocity).withSlot(0));
+        motorLeft.setControl(velocityPID.withVelocity(velocity));
     }
 
     /**

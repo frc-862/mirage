@@ -173,7 +173,7 @@ public class Turret extends SubsystemBase {
         motorSim.setRawRotorPosition(simAngle.times(TurretConstants.ENCODER_TO_MECHANISM_RATIO));
         motorSim.setRotorVelocity(simVeloc.times(TurretConstants.ENCODER_TO_MECHANISM_RATIO));
 
-        ligament.setAngle(new Rotation2d(simAngle));
+        ligament.setAngle(simAngle.in(Degrees));
 
         LightningShuffleboard.setDouble("Turret", "Motor encoder angle",
                 motor.getPosition().getValue().in(Degrees));
