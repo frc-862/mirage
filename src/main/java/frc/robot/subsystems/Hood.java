@@ -100,7 +100,7 @@ public class Hood extends SubsystemBase {
             HoodConstants.BRAKE);
 
         // Do not instantiate if Oasis b/c Oasis doesn't have a CANcoder yet
-        if (hasEncoder()) {
+        if (!RobotMap.IS_OASIS) {
             encoder = new CANcoder(RobotMap.HOOD_ENCODER, RobotMap.CAN_BUS);
         }
 
@@ -110,7 +110,7 @@ public class Hood extends SubsystemBase {
 
         targetAngle = Degrees.of(0);
 
-        if (hasEncoder()) {
+        if (!RobotMap.IS_OASIS) {
             CANcoderConfiguration angleConfig = new CANcoderConfiguration();
             angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
             angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? HoodConstants.ANGLE_OFFSET.in(Rotations) : 0d;
@@ -126,7 +126,7 @@ public class Hood extends SubsystemBase {
         motorConfig.Slot0.kS = HoodConstants.kS;
         motorConfig.Slot0.kG = HoodConstants.kG;
 
-        if (hasEncoder()) {
+        if (!RobotMap.IS_OASIS) {
             motorConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
             motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         }
@@ -136,7 +136,7 @@ public class Hood extends SubsystemBase {
 
         motor.applyConfig(motorConfig);
 
-        if (!hasEncoder()){
+        if (RobotMap.IS_OASIS){
             motor.setPosition(HoodConstants.MAX_ANGLE); // needs to be after config
         }
 
@@ -162,10 +162,6 @@ public class Hood extends SubsystemBase {
             ligament = root2d.append(new MechanismLigament2d("Hood", 1.5, HoodConstants.MAX_ANGLE.in(Degrees)));
             LightningShuffleboard.send("Hood", "Mech2d", mech2d);
         }
-    }
-
-    private boolean hasEncoder() {
-        return !RobotMap.IS_OASIS || Robot.isSimulation();
     }
 
     @Override
