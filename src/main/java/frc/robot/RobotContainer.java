@@ -23,8 +23,10 @@ import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Collector;
+import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
@@ -33,13 +35,6 @@ import frc.robot.subsystems.Turret;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
-import frc.robot.constants.LEDConstants;
-import frc.robot.constants.LEDConstants.LED_STATES;
-import frc.robot.constants.RobotMap;
-import frc.robot.subsystems.Telemetry;
-import frc.robot.subsystems.Turret;
-import frc.robot.subsystems.Collector.CollectorConstants;
-import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
@@ -158,6 +153,7 @@ public class RobotContainer {
             new Trigger(() -> copilot.getPOV() == 180).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA.unaryMinus())));
 
             // new Trigger(driver::getBButton).whileTrue(new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION))); //todo fix
+            new Trigger(driver::getBButton).onTrue(new TurretAim(drivetrain, turret, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
         }
 
         if (RobotMap.IS_OASIS) {

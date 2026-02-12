@@ -72,7 +72,7 @@ public class Shooter extends SubsystemBase {
 
         // Sim
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
-        public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(0), Inches.of(9));
+        public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(9), Inches.of(0));
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
         public static final Time MAX_SHOOTING_PERIOD = Seconds.of(0.1); // 10 balls per second
     }
