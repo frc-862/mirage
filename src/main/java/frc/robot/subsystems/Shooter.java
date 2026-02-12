@@ -34,7 +34,6 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
@@ -66,7 +65,7 @@ public class Shooter extends SubsystemBase {
 
         // Sim
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
-        public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(0), Inches.of(9));
+        public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(9), Inches.of(9)); // temp
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
         public static final Time MAX_SHOOTING_PERIOD = Seconds.of(0.1); // 10 balls per second
     }

@@ -6,7 +6,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -19,7 +18,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
@@ -39,6 +37,7 @@ import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Indexer.IndexerConstants;
+import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
@@ -104,9 +103,10 @@ public class RobotContainer {
                 RobotMap.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
                 RobotMap.CONTROLLER_DEADBAND), RobotMap.CONTROLLER_POW) * (driver.getRightBumperButton()
                 ? DriveConstants.SLOW_MODE_MULT : 1.0)));
-        if (Robot.isSimulation()){
-            turret.setDefaultCommand(turret.run(() -> turret.setAngle(Rotations.of(0))));
-            hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(0))));
+
+        if (RobotMap.IS_OASIS) {
+            indexer.setDefaultCommand(indexer.indexCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis())));
+            // turret.setDefaultCommand(new TurretAim(drivetrain, turret));
         }
     }
 
@@ -132,25 +132,6 @@ public class RobotContainer {
                 ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         /* Copilot */
-        if (Robot.isSimulation()) {
-            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER, CollectorConstants.MAX_ANGLE));
-
-            new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(20))));
-
-            new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
-                shooter.setVelocity(RotationsPerSecond.of(100));
-                indexer.setSpindexerPower(1d);
-            })).onFalse(new InstantCommand(() -> {
-                shooter.stop();
-                indexer.stop();
-            }));
-
-            new Trigger(copilot::getBButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().plus(Degrees.of(0.5)))));
-
-            new Trigger(copilot::getXButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
-
-            // new Trigger(driver::getBButton).whileTrue(new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION))); //todo fix
-        }
 
         if (RobotMap.IS_OASIS) {
             new Trigger(copilot::getLeftBumperButton).whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
@@ -160,15 +141,19 @@ public class RobotContainer {
                 .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
                 .finallyDo(shooter::stop));
 
-            new Trigger(copilot::getAButton).whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
-                .andThen(indexer.indexCommand(0.5, 1))
+            new Trigger(copilot::getAButton).whileTrue(
+                shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
+                .alongWith(hood.hoodCommand(Degrees.of(LightningShuffleboard.getDouble("Hood", "Angle (Degrees)", 80))))
+                .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
+                () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
                 .finallyDo(shooter::stop));
 
             new Trigger(copilot::getBButton).whileTrue(hood.hoodCommand(() -> 
                 Degrees.of(LightningShuffleboard.getDouble("Hood", "Angle (Degrees)", 80))));
             
-            new Trigger(copilot::getXButton).whileTrue(turret.startEnd(() -> turret.setAngle(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)
-                .minus(drivetrain.getPose().getTranslation()).getAngle().minus(drivetrain.getPose().getRotation()).getMeasure()), turret::stop));
+            new Trigger(copilot::getXButton).whileTrue(turret.runEnd(() -> turret.setAngle(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)
+                .minus(drivetrain.getPose().getTranslation().plus(ShooterConstants.SHOOTER_POSITION_ON_ROBOT)).getAngle()
+                .minus(drivetrain.getPose().getRotation()).getMeasure()), turret::stop));
         }
     }
     private void configureNamedCommands(){

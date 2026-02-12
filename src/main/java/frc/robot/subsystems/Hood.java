@@ -66,7 +66,7 @@ public class Hood extends SubsystemBase {
         public static final double kI = 0.0;
         public static final double kD = 1d;
 
-        public static final Angle POSITION_TOLERANCE = Degrees.of(1); // temp
+        public static final Angle POSITION_TOLERANCE = Degrees.of(3); // temp
 
         // Conversion ratios
         public static final double ROTOR_TO_ENCODER_RATIO = RobotMap.IS_OASIS ? 1 : 50/22;

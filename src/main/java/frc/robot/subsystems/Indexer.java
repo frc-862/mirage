@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
@@ -157,7 +159,15 @@ public class Indexer extends SubsystemBase {
         return new StartEndCommand(() -> setPower(power), () -> stop(), this);
     }
 
+    public Command indexCommand(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
+        return new StartEndCommand(() -> setPower(spindexerPower.getAsDouble(), transferPower.getAsDouble()), () -> stop(), this);
+    }
+
     public Command indexCommand(double spindexerPower, double transferPower) {
-        return new StartEndCommand(() -> setPower(spindexerPower, transferPower), () -> stop(), this);
+        return indexCommand(() -> spindexerPower, () -> transferPower);
+    }
+
+    public Command indexCommand(DoubleSupplier power) {
+        return indexCommand(power, power);
     }
 }
