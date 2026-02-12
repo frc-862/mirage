@@ -76,7 +76,8 @@ public class Hood extends SubsystemBase {
         public static final double ENCODER_TO_MECHANISM_RATIO = RobotMap.IS_OASIS ? 50/22d * 156/15d : 156/15d;
         public static final double ROTOR_TO_MECHANISM_RATIO = ROTOR_TO_ENCODER_RATIO * ENCODER_TO_MECHANISM_RATIO; // only used in sim
 
-        public static final Angle ANGLE_OFFSET = Degrees.of(0); // temp
+        public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
+        public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
     }
 
     private ThunderBird motor;
@@ -95,8 +96,7 @@ public class Hood extends SubsystemBase {
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
-        motor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
-            HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
+        motor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS, HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
             HoodConstants.BRAKE);
 
         // Do not instantiate if Oasis b/c Oasis doesn't have a CANcoder yet
@@ -113,11 +113,9 @@ public class Hood extends SubsystemBase {
         if (!RobotMap.IS_OASIS) {
             CANcoderConfiguration angleConfig = new CANcoderConfiguration();
             angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
-            angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? HoodConstants.ANGLE_OFFSET.in(Rotations) : 0d;
+            angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? HoodConstants.ENCODER_OFFSET.in(Rotations) : 0d;
             angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
             encoder.getConfigurator().apply(angleConfig);
-        } else {
-            motor.setPosition(HoodConstants.MAX_ANGLE);
         }
 
         motorConfig.Slot0.kP = HoodConstants.kP;
