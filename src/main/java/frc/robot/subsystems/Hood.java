@@ -212,7 +212,7 @@ public class Hood extends SubsystemBase {
     public void setPosition(Angle position) {
         targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
         Angle angleWithBiasTarget = Units.clamp(targetAngle.plus(hoodBias), HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
-        hoodMotor.setControl(request.withPosition(angleWithBiasTarget));
+        motor.setControl(request.withPosition(angleWithBiasTarget));
     }
 
     public void changeBias(Angle bias){
