@@ -170,4 +170,8 @@ public class Indexer extends SubsystemBase {
     public Command indexCommand(DoubleSupplier power) {
         return indexCommand(power, power);
     }
+
+    public Command indexRunCommand(DoubleSupplier power){
+        return runEnd(() -> setPower(power.getAsDouble()), this::stop);
+    }
 }

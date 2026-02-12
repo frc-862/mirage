@@ -38,6 +38,7 @@ import frc.util.shuffleboard.LightningShuffleboard;
 public class PhotonVision extends SubsystemBase {
 
     public class VisionConstants {
+
         public static final List<Short> TAG_IGNORE_LIST = List.of();
 
         // TODO: Update this to be the correect field layout for this season,
@@ -52,18 +53,19 @@ public class PhotonVision extends SubsystemBase {
         public static final CameraConstant[] CAMERA_CONSTANTS = new CameraConstant[] {
             new CameraConstant("leftCam",
                 new Transform3d(
-                    Inches.of(11.25),
-                    Inches.of(-11.25),   // RIGHT side
-                    Inches.of(10.5),
-                    new Rotation3d(0, 15, -45))),
-
-            new CameraConstant("rightCam",
-                new Transform3d(
-                    Inches.of(11.25),
-                    Inches.of(11.25),    // LEFT side
-                    Inches.of(10.5),
-                    new Rotation3d(0, 15, 45))),
+                    Inches.of(11.25),   // forward
+                    Inches.of(11.25),   // LEFT
+                    Inches.of(10.5),    // up
+                    new Rotation3d(
+                        0.0,
+                        Math.toRadians(-15),  // pitch up
+                        Math.toRadians(45)    // yaw outward (left)
+                    )
+                )
+            ),
         };
+
+
     }
 
     private record VisionInfo(PhotonPipelineResult result, EstimatedRobotPose pose) {};
@@ -83,7 +85,7 @@ public class PhotonVision extends SubsystemBase {
 
 
     /** Creates a new PhotonVision.
-     *
+     * 
      * @param drivetrain The main drivetrain on the robot
      */
     public PhotonVision(Swerve drivetrain) {
@@ -98,7 +100,7 @@ public class PhotonVision extends SubsystemBase {
         LightningShuffleboard.setPose2d("vision", "vision_pose", new Pose2d());
 
         executor1.schedule(() -> {
-            while (true) {
+            while (true) { 
                 try {
                     VisionInfo result = executor2.submit(() -> mac.getEstimatedPose()).get();
                     if (result != null) {
@@ -111,7 +113,7 @@ public class PhotonVision extends SubsystemBase {
                 }
         }, 0, TimeUnit.MILLISECONDS);
     }
-
+ 
     @Override
     public void periodic() {
         if (pose.get() != null) {
@@ -120,9 +122,9 @@ public class PhotonVision extends SubsystemBase {
             double bestTagAmbiguity = updatedPose.result.getBestTarget().poseAmbiguity;
              LightningShuffleboard.setPose2d("vision", "vision_pose", updatedPose.pose.estimatedPose.toPose2d());
             drivetrain.addVisionMeasurement(
-                updatedPose.pose.estimatedPose.toPose2d(),
-                Utils.fpgaToCurrentTime(updatedPose.pose.timestampSeconds),
-                VecBuilder.fill(bestTagAmbiguity, bestTagAmbiguity, bestTagAmbiguity));
+                updatedPose.pose.estimatedPose.toPose2d(), 
+                Utils.fpgaToCurrentTime(updatedPose.pose.timestampSeconds), 
+                VecBuilder.fill(bestTagAmbiguity*1.7, bestTagAmbiguity*1.7, bestTagAmbiguity*1.7));
             log("Added vision measurment");
         }
     }
@@ -131,15 +133,15 @@ public class PhotonVision extends SubsystemBase {
 
     private class MacMini {
         // Camera info
-        private record CameraInfo(PhotonCamera camera, PhotonPoseEstimator poseEstimator) {};
+        private record CameraInfo(PhotonCamera camera, PhotonPoseEstimator poseEstimator) {}; 
         // private record VisionInfo(PhotonPipelineResult result, EstimatedRobotPose pose) {};
 
         // Cameras
         CameraInfo[] cameras;
 
-        MacMini() {
+        MacMini() {            
             this.cameras = new CameraInfo[VisionConstants.CAMERA_CONSTANTS.length];
-
+            
             // Create the cameras
             for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
                 AprilTagFieldLayout fieldLayout;
@@ -160,10 +162,10 @@ public class PhotonVision extends SubsystemBase {
                 // Get the pose estimator
                 PhotonPoseEstimator poseEstimator =
                         new PhotonPoseEstimator(
-                                fieldLayout,
+                                AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded),
                                 VisionConstants.CAMERA_CONSTANTS[i].offset()
                         );
-
+                    
                 // Create the camera using the name from our constant
                 PhotonCamera camera = new PhotonCamera(VisionConstants.CAMERA_CONSTANTS[i].name());
 
@@ -182,14 +184,14 @@ public class PhotonVision extends SubsystemBase {
 
             try {
                 VisionInfo[] poses = new VisionInfo[VisionConstants.CAMERA_CONSTANTS.length];
-
+                
                 for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
                     poses[i] = getVisionPose(cameras[i]);
                 }
 
                 return getBestPose(poses);
             } catch (Exception e) {
-                log("Failed to get pose");
+                // log("Failed to get pose");
                 e.printStackTrace();
                 return null;
             }
@@ -218,7 +220,7 @@ public class PhotonVision extends SubsystemBase {
                 if (info == null) {
                     continue;
                 }
-
+                
                 if (bestPose == null) {
                     bestPose = info;
                     continue;
@@ -228,7 +230,7 @@ public class PhotonVision extends SubsystemBase {
                     bestPose = info;
                 }
             }
-            log("Got best pose");
+            // log("Got best pose");
             return bestPose;
         }
 
@@ -239,10 +241,10 @@ public class PhotonVision extends SubsystemBase {
 
             // If theres no results just skip this iteration
             if (results.isEmpty()) {
-                log(cameraInfo.camera.getName() + "'s Result is null");
+                // log(cameraInfo.camera.getName() + "'s Result is null");
                 return null;
             }
-
+            
             // Get the latest result of all thme
             PhotonPipelineResult latestResult = getLatestResult(results);
 
@@ -277,7 +279,7 @@ public class PhotonVision extends SubsystemBase {
             if (highPoseAmbiguity || highDistance) {
                 return null;
             }
-
+            
             // Get the estimated position
             Optional<EstimatedRobotPose> poseOpt = cameraInfo.poseEstimator().estimateCoprocMultiTagPose(useableResult);
 
@@ -285,20 +287,20 @@ public class PhotonVision extends SubsystemBase {
             if (poseOpt.isPresent()) {
                 // The pose
                 EstimatedRobotPose pose = poseOpt.get();
-
-                log("Used multitag result");
+                
+                // log("Used multitag result");
 
                 // Add the vision measurment
                 return new VisionInfo(useableResult, pose);
             } else {
                 // Get the estimated position
                 poseOpt = cameraInfo.poseEstimator().estimateLowestAmbiguityPose(useableResult);
-
+                
                 if (poseOpt.isPresent()) {
                     // The pose
                     EstimatedRobotPose pose = poseOpt.get();
 
-                    log("Used singletag result");
+                    // log("Used singletag result");
 
                     // Add the vision measurment
                     return new VisionInfo(useableResult, pose);
