@@ -72,8 +72,8 @@ public class Hood extends SubsystemBase {
         public static final Angle POSITION_TOLERANCE = Degrees.of(3); // temp
 
         // Conversion ratios
-        public static final double ROTOR_TO_ENCODER_RATIO = RobotMap.IS_OASIS ? 1 : 50/22;
-        public static final double ENCODER_TO_MECHANISM_RATIO = RobotMap.IS_OASIS ? 50/22 * 156/15 : 156/15;
+        public static final double ROTOR_TO_ENCODER_RATIO = RobotMap.IS_OASIS ? 1 : 50/22d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = RobotMap.IS_OASIS ? 50/22d * 156/15d : 156/15d;
         public static final double ROTOR_TO_MECHANISM_RATIO = ROTOR_TO_ENCODER_RATIO * ENCODER_TO_MECHANISM_RATIO; // only used in sim
 
         public static final Angle ANGLE_OFFSET = Degrees.of(0); // temp
