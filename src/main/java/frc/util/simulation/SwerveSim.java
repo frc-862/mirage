@@ -8,7 +8,6 @@ package frc.util.simulation;
 
 import static edu.wpi.first.units.Units.*;
 import static frc.util.AllianceHelpers.isBlueAlliance;
-import static frc.util.AllianceHelpers.isRedAlliance;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
