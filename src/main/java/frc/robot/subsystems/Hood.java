@@ -94,6 +94,7 @@ public class Hood extends SubsystemBase {
 
     final PositionVoltage request;
     private Angle targetAngle;
+    private Angle targetAngleWithBias;
     private MutAngle hoodBias;
 
     private DCMotorSim hoodSim;
@@ -119,7 +120,8 @@ public class Hood extends SubsystemBase {
 
         request = new PositionVoltage(0d);
 
-        targetAngle = Degrees.of(0);
+        targetAngle = Degrees.zero();
+        targetAngleWithBias = Degrees.zero();
 
         hoodBias = Degrees.mutable(0);
 
@@ -203,6 +205,7 @@ public class Hood extends SubsystemBase {
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
+        LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
     }
 
     /**
@@ -211,18 +214,22 @@ public class Hood extends SubsystemBase {
      */
     public void setPosition(Angle position) {
         targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
-        Angle angleWithBiasTarget = Units.clamp(targetAngle.plus(hoodBias), HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
-        motor.setControl(request.withPosition(angleWithBiasTarget));
+        targetAngleWithBias = Units.clamp(targetAngle.plus(hoodBias), HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
+        motor.setControl(request.withPosition(targetAngleWithBias));
     }
 
+    /**
+     * Changes the bias and adds hoodBias to bias. Adds a certain amount of degrees to the hood's target position.
+     * @param bias the amount of degrees to add to the hood target position going forward.
+     */
     public void changeBias(Angle bias){
         hoodBias.mut_plus(bias);
         setPosition(targetAngle);
     }
+    
     /**
      * Gets the current angle of the hood
-     * @return
-     * current angle
+     * @return current angle
      */
     public Angle getAngle() {
         return motor.getPosition().getValue();
@@ -230,11 +237,26 @@ public class Hood extends SubsystemBase {
 
     /**
      * Gets the target angle of the hood
-     * @return
-     * targetAngle
+     * @return target angle without the bias.
      */
     public Angle getTargetAngle() {
         return targetAngle;
+    }
+
+    /**
+     * Gets the target angle with bias.
+     * @return target angle with the bias added.
+     */
+    public Angle getTargetAngleWithBias() {
+        return targetAngleWithBias;
+    }
+
+    /**
+     * Gets the bias of the hood
+     * @return the bias of hood.
+     */
+    public Angle getBias() {
+        return hoodBias;
     }
 
     /**
@@ -243,7 +265,7 @@ public class Hood extends SubsystemBase {
      * True if on target, false otherwise
      */
     public boolean isOnTarget() {
-        return getAngle().isNear(getTargetAngle(), HoodConstants.POSITION_TOLERANCE);
+        return getAngle().isNear(getTargetAngleWithBias(), HoodConstants.POSITION_TOLERANCE);
     }
 
     /**
@@ -269,14 +291,5 @@ public class Hood extends SubsystemBase {
      */
     public Command hoodCommand(Supplier<Angle> hoodAngleSupplier) {
         return new StartEndCommand(() -> setPosition(hoodAngleSupplier.get()), () -> {}, this).until(this::isOnTarget);
-    }
-
-    /**
-     * Gets the bias of the hood
-     * @param bias in degrees
-     * @return
-     */
-    public Angle getBias() {
-        return hoodBias;
     }
 }
