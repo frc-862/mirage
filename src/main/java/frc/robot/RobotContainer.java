@@ -60,7 +60,7 @@ public class RobotContainer {
     private Shooter shooter;
     private final LEDSubsystem leds;
 
-    // private final Telemetry logger;
+    private final Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -70,7 +70,7 @@ public class RobotContainer {
 
         drivetrain = DriveConstants.createDrivetrain();
 
-        // logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
+        logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
 
         if (RobotMap.IS_OASIS) {
@@ -122,22 +122,11 @@ public class RobotContainer {
                     .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
             );
 
-        // new Trigger(driver::getAButton).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        // new Trigger(driver::getBButton).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        // new Trigger(driver::getXButton).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        // new Trigger(driver::getYButton).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        new Trigger(() -> driver.getLeftTriggerAxis() > 0.25).onTrue(Commands.runOnce(() -> SignalLogger.start())
-            .alongWith(Commands.print("Started Logging")));
-        new Trigger(() -> driver.getRightTriggerAxis() > 0.25).onTrue(Commands.runOnce(() -> SignalLogger.stop())
-            .alongWith(Commands.print("Stopped Logging")));
-
-
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
             .onTrue(drivetrain.resetFieldCentricCommand());
 
-        // drivetrain.registerTelemetry(logger::telemeterize);
+        drivetrain.registerTelemetry(logger::telemeterize);
 
         new Trigger(driver::getLeftBumperButton).whileTrue(drivetrain.robotCentricDrive(
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(

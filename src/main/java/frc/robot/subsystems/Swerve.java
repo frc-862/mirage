@@ -371,7 +371,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             .withVelocityY(DriveConstants.MaxSpeed.times(yInput.getAsDouble()))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-            .withDriveRequestType(DriveRequestType.Velocity)));
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
     }
 
     public Command driveCommand(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput) {
@@ -380,7 +380,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             .withVelocityY(DriveConstants.MaxSpeed.times(xyInput.get().get(1)))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
-            .withDriveRequestType(DriveRequestType.Velocity)));
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
     }
 
     public Command robotCentricDrive(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput){
