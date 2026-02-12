@@ -198,6 +198,6 @@ public class RobotContainer {
         // if the robot is disabled, and the vision target is not visible, turn on the "vision bad" LED state. Turn it off once the robot starts moving (indicating that we likely have a valid pose estimate).
         leds.setState(LED_STATES.VISION_BAD.id(), true);
 
-        new Trigger(() -> (drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)));
+        new Trigger(() -> (DriverStation.isEnabled() || drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)));
     }
 }
