@@ -15,7 +15,9 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import static edu.wpi.first.units.Units.Amps;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,7 +33,7 @@ public class Indexer extends SubsystemBase {
     public class IndexerConstants {
         // spindexer
         public static final boolean SPINDEXER_MOTOR_INVERTED = true; // temp
-        public static final double SPINDEXER_MOTOR_STATOR_LIMIT = 80d; // temp
+        public static final Current SPINDEXER_MOTOR_STATOR_LIMIT = Amps.of(80); // temp
         public static final boolean SPINDEXER_MOTOR_BRAKE_MODE = true; // temp
 
         public static final double SPINDEXER_SIM_kV = 0.24;
@@ -40,7 +42,7 @@ public class Indexer extends SubsystemBase {
 
         // transfer
         public static final boolean TRANSFER_MOTOR_INVERTED = true; // temp
-        public static final double TRANSFER_MOTOR_STATOR_LIMIT = 40d; // temp
+        public static final Current TRANSFER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean TRANSFER_MOTOR_BRAKE_MODE = true; // temp
 
         public static final double TRANSFER_POWER = 1;

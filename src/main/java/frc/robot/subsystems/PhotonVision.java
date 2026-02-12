@@ -41,7 +41,6 @@ public class PhotonVision extends SubsystemBase {
 
         public static final List<Short> TAG_IGNORE_LIST = List.of();
 
-        // TODO: Update this to be the correect field layout for this season,
         public static final AprilTagFieldLayout DEFAULT_TAG_LAYOUT = AprilTagFieldLayout
                 .loadField(AprilTagFields.k2026RebuiltWelded);
 
@@ -144,6 +143,7 @@ public class PhotonVision extends SubsystemBase {
             
             // Create the cameras
             for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
+                @SuppressWarnings("unused")
                 AprilTagFieldLayout fieldLayout;
 
                 try {
