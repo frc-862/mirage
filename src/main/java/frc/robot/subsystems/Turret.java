@@ -51,7 +51,7 @@ public class Turret extends SubsystemBase {
         public static final Angle MIN_ANGLE = Degree.of(-220);
         public static final Angle MAX_ANGLE = Degree.of(220);
 
-        public static final double MOTOR_KP = 6.5;
+        public static final double MOTOR_KP = 2;
         public static final double MOTOR_KI = 0;
         public static final double MOTOR_KD = 0;
         public static final double MOTOR_KS = 1;
