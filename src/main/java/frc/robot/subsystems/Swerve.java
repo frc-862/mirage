@@ -29,6 +29,9 @@ import edu.wpi.first.math.numbers.N3;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
+import static frc.util.AllianceHelpers.isBlueAlliance;
+import static frc.util.AllianceHelpers.isRedAlliance;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -67,7 +70,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     public static final Target DEPOT_POSITION = new Target(new Translation2d(0.3937, 0.665988), new Translation2d(16.147288, 7.403338));
 
     public static Translation2d getTargetData(Target target) {
-        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue ? target.blue() : target.red();
+        return isBlueAlliance() ? target.blue() : target.red();
         }
 
     
@@ -420,7 +423,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                                                                                                     // drive the robot
             new PPHolonomicDriveController(DriveConstants.TRANSLATION_PID, DriveConstants.ROTATION_PID),
             DriveConstants.getConfig(getModuleLocations()),
-            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+            () -> isRedAlliance(),
             this); // Subsystem for requirements
     }
 }
