@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
+import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -145,7 +146,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     );
 
     /* The SysId routine to test */
-    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineSteer;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -371,7 +372,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             .withVelocityY(DriveConstants.MaxSpeed.times(yInput.getAsDouble()))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-            .withDriveRequestType(DriveRequestType.Velocity)));
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
     }
 
     public Command driveCommand(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput) {
