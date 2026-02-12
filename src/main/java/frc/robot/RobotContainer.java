@@ -66,7 +66,7 @@ public class RobotContainer {
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
 
-        if (RobotMap.IS_OASIS) {
+        if (RobotMap.IS_OASIS || Robot.isSimulation()) {
             collector = new Collector();
             indexer = new Indexer();
             shooter = new Shooter();
@@ -76,11 +76,6 @@ public class RobotContainer {
         }
 
         if (Robot.isSimulation()) {
-            collector = new Collector();
-            indexer = new Indexer();
-            turret = new Turret(drivetrain);
-            hood = new Hood();
-            shooter = new Shooter();
             new MapleSim(drivetrain, collector, indexer, turret, hood, shooter);
         }
 
