@@ -84,6 +84,7 @@ public class Shooter extends SubsystemBase {
     private final VelocityVoltage velocityPID;
 
     private AngularVelocity targetVelocity;
+    private AngularVelocity targetVelocityWithBias;
     private MutAngularVelocity shooterBias;
 
     private TalonFXSimState motorSim;
@@ -112,8 +113,7 @@ public class Shooter extends SubsystemBase {
         velocityPID = new VelocityVoltage(0d);
         shooterBias = RotationsPerSecond.mutable(0);
         targetVelocity = RotationsPerSecond.zero();
-
-        targetVelocity = RotationsPerSecond.of(0);
+        targetVelocityWithBias = RotationsPerSecond.zero();
 
         //creates a config for the shooter motor
         TalonFXConfiguration config = motorLeft.getConfig();
@@ -177,7 +177,8 @@ public class Shooter extends SubsystemBase {
      */
     public void setVelocity(AngularVelocity velocity){
         targetVelocity = velocity;
-        motorLeft.setControl(velocityPID.withVelocity(velocity.in(RotationsPerSecond) + shooterBias.in(RotationsPerSecond)));
+        targetVelocityWithBias = targetVelocity.plus(shooterBias);
+        motorLeft.setControl(velocityPID.withVelocity(targetVelocityWithBias.in(RotationsPerSecond)));
     }
 
     /**
@@ -209,11 +210,18 @@ public class Shooter extends SubsystemBase {
         return motorRight.getVelocity().getValue();
     }
 
+    public AngularVelocity getTargetVelocity() {
+        return targetVelocity;
+    }
+    
+    public AngularVelocity getTargetVelocityWithBias() {
+        return targetVelocityWithBias;
+    }
     /**
      * @return whether or not the current velocity is near the target velocity
      */
     public boolean isOnTarget(){
-        return getLeftVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
+        return getLeftVelocity().isNear(getTargetVelocityWithBias(), ShooterConstants.TOLERANCE);
     }
 
     /**
