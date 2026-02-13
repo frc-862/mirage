@@ -5,7 +5,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
@@ -56,21 +56,19 @@ public class TurretAim extends Command {
         distanceToTargetMeters = Meters.of(delta.getNorm());
 
         Angle fieldAngle = delta.getAngle().getMeasure();
-        Angle turretAngle = fieldAngle.minus(Degree.of(robotPose.getRotation().getDegrees()));
+
+        Angle turretAngle
+                = fieldAngle.minus(robotPose.getRotation().getMeasure());
 
         Angle wrappedAngle
-                = inputModulus(
-                        turretAngle,
-                        Turret.TurretConstants.MIN_ANGLE,
-                        Turret.TurretConstants.MAX_ANGLE
-                );
+                = inputModulus(optimizeTurretAngle(turretAngle), Turret.TurretConstants.MIN_ANGLE, Turret.TurretConstants.MAX_ANGLE);
 
         turret.setAngle(wrappedAngle);
     }
 
     @Override
     public void end(boolean interrupted) {
-        turret.stop();
+        // turret.stop();
     }
 
     @Override
@@ -89,11 +87,12 @@ public class TurretAim extends Command {
 
     /**
      * Finds the optimal target position on the field based on the robot's pose
+     *
      * @return Translation2d of the target position
      */
     public Translation2d findTargetPosition() {
         Pose2d robotPose = drivetrain.getPose();
-        
+
         if (isInZone()) {
             return (Swerve.FieldConstants.getTargetData(
                     Swerve.FieldConstants.GOAL_POSITION));
@@ -116,15 +115,38 @@ public class TurretAim extends Command {
 
     /**
      * Checks if the robot's pose is within the current alliance's zone
+     *
      * @return true if the robot is in the zone, false otherwise
      */
     public boolean isInZone() {
         Pose2d robotPose = drivetrain.getPose();
-        
+
         if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Red) {
             return (Swerve.FieldConstants.RED_ALLIANCE_RECT.contains(robotPose.getTranslation()));
         } else {
             return (Swerve.FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
         }
+    }
+
+    /**
+     * Extend angle past 180 / -180 if possible while remaining within -220 /
+     * 220
+     *
+     * @param desired the angle between -180 and 180 calculated for the turret
+     * @return the angle optimized between -220 and 220
+     */
+    private Angle optimizeTurretAngle(Angle desired) {
+        double targetDeg = desired.in(Degrees);
+        double current = turret.getAngle().in(Degrees);
+
+        double error = targetDeg - current;
+
+        if (error > 180) {
+            targetDeg -= 360;
+        } else if (error < -180) {
+            targetDeg += 360;
+        }
+
+        return Degrees.of(targetDeg);
     }
 }

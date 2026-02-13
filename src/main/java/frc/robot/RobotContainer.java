@@ -25,8 +25,10 @@ import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Collector;
+import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
@@ -35,8 +37,6 @@ import frc.robot.subsystems.Turret;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
-import frc.robot.subsystems.Collector.CollectorConstants;
-import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
@@ -103,10 +103,10 @@ public class RobotContainer {
                 ? DriveConstants.SLOW_MODE_MULT : 1.0)));
         
         if (Robot.isSimulation()) {
-            hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(0))));
-            collector.setDefaultCommand(collector.run(() -> collector.setPivotAngle(CollectorConstants.MAX_ANGLE)));
+            hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(80))));
+            collector.setDefaultCommand(collector.run(() -> collector.setPivotAngle(CollectorConstants.DEPLOY_ANGLE)));
         }
-        shooter.setDefaultCommand(shooter.coast());
+        // shooter.setDefaultCommand(shooter.coast());
     }
 
     private void configureBindings() {
@@ -132,9 +132,9 @@ public class RobotContainer {
 
         /* Copilot */
         if (Robot.isSimulation()) {
-            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER, CollectorConstants.MIN_ANGLE));
+            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER, CollectorConstants.DEPLOY_ANGLE));
 
-            new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(20))));
+            new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(60))));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));
@@ -148,7 +148,7 @@ public class RobotContainer {
 
             new Trigger(copilot::getXButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
 
-            new Trigger(driver::getBButton).whileTrue(new TurretAim(drivetrain, turret, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
+            new Trigger(driver::getBButton).onTrue(new TurretAim(drivetrain, turret, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
         }
 
         if (RobotMap.IS_OASIS) {

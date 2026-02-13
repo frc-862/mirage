@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -12,10 +13,14 @@ import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnFly;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.util.shuffleboard.LightningShuffleboard;
 
 public class MapleSim extends SubsystemBase {
 
@@ -71,6 +76,14 @@ public class MapleSim extends SubsystemBase {
             shootNotifier.stop();
             isShooting = false;
         }
+        Pose3d cannonPose = new Pose3d(drivetrainSim.getSimulatedDriveTrainPose())
+            .plus(new Transform3d(
+                Shooter.ShooterConstants.SHOOTER_POSITION_ON_ROBOT.getX(), 
+                Shooter.ShooterConstants.SHOOTER_POSITION_ON_ROBOT.getY(), 
+                Shooter.ShooterConstants.SHOOTER_HEIGHT.in(Meters), 
+                new Rotation3d(Degrees.zero(), hood.getAngle(), turret.getAngle().plus(Degrees.of(180)))
+            ));
+        LightningShuffleboard.setPose3d("Cannon", "Pose", cannonPose);
     }
 
     private void shootFuel(){
@@ -82,7 +95,7 @@ public class MapleSim extends SubsystemBase {
                 drivetrainSim.getSimulatedDriveTrainPose().getRotation().plus(new Rotation2d(turret.getAngle())),
                 Shooter.ShooterConstants.SHOOTER_HEIGHT, 
                 MetersPerSecond.of(shooter.getLeftVelocity().in(RotationsPerSecond) * Shooter.ShooterConstants.FLYWHEEL_CIRCUMFERENCE.in(Meters) * Shooter.ShooterConstants.SHOOTER_EFFICIENCY),
-                Hood.HoodConstants.HOOD_OFFSET.minus(hood.getAngle())
+                hood.getAngle()
             ));       
         }
     }
