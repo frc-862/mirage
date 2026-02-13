@@ -22,6 +22,8 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+
+import frc.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -51,7 +53,7 @@ public class Turret extends SubsystemBase {
         public static final Angle MIN_ANGLE = Degree.of(-220);
         public static final Angle MAX_ANGLE = Degree.of(220);
 
-        public static final double MOTOR_KP = 2;
+        public static final double MOTOR_KP = 6.5;
         public static final double MOTOR_KI = 0;
         public static final double MOTOR_KD = 0;
         public static final double MOTOR_KS = 1;
@@ -200,7 +202,7 @@ public class Turret extends SubsystemBase {
      * @param angle sets the angle to the motor of the turret
      */
     public void setAngle(Angle angle) {
-        targetPosition = angle;
+        targetPosition = Units.clamp(angle, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed) { // only allow position control if turret has been zeroed but store to apply when zeroed
             motor.setControl(positionPID.withPosition(targetPosition));
         }
@@ -234,11 +236,7 @@ public class Turret extends SubsystemBase {
      * @return whether turret on target
      */
     public boolean isOnTarget() {
-        if (Robot.isReal()) {
-            return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE) && zeroed; // only on target if zeroed
-        } else {
-            return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE); // in sim, never returns true because zeroed is set to false
-        }
+        return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE) && zeroed;
     }
 
     /**
