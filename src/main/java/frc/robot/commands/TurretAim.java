@@ -5,15 +5,13 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.DriverStation;
+import static edu.wpi.first.units.Units.*;
+import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
 import static frc.util.Units.inputModulus;
+import frc.util.AllianceHelpers;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class TurretAim extends Command {
@@ -97,7 +95,7 @@ public class TurretAim extends Command {
             return (Swerve.FieldConstants.getTargetData(
                     Swerve.FieldConstants.GOAL_POSITION));
         } else {
-            if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Red) {
+            if (AllianceHelpers.isRedAlliance()) {
                 if (robotPose.getY() > Swerve.FieldConstants.FIELD_MIDDLE_Y) {
                     return Swerve.FieldConstants.ZONE_POSITION_RED_TOP;
                 } else {
@@ -120,8 +118,7 @@ public class TurretAim extends Command {
      */
     public boolean isInZone() {
         Pose2d robotPose = drivetrain.getPose();
-
-        if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Red) {
+        if (AllianceHelpers.isRedAlliance()) {
             return (Swerve.FieldConstants.RED_ALLIANCE_RECT.contains(robotPose.getTranslation()));
         } else {
             return (Swerve.FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
