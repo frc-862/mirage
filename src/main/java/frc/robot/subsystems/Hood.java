@@ -229,8 +229,7 @@ public class Hood extends SubsystemBase {
         applyControl();
     }
 
-    private void applyControl()
-    {
+    private void applyControl() {
         motor.setControl(request.withPosition(getTargetAngleWithBias()));
     }
 
