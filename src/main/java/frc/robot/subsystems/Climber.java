@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -57,7 +56,6 @@ public class Climber extends SubsystemBase {
 
     private ThunderBird climberMotor;
     private CANcoder encoder;
-    private final DutyCycleOut dutyCycle;
     private final PositionVoltage positionPID;
     private DCMotor gearbox;
     private TalonFXSimState motorSim;
@@ -71,7 +69,6 @@ public class Climber extends SubsystemBase {
             ClimberConstants.CLIMBER_MOTOR_BRAKE_MODE);
         encoder = new CANcoder(RobotMap.CLIMBER_ENCODER);
 
-        dutyCycle = new DutyCycleOut(0.0);
         positionPID = new PositionVoltage(0);
 
         TalonFXConfiguration config = climberMotor.getConfig();
@@ -102,16 +99,6 @@ public class Climber extends SubsystemBase {
         climberSim.setInputVoltage(motorSim.getMotorVoltage());
         climberSim.update(Robot.kDefaultPeriod);
         motorSim.setRawRotorPosition(Units.metersToInches(climberSim.getPositionMeters()));
-    }
-
-    /**
-     * Sets the power output of the climber motor.
-     *
-     * @param power the power output as a value between -1.0 and 1.0
-     */
-    public void setPower(double power) {
-        dutyCycle.Output = power;
-        climberMotor.setControl(dutyCycle);
     }
 
     /**
