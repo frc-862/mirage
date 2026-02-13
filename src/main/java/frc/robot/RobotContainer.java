@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -15,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.TurretAim;
@@ -23,8 +25,10 @@ import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Collector;
+import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
@@ -33,14 +37,8 @@ import frc.robot.subsystems.Turret;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
-import frc.robot.constants.LEDConstants;
-import frc.robot.constants.LEDConstants.LED_STATES;
-import frc.robot.constants.RobotMap;
-import frc.robot.subsystems.Telemetry;
-import frc.robot.subsystems.Turret;
-import frc.robot.subsystems.Collector.CollectorConstants;
-import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 public class RobotContainer {
 
@@ -109,7 +107,7 @@ public class RobotContainer {
             hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(80))));
             collector.setDefaultCommand(collector.run(() -> collector.setPivotAngle(CollectorConstants.DEPLOY_ANGLE)));
         }
-        shooter.setDefaultCommand(shooter.coast());
+        // shooter.setDefaultCommand(shooter.coast());
     }
 
     private void configureBindings() {
@@ -151,7 +149,7 @@ public class RobotContainer {
 
             new Trigger(copilot::getXButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
 
-            new Trigger(driver::getBButton).whileTrue(new TurretAim(drivetrain, turret, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
+            new Trigger(driver::getBButton).onTrue(new TurretAim(drivetrain, turret, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
         }
 
         if (RobotMap.IS_OASIS) {

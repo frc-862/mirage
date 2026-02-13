@@ -41,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
+import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -72,11 +73,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         public static Translation2d getTargetData(Target target) {
             return isBlueAlliance() ? target.blue() : target.red();
         }
-        
-        public static final Rectangle2d BLUE_ALLIANCE_RECT = new Rectangle2d(new Pose2d(2.312797, 4.034663, new Rotation2d()), 4.625594, 8.069326);
-        public static final Rectangle2d RED_ALLIANCE_RECT = new Rectangle2d(new Pose2d(14.228191, 4.034663, new Rotation2d()), 4.625594, 8.069326);
-        public static final Rectangle2d BOTTOM_HALF_RECT = new Rectangle2d(new Pose2d(8.270494, 2.017268, new Rotation2d()), 16.540988, 4.034663);
-        public static final Rectangle2d TOP_HALF_RECT = new Rectangle2d(new Pose2d(8.270494, 6.052291, new Rotation2d()), 16.540988, 4.034663);
+
+        // All Rectangle2ds probably have to be changed
+        public static final Rectangle2d BLUE_ALLIANCE_RECT = new Rectangle2d(new Pose2d(2.312797, 4.034663, new Rotation2d()), 4.625594, 8.069326); // temp
+        public static final Rectangle2d RED_ALLIANCE_RECT = new Rectangle2d(new Pose2d(14.228191, 4.034663, new Rotation2d()), 4.625594, 8.069326); // temp
+        public static final Rectangle2d BOTTOM_HALF_RECT = new Rectangle2d(new Pose2d(8.270494, 2.017268, new Rotation2d()), 16.540988, 4.034663); // temp - side on left from perspective of blue driverstation
+        public static final Rectangle2d TOP_HALF_RECT = new Rectangle2d(new Pose2d(8.270494, 6.052291, new Rotation2d()), 16.540988, 4.034663); // temp - side on right from perspective of blue driverstation
 
         public static final Translation2d ZONE_POSITION_BLUE_TOP = new Translation2d(2.034536, 5.963158);
         public static final Translation2d ZONE_POSITION_BLUE_BOTTOM = new Translation2d(2.034536, 2.105914);
@@ -146,7 +148,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     );
 
     /* The SysId routine to test */
-    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineSteer;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -372,7 +374,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             .withVelocityY(DriveConstants.MaxSpeed.times(yInput.getAsDouble()))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-            .withDriveRequestType(DriveRequestType.Velocity)));
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
     }
 
     public Command driveCommand(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput) {
