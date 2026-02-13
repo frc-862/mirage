@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.TurretAim;
 import frc.robot.constants.DriveConstants;
@@ -36,6 +37,7 @@ import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Indexer.IndexerConstants;
+import frc.robot.subsystems.Swerve.FieldConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
@@ -146,7 +148,8 @@ public class RobotContainer {
                 () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
                 .finallyDo(shooter::stop));
 
-            new Trigger(copilot::getBButton).whileTrue(new TurretAim(drivetrain, turret));
+            new Trigger(copilot::getBButton).whileTrue(new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
+            new Trigger(copilot::getXButton).whileTrue(new InstantCommand(() -> turret.setAngle(turret.getAngle().plus(Degrees.of(50)))));
         }
     }
     private void configureNamedCommands(){

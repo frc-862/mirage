@@ -55,7 +55,7 @@ public class Turret extends SubsystemBase {
         public static final double kD = 0d;
         public static final double kS = 0.45d;
 
-        public static final double ENCODER_TO_MECHANISM_RATIO = 185/22d * 5d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = 185/16d * 5d;
 
         public static final Angle ZERO_ANGLE = Degrees.of(0);
         public static final double ZEROING_POWER = 0.5;
@@ -157,6 +157,9 @@ public class Turret extends SubsystemBase {
             zeroed = true;
             setAngle(targetPosition);
         }
+
+        LightningShuffleboard.setDouble("Turret", "5 current angle", getAngle().in(Degrees));
+        LightningShuffleboard.setDouble("Turret", "6 target angle", getTargetAngle().in(Degrees));
     }
 
     @Override

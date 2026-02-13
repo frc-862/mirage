@@ -4,6 +4,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Meters;
@@ -13,6 +14,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
+import frc.util.shuffleboard.LightningShuffleboard;
+
 import static frc.util.Units.inputModulus;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -61,16 +64,27 @@ public class TurretAim extends Command {
         Angle wrappedAngle
                 = inputModulus(
                         turretAngle,
-                        Turret.TurretConstants.MIN_ANGLE,
-                        Turret.TurretConstants.MAX_ANGLE
+                        Degree.of(-180),
+                        Degree.of(180)
                 );
 
         turret.setAngle(wrappedAngle);
+        
+        LightningShuffleboard.setPose2d("Turret", "target", new Pose2d(target, new Rotation2d()));
+        LightningShuffleboard.setPose2d("Turret", "1 robot pose", robotPose);
+        LightningShuffleboard.setPose2d("Turret", "2 delta", new Pose2d(delta, new Rotation2d()));
+        LightningShuffleboard.setDouble("Turret", "3 field angle", fieldAngle.in(Degree));
+        LightningShuffleboard.setDouble("Turret", "4 turret angle", turretAngle.in(Degree));
+        LightningShuffleboard.setDouble("Turret", "5 wrapped angle", wrappedAngle.in(Degree));
+
+        LightningShuffleboard.setBool("Turret", "In Zone", isInZone());
     }
 
     @Override
     public void end(boolean interrupted) {
-        turret.stop();
+        if (interrupted) {
+            turret.stop();
+        }
     }
 
     @Override
