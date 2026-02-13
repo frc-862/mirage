@@ -94,7 +94,6 @@ public class Hood extends SubsystemBase {
 
     final PositionVoltage request;
     private Angle targetAngle;
-    private Angle targetAngleWithBias;
     private MutAngle hoodBias;
 
     private DCMotorSim hoodSim;
@@ -121,7 +120,6 @@ public class Hood extends SubsystemBase {
         request = new PositionVoltage(0d);
 
         targetAngle = Degrees.zero();
-        targetAngleWithBias = Degrees.zero();
 
         hoodBias = Degrees.mutable(0);
 
@@ -214,16 +212,20 @@ public class Hood extends SubsystemBase {
      */
     public void setPosition(Angle position) {
         targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
-        targetAngleWithBias = Units.clamp(targetAngle.plus(hoodBias), HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
-        motor.setControl(request.withPosition(targetAngleWithBias));
+        motor.setControl(request.withPosition(getTargetAngleWithBias()));
     }
 
     /**
      * Changes the bias and adds hoodBias to bias. Adds a certain amount of degrees to the hood's target position.
      * @param bias the amount of degrees to add to the hood target position going forward.
      */
-    public void changeBias(Angle bias){
+    public void changeBias(Angle bias) {
         hoodBias.mut_plus(bias);
+        setPosition(targetAngle);
+    }
+
+    public void setBias(Angle bias) {
+        hoodBias.mut_replace(bias);
         setPosition(targetAngle);
     }
     
@@ -248,7 +250,7 @@ public class Hood extends SubsystemBase {
      * @return target angle with the bias added.
      */
     public Angle getTargetAngleWithBias() {
-        return targetAngleWithBias;
+        return Units.clamp(targetAngle.plus(hoodBias), HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
     }
 
     /**
