@@ -7,7 +7,7 @@ package frc.util.simulation;
 // This code is licensed under MIT license (see https://mit-license.org/)
 
 import static edu.wpi.first.units.Units.*;
-import static frc.util.AllianceHelpers.isBlueAlliance;
+import frc.util.AllianceHelpers;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -116,7 +116,7 @@ public class SwerveSim {
         SimulatedArena.overrideSimulationTimings(constants.k, 1);
         SimulatedArena.getInstance().addDriveTrainSimulation(mapleSimDrive);
 
-        if (isBlueAlliance()) {
+        if (AllianceHelpers.isBlueAlliance()) {
             fieldPub.set(new double[] {2.034536, 4.034536, 0.0});
         } else {
             fieldPub.set(new double[] {13.915394, 4.034536, 180.0});

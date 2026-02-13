@@ -29,8 +29,7 @@ import edu.wpi.first.math.numbers.N3;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.util.AllianceHelpers.isBlueAlliance;
-import static frc.util.AllianceHelpers.isRedAlliance;
+import frc.util.AllianceHelpers;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -71,7 +70,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         public static final Target DEPOT_POSITION = new Target(new Translation2d(0.3937, 0.665988), new Translation2d(16.147288, 7.403338));
 
         public static Translation2d getTargetData(Target target) {
-            return isBlueAlliance() ? target.blue() : target.red();
+            return AllianceHelpers.isBlueAlliance() ? target.blue() : target.red();
         }
 
         // All Rectangle2ds probably have to be changed
@@ -424,7 +423,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                                                                                                     // drive the robot
             new PPHolonomicDriveController(DriveConstants.TRANSLATION_PID, DriveConstants.ROTATION_PID),
             DriveConstants.getConfig(getModuleLocations()),
-            () -> isRedAlliance(),
+            () -> AllianceHelpers.isRedAlliance(),
             this); // Subsystem for requirements
     }
 }

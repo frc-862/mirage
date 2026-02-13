@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
 import static frc.util.Units.inputModulus;
-import static frc.util.AllianceHelpers.isRedAlliance;
+import frc.util.AllianceHelpers;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class TurretAim extends Command {
@@ -95,7 +95,7 @@ public class TurretAim extends Command {
             return (Swerve.FieldConstants.getTargetData(
                     Swerve.FieldConstants.GOAL_POSITION));
         } else {
-            if (isRedAlliance()) {
+            if (AllianceHelpers.isRedAlliance()) {
                 if (robotPose.getY() > Swerve.FieldConstants.FIELD_MIDDLE_Y) {
                     return Swerve.FieldConstants.ZONE_POSITION_RED_TOP;
                 } else {
@@ -118,7 +118,7 @@ public class TurretAim extends Command {
      */
     public boolean isInZone() {
         Pose2d robotPose = drivetrain.getPose();
-        if (isRedAlliance()) {
+        if (AllianceHelpers.isRedAlliance()) {
             return (Swerve.FieldConstants.RED_ALLIANCE_RECT.contains(robotPose.getTranslation()));
         } else {
             return (Swerve.FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
