@@ -212,7 +212,7 @@ public class Hood extends SubsystemBase {
      */
     public void setPosition(Angle position) {
         targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
-        motor.setControl(request.withPosition(getTargetAngleWithBias()));
+        applyControl();
     }
 
     /**
@@ -221,13 +221,19 @@ public class Hood extends SubsystemBase {
      */
     public void changeBias(Angle bias) {
         hoodBias.mut_plus(bias);
-        setPosition(targetAngle);
+        applyControl();
     }
 
     public void setBias(Angle bias) {
         hoodBias.mut_replace(bias);
-        setPosition(targetAngle);
+        applyControl();
     }
+
+    private void applyControl()
+    {
+        motor.setControl(request.withPosition(getTargetAngleWithBias()));
+    }
+
     
     /**
      * Gets the current angle of the hood

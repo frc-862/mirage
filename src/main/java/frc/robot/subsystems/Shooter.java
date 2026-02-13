@@ -177,7 +177,7 @@ public class Shooter extends SubsystemBase {
      */
     public void setVelocity(AngularVelocity velocity){
         targetVelocity = velocity;
-        motorLeft.setControl(velocityPID.withVelocity(getTargetVelocityWithBias().in(RotationsPerSecond)));
+        applyChange();
     }
 
     /**
@@ -187,15 +187,19 @@ public class Shooter extends SubsystemBase {
     public void changeBias(AngularVelocity bias) {
         shooterBias.mut_plus(bias);
         if (targetVelocity.gt(RotationsPerSecond.zero())) {
-            setVelocity(targetVelocity);
+            applyChange();
         }
     }
 
     public void setBias(AngularVelocity bias) {
         shooterBias.mut_replace(bias);
         if (targetVelocity.gt(RotationsPerSecond.zero())) {
-            setVelocity(targetVelocity);
+            applyChange();
         }        
+    }
+    
+    private void applyChange() {
+        motorLeft.setControl(velocityPID.withVelocity(getTargetVelocityWithBias().in(RotationsPerSecond)));
     }
 
     /**
