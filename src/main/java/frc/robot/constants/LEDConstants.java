@@ -16,6 +16,7 @@ public class LEDConstants {
     public enum LED_STATES {
         TEST,
         ERROR,
+        VISION_BAD,
         AUTO,
         SHOOT,
         CANNED_SHOT_START,
