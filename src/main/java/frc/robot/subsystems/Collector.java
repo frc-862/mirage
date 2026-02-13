@@ -261,10 +261,10 @@ public class Collector extends SubsystemBase {
     }
 
     /**
-     * dutycycleout command for shooter
+     * dutycycleout command for collector
      * @param power
      * @param position
-     * @return the command for running the shooter
+     * @return the command for running the collector
      */
     public Command collectCommand(double power, Angle position) {
         return new StartEndCommand(() -> deployCollector(power, position), () -> stopCollector(), this);
