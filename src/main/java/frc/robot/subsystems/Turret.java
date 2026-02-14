@@ -9,8 +9,10 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import static edu.wpi.first.units.Units.Amps;
@@ -21,8 +23,6 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
-
-import frc.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -34,9 +34,11 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
+import frc.util.Units;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 
@@ -206,7 +208,8 @@ public class Turret extends SubsystemBase {
      * @param angle sets the angle to the motor of the turret
      */
     public void setAngle(Angle angle) {
-        targetPosition = Units.clamp(angle, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
+        Angle wrappedPosition = Units.inputModulus(optimizeTurretAngle(angle), Degrees.of(-180), Degrees.of(180));
+        targetPosition = Units.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed) { // only allow position control if turret has been zeroed but store to apply when zeroed
             motor.setControl(positionPID.withPosition(targetPosition));
         }
@@ -277,5 +280,59 @@ public class Turret extends SubsystemBase {
      */
     public void stop() {
         motor.stopMotor();
+    }
+
+    /**
+     * Extend angle past 180 / -180 if possible while remaining within -220 /
+     * 220
+     *
+     * @param desired the angle between -180 and 180 calculated for the turret
+     * @return the angle optimized between -220 and 220
+     */
+    public Angle optimizeTurretAngle(Angle desired) {
+        double targetDeg = desired.in(Degrees);
+        double current = getAngle().in(Degrees);
+
+        double error = targetDeg - current;
+
+        if (error > 180) {
+            targetDeg -= 360;
+        } else if (error < -180) {
+            targetDeg += 360;
+        }
+
+        return Degrees.of(targetDeg);
+    }
+
+    public Command aimWithTarget(Swerve drivetrain, Translation2d target) {
+        return run(() -> {
+            Pose2d robotPose = drivetrain.getPose();
+
+            Translation2d delta = target.minus(robotPose.getTranslation());
+
+            Angle fieldAngle = delta.getAngle().getMeasure();
+
+            Angle turretAngle
+                    = fieldAngle.minus(robotPose.getRotation().getMeasure());
+
+            setAngle(turretAngle); 
+        });
+    }
+
+    public Command aimWithoutTarget(Swerve drivetrain) {
+        return run(() -> {
+            Pose2d robotPose = drivetrain.getPose();
+
+            Translation2d target = drivetrain.findTargetPosition();
+
+            Translation2d delta = target.minus(robotPose.getTranslation());
+
+            Angle fieldAngle = delta.getAngle().getMeasure();
+
+            Angle turretAngle
+                    = fieldAngle.minus(robotPose.getRotation().getMeasure());
+
+            setAngle(turretAngle); 
+        });
     }
 }

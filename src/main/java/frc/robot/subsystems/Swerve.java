@@ -29,8 +29,6 @@ import edu.wpi.first.math.numbers.N3;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
-import frc.util.AllianceHelpers;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -40,7 +38,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
-import frc.util.shuffleboard.LightningShuffleboard;
+import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -435,24 +433,17 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      */
     public Translation2d findTargetPosition() {
         Pose2d robotPose = getPose();
-        
+
         if (isInZone()) {
-            return (Swerve.FieldConstants.getTargetData(
-                    Swerve.FieldConstants.GOAL_POSITION));
+            return FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
+        }
+        
+        boolean isTop = robotPose.getY() > FieldConstants.FIELD_MIDDLE_Y;
+
+        if (AllianceHelpers.isBlueAlliance()) {
+            return isTop ? FieldConstants.ZONE_POSITION_BLUE_TOP : FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
         } else {
-            if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Red) {
-                if (robotPose.getY() > Swerve.FieldConstants.FIELD_MIDDLE_Y) {
-                    return Swerve.FieldConstants.ZONE_POSITION_RED_TOP;
-                } else {
-                    return Swerve.FieldConstants.ZONE_POSITION_RED_BOTTOM;
-                }
-            } else {
-                if (robotPose.getY() > Swerve.FieldConstants.FIELD_MIDDLE_Y) {
-                    return Swerve.FieldConstants.ZONE_POSITION_BLUE_TOP;
-                } else {
-                    return Swerve.FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
-                }
-            }
+            return isTop ? FieldConstants.ZONE_POSITION_RED_TOP : FieldConstants.ZONE_POSITION_RED_BOTTOM;
         }
     }
 

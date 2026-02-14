@@ -6,15 +6,16 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import static edu.wpi.first.units.Units.*;
-import edu.wpi.first.units.measure.*;
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
-import frc.util.shuffleboard.LightningShuffleboard;
-
 import static frc.util.Units.inputModulus;
-import frc.util.AllianceHelpers;
+import frc.util.shuffleboard.LightningShuffleboard;
 
 public class TurretAim extends Command {
 
@@ -61,7 +62,7 @@ public class TurretAim extends Command {
                 = fieldAngle.minus(robotPose.getRotation().getMeasure());
 
         Angle wrappedAngle
-                = inputModulus(optimizeTurretAngle(turretAngle), Degree.of(-180), Degree.of(180));
+                = inputModulus(turret.optimizeTurretAngle(turretAngle), Degree.of(-180), Degree.of(180));
 
         turret.setAngle(wrappedAngle);
         
@@ -94,27 +95,5 @@ public class TurretAim extends Command {
      */
     public Distance getDistanceToTargetMeters() {
         return distanceToTargetMeters;
-    }
-
-    /**
-     * Extend angle past 180 / -180 if possible while remaining within -220 /
-     * 220
-     *
-     * @param desired the angle between -180 and 180 calculated for the turret
-     * @return the angle optimized between -220 and 220
-     */
-    private Angle optimizeTurretAngle(Angle desired) {
-        double targetDeg = desired.in(Degrees);
-        double current = turret.getAngle().in(Degrees);
-
-        double error = targetDeg - current;
-
-        if (error > 180) {
-            targetDeg -= 360;
-        } else if (error < -180) {
-            targetDeg += 360;
-        }
-
-        return Degrees.of(targetDeg);
     }
 }
