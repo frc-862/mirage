@@ -21,6 +21,7 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
@@ -30,7 +31,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import frc.util.AllianceHelpers;
-
+import frc.util.shuffleboard.LightningShuffleboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -40,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -405,6 +407,14 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Pose2d getPose(){
         return getState().Pose;
+    }
+
+    /**
+     * Getting the position of the shooter on the field.
+     * @return The translation of the shooter.
+     */
+    public Translation2d getShooterTranslation() {
+        return getPose().plus(new Transform2d(ShooterConstants.SHOOTER_POSITION_ON_ROBOT, getPose().getRotation())).getTranslation();
     }
 
     public ChassisSpeeds getCurrentRobotChassisSpeeds(){
