@@ -416,7 +416,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      * @return The translation of the shooter.
      */
     public Translation2d getShooterTranslation() {
-        return getPose().plus(new Transform2d(ShooterConstants.SHOOTER_POSITION_ON_ROBOT, getPose().getRotation())).getTranslation();
+        return getPose().plus(new Transform2d(ShooterConstants.SHOOTER_POSITION_ON_ROBOT, new Rotation2d())).getTranslation();
     }
 
     public ChassisSpeeds getCurrentRobotChassisSpeeds(){
