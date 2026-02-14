@@ -62,13 +62,13 @@ public class Hood extends SubsystemBase {
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
 
-        public static final InverseInterpolator<Distance> HOOD_INVERSE_INTERPOLATOR = new InverseInterpolator(Meters.of(0), Meters.of(20), Meters.of(1));
+        // public static final InverseInterpolator<Distance> HOOD_INVERSE_INTERPOLATOR = new InverseInterpolator(Meters.of(0), Meters.of(20), Meters.of(1));
         
         // Input is distance to target in meters, output is hood angle in degrees
-        // public static final InterpolatingTreeMap<Distance, Angle> HOOD_MAP = new InterpolatingTreeMap<Distance, Angle>(HoodConstants.HOOD_INVERSE_INTERPOLATOR, new Interpolator<Angle>(MIN_ANGLE, MAX_ANGLE, Degrees.of(0.5)));
-            // Map.entry(2d, 50d),
-            // Map.entry(4d, 60d),
-            // Map.entry(6d, 70d));
+         public static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
+            Map.entry(2d, 50d),
+            Map.entry(4d, 60d),
+            Map.entry(6d, 70d));
 
         public static final double kS = 0.05d;
         public static final double kG = -0.3d; // negative because negative power is up
