@@ -289,16 +289,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             });
         }
         
-        if (isInZone()) {
-            targetPosition = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
-        } else {
-            boolean isTop = getPose().getY() > FieldConstants.FIELD_MIDDLE_Y;
-            if (AllianceHelpers.isBlueAlliance()) {
-                targetPosition = isTop ? FieldConstants.ZONE_POSITION_BLUE_TOP : FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
-            } else {
-                targetPosition = isTop ? FieldConstants.ZONE_POSITION_RED_TOP : FieldConstants.ZONE_POSITION_RED_BOTTOM;
-            }
-        }
+        targetPosition = findTargetPosition();
     }
 
     @Override
@@ -445,6 +436,22 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      *
      * @return Translation2d of the last-computed target position (updated in periodic())
      */
+    public Translation2d findTargetPosition() {
+        Pose2d robotPose = getPose();
+
+        if (isInZone()) {
+            return FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
+        }
+        
+        boolean isTop = robotPose.getY() > FieldConstants.FIELD_MIDDLE_Y;
+
+        if (AllianceHelpers.isBlueAlliance()) {
+            return isTop ? FieldConstants.ZONE_POSITION_BLUE_TOP : FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
+        } else {
+            return isTop ? FieldConstants.ZONE_POSITION_RED_TOP : FieldConstants.ZONE_POSITION_RED_BOTTOM;
+        }
+    }
+
     public Translation2d getTargetPosition() {
         return targetPosition;
     }
