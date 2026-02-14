@@ -428,4 +428,46 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             () -> AllianceHelpers.isRedAlliance(),
             this); // Subsystem for requirements
     }
+
+    /**
+     * Finds the optimal target position on the field based on the robot's pose
+     *
+     * @return Translation2d of the target position
+     */
+    public Translation2d findTargetPosition() {
+        Pose2d robotPose = getPose();
+
+        if (isInZone()) {
+            return (Swerve.FieldConstants.getTargetData(
+                    Swerve.FieldConstants.GOAL_POSITION));
+        } else {
+            if (AllianceHelpers.isRedAlliance()) {
+                if (robotPose.getY() > Swerve.FieldConstants.FIELD_MIDDLE_Y) {
+                    return Swerve.FieldConstants.ZONE_POSITION_RED_TOP;
+                } else {
+                    return Swerve.FieldConstants.ZONE_POSITION_RED_BOTTOM;
+                }
+            } else {
+                if (robotPose.getY() > Swerve.FieldConstants.FIELD_MIDDLE_Y) {
+                    return Swerve.FieldConstants.ZONE_POSITION_BLUE_TOP;
+                } else {
+                    return Swerve.FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks if the robot's pose is within the current alliance's zone
+     *
+     * @return true if the robot is in the zone, false otherwise
+     */
+    public boolean isInZone() {
+        Pose2d robotPose = getPose();
+        if (AllianceHelpers.isRedAlliance()) {
+            return (Swerve.FieldConstants.RED_ALLIANCE_RECT.contains(robotPose.getTranslation()));
+        } else {
+            return (Swerve.FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
+        }
+    }
 }
