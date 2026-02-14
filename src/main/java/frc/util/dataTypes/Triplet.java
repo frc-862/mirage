@@ -20,7 +20,7 @@ public class Triplet<K, V, A> extends Object {
             return false; 
         }
         Triplet<?, ?, ?> other = (Triplet<?, ?, ?>) obj;
-        return k.equals(other.k) && v.equals(other.v);
+        return k.equals(other.k) && v.equals(other.v) && a.equals(other.a);
     }
 
     @Override

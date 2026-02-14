@@ -18,6 +18,8 @@ public class CANDShotCommandTurret extends CANDShotCommand {
 
     @Override
     public void initialize() {
+        super.initialize();
+        
         turret.setAngle(shot.turretAngle());
     }
 

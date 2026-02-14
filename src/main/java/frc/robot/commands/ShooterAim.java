@@ -49,18 +49,17 @@ public class ShooterAim extends Command {
         this.turret = turret;
         this.indexer = indexer;
 
-        addRequirements(shooter, hood, turret, indexer);
+        addRequirements(shooter, hood, indexer);
     }
 
     @Override
     public void execute() {
-        if (turret.isOnTarget() & hood.isOnTarget() & shooter.isOnTarget()) {
+        if (turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget()) {
             indexer.setSpindexerPower(Indexer.IndexerConstants.SPINDEXDER_POWER); //TEMP
             indexer.setTransferPower(Indexer.IndexerConstants.TRANSFER_POWER);
         }
 
         Pose2d robotPose = swerve.getPose();
-        double distanceMeters = robotPose.getTranslation().getDistance(target);
 
         if(redAllianceZone.contains(robotPose.getTranslation())){
             target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION);
@@ -72,6 +71,7 @@ public class ShooterAim extends Command {
             target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
         }
 
+        double distanceMeters = robotPose.getTranslation().getDistance(target);
 
         AngularVelocity shooterVelocity = RotationsPerSecond.of(Shooter.ShooterConstants.VELOCITY_MAP.get(distanceMeters));
         Angle hoodAngle = Degrees.of(Hood.HoodConstants.HOOD_MAP.get(distanceMeters));
