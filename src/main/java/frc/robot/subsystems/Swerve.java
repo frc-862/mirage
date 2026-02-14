@@ -29,8 +29,6 @@ import edu.wpi.first.math.numbers.N3;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
-import frc.util.AllianceHelpers;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -40,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
+import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -49,6 +48,7 @@ import frc.util.simulation.SwerveSim;
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private Notifier m_simNotifier = null;
     protected SwerveSim swerveSim;
+    private Translation2d targetPosition = new Translation2d(0, 0);
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -288,6 +288,17 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+        
+        if (isInZone()) {
+            targetPosition = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
+        } else {
+            boolean isTop = getPose().getY() > FieldConstants.FIELD_MIDDLE_Y;
+            if (AllianceHelpers.isBlueAlliance()) {
+                targetPosition = isTop ? FieldConstants.ZONE_POSITION_BLUE_TOP : FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
+            } else {
+                targetPosition = isTop ? FieldConstants.ZONE_POSITION_RED_TOP : FieldConstants.ZONE_POSITION_RED_BOTTOM;
+            }
+        }
     }
 
     @Override
@@ -432,29 +443,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     /**
      * Finds the optimal target position on the field based on the robot's pose
      *
-     * @return Translation2d of the target position
+     * @return Translation2d of the last-computed target position (updated in periodic())
      */
-    public Translation2d findTargetPosition() {
-        Pose2d robotPose = getPose();
-
-        if (isInZone()) {
-            return (Swerve.FieldConstants.getTargetData(
-                    Swerve.FieldConstants.GOAL_POSITION));
-        } else {
-            if (AllianceHelpers.isRedAlliance()) {
-                if (robotPose.getY() > Swerve.FieldConstants.FIELD_MIDDLE_Y) {
-                    return Swerve.FieldConstants.ZONE_POSITION_RED_TOP;
-                } else {
-                    return Swerve.FieldConstants.ZONE_POSITION_RED_BOTTOM;
-                }
-            } else {
-                if (robotPose.getY() > Swerve.FieldConstants.FIELD_MIDDLE_Y) {
-                    return Swerve.FieldConstants.ZONE_POSITION_BLUE_TOP;
-                } else {
-                    return Swerve.FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
-                }
-            }
-        }
+    public Translation2d getTargetPosition() {
+        return targetPosition;
     }
 
     /**

@@ -42,7 +42,7 @@ public class TurretAim extends Command {
     public TurretAim(Swerve drivetrain, Turret turret) {
         this.drivetrain = drivetrain;
         this.turret = turret;
-        this.target = drivetrain.findTargetPosition();
+        this.target = drivetrain.getTargetPosition();
 
         addRequirements(turret);
     }
@@ -50,6 +50,9 @@ public class TurretAim extends Command {
     @Override
     public void execute() {
         Pose2d robotPose = drivetrain.getPose();
+
+        // refresh target from drivetrain (computed in Swerve.periodic())
+        target = drivetrain.getTargetPosition();
 
         Translation2d delta = target.minus(robotPose.getTranslation());
         distanceToTargetMeters = Meters.of(delta.getNorm());
