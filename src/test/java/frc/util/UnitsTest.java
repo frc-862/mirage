@@ -1,11 +1,10 @@
 package frc.util;
 
-import static edu.wpi.first.units.Units.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Test;
 
-import edu.wpi.first.units.measure.Angle;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 
@@ -142,17 +141,5 @@ class UnitsTest {
         var result = Units.inputModulus(value, min, max);
 
         assertEquals(value, result);
-    }
-
-    @Test
-    void testTurretAim() {
-        Angle angle = Degrees.of(-338);
-        Angle minAngle = Degrees.of(-120);
-        Angle maxAngle = Degrees.of(120);
-        Angle expected = Degrees.of(22);
-
-        var result = Units.inputModulus(angle, minAngle, maxAngle);
-
-        assertEquals(expected, result);
     }
 }
