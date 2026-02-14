@@ -40,7 +40,6 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
-import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -88,6 +87,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         public static final double FIELD_MIDDLE_Y = 4.034663;
     }
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
+    @SuppressWarnings("unused")
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
         new SysIdRoutine.Config(
             null,        // Use default ramp rate (1 V/s)
@@ -104,6 +104,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     );
 
     /* SysId routine for characterizing steer. This is used to find PID gains for the steer motors. */
+    @SuppressWarnings("unused")
     private final SysIdRoutine m_sysIdRoutineSteer = new SysIdRoutine(
         new SysIdRoutine.Config(
             null,        // Use default ramp rate (1 V/s)
@@ -124,6 +125,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      * This is used to find PID gains for the FieldCentricFacingAngle HeadingController.
      * See the documentation of SwerveRequest.SysIdSwerveRotation for info on importing the log to SysId.
      */
+    @SuppressWarnings("unused")
     private final SysIdRoutine m_sysIdRoutineRotation = new SysIdRoutine(
         new SysIdRoutine.Config(
             /* This is in radians per second², but SysId only supports "volts per second" */

@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meter;
@@ -50,20 +49,17 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = Degree.of(-220);
-        public static final Angle MAX_ANGLE = Degree.of(220);
+        public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Degrees.of(-120): Degrees.of(-220); // limit range temporarily
+        public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Degrees.of(120): Degrees.of(220);
 
-        public static final double MOTOR_KP = 6.5;
-        public static final double MOTOR_KI = 0;
-        public static final double MOTOR_KD = 0;
-        public static final double MOTOR_KS = 1;
-        public static final double MOTOR_KV = 0.18;
-        public static final double MOTOR_KA = 0.01;
-        public static final double MOTOR_KG = 0;
+        public static final double kP = 25d;
+        public static final double kI = 0d;
+        public static final double kD = 0d;
+        public static final double kS = 0.45d;
 
-        public static final double ENCODER_TO_MECHANISM_RATIO = 185d/22d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = 185/22d * 5d;
 
-        public static final Angle ZERO_ANGLE = Degree.of(0);
+        public static final Angle ZERO_ANGLE = Degrees.of(0);
         public static final double ZEROING_POWER = 0.5;
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
@@ -103,19 +99,24 @@ public class Turret extends SubsystemBase {
         motor = new ThunderBird(RobotMap.TURRET, RobotMap.CAN_BUS, TurretConstants.INVERTED,
                 TurretConstants.STATOR_LIMIT, TurretConstants.BRAKE);
 
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+        TalonFXConfiguration config = motor.getConfig();
 
-        motorConfig.Slot0.kP = TurretConstants.MOTOR_KP;
-        motorConfig.Slot0.kI = TurretConstants.MOTOR_KI;
-        motorConfig.Slot0.kD = TurretConstants.MOTOR_KD;
-        motorConfig.Slot0.kS = TurretConstants.MOTOR_KS;
-        motorConfig.Slot0.kV = TurretConstants.MOTOR_KV;
-        motorConfig.Slot0.kA = TurretConstants.MOTOR_KA;
-        motorConfig.Slot0.kG = TurretConstants.MOTOR_KG;
+        config.Slot0.kP = TurretConstants.kP;
+        config.Slot0.kI = TurretConstants.kI;
+        config.Slot0.kD = TurretConstants.kD;
+        config.Slot0.kS = TurretConstants.kS;
 
-        motorConfig.Feedback.SensorToMechanismRatio = TurretConstants.ENCODER_TO_MECHANISM_RATIO;
+        config.Voltage.PeakForwardVoltage = 2; // TODO: remove
+        config.Voltage.PeakReverseVoltage = -2; // temp
 
-        motor.applyConfig(motorConfig);
+        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = TurretConstants.MAX_ANGLE.in(Rotations);
+        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = TurretConstants.MIN_ANGLE.in(Rotations);
+
+        config.Feedback.SensorToMechanismRatio = TurretConstants.ENCODER_TO_MECHANISM_RATIO;
+
+        motor.applyConfig(config);
 
         zeroLimitSwitch = new DigitalInput(RobotMap.TURRET_ZERO_SWITCH);
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
@@ -173,14 +174,14 @@ public class Turret extends SubsystemBase {
         motorSim.setRawRotorPosition(simAngle.times(TurretConstants.ENCODER_TO_MECHANISM_RATIO));
         motorSim.setRotorVelocity(simVeloc.times(TurretConstants.ENCODER_TO_MECHANISM_RATIO));
 
-        ligament.setAngle(simAngle.in(Degree));
+        ligament.setAngle(simAngle.in(Degrees));
 
         LightningShuffleboard.setDouble("Turret", "Motor encoder angle",
-                motor.getPosition().getValue().in(Degree));
-        LightningShuffleboard.setDouble("Turret", "sim angle", simAngle.in(Degree));
+                motor.getPosition().getValue().in(Degrees));
+        LightningShuffleboard.setDouble("Turret", "sim angle", simAngle.in(Degrees));
 
-        LightningShuffleboard.setDouble("Turret", "current angle", getAngle().in(Degree));
-        LightningShuffleboard.setDouble("Turret", "target angle", getTargetAngle().in(Degree));
+        LightningShuffleboard.setDouble("Turret", "current angle", getAngle().in(Degrees));
+        LightningShuffleboard.setDouble("Turret", "target angle", getTargetAngle().in(Degrees));
         LightningShuffleboard.setBool("Turret", "on target", isOnTarget());
 
         Translation3d robotTranslation3d = new Translation3d(

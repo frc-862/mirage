@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
@@ -46,19 +47,19 @@ public class Shooter extends SubsystemBase {
 
     public class ShooterConstants {
         public static final boolean INVERTED = false; // temp
-        public static final Current STATOR_LIMIT = Amps.of(120); // temp
+        public static final Current STATOR_LIMIT = Amps.of(160.0); // temp
         public static final boolean BRAKE = false; // temp
         public static final double COAST_DC = 0.05; // Shooter power when coasting
 
-        public static final double kP = 0.25d;
+        public static final double kP = 0.5d; //0.25
         public static final double kI = 0d;
         public static final double kD = 0d;
         public static final double kV = 0.1185d;
         public static final double kS = 0.38d;
-        public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(1);
+        public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
 
         public static final double GEAR_RATIO = 1d; // temp
-        public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(2).times(Math.PI).times(2);
+        public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI);
 
         // for sim to account for movement between shooter, fuel, and hood
         public static final double SHOOTER_EFFICIENCY = 0.3; 
@@ -70,7 +71,7 @@ public class Shooter extends SubsystemBase {
 
         // Sim
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
-        public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(9), Inches.of(0));
+        public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(9), Inches.of(9)); // temp
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
         public static final Time MAX_SHOOTING_PERIOD = Seconds.of(0.1); // 10 balls per second
     }
@@ -102,7 +103,6 @@ public class Shooter extends SubsystemBase {
     public Shooter(ThunderBird motorLeft, ThunderBird motorRight) {
         this.motorLeft = motorLeft;
         this.motorRight = motorRight;
-
 
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);

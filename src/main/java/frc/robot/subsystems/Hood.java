@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Radians;
@@ -27,13 +27,6 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -59,8 +52,8 @@ public class Hood extends SubsystemBase {
         public static final Current STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean BRAKE = true; // temp
 
-        public static final Angle MIN_ANGLE = Degree.of(45); // Hood v2
-        public static final Angle MAX_ANGLE = Degree.of(80); // Hood v2
+        public static final Angle MIN_ANGLE = Degrees.of(50); 
+        public static final Angle MAX_ANGLE = Degrees.of(80); 
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
 
@@ -70,21 +63,21 @@ public class Hood extends SubsystemBase {
             Map.entry(4d, 60d),
             Map.entry(6d, 70d));
 
-        public static final double kS = 0.25d; // temp
-        public static final double kV = 2; // temp
-        public static final double kA = 0.01; // temp
-        public static final double kP = 20; // temp
-        public static final double kI = 0.0; // temp
-        public static final double kD = 0.0; // temp
+        public static final double kS = 0.05d;
+        public static final double kG = -0.3d; // negative because negative power is up
+        public static final double kP = 50d;
+        public static final double kI = 0.0;
+        public static final double kD = 1d;
 
-        public static final Angle POSITION_TOLERANCE = Degrees.of(1); // temp
+        public static final Angle POSITION_TOLERANCE = Degrees.of(3); // temp
 
         // Conversion ratios
-        public static final double ROTOR_TO_ENCODER_RATIO = RobotMap.IS_OASIS ? 1 : 50d/22d;
-        public static final double ENCODER_TO_MECHANISM_RATIO = RobotMap.IS_OASIS ? 50d/22d * 156d/15d : 156d/15d;
+        public static final double ROTOR_TO_ENCODER_RATIO = RobotMap.IS_OASIS ? 1 : 50/22d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = RobotMap.IS_OASIS ? 50/22d * 156/15d : 156/15d;
         public static final double ROTOR_TO_MECHANISM_RATIO = ROTOR_TO_ENCODER_RATIO * ENCODER_TO_MECHANISM_RATIO; // only used in sim
 
-        public static final Angle ANGLE_OFFSET = Degrees.of(0); // temp
+        public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
+        public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
     }
 
     private ThunderBird motor;
@@ -103,46 +96,47 @@ public class Hood extends SubsystemBase {
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
-        motor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
-            HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
+        motor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS, HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
             HoodConstants.BRAKE);
 
         // Do not instantiate if Oasis b/c Oasis doesn't have a CANcoder yet
-        if (hasEncoder()) {
+        if (!RobotMap.IS_OASIS) {
             encoder = new CANcoder(RobotMap.HOOD_ENCODER, RobotMap.CAN_BUS);
         }
 
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+        TalonFXConfiguration motorConfig = motor.getConfig();
 
         request = new PositionVoltage(0d);
 
         targetAngle = Degrees.of(0);
 
-        if (hasEncoder()) {
+        if (!RobotMap.IS_OASIS) {
             CANcoderConfiguration angleConfig = new CANcoderConfiguration();
             angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
-            angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? HoodConstants.ANGLE_OFFSET.in(Rotations) : 0d;
+            angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? HoodConstants.ENCODER_OFFSET.in(Rotations) : 0d;
             angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
             encoder.getConfigurator().apply(angleConfig);
-        } else {
-            motor.setPosition(HoodConstants.MAX_ANGLE);
         }
 
         motorConfig.Slot0.kP = HoodConstants.kP;
         motorConfig.Slot0.kI = HoodConstants.kI;
         motorConfig.Slot0.kD = HoodConstants.kD;
         motorConfig.Slot0.kS = HoodConstants.kS;
-        motorConfig.Slot0.kV = HoodConstants.kV;
-        motorConfig.Slot0.kA = HoodConstants.kA;
+        motorConfig.Slot0.kG = HoodConstants.kG;
 
-        if (hasEncoder()) {
+        if (!RobotMap.IS_OASIS) {
             motorConfig.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
             motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         }
 
         motorConfig.Feedback.SensorToMechanismRatio = HoodConstants.ENCODER_TO_MECHANISM_RATIO;
         motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
+
         motor.applyConfig(motorConfig);
+
+        if (RobotMap.IS_OASIS){
+            motor.setPosition(HoodConstants.MAX_ANGLE); // needs to be after config
+        }
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
@@ -168,12 +162,10 @@ public class Hood extends SubsystemBase {
         }
     }
 
-    private boolean hasEncoder() {
-        return !RobotMap.IS_OASIS || Robot.isSimulation();
-    }
-
     @Override
-    public void periodic() {}
+    public void periodic() {
+        LightningShuffleboard.setDouble("Hood", "Angle (Degrees)", getAngle().in(Degrees));
+    }
 
     @Override
     public void simulationPeriodic() {
