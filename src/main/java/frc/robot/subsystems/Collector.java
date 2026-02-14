@@ -245,7 +245,7 @@ public class Collector extends SubsystemBase {
      * @return True if the wrist is on target
      */
     public boolean pivotOnTarget() {
-        return targetPivotPosition.isNear(targetPivotPosition, CollectorConstants.TOLERANCE);
+        return targetPivotPosition.isNear(getPivotAngle(), CollectorConstants.TOLERANCE);
     }
 
     /**
