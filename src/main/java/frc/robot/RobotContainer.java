@@ -3,16 +3,16 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
-
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -30,6 +30,7 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.MapleSim;
+import frc.robot.subsystems.PhotonVision;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
@@ -67,18 +68,16 @@ public class RobotContainer {
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
 
-        if (RobotMap.IS_OASIS) {
+        if (RobotMap.IS_OASIS || Robot.isSimulation()) {
             collector = new Collector();
             indexer = new Indexer();
             shooter = new Shooter();
+            hood = new Hood();
+            turret = new Turret(drivetrain);
+            new PhotonVision(drivetrain);
         }
 
         if (Robot.isSimulation()) {
-            collector = new Collector();
-            indexer = new Indexer();
-            turret = new Turret(drivetrain);
-            hood = new Hood();
-            shooter = new Shooter();
             new MapleSim(drivetrain, collector, indexer, turret, hood, shooter);
         }
 
@@ -101,12 +100,12 @@ public class RobotContainer {
                         RobotMap.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
                         RobotMap.CONTROLLER_DEADBAND), RobotMap.CONTROLLER_POW) * (driver.getRightBumperButton()
                 ? DriveConstants.SLOW_MODE_MULT : 1.0)));
-        
-        if (Robot.isSimulation()) {
-            hood.setDefaultCommand(hood.run(() -> hood.setPosition(Degrees.of(80))));
-            collector.setDefaultCommand(collector.run(() -> collector.setPivotAngle(CollectorConstants.DEPLOY_ANGLE)));
+
+        if (RobotMap.IS_OASIS || Robot.isSimulation()) {
+            indexer.setDefaultCommand(indexer.indexRunCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis())));
+            shooter.setDefaultCommand(shooter.coast());
+            // turret.setDefaultCommand(new TurretAim(drivetrain, turret));
         }
-        // shooter.setDefaultCommand(shooter.coast());
     }
 
     private void configureBindings() {
@@ -131,9 +130,7 @@ public class RobotContainer {
             ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         /* Copilot */
-        if (Robot.isSimulation()) {
-            new Trigger(copilot::getAButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER, CollectorConstants.DEPLOY_ANGLE));
-
+            if (Robot.isSimulation()) {
             new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(60))));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
@@ -161,11 +158,20 @@ public class RobotContainer {
             new Trigger(copilot::getLeftBumperButton).whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
             new Trigger(copilot::getRightBumperButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
-            new Trigger(copilot::getXButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, -IndexerConstants.TRANSFER_POWER));
-            new Trigger(copilot::getBButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER));
+            // Temp Bindings for testing purposes
 
             new Trigger(copilot::getYButton).whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
-                .andThen(indexer.indexCommand(0.5, 1).andThen(shooter::stop)));
+                .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
+                .finallyDo(shooter::stop));
+
+            new Trigger(copilot::getAButton).whileTrue(
+                shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
+                .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
+                .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
+                () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
+                .finallyDo(shooter::stop));
+
+            new Trigger(copilot::getBButton).whileTrue(new TurretAim(drivetrain, turret));
         }
     }
     private void configureNamedCommands(){
