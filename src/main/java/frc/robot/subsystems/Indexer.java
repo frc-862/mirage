@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
@@ -31,12 +33,12 @@ public class Indexer extends SubsystemBase {
     public class IndexerConstants {
         // spindexer
         public static final boolean SPINDEXER_MOTOR_INVERTED = true; // temp
-        public static final Current SPINDEXER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
+        public static final Current SPINDEXER_MOTOR_STATOR_LIMIT = Amps.of(80); // temp
         public static final boolean SPINDEXER_MOTOR_BRAKE_MODE = true; // temp
 
         public static final double SPINDEXER_SIM_kV = 0.24;
         public static final double SPINDEXER_SIM_kA = 0.8;
-        public static final double SPINDEXDER_POWER = 0.5;
+        public static final double SPINDEXDER_POWER = 1d;
 
         // transfer
         public static final boolean TRANSFER_MOTOR_INVERTED = true; // temp
@@ -159,7 +161,15 @@ public class Indexer extends SubsystemBase {
         return new StartEndCommand(() -> setPower(power), () -> stop(), this);
     }
 
+    public Command indexCommand(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
+        return new StartEndCommand(() -> setPower(spindexerPower.getAsDouble(), transferPower.getAsDouble()), () -> stop(), this);
+    }
+
     public Command indexCommand(double spindexerPower, double transferPower) {
-        return new StartEndCommand(() -> setPower(spindexerPower, transferPower), () -> stop(), this);
+        return indexCommand(() -> spindexerPower, () -> transferPower);
+    }
+
+    public Command indexRunCommand(DoubleSupplier power){
+        return runEnd(() -> setPower(power.getAsDouble()), this::stop);
     }
 }
