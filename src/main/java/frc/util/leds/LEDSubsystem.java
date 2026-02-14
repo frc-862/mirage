@@ -82,6 +82,16 @@ public class LEDSubsystem extends SubsystemBase {
     }
 
     /**
+     * Sets whether a specific state is enabled.
+     *
+     * @param stateID The ID of the state to modify.
+     * @param enabled true to enable the state, false to disable it.
+     */
+    public void setState(int stateID, boolean enabled) {
+        enabledStates[stateID] = enabled;
+    }
+
+    /**
      * Gets if a specific state is enabled.
      *
      * @param stateID The ID of the state to get.
