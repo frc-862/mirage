@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
@@ -25,9 +26,13 @@ import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.math.interpolation.Interpolator;
+import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
@@ -57,11 +62,13 @@ public class Hood extends SubsystemBase {
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
 
+        public static final InverseInterpolator<Distance> HOOD_INVERSE_INTERPOLATOR = new InverseInterpolator(Meters.of(0), Meters.of(20), Meters.of(1));
+        
         // Input is distance to target in meters, output is hood angle in degrees
-        public static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(2d, 50d),
-            Map.entry(4d, 60d),
-            Map.entry(6d, 70d));
+        // public static final InterpolatingTreeMap<Distance, Angle> HOOD_MAP = new InterpolatingTreeMap<Distance, Angle>(HoodConstants.HOOD_INVERSE_INTERPOLATOR, new Interpolator<Angle>(MIN_ANGLE, MAX_ANGLE, Degrees.of(0.5)));
+            // Map.entry(2d, 50d),
+            // Map.entry(4d, 60d),
+            // Map.entry(6d, 70d));
 
         public static final double kS = 0.05d;
         public static final double kG = -0.3d; // negative because negative power is up
@@ -189,6 +196,10 @@ public class Hood extends SubsystemBase {
         LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
+    }
+
+    public double getInterpolationMapValues(double distance) {
+        return HoodConstants.HOOD_MAP.get(distance);
     }
 
     /**
