@@ -29,8 +29,6 @@ import edu.wpi.first.math.numbers.N3;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
-import frc.util.AllianceHelpers;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -40,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
+import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -49,6 +48,7 @@ import frc.util.simulation.SwerveSim;
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private Notifier m_simNotifier = null;
     protected SwerveSim swerveSim;
+    private Translation2d targetPosition = new Translation2d(0, 0);
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -288,6 +288,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+        
+        targetPosition = findTargetPosition();
     }
 
     @Override
@@ -427,5 +429,44 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             DriveConstants.getConfig(getModuleLocations()),
             () -> AllianceHelpers.isRedAlliance(),
             this); // Subsystem for requirements
+    }
+
+    /**
+     * Finds the optimal target position on the field based on the robot's pose
+     *
+     * @return Translation2d of the last-computed target position (updated in periodic())
+     */
+    public Translation2d findTargetPosition() {
+        Pose2d robotPose = getPose();
+
+        if (isInZone()) {
+            return FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
+        }
+        
+        boolean isTop = robotPose.getY() > FieldConstants.FIELD_MIDDLE_Y;
+
+        if (AllianceHelpers.isBlueAlliance()) {
+            return isTop ? FieldConstants.ZONE_POSITION_BLUE_TOP : FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
+        } else {
+            return isTop ? FieldConstants.ZONE_POSITION_RED_TOP : FieldConstants.ZONE_POSITION_RED_BOTTOM;
+        }
+    }
+
+    public Translation2d getTargetPosition() {
+        return targetPosition;
+    }
+
+    /**
+     * Checks if the robot's pose is within the current alliance's zone
+     *
+     * @return true if the robot is in the zone, false otherwise
+     */
+    public boolean isInZone() {
+        Pose2d robotPose = getPose();
+        if (AllianceHelpers.isRedAlliance()) {
+            return (Swerve.FieldConstants.RED_ALLIANCE_RECT.contains(robotPose.getTranslation()));
+        } else {
+            return (Swerve.FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
+        }
     }
 }
