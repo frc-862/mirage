@@ -5,13 +5,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import static edu.wpi.first.units.Units.*;
-import edu.wpi.first.units.measure.*;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
 import static frc.util.Units.inputModulus;
-import frc.util.AllianceHelpers;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class TurretAim extends Command {
@@ -41,7 +42,7 @@ public class TurretAim extends Command {
     public TurretAim(Swerve drivetrain, Turret turret) {
         this.drivetrain = drivetrain;
         this.turret = turret;
-        this.target = findTargetPosition();
+        this.target = drivetrain.getTargetPosition();
 
         addRequirements(turret);
     }
@@ -49,6 +50,9 @@ public class TurretAim extends Command {
     @Override
     public void execute() {
         Pose2d robotPose = drivetrain.getPose();
+
+        // refresh target from drivetrain (computed in Swerve.periodic())
+        target = drivetrain.getTargetPosition();
 
         Translation2d delta = target.minus(robotPose.getTranslation());
         distanceToTargetMeters = Meters.of(delta.getNorm());
@@ -81,48 +85,6 @@ public class TurretAim extends Command {
      */
     public Distance getDistanceToTargetMeters() {
         return distanceToTargetMeters;
-    }
-
-    /**
-     * Finds the optimal target position on the field based on the robot's pose
-     *
-     * @return Translation2d of the target position
-     */
-    public Translation2d findTargetPosition() {
-        Pose2d robotPose = drivetrain.getPose();
-
-        if (isInZone()) {
-            return (Swerve.FieldConstants.getTargetData(
-                    Swerve.FieldConstants.GOAL_POSITION));
-        } else {
-            if (AllianceHelpers.isRedAlliance()) {
-                if (robotPose.getY() > Swerve.FieldConstants.FIELD_MIDDLE_Y) {
-                    return Swerve.FieldConstants.ZONE_POSITION_RED_TOP;
-                } else {
-                    return Swerve.FieldConstants.ZONE_POSITION_RED_BOTTOM;
-                }
-            } else {
-                if (robotPose.getY() > Swerve.FieldConstants.FIELD_MIDDLE_Y) {
-                    return Swerve.FieldConstants.ZONE_POSITION_BLUE_TOP;
-                } else {
-                    return Swerve.FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
-                }
-            }
-        }
-    }
-
-    /**
-     * Checks if the robot's pose is within the current alliance's zone
-     *
-     * @return true if the robot is in the zone, false otherwise
-     */
-    public boolean isInZone() {
-        Pose2d robotPose = drivetrain.getPose();
-        if (AllianceHelpers.isRedAlliance()) {
-            return (Swerve.FieldConstants.RED_ALLIANCE_RECT.contains(robotPose.getTranslation()));
-        } else {
-            return (Swerve.FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
-        }
     }
 
     /**
