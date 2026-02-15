@@ -50,8 +50,8 @@ public class Robot extends TimedRobot {
         LiveWindow.disableAllTelemetry();
 
         if (DriverStation.isFMSAttached()) {
-            totalCurrentEntry = new DoubleLogEntry(DataLogManager.getLog(), "PDH/TotalCurrent");
-            voltageEntry = new DoubleLogEntry(DataLogManager.getLog(), "PDH/Voltage");
+            totalCurrentEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/TotalCurrent");
+            voltageEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/Voltage");
         }
     }
 
