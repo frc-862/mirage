@@ -41,6 +41,7 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
 import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.AllianceHelpers;
+import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -416,7 +417,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      * @return The translation of the shooter.
      */
     public Translation2d getShooterTranslation() {
-        return getPose().plus(new Transform2d(ShooterConstants.SHOOTER_POSITION_ON_ROBOT, new Rotation2d())).getTranslation();
+        return getPose().getTranslation().plus(ShooterConstants.SHOOTER_POSITION_ON_ROBOT.rotateBy(getPose().getRotation()));
     }
 
     public ChassisSpeeds getCurrentRobotChassisSpeeds(){
