@@ -14,6 +14,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -134,8 +137,31 @@ public class RobotContainer {
             ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         /* Copilot */
+            if (Robot.isSimulation()) {
+            new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(60))));
 
-        if (RobotMap.IS_OASIS || Robot.isSimulation()) {
+            new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
+                shooter.setVelocity(RotationsPerSecond.of(100));
+                indexer.setSpindexerPower(1d);
+            })).onFalse(new InstantCommand(() -> {
+                shooter.stop();
+                indexer.stop();
+            }));
+
+            new Trigger(copilot::getBButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().plus(Degrees.of(0.5)))));
+
+            new Trigger(copilot::getXButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
+
+            new Trigger(() -> copilot.getPOV() == 270).onTrue(new InstantCommand(() -> hood.changeBias(Hood.HoodConstants.BIAS_DELTA.unaryMinus()))); // Assign a trigger soon
+            new Trigger(() -> copilot.getPOV() == 90).onTrue(new InstantCommand(() -> hood.changeBias(Hood.HoodConstants.BIAS_DELTA))); // Assign a trigger soon
+            new Trigger(() -> copilot.getPOV() == 0).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA)));
+
+            new Trigger(() -> copilot.getPOV() == 180).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA.unaryMinus())));
+
+            new Trigger(driver::getBButton).onTrue(new TurretAim(drivetrain, turret, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
+        }
+
+        if (RobotMap.IS_OASIS) {
             new Trigger(copilot::getLeftBumperButton).whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
             new Trigger(copilot::getRightBumperButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
@@ -147,13 +173,12 @@ public class RobotContainer {
 
             new Trigger(copilot::getAButton).whileTrue(
                 shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
-                .alongWith(hood.hoodCommand(Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
+                .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
                 .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
                 () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
                 .finallyDo(shooter::stop));
 
-            new Trigger(copilot::getBButton).whileTrue(new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
-            new Trigger(copilot::getXButton).whileTrue(new InstantCommand(() -> turret.setAngle(turret.getAngle().plus(Degrees.of(50)))));
+            new Trigger(copilot::getBButton).whileTrue(new TurretAim(drivetrain, turret));
         }
     }
     private void configureNamedCommands(){

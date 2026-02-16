@@ -4,13 +4,6 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -27,10 +20,17 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -70,13 +70,15 @@ public class Hood extends SubsystemBase {
         public static final double kD = 1d;
 
         public static final Angle POSITION_TOLERANCE = Degrees.of(3); // temp
+        public static final Angle BIAS_DELTA = Degrees.of(0.5); // temp
 
         // Conversion ratios
         public static final double ROTOR_TO_ENCODER_RATIO = RobotMap.IS_OASIS ? 1 : 50/22d;
         public static final double ENCODER_TO_MECHANISM_RATIO = RobotMap.IS_OASIS ? 50/22d * 156/15d : 156/15d;
         public static final double ROTOR_TO_MECHANISM_RATIO = ROTOR_TO_ENCODER_RATIO * ENCODER_TO_MECHANISM_RATIO; // only used in sim
 
-        public static final Angle ANGLE_OFFSET = Degrees.of(0); // temp
+        public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
+        public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
     }
 
     private ThunderBird motor;
@@ -84,6 +86,7 @@ public class Hood extends SubsystemBase {
 
     final PositionVoltage request;
     private Angle targetAngle;
+    private MutAngle hoodBias;
 
     private DCMotorSim hoodSim;
     private TalonFXSimState motorSim;
@@ -95,8 +98,7 @@ public class Hood extends SubsystemBase {
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
-        motor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS,
-            HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
+        motor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS, HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
             HoodConstants.BRAKE);
 
         // Do not instantiate if Oasis b/c Oasis doesn't have a CANcoder yet
@@ -108,16 +110,16 @@ public class Hood extends SubsystemBase {
 
         request = new PositionVoltage(0d);
 
-        targetAngle = Degrees.of(0);
+        targetAngle = Degrees.zero();
+
+        hoodBias = Degrees.mutable(0);
 
         if (!RobotMap.IS_OASIS) {
             CANcoderConfiguration angleConfig = new CANcoderConfiguration();
             angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
-            angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? HoodConstants.ANGLE_OFFSET.in(Rotations) : 0d;
+            angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? HoodConstants.ENCODER_OFFSET.in(Rotations) : 0d;
             angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
             encoder.getConfigurator().apply(angleConfig);
-        } else {
-            motor.setPosition(HoodConstants.MAX_ANGLE);
         }
 
         motorConfig.Slot0.kP = HoodConstants.kP;
@@ -191,6 +193,8 @@ public class Hood extends SubsystemBase {
         LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
+        LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
+        LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
     }
 
     /**
@@ -199,14 +203,31 @@ public class Hood extends SubsystemBase {
      */
     public void setPosition(Angle position) {
         targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
-
-        motor.setControl(request.withPosition(targetAngle));
+        applyControl();
     }
 
     /**
+     * Changes the bias and adds hoodBias to bias. Adds a certain amount of degrees to the hood's target position.
+     * @param bias the amount of degrees to add to the hood target position going forward.
+     */
+    public void changeBias(Angle bias) {
+        hoodBias.mut_plus(bias);
+        applyControl();
+    }
+
+    public void setBias(Angle bias) {
+        hoodBias.mut_replace(bias);
+        applyControl();
+    }
+
+    private void applyControl() {
+        motor.setControl(request.withPosition(getTargetAngleWithBias()));
+    }
+
+    
+    /**
      * Gets the current angle of the hood
-     * @return
-     * current angle
+     * @return current angle
      */
     public Angle getAngle() {
         return motor.getPosition().getValue();
@@ -214,11 +235,26 @@ public class Hood extends SubsystemBase {
 
     /**
      * Gets the target angle of the hood
-     * @return
-     * targetAngle
+     * @return target angle without the bias.
      */
     public Angle getTargetAngle() {
         return targetAngle;
+    }
+
+    /**
+     * Gets the target angle with bias.
+     * @return target angle with the bias added.
+     */
+    public Angle getTargetAngleWithBias() {
+        return Units.clamp(targetAngle.plus(hoodBias), HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
+    }
+
+    /**
+     * Gets the bias of the hood
+     * @return the bias of hood.
+     */
+    public Angle getBias() {
+        return hoodBias;
     }
 
     /**
@@ -227,7 +263,7 @@ public class Hood extends SubsystemBase {
      * True if on target, false otherwise
      */
     public boolean isOnTarget() {
-        return getAngle().isNear(getTargetAngle(), HoodConstants.POSITION_TOLERANCE);
+        return getAngle().isNear(getTargetAngleWithBias(), HoodConstants.POSITION_TOLERANCE);
     }
 
     /**

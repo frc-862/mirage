@@ -6,7 +6,6 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.units.measure.Angle;
@@ -44,7 +43,7 @@ public class TurretAim extends Command {
     public TurretAim(Swerve drivetrain, Turret turret) {
         this.drivetrain = drivetrain;
         this.turret = turret;
-        this.target = drivetrain.findTargetPosition();
+        this.target = drivetrain.getTargetPosition();
 
         addRequirements(turret);
     }
@@ -52,6 +51,9 @@ public class TurretAim extends Command {
     @Override
     public void execute() {
         Pose2d robotPose = drivetrain.getPose();
+
+        // refresh target from drivetrain (computed in Swerve.periodic())
+        target = drivetrain.getTargetPosition();
 
         Translation2d delta = target.minus(robotPose.getTranslation());
         distanceToTargetMeters = Meters.of(delta.getNorm());
@@ -62,16 +64,16 @@ public class TurretAim extends Command {
                 = fieldAngle.minus(robotPose.getRotation().getMeasure());
 
         Angle wrappedAngle
-                = inputModulus(turret.optimizeTurretAngle(turretAngle), Degree.of(-180), Degree.of(180));
+                = inputModulus(turret.optimizeTurretAngle(turretAngle), Degrees.of(-180), Degrees.of(180));
 
         turret.setAngle(wrappedAngle);
         
         LightningShuffleboard.setPose2d("Turret", "target", new Pose2d(target, new Rotation2d()));
         LightningShuffleboard.setPose2d("Turret", "1 robot pose", robotPose);
         LightningShuffleboard.setPose2d("Turret", "2 delta", new Pose2d(delta, new Rotation2d()));
-        LightningShuffleboard.setDouble("Turret", "3 field angle", fieldAngle.in(Degree));
-        LightningShuffleboard.setDouble("Turret", "4 turret angle", turretAngle.in(Degree));
-        LightningShuffleboard.setDouble("Turret", "5 wrapped angle", wrappedAngle.in(Degree));
+        LightningShuffleboard.setDouble("Turret", "3 field angle", fieldAngle.in(Degrees));
+        LightningShuffleboard.setDouble("Turret", "4 turret angle", turretAngle.in(Degrees));
+        LightningShuffleboard.setDouble("Turret", "5 wrapped angle", wrappedAngle.in(Degrees));
 
         LightningShuffleboard.setBool("Turret", "In Zone", drivetrain.isInZone());
     }
@@ -95,5 +97,27 @@ public class TurretAim extends Command {
      */
     public Distance getDistanceToTargetMeters() {
         return distanceToTargetMeters;
+    }
+
+    /**
+     * Extend angle past 180 / -180 if possible while remaining within -220 /
+     * 220
+     *
+     * @param desired the angle between -180 and 180 calculated for the turret
+     * @return the angle optimized between -220 and 220
+     */
+    private Angle optimizeTurretAngle(Angle desired) {
+        double targetDeg = desired.in(Degrees);
+        double current = turret.getAngle().in(Degrees);
+
+        double error = targetDeg - current;
+
+        if (error > 180) {
+            targetDeg -= 360;
+        } else if (error < -180) {
+            targetDeg += 360;
+        }
+
+        return Degrees.of(targetDeg);
     }
 }

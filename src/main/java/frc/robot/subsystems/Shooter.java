@@ -20,7 +20,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
@@ -31,6 +30,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
@@ -57,7 +57,7 @@ public class Shooter extends SubsystemBase {
         public static final double kV = 0.1185d;
         public static final double kS = 0.38d;
         public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
-        public static final AngularVelocity SLOT1_THRESHOLD = RotationsPerSecond.of(3);
+        public static final AngularVelocity BIAS_DELTA = RotationsPerSecond.of(1);
 
         public static final double GEAR_RATIO = 1d; // temp
         public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI);
@@ -85,6 +85,9 @@ public class Shooter extends SubsystemBase {
 
     private AngularVelocity targetVelocity;
 
+
+    private MutAngularVelocity shooterBias;
+
     private TalonFXSimState motorSim;
     private FlywheelSim shooterSim;
 
@@ -108,8 +111,8 @@ public class Shooter extends SubsystemBase {
         //instatiates duty cycle and velocity pid
         dutyCycle = new DutyCycleOut(0.0);
         velocityPID = new VelocityVoltage(0d);
-
-        targetVelocity = RotationsPerSecond.of(0);
+        shooterBias = RotationsPerSecond.mutable(0);
+        targetVelocity = RotationsPerSecond.zero();
 
         //creates a config for the shooter motor
         TalonFXConfiguration config = motorLeft.getConfig();
@@ -146,6 +149,8 @@ public class Shooter extends SubsystemBase {
 
         LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
         LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Shooter", "Target Velocity", targetVelocity.in(RotationsPerSecond));
+        LightningShuffleboard.setDouble("Shooter", "Bias", shooterBias.in(RotationsPerSecond));
     }
 
      /**
@@ -154,6 +159,7 @@ public class Shooter extends SubsystemBase {
      */
     public void setPower(double power) {
         motorLeft.setControl(dutyCycle.withOutput(power));
+        targetVelocity = RotationsPerSecond.zero();
     }
 
     /**
@@ -161,6 +167,7 @@ public class Shooter extends SubsystemBase {
      */
     public void stop() {
         motorLeft.stopMotor();
+        targetVelocity = RotationsPerSecond.zero();
     }
 
     /**
@@ -169,9 +176,38 @@ public class Shooter extends SubsystemBase {
      */
     public void setVelocity(AngularVelocity velocity){
         targetVelocity = velocity;
-        motorLeft.setControl(velocityPID.withVelocity(velocity));
+        applyChange();
     }
 
+    /**
+     * Change the bias of the shooter velocity. If the shooter is currently running it will update the velocity with the bias.
+     * @param bias in rotations per second
+     */
+    public void changeBias(AngularVelocity bias) {
+        shooterBias.mut_plus(bias);
+        if (targetVelocity.gt(RotationsPerSecond.zero())) {
+            applyChange();
+        }
+    }
+
+    public void setBias(AngularVelocity bias) {
+        shooterBias.mut_replace(bias);
+        if (targetVelocity.gt(RotationsPerSecond.zero())) {
+            applyChange();
+        }        
+    }
+    
+    private void applyChange() {
+        motorLeft.setControl(velocityPID.withVelocity(getTargetVelocityWithBias().in(RotationsPerSecond)));
+    }
+
+    /**
+     * Get the current bias of the shooter velocity.
+     * @return the current bias in rotations per second
+     */
+    public AngularVelocity getBias() {
+        return shooterBias;
+    } 
     /**
      * @return the velocity of the shooter motor
      */
@@ -183,11 +219,18 @@ public class Shooter extends SubsystemBase {
         return motorRight.getVelocity().getValue();
     }
 
+    public AngularVelocity getTargetVelocity() {
+        return targetVelocity;
+    }
+    
+    public AngularVelocity getTargetVelocityWithBias() {
+        return targetVelocity.plus(shooterBias);
+    }
     /**
      * @return whether or not the current velocity is near the target velocity
      */
     public boolean isOnTarget(){
-        return getLeftVelocity().isNear(targetVelocity, ShooterConstants.TOLERANCE);
+        return getLeftVelocity().isNear(getTargetVelocityWithBias(), ShooterConstants.TOLERANCE);
     }
 
     /**

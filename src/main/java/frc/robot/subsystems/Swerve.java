@@ -48,6 +48,7 @@ import frc.util.simulation.SwerveSim;
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private Notifier m_simNotifier = null;
     protected SwerveSim swerveSim;
+    private Translation2d targetPosition = new Translation2d(0, 0);
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -86,6 +87,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         public static final double FIELD_MIDDLE_Y = 4.034663;
     }
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
+    @SuppressWarnings("unused")
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
         new SysIdRoutine.Config(
             null,        // Use default ramp rate (1 V/s)
@@ -286,6 +288,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+        
+        targetPosition = findTargetPosition();
     }
 
     @Override
@@ -427,9 +431,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             this); // Subsystem for requirements
     }
 
-     /**
+    /**
      * Finds the optimal target position on the field based on the robot's pose
-     * @return Translation2d of the target position
+     *
+     * @return Translation2d of the last-computed target position (updated in periodic())
      */
     public Translation2d findTargetPosition() {
         Pose2d robotPose = getPose();
@@ -447,14 +452,18 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
+    public Translation2d getTargetPosition() {
+        return targetPosition;
+    }
+
     /**
      * Checks if the robot's pose is within the current alliance's zone
+     *
      * @return true if the robot is in the zone, false otherwise
      */
     public boolean isInZone() {
         Pose2d robotPose = getPose();
-        
-        if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Red) {
+        if (AllianceHelpers.isRedAlliance()) {
             return (Swerve.FieldConstants.RED_ALLIANCE_RECT.contains(robotPose.getTranslation()));
         } else {
             return (Swerve.FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
