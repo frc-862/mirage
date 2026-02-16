@@ -32,6 +32,7 @@ import frc.robot.subsystems.Hood.HoodConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerConstants;
+import frc.robot.subsystems.Swerve.FieldConstants;
 import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.PhotonVision;
 import frc.robot.subsystems.Shooter;
@@ -107,7 +108,7 @@ public class RobotContainer {
         if (RobotMap.IS_OASIS || Robot.isSimulation()) {
             indexer.setDefaultCommand(indexer.indexRunCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis())));
             shooter.setDefaultCommand(shooter.coast());
-            hood.setDefaultCommand(new HoodAim(hood, hood.getTargetAngle(), hood.getInterpolationMapValues()));
+            //hood.setDefaultCommand(new HoodAim(drivetrain, hood, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
             // turret.setDefaultCommand(new TurretAim(drivetrain, turret));
         }
     }
@@ -153,6 +154,7 @@ public class RobotContainer {
                 .finallyDo(shooter::stop));
 
             new Trigger(copilot::getBButton).whileTrue(new TurretAim(drivetrain, turret));
+            new Trigger(copilot::getAButton).whileTrue(hood.hoodCommand(Degrees.of(60)));
         }
     }
     private void configureNamedCommands(){

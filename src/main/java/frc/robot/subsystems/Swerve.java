@@ -428,4 +428,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             () -> AllianceHelpers.isRedAlliance(),
             this); // Subsystem for requirements
     }
+    public Translation2d getShooterTranslation(){
+        return getPose().getTranslation();
+    }
 }
