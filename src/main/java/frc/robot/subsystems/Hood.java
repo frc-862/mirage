@@ -36,6 +36,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -77,6 +78,7 @@ public class Hood extends SubsystemBase {
         public static final double kD = 1d;
 
         public static final Angle POSITION_TOLERANCE = Degrees.of(3); // temp
+        public static final Angle BIAS_DELTA = Degrees.of(0.5); // temp
 
         // Conversion ratios
         public static final double ROTOR_TO_ENCODER_RATIO = RobotMap.IS_OASIS ? 1 : 50/22d;
@@ -92,6 +94,7 @@ public class Hood extends SubsystemBase {
 
     final PositionVoltage request;
     private Angle targetAngle;
+    private MutAngle hoodBias;
 
     private DCMotorSim hoodSim;
     private TalonFXSimState motorSim;
@@ -115,7 +118,9 @@ public class Hood extends SubsystemBase {
 
         request = new PositionVoltage(0d);
 
-        targetAngle = Degrees.of(0);
+        targetAngle = Degrees.zero();
+
+        hoodBias = Degrees.mutable(0);
 
         if (!RobotMap.IS_OASIS) {
             CANcoderConfiguration angleConfig = new CANcoderConfiguration();
@@ -196,6 +201,8 @@ public class Hood extends SubsystemBase {
         LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
+        LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
+        LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
     }
 
     public double getInterpolationMapValues(double distance) {
@@ -208,14 +215,31 @@ public class Hood extends SubsystemBase {
      */
     public void setPosition(Angle position) {
         targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
-
-        motor.setControl(request.withPosition(targetAngle));
+        applyControl();
     }
 
     /**
+     * Changes the bias and adds hoodBias to bias. Adds a certain amount of degrees to the hood's target position.
+     * @param bias the amount of degrees to add to the hood target position going forward.
+     */
+    public void changeBias(Angle bias) {
+        hoodBias.mut_plus(bias);
+        applyControl();
+    }
+
+    public void setBias(Angle bias) {
+        hoodBias.mut_replace(bias);
+        applyControl();
+    }
+
+    private void applyControl() {
+        motor.setControl(request.withPosition(getTargetAngleWithBias()));
+    }
+
+    
+    /**
      * Gets the current angle of the hood
-     * @return
-     * current angle
+     * @return current angle
      */
     public Angle getAngle() {
         return motor.getPosition().getValue();
@@ -223,11 +247,26 @@ public class Hood extends SubsystemBase {
 
     /**
      * Gets the target angle of the hood
-     * @return
-     * targetAngle
+     * @return target angle without the bias.
      */
     public Angle getTargetAngle() {
         return targetAngle;
+    }
+
+    /**
+     * Gets the target angle with bias.
+     * @return target angle with the bias added.
+     */
+    public Angle getTargetAngleWithBias() {
+        return Units.clamp(targetAngle.plus(hoodBias), HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
+    }
+
+    /**
+     * Gets the bias of the hood
+     * @return the bias of hood.
+     */
+    public Angle getBias() {
+        return hoodBias;
     }
 
     /**
@@ -236,7 +275,7 @@ public class Hood extends SubsystemBase {
      * True if on target, false otherwise
      */
     public boolean isOnTarget() {
-        return getAngle().isNear(getTargetAngle(), HoodConstants.POSITION_TOLERANCE);
+        return getAngle().isNear(getTargetAngleWithBias(), HoodConstants.POSITION_TOLERANCE);
     }
 
     /**
