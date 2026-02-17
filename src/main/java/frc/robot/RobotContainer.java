@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.HoodAim;
 import frc.robot.commands.TurretAim;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.LEDConstants;
@@ -108,7 +107,7 @@ public class RobotContainer {
         if (RobotMap.IS_OASIS || Robot.isSimulation()) {
             indexer.setDefaultCommand(indexer.indexRunCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis())));
             shooter.setDefaultCommand(shooter.coast());
-            //hood.setDefaultCommand(new HoodAim(drivetrain, hood, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
+            hood.setDefaultCommand(hood.hoodAim(drivetrain));
             // turret.setDefaultCommand(new TurretAim(drivetrain, turret));
         }
     }
@@ -177,7 +176,6 @@ public class RobotContainer {
                 .finallyDo(shooter::stop));
 
             new Trigger(copilot::getBButton).whileTrue(new TurretAim(drivetrain, turret));
-            new Trigger(copilot::getAButton).whileTrue(hood.hoodCommand(Degrees.of(60)));
         }
     }
     private void configureNamedCommands(){

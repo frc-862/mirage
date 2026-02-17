@@ -25,6 +25,7 @@ import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
@@ -67,9 +68,9 @@ public class Hood extends SubsystemBase {
         
         // Input is distance to target in meters, output is hood angle in degrees
          public static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(2d, 50d),
+            Map.entry(2d, 80d),
             Map.entry(4d, 60d),
-            Map.entry(6d, 70d));
+            Map.entry(8d, 50d));
 
         public static final double kS = 0.05d;
         public static final double kG = -0.3d; // negative because negative power is up
@@ -170,7 +171,7 @@ public class Hood extends SubsystemBase {
             motor.setPosition(HoodConstants.MAX_ANGLE); // needs to be after config and sim
         }
     }
-    
+
     private static boolean hasEncoder(){
         return !RobotMap.IS_OASIS && !Robot.isSimulation();
     }
@@ -298,5 +299,18 @@ public class Hood extends SubsystemBase {
      */
     public Command hoodCommand(Supplier<Angle> hoodAngleSupplier) {
         return new StartEndCommand(() -> setPosition(hoodAngleSupplier.get()), () -> {}, this).until(this::isOnTarget);
+    }
+    
+    /**
+     * keeps the hood pointed at the target of the Robot.
+     * @param drivetrain
+     * @return Command for repositioning the hood.
+     */
+    public Command hoodAim(Swerve drivetrain){
+        return run(() -> {
+            double distance =  drivetrain.getShooterTranslation().getDistance(drivetrain.getTargetPosition());
+            Angle targetAngle = Degrees.of(HoodConstants.HOOD_MAP.get(distance));
+            setPosition(targetAngle);
+        });
     }
 }
