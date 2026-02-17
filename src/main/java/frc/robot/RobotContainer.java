@@ -131,7 +131,7 @@ public class RobotContainer {
             ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         /* Copilot */
-            if (Robot.isSimulation()) {
+        if (Robot.isSimulation()) {
             new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(60))));
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
@@ -156,6 +156,8 @@ public class RobotContainer {
         }
 
         if (RobotMap.IS_OASIS) {
+            new Trigger(copilot::getStartButton).whileTrue(hood.retract());
+
             new Trigger(copilot::getLeftBumperButton).whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
             new Trigger(copilot::getRightBumperButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
@@ -168,7 +170,7 @@ public class RobotContainer {
             new Trigger(copilot::getAButton).whileTrue(
                 shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
                 .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
-                .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
+                .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER),
                 () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
                 .finallyDo(shooter::stop));
 
