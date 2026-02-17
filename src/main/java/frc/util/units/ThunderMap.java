@@ -45,7 +45,7 @@ public class ThunderMap<M1 extends Measure, M2 extends Measure> extends Interpol
         return (M2) valueUnit.of(super.get(key.baseUnitMagnitude()));
     }
 
-    @Deprecated()
+    @Deprecated
     @Override
     public void put(Double key, Double value) {
         throw new UnsupportedOperationException("Use put(M1 key, M2 value) instead");
