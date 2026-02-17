@@ -122,7 +122,7 @@ public class PhotonVision extends SubsystemBase {
                 updatedPose.pose.estimatedPose.toPose2d(), 
                 Utils.fpgaToCurrentTime(updatedPose.pose.timestampSeconds), 
                 VecBuilder.fill(bestTagAmbiguity*1.7, bestTagAmbiguity*1.7, bestTagAmbiguity*1.7));
-            log("Added vision measurment");
+            // log("Added vision measurment");
         }
     }
 
@@ -309,7 +309,7 @@ public class PhotonVision extends SubsystemBase {
     }
 
     // im lazy
-    private void log(String message) {
-        DataLogManager.log("[PHOTON VISION]" + message);
-    }
+    // private void log(String message) {
+    //     DataLogManager.log("[PHOTON VISION]" + message);
+    // }
 }

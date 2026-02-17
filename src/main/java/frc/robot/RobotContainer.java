@@ -14,9 +14,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -42,9 +39,6 @@ import frc.robot.subsystems.Turret;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
-import frc.robot.subsystems.Collector.CollectorConstants;
-import frc.robot.subsystems.Indexer.IndexerConstants;
-import frc.robot.subsystems.Swerve.FieldConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
@@ -178,7 +172,9 @@ public class RobotContainer {
                 () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
                 .finallyDo(shooter::stop));
 
-            new Trigger(copilot::getBButton).whileTrue(new TurretAim(drivetrain, turret));
+            new Trigger(copilot::getXButton).whileTrue(turret.runOnce(() -> turret.setAngle(Degrees.of(LightningShuffleboard.getDouble("Turret", "Setpoint", 0)))));
+
+            new Trigger(copilot::getBButton).whileTrue(new TurretAim(drivetrain, turret, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
         }
     }
     private void configureNamedCommands(){

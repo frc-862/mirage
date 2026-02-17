@@ -59,7 +59,7 @@ public class Turret extends SubsystemBase {
         public static final double kD = 0d;
         public static final double kS = 0.45d;
 
-        public static final double ENCODER_TO_MECHANISM_RATIO = 185d/22d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = 185d/16d * 5;
 
         public static final Angle ZERO_ANGLE = Degrees.of(0);
         public static final double ZEROING_POWER = 0.5;
@@ -164,6 +164,19 @@ public class Turret extends SubsystemBase {
 
         LightningShuffleboard.setDouble("Turret", "5 current angle", getAngle().in(Degrees));
         LightningShuffleboard.setDouble("Turret", "6 target angle", getTargetAngle().in(Degrees));
+
+        // remove pose3d here
+        Translation3d robotTranslation3d = new Translation3d(
+                drivetrain.getPose().getX(),
+                drivetrain.getPose().getY(),
+                0.0);
+
+        turretPose3d = new Pose3d(
+                robotTranslation3d.plus(new Translation3d(Math.cos(getAngle().in(Radians)), Math.sin(getAngle().in(Radians)), 0)),
+                new Rotation3d(0, 0, getAngle().in(Radians))
+        );
+
+        LightningShuffleboard.setPose3d("Turret", "Turret pose 3d", turretPose3d);
     }
 
     @Override
