@@ -480,7 +480,4 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
-    public Translation2d getShooterTranslation(){
-        return getPose().getTranslation();
-    }
 }
