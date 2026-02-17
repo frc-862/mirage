@@ -104,6 +104,7 @@ public class RobotContainer {
         if (RobotMap.IS_OASIS || Robot.isSimulation()) {
             indexer.setDefaultCommand(indexer.indexRunCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis())));
             shooter.setDefaultCommand(shooter.coast());
+            hood.setDefaultCommand(hood.hoodAim(drivetrain));
             // turret.setDefaultCommand(new TurretAim(drivetrain, turret));
         }
     }
