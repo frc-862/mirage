@@ -1,9 +1,9 @@
-package frc.util;
+package frc.util.units;
 
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
 
-public class Units {
+public class ThunderUnits {
   /**
    * Clamps a {@code Measure<U>} between a minimum and maximum.
    *
