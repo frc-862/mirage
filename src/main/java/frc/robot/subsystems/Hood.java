@@ -14,6 +14,8 @@ import static edu.wpi.first.units.Units.Rotations;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.ejml.dense.row.misc.TransposeAlgs_DDRM;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -83,10 +85,10 @@ public class Hood extends SubsystemBase {
         public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
 
         // Trench zones
-        private Rectangle2d LEFT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 1), new Translation2d(5.2, 0)); // temp, values found with sim
-        private Rectangle2d RIGHT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 8), new Translation2d(5.2, 7)); // temp, values found with sim
-        private Rectangle2d LEFT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 1), new Translation2d(12.4, 0)); // temp, values found with sim
-        private Rectangle2d RIGHT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 8), new Translation2d(12.4, 7)); // temp, values found with sim
+        private static final Rectangle2d LEFT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 1), new Translation2d(5.2, 0)); // temp, values found with sim
+        private static final Rectangle2d RIGHT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 8), new Translation2d(5.2, 7)); // temp, values found with sim
+        private static final Rectangle2d LEFT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 1), new Translation2d(12.4, 0)); // temp, values found with sim
+        private static final Rectangle2d RIGHT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 8), new Translation2d(12.4, 7)); // temp, values found with sim
     }
 
     private ThunderBird motor;
@@ -159,7 +161,7 @@ public class Hood extends SubsystemBase {
 
             hoodSim.setState(HoodConstants.MAX_ANGLE.in(Radians), 0);
             motorSim.setRawRotorPosition(HoodConstants.MAX_ANGLE.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-           
+
             mech2d = new Mechanism2d(2,  2);
             root2d =  mech2d.getRoot("Hood", 0.2, 0.2);
 
@@ -211,7 +213,7 @@ public class Hood extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
+        targetAngle = position;
         applyControl();
     }
 
@@ -301,15 +303,32 @@ public class Hood extends SubsystemBase {
     }
 
     /**
+     * Retracts the hood to its maximum angle ignoring the bias.
+     * @return the command for retracting the hood
+     */
+    public Command retract() {
+        return run(() -> setPosition(HoodConstants.MAX_ANGLE.minus(hoodBias)));
+    }
+
+    /**
      * keeps the hood pointed at the target of the Robot.
      * @param drivetrain
      * @return Command for repositioning the hood.
      */
     public Command hoodAim(Swerve drivetrain){
         return run(() -> {
-            double distance =  drivetrain.getShooterTranslation().getDistance(drivetrain.getTargetPosition());
-            Angle targetAngle = Degrees.of(HoodConstants.HOOD_MAP.get(distance));
-            setPosition(targetAngle);
+            Translation2d robotTranslation = drivetrain.getPose().getTranslation();
+            boolean isNearTrench = HoodConstants.LEFT_BLUE_TRENCH.contains(robotTranslation) ||
+                HoodConstants.RIGHT_BLUE_TRENCH.contains(robotTranslation) ||
+                HoodConstants.LEFT_RED_TRENCH.contains(robotTranslation) ||
+                HoodConstants.RIGHT_RED_TRENCH.contains(robotTranslation);
+            if (isNearTrench) {
+                setPosition(HoodConstants.MAX_ANGLE.minus(hoodBias));
+            } else {
+                double distance =  drivetrain.getShooterTranslation().getDistance(drivetrain.getTargetPosition());
+                Angle targetAngle = Degrees.of(HoodConstants.HOOD_MAP.get(distance));
+                setPosition(targetAngle);
+            }
         });
     }
 }
