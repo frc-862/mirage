@@ -57,8 +57,6 @@ public class Hood extends SubsystemBase {
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
 
-        // public static final InverseInterpolator<Distance> HOOD_INVERSE_INTERPOLATOR = new InverseInterpolator(Meters.of(0), Meters.of(20), Meters.of(1));
-        
         // Input is distance to target in meters, output is hood angle in degrees
          public static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(2d, 80d),
