@@ -7,11 +7,11 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -31,6 +31,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.RobotController;
@@ -43,9 +44,10 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
-import frc.util.Units;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
+import frc.util.units.ThunderMap;
+import frc.util.units.ThunderUnits;
 
 public class Hood extends SubsystemBase {
 
@@ -59,11 +61,13 @@ public class Hood extends SubsystemBase {
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
 
-        // Input is distance to target in meters, output is hood angle in degrees
-         public static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(2d, 80d),
-            Map.entry(4d, 60d),
-            Map.entry(8d, 50d));
+        public static final ThunderMap<Distance, Angle> HOOD_MAP = new ThunderMap<>() {
+            {
+                put(Meters.of(2d), Degrees.of(80));
+                put(Meters.of(4d), Degrees.of(60));
+                put(Meters.of(8d), Degrees.of(50));
+            }
+        };
 
         public static final double kS = 0.05d;
         public static final double kG = -0.3d; // negative because negative power is up
@@ -159,7 +163,7 @@ public class Hood extends SubsystemBase {
 
             hoodSim.setState(HoodConstants.MAX_ANGLE.in(Radians), 0);
             motorSim.setRawRotorPosition(HoodConstants.MAX_ANGLE.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-
+           
             mech2d = new Mechanism2d(2,  2);
             root2d =  mech2d.getRoot("Hood", 0.2, 0.2);
 
@@ -255,7 +259,7 @@ public class Hood extends SubsystemBase {
      * @return target angle with the bias added.
      */
     public Angle getTargetAngleWithBias() {
-        return Units.clamp(targetAngle.plus(hoodBias), HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
+        return ThunderUnits.clamp(targetAngle.plus(hoodBias), HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
     }
 
     /**
