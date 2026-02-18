@@ -18,9 +18,6 @@ public class ThunderMap<K extends Measure<?>, V extends Measure<?>> extends Inte
      * and perform linear interpolation between values.
      * 
      * See example usage in {@code UnitsTest.testThunderMap()}.
-     * 
-     * @param <K> The type of the keys in the map, which must extend {@code Measure<?>}.
-     * @param <V> The type of the values in the map, which must extend {@code Measure<?>}.
      */
     public ThunderMap() {}
 
@@ -87,6 +84,9 @@ public class ThunderMap<K extends Measure<?>, V extends Measure<?>> extends Inte
 
     /**
       * @deprecated Use {@code of(Map.Entry<K, V>... entries)} instead. This method will throw an exception if used.
+      * 
+      * @param entries The entries to add to the map.
+      * @return The map filled with the {@code entries}.
       */
     @Deprecated
     @SafeVarargs
