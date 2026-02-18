@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 
-import java.util.Map;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -17,13 +16,12 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -43,6 +41,7 @@ import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
+import frc.util.units.ThunderMap;
 
 public class Shooter extends SubsystemBase {
 
@@ -66,10 +65,13 @@ public class Shooter extends SubsystemBase {
         // for sim to account for movement between shooter, fuel, and hood
         public static final double SHOOTER_EFFICIENCY = 0.3; 
         // Input is distance to target in meters, output is shooter speed in rotations per second
-        public static final InterpolatingDoubleTreeMap VELOCITY_MAP = InterpolatingDoubleTreeMap.ofEntries(
-                Map.entry(2d, 20d),
-                Map.entry(4d, 40d),
-                Map.entry(6d, 60d));
+        public static final ThunderMap<Distance, AngularVelocity> VELOCITY_MAP = new ThunderMap<>() {
+            {
+                put(Meters.of(2d), RotationsPerSecond.of(20d));
+                put(Meters.of(4d), RotationsPerSecond.of(40d));
+                put(Meters.of(6d), RotationsPerSecond.of(60d));
+            }
+        };
 
         // Sim
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
@@ -191,6 +193,10 @@ public class Shooter extends SubsystemBase {
         }
     }
 
+    public Command changeBiasCommand(AngularVelocity bias) {
+        return new InstantCommand(() -> changeBias(bias));
+    }
+
     public void setBias(AngularVelocity bias) {
         shooterBias.mut_replace(bias);
         if (targetVelocity.gt(RotationsPerSecond.zero())) {
@@ -236,7 +242,7 @@ public class Shooter extends SubsystemBase {
 
     /**
      * velocity control command for shooter
-     * @param velocity
+     * @param velocity the velociyt to set the shooter as
      * @return the command for running the shooter
      */
     public Command shootCommand(AngularVelocity velocity) {
@@ -245,7 +251,7 @@ public class Shooter extends SubsystemBase {
 
     /**
      * velocity control command for shooter
-     * @param velocitySupplier
+     * @param velocitySupplier the supplier for velocity
      * @return the command for running the shooter
      */
     public Command shootCommand(Supplier<AngularVelocity> velocitySupplier) {

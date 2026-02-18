@@ -15,7 +15,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Pound;
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -45,7 +46,7 @@ public class Climber extends SubsystemBase {
         public static final double CLIMB_TOLERANCE = 0.5;
 
         public static final double GEARING_RATIO = 1d; // temp
-        public static final Mass WEIGHT = Pound.of(20); // temp
+        public static final Mass WEIGHT = Pounds.of(20); // temp
         public static final Distance LENGTH = Inches.of(0.5); // temp
         public static final Distance RADIUS = Inches.of(0.4); // temp
         public static final Distance MIN_HEIGHT = Inches.of(1); // temp
@@ -81,11 +82,13 @@ public class Climber extends SubsystemBase {
         config.Slot0.kG = ClimberConstants.CLIMB_KG;
         config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
+        climberMotor.applyConfig(config);
+
         if (Robot.isSimulation()){
             gearbox = DCMotor.getKrakenX60Foc(1);
-            climberSim = new ElevatorSim(gearbox, ClimberConstants.GEARING_RATIO, ClimberConstants.WEIGHT.in(Pounds),
-            ClimberConstants.LENGTH.in(Inches), ClimberConstants.MIN_HEIGHT.in(Inches), ClimberConstants.MAX_HEIGHT.in(Inches),
-             true, ClimberConstants.START_HEIGHT.in(Inches), ClimberConstants.STANDARD_DEVIATION);
+            climberSim = new ElevatorSim(gearbox, ClimberConstants.GEARING_RATIO, ClimberConstants.WEIGHT.in(Kilograms),
+            ClimberConstants.LENGTH.in(Meters), ClimberConstants.MIN_HEIGHT.in(Meters), ClimberConstants.MAX_HEIGHT.in(Meters),
+             true, ClimberConstants.START_HEIGHT.in(Meters), ClimberConstants.STANDARD_DEVIATION);
             motorSim = new TalonFXSimState(climberMotor);
             encoderSim = new CANcoderSimState(encoder);
         }

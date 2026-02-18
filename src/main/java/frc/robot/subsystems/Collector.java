@@ -6,6 +6,9 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import java.util.function.DoubleSupplier;
+
 import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -26,13 +29,14 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
-import frc.util.Units;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
+import frc.util.units.ThunderUnits;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -54,8 +58,6 @@ public class Collector extends SubsystemBase {
         public static final double PIVOT_KI = 0d; // temp
         public static final double PIVOT_KD = 0d; // temp
         public static final double PIVOT_KS = 0; // temp
-        public static final double PIVOT_KV = 0; // temp
-        public static final double PIVOT_KA = 0; // temp
         public static final double PIVOT_KG = 0d; // temp
 
         // pivot
@@ -96,6 +98,7 @@ public class Collector extends SubsystemBase {
     private MechanismRoot2d root2d;
     private MechanismLigament2d ligament;
     private Angle targetPivotPosition;
+    @SuppressWarnings("unused")
     private final PositionVoltage positionPID;
 
     private DCMotor gearbox;
@@ -120,8 +123,6 @@ public class Collector extends SubsystemBase {
         config.Slot0.kI = CollectorConstants.PIVOT_KI;
         config.Slot0.kD = CollectorConstants.PIVOT_KD;
         config.Slot0.kS = CollectorConstants.PIVOT_KS;
-        config.Slot0.kV = CollectorConstants.PIVOT_KV;
-        config.Slot0.kA = CollectorConstants.PIVOT_KA;
         config.Slot0.kG = CollectorConstants.PIVOT_KG;
         config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
@@ -193,7 +194,7 @@ public class Collector extends SubsystemBase {
         ligament.setAngle(90 - getPivotAngle().in(Degrees));
 
         LightningShuffleboard.setDouble("Collector", "Collector Pivot Position", getPivotAngle().in(Degrees));
-        LightningShuffleboard.setDouble("Collector", "Collector Target Angle", getPivotTargetAngle().in(Degrees));
+        LightningShuffleboard.setDouble("Collector", "Collector Target Angle", targetPivotPosition.in(Degrees));
         LightningShuffleboard.setBool("Collector", "Collector On Target", pivotOnTarget());
         LightningShuffleboard.setDouble("Collector", "Collector Velocity", collectorSimVelocity.in(RotationsPerSecond));
     }
@@ -238,18 +239,9 @@ public class Collector extends SubsystemBase {
      * @param position in degrees
      */
     public void setPivotAngle(Angle position) {
-        targetPivotPosition = Units.clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
+        targetPivotPosition = ThunderUnits.clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
         
-        pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
-    }
-
-    /**
-     * Gets the target angle of the pivot
-     *
-     * @return Target angle of the pivot
-     */
-    public Angle getPivotTargetAngle() {
-        return targetPivotPosition;
+        // pivotMotor.setControl(positionPID.withPosition(targetPivotPosition)); // TODO: Uncomment when pivot is figured out
     }
 
     /**
@@ -258,7 +250,7 @@ public class Collector extends SubsystemBase {
      * @return True if the wrist is on target
      */
     public boolean pivotOnTarget() {
-        return targetPivotPosition.isNear(CollectorConstants.TOLERANCE, getPivotAngle());
+        return targetPivotPosition.isNear(getPivotAngle(), CollectorConstants.TOLERANCE);
     }
 
     /**
@@ -269,11 +261,18 @@ public class Collector extends SubsystemBase {
      */
     public Command collectCommand(double power, Angle position) {
         return new StartEndCommand(() -> deployCollector(power, position), () -> stopCollector(), this);
-
     }
 
     public Command collectCommand(double power) {
         return new StartEndCommand(() -> setCollectorPower(power), () -> stopCollector(), this);
+    }
+
+    public Command collectRunCommand(DoubleSupplier power) {
+        return runEnd(() -> setCollectorPower(power.getAsDouble()), () -> stopCollector());
+    }
+
+    public Command pivotCommand(Angle position) {
+        return new InstantCommand(() -> setPivotAngle(position)); // Cannot require collector b/c of default command
     }
 
     /**

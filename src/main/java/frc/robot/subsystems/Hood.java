@@ -4,14 +4,6 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-
-import java.util.Map;
 import java.util.function.Supplier;
 
 import javax.swing.text.Position.Bias;
@@ -25,12 +17,19 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.RobotController;
@@ -39,13 +38,17 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.Target;
 import frc.robot.constants.RobotMap;
-import frc.util.Units;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
+import frc.util.units.ThunderMap;
+import frc.util.units.ThunderUnits;
 
 public class Hood extends SubsystemBase {
 
@@ -59,11 +62,13 @@ public class Hood extends SubsystemBase {
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
 
-        // Input is distance to target in meters, output is hood angle in degrees
-         public static final InterpolatingDoubleTreeMap HOOD_MAP = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(2d, 80d),
-            Map.entry(4d, 60d),
-            Map.entry(8d, 50d));
+        public static final ThunderMap<Distance, Angle> HOOD_MAP = new ThunderMap<>() {
+            {
+                put(Meters.of(2d), Degrees.of(80));
+                put(Meters.of(4d), Degrees.of(60));
+                put(Meters.of(8d), Degrees.of(50));
+            }
+        };
 
         public static final double kS = 0.05d;
         public static final double kG = -0.3d; // negative because negative power is up
@@ -140,7 +145,6 @@ public class Hood extends SubsystemBase {
         motor.applyConfig(motorConfig);
 
 
-
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
             hoodSim = new DCMotorSim(
@@ -200,7 +204,7 @@ public class Hood extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        targetAngle = Units.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
+        targetAngle = ThunderUnits.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
         applyControl();
     }
 
@@ -211,6 +215,10 @@ public class Hood extends SubsystemBase {
     public void changeBias(Angle bias) {
         hoodBias.mut_plus(bias);
         applyControl();
+    }
+
+    public Command changeBiasCommand(Angle bias) {
+        return new InstantCommand(() -> changeBias(bias));
     }
 
     public void setBias(Angle bias) {
@@ -244,7 +252,7 @@ public class Hood extends SubsystemBase {
      * @return target angle with the bias added.
      */
     public Angle getTargetAngleWithBias() {
-        return Units.clamp(targetAngle.plus(hoodBias), HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
+        return ThunderUnits.clamp(targetAngle.plus(hoodBias), HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
     }
 
     /**
@@ -291,14 +299,37 @@ public class Hood extends SubsystemBase {
 
     /**
      * keeps the hood pointed at the target of the Robot.
-     * @param drivetrain
+     * @param cannon
      * @return Command for repositioning the hood.
      */
-    public Command hoodAim(Swerve drivetrain){
+    public Command hoodAim(Cannon cannon){
         return run(() -> {
-            double distance =  drivetrain.getShooterTranslation().getDistance(drivetrain.getTargetPosition());
-            Angle targetAngle = Degrees.of(HoodConstants.HOOD_MAP.get(distance));
+            Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(cannon.getTarget()));
+            Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
             setPosition(targetAngle);
         });
+    }
+
+    /**
+     * Aims the hood at the target
+     * @param cannon The cannon 
+     * @param target The target
+     * @return the command
+     */
+    public Command hoodAim(Cannon cannon, Target target){
+        return run(() -> {
+            Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(FieldConstants.getTargetData(target)));
+            Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
+            setPosition(targetAngle);
+        });
+    }
+
+    /**
+     * A command to set the posiiton of the hood
+     * @param angle the angle to set it at
+     * @return the command
+     */
+    public Command setPositionCommand(Angle angle) {
+        return new InstantCommand(() -> setPosition(angle));
     }
 }
