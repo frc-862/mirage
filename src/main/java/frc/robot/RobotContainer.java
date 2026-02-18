@@ -104,6 +104,7 @@ public class RobotContainer {
         if (RobotMap.IS_OASIS || Robot.isSimulation()) {
             indexer.setDefaultCommand(indexer.indexRunCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis())));
             shooter.setDefaultCommand(shooter.coast());
+            hood.setDefaultCommand(hood.hoodAim(drivetrain));
             // turret.setDefaultCommand(new TurretAim(drivetrain, turret));
         }
     }
@@ -130,8 +131,31 @@ public class RobotContainer {
             ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         /* Copilot */
+            if (Robot.isSimulation()) {
+            new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(60))));
 
-        if (RobotMap.IS_OASIS || Robot.isSimulation()) {
+            new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
+                shooter.setVelocity(RotationsPerSecond.of(100));
+                indexer.setSpindexerPower(1d);
+            })).onFalse(new InstantCommand(() -> {
+                shooter.stop();
+                indexer.stop();
+            }));
+
+            new Trigger(copilot::getBButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().plus(Degrees.of(0.5)))));
+
+            new Trigger(copilot::getXButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
+
+            new Trigger(() -> copilot.getPOV() == 270).onTrue(new InstantCommand(() -> hood.changeBias(Hood.HoodConstants.BIAS_DELTA.unaryMinus()))); // Assign a trigger soon
+            new Trigger(() -> copilot.getPOV() == 90).onTrue(new InstantCommand(() -> hood.changeBias(Hood.HoodConstants.BIAS_DELTA))); // Assign a trigger soon
+            new Trigger(() -> copilot.getPOV() == 0).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA)));
+
+            new Trigger(() -> copilot.getPOV() == 180).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA.unaryMinus())));
+
+            new Trigger(driver::getBButton).onTrue(new TurretAim(drivetrain, turret, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
+        }
+
+        if (RobotMap.IS_OASIS) {
             new Trigger(copilot::getLeftBumperButton).whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
             new Trigger(copilot::getRightBumperButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
 

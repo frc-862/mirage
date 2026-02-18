@@ -4,8 +4,7 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
@@ -13,9 +12,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.Hood.HoodConstants;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
@@ -71,10 +73,10 @@ public class ShooterAim extends Command {
             target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
         }
 
-        double distanceMeters = robotPose.getTranslation().getDistance(target);
+        Distance distance = Meters.of(robotPose.getTranslation().getDistance(target));
 
-        AngularVelocity shooterVelocity = RotationsPerSecond.of(Shooter.ShooterConstants.VELOCITY_MAP.get(distanceMeters));
-        Angle hoodAngle = Degrees.of(Hood.HoodConstants.HOOD_MAP.get(distanceMeters));
+        AngularVelocity shooterVelocity = ShooterConstants.VELOCITY_MAP.get(distance);
+        Angle hoodAngle = HoodConstants.HOOD_MAP.get(distance);
 
         hood.setPosition(hoodAngle);
         shooter.setVelocity(shooterVelocity);

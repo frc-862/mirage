@@ -5,8 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import frc.util.units.ThunderMap;
+import frc.util.units.ThunderUnits;
 
 class UnitsTest {
     @Test
@@ -15,7 +19,7 @@ class UnitsTest {
         Distance min = Meters.of(10);
         Distance max = Meters.of(20);
 
-        var result = Units.clamp(value, min, max);
+        var result = ThunderUnits.clamp(value, min, max);
 
         assertEquals(min, result);
     }
@@ -26,7 +30,7 @@ class UnitsTest {
         Distance min = Meters.of(10);
         Distance max = Meters.of(20);
 
-        var result = Units.clamp(value, min, max);
+        var result = ThunderUnits.clamp(value, min, max);
 
         assertEquals(max, result);
     }
@@ -37,7 +41,7 @@ class UnitsTest {
         Distance min = Meters.of(10);
         Distance max = Meters.of(20);
 
-        var result = Units.clamp(value, min, max);
+        var result = ThunderUnits.clamp(value, min, max);
 
         assertEquals(value, result);
     }
@@ -48,7 +52,7 @@ class UnitsTest {
         Distance min = Meters.of(10);
         Distance max = Meters.of(20);
 
-        var result = Units.clamp(value, min, max);
+        var result = ThunderUnits.clamp(value, min, max);
 
         assertEquals(value, result);
     }
@@ -59,7 +63,7 @@ class UnitsTest {
         Distance min = Meters.of(10);
         Distance max = Meters.of(20);
 
-        var result = Units.clamp(value, min, max);
+        var result = ThunderUnits.clamp(value, min, max);
 
         assertEquals(value, result);
     }
@@ -70,7 +74,7 @@ class UnitsTest {
         LinearVelocity min = MetersPerSecond.of(0);
         LinearVelocity max = MetersPerSecond.of(100);
 
-        var result = Units.clamp(value, min, max);
+        var result = ThunderUnits.clamp(value, min, max);
 
         assertEquals(value, result);
     }
@@ -83,7 +87,7 @@ class UnitsTest {
         Distance min = Meters.of(10);
         Distance max = Meters.of(20);
 
-        var result = Units.inputModulus(value, min, max);
+        var result = ThunderUnits.inputModulus(value, min, max);
 
         assertEquals(Meters.of(15), result);
     }
@@ -94,7 +98,7 @@ class UnitsTest {
         Distance min = Meters.of(10);
         Distance max = Meters.of(20);
 
-        var result = Units.inputModulus(value, min, max);
+        var result = ThunderUnits.inputModulus(value, min, max);
 
         assertEquals(Meters.of(15), result);
     }
@@ -105,7 +109,7 @@ class UnitsTest {
         Distance min = Meters.of(10);
         Distance max = Meters.of(20);
 
-        var result = Units.inputModulus(value, min, max);
+        var result = ThunderUnits.inputModulus(value, min, max);
 
         assertEquals(value, result);
     }
@@ -116,7 +120,7 @@ class UnitsTest {
         Distance min = Meters.of(10);
         Distance max = Meters.of(20);
 
-        var result = Units.inputModulus(value, min, max);
+        var result = ThunderUnits.inputModulus(value, min, max);
 
         assertEquals(max, result);
     }
@@ -127,7 +131,7 @@ class UnitsTest {
         Distance min = Meters.of(10);
         Distance max = Meters.of(20);
 
-        var result = Units.inputModulus(value, min, max);
+        var result = ThunderUnits.inputModulus(value, min, max);
 
         assertEquals(value, result);
     }
@@ -138,8 +142,36 @@ class UnitsTest {
         LinearVelocity min = MetersPerSecond.of(0);
         LinearVelocity max = MetersPerSecond.of(100);
 
-        var result = Units.inputModulus(value, min, max);
+        var result = ThunderUnits.inputModulus(value, min, max);
 
         assertEquals(value, result);
+    }
+
+    @Test
+    void testThunderMap() {
+        ThunderMap<Distance, LinearVelocity> map = new ThunderMap<>();
+
+        map.put(Meters.of(1), MetersPerSecond.of(1));
+        map.put(Meters.of(3), MetersPerSecond.of(3));
+
+        var result = map.get(Meters.of(2));
+
+        LinearVelocity expected = MetersPerSecond.of(2);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void testThunderMapDiffUnits() {
+        ThunderMap<Distance, Angle> map = new ThunderMap<>();
+
+        map.put(Meters.of(1), Rotations.of(1));
+        map.put(Inches.of(Units.metersToInches(3)), Degrees.of(Units.rotationsToDegrees(3)));
+
+        var result = map.get(Feet.of(Units.metersToFeet(2)));
+
+        Angle expected = Radians.of(Units.rotationsToRadians(2));
+        
+        assertEquals(expected, result);
     }
 }
