@@ -91,6 +91,6 @@ public class ThunderMap<K extends Measure<?>, V extends Measure<?>> extends Inte
     @Deprecated
     @SafeVarargs
     public static InterpolatingDoubleTreeMap ofEntries(Map.Entry<Double, Double>... entries) {
-        throw new UnsupportedOperationException("Use put(K key, V value) instead");
+        throw new UnsupportedOperationException("Use of(Map.Entry<K, V>... entries) instead");
     }
 }
