@@ -18,6 +18,9 @@ public class ThunderMap<K extends Measure<?>, V extends Measure<?>> extends Inte
      * and perform linear interpolation between values.
      * 
      * See example usage in {@code UnitsTest.testThunderMap()}.
+     * 
+     * @param <K> The type of the keys in the map, which must extend {@code Measure<?>}.
+     * @param <V> The type of the values in the map, which must extend {@code Measure<?>}.
      */
     public ThunderMap() {}
 
@@ -47,6 +50,8 @@ public class ThunderMap<K extends Measure<?>, V extends Measure<?>> extends Inte
     /**
      * Creates a {@link ThunderMap} from the given entries.
      *
+     * @param <K> The type of the keys in the map, which must extend {@code Measure<?>}.
+     * @param <V> The type of the values in the map, which must extend {@code Measure<?>}.
      * @param entries The entries to add to the map.
      * @return The map filled with the {@code entries}.
      */
