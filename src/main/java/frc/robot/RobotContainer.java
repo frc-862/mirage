@@ -4,8 +4,11 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import java.lang.reflect.Field;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -33,6 +36,7 @@ import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.PhotonVision;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Swerve.FieldConstants;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.leds.Color;
@@ -104,7 +108,7 @@ public class RobotContainer {
         if (RobotMap.IS_OASIS || Robot.isSimulation()) {
             indexer.setDefaultCommand(indexer.indexRunCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis())));
             shooter.setDefaultCommand(shooter.coast());
-            hood.setDefaultCommand(hood.hoodAim(drivetrain));
+            // hood.setDefaultCommand(hood.hoodAim(drivetrain));
             // turret.setDefaultCommand(new TurretAim(drivetrain, turret));
         }
     }
@@ -171,8 +175,12 @@ public class RobotContainer {
                 .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
                 () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
                 .finallyDo(shooter::stop));
+            
 
-            new Trigger(copilot::getBButton).whileTrue(new TurretAim(drivetrain, turret));
+            TurretAim turretAimCommand = new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION));
+            new Trigger(copilot::getXButton).onTrue(new InstantCommand(() -> LightningShuffleboard.setDouble("Shooter", "Distance", turretAimCommand.getDistanceToTargetMeters().in(Meters))));
+
+            new Trigger(copilot::getBButton).whileTrue(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
         }
     }
     private void configureNamedCommands(){

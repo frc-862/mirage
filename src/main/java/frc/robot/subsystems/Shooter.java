@@ -52,7 +52,7 @@ public class Shooter extends SubsystemBase {
         public static final boolean BRAKE = false; // temp
         public static final double COAST_DC = 0.05; // Shooter power when coasting
 
-        public static final double kP = 0.5d; //0.25
+        public static final double kP = 0.75d;
         public static final double kI = 0d;
         public static final double kD = 0d;
         public static final double kV = 0.1185d;
@@ -73,7 +73,7 @@ public class Shooter extends SubsystemBase {
 
         // Sim
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
-        public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(9), Inches.of(9)); // temp
+        public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(7), Inches.of(7)); // temp
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
         public static final Time MAX_SHOOTING_PERIOD = Seconds.of(0.1); // 10 balls per second
     }
