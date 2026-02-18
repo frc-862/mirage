@@ -155,8 +155,6 @@ public class RobotContainer {
             new Trigger(() -> copilot.getPOV() == 0).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA)));
 
             new Trigger(() -> copilot.getPOV() == 180).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA.unaryMinus())));
-
-            new Trigger(driver::getBButton).onTrue(new TurretAim(drivetrain, turret, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
         }
 
         if (RobotMap.IS_OASIS) {
@@ -176,9 +174,7 @@ public class RobotContainer {
                 () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
                 .finallyDo(shooter::stop));
             
-
-            TurretAim turretAimCommand = new TurretAim(drivetrain, turret, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION));
-            new Trigger(copilot::getXButton).onTrue(new InstantCommand(() -> LightningShuffleboard.setDouble("Shooter", "Distance", turretAimCommand.getDistanceToTargetMeters().in(Meters))));
+            new Trigger(copilot::getXButton).onTrue(new InstantCommand(() -> LightningShuffleboard.setDouble("Shooter", "Distance", )));
 
             new Trigger(copilot::getBButton).whileTrue(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
         }
