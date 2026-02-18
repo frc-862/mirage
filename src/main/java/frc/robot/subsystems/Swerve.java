@@ -26,6 +26,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Distance;
+
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -463,6 +466,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Translation2d getTargetPosition() {
         return targetPosition;
+    }
+
+    public Distance getDistanceToTarget() {
+        return Meters.of(getShooterTranslation().getDistance(targetPosition));
     }
 
     /**

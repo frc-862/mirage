@@ -174,7 +174,8 @@ public class RobotContainer {
                 () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
                 .finallyDo(shooter::stop));
             
-            new Trigger(copilot::getXButton).onTrue(new InstantCommand(() -> LightningShuffleboard.setDouble("Shooter", "Distance", )));
+            new Trigger(copilot::getXButton).onTrue(new InstantCommand(() -> LightningShuffleboard.setDouble("Shooter", 
+                "Distance", drivetrain.getDistanceToTarget().in(Meters))));
 
             new Trigger(copilot::getBButton).whileTrue(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
         }
