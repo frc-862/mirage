@@ -84,12 +84,6 @@ public class Hood extends SubsystemBase {
 
         public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
         public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
-
-        // Trench zones
-        public static final Rectangle2d LEFT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 1), new Translation2d(5.2, 0)); // temp, values found with sim
-        public static final Rectangle2d RIGHT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 8), new Translation2d(5.2, 7)); // temp, values found with sim
-        public static final Rectangle2d LEFT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 1), new Translation2d(12.4, 0)); // temp, values found with sim
-        public static final Rectangle2d RIGHT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 8), new Translation2d(12.4, 7)); // temp, values found with sim
     }
 
     private ThunderBird motor;
@@ -162,7 +156,7 @@ public class Hood extends SubsystemBase {
 
             hoodSim.setState(HoodConstants.MAX_ANGLE.in(Radians), 0);
             motorSim.setRawRotorPosition(HoodConstants.MAX_ANGLE.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-           
+
             mech2d = new Mechanism2d(2,  2);
             root2d =  mech2d.getRoot("Hood", 0.2, 0.2);
 

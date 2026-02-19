@@ -88,6 +88,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         public static final Translation2d ZONE_POSITION_RED_BOTTOM = new Translation2d(13.915394, 2.105914);
 
         public static final double FIELD_MIDDLE_Y = 4.034663;
+
+        public static final Rectangle2d LEFT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 1), new Translation2d(5.2, 0)); // temp, values found with sim
+        public static final Rectangle2d RIGHT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 8), new Translation2d(5.2, 7)); // temp, values found with sim
+        public static final Rectangle2d LEFT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 1), new Translation2d(12.4, 0)); // temp, values found with sim
+        public static final Rectangle2d RIGHT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 8), new Translation2d(12.4, 7)); // temp, values found with sim
     }
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     @SuppressWarnings("unused")
@@ -414,10 +419,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public boolean isNearTrench() {
         Translation2d robotTranslation = getPose().getTranslation();
-        boolean isNearTrench = HoodConstants.LEFT_BLUE_TRENCH.contains(robotTranslation) ||
-            HoodConstants.RIGHT_BLUE_TRENCH.contains(robotTranslation) ||
-            HoodConstants.LEFT_RED_TRENCH.contains(robotTranslation) ||
-            HoodConstants.RIGHT_RED_TRENCH.contains(robotTranslation);
+        boolean isNearTrench = FieldConstants.LEFT_BLUE_TRENCH.contains(robotTranslation) ||
+            FieldConstants.RIGHT_BLUE_TRENCH.contains(robotTranslation) ||
+            FieldConstants.LEFT_RED_TRENCH.contains(robotTranslation) ||
+            FieldConstants.RIGHT_RED_TRENCH.contains(robotTranslation);
         return isNearTrench;
     }
 
