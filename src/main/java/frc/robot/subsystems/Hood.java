@@ -314,6 +314,6 @@ public class Hood extends SubsystemBase {
      * @return command
      */
     public Command hoodStowCommand() {
-        return startEnd(() -> setPosition(HoodConstants.MAX_ANGLE), this::stop);
+        return startEnd(() -> motor.setControl(request.withPosition(HoodConstants.MAX_ANGLE)), this::stop);
     }
 }
