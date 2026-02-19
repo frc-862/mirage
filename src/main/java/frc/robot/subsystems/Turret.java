@@ -64,8 +64,7 @@ public class Turret extends SubsystemBase {
         public static final Angle ZERO_ANGLE = Degrees.of(0);
         public static final double ZEROING_POWER = 0.5;
 
-        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
-        public static final MomentOfInertia MOI_SIM = KilogramSquareMeters.of(0.02);
+        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.02);
 
         public static final Distance LENGTH = Meter.of(0.18);
     }
@@ -135,9 +134,7 @@ public class Turret extends SubsystemBase {
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
             turretSim = new SingleJointedArmSim(gearbox, TurretConstants.ENCODER_TO_MECHANISM_RATIO,
-                    Robot.isReal()
-                    ? TurretConstants.MOI.in(KilogramSquareMeters)
-                    : TurretConstants.MOI_SIM.in(KilogramSquareMeters), TurretConstants.LENGTH.in(Meters),
+                    TurretConstants.MOI.in(KilogramSquareMeters), TurretConstants.LENGTH.in(Meters),
                     TurretConstants.MIN_ANGLE.in(Radians), TurretConstants.MAX_ANGLE.in(Radians),
                     false, 0);
 
@@ -167,22 +164,6 @@ public class Turret extends SubsystemBase {
             zeroed = true;
             setAngle(targetPosition);
         }
-
-        LightningShuffleboard.setDouble("Turret", "5 current angle", getAngle().in(Degrees));
-        LightningShuffleboard.setDouble("Turret", "6 target angle", getTargetAngle().in(Degrees));
-
-        // remove pose3d here
-        Translation3d robotTranslation3d = new Translation3d(
-                drivetrain.getPose().getX(),
-                drivetrain.getPose().getY(),
-                0.0);
-
-        turretPose3d = new Pose3d(
-                robotTranslation3d.plus(new Translation3d(Math.cos(getAngle().in(Radians)), Math.sin(getAngle().in(Radians)), 0)),
-                new Rotation3d(0, 0, getAngle().in(Radians))
-        );
-
-        LightningShuffleboard.setPose3d("Turret", "Turret pose 3d", turretPose3d);
     }
 
     @Override
