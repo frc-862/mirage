@@ -145,7 +145,7 @@ public class RobotContainer {
             IndexerConstants.TRANSFER_POWER));
 
         new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
-            collector.pivotCommand(CollectorConstants.STOWED_ANGLE));
+            collector.pivotCommand(CollectorConstants.DEPLOY_ANGLE));
 
         // TODO: Bind SmartClimb to Y, and bind manual climb to Joystick
 
