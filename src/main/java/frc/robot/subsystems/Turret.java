@@ -1,7 +1,6 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -45,28 +44,29 @@ import frc.util.shuffleboard.LightningShuffleboard;
 public class Turret extends SubsystemBase {
 
     public class TurretConstants {
+
         public static final boolean INVERTED = false; // temp
         public static final Current STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean BRAKE = false; // temp
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Degrees.of(-120): Degrees.of(-220); // limit range temporarily
-        public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Degrees.of(120): Degrees.of(220);
+        public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Degrees.of(-120) : Degrees.of(-220); // limit range temporarily
+        public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Degrees.of(120) : Degrees.of(220);
 
         public static final double kP = 25d;
         public static final double kI = 0d;
         public static final double kD = 0d;
         public static final double kS = 0.45d;
 
-        public static final double kP_SIM = 5d;
-
-        public static final double ENCODER_TO_MECHANISM_RATIO = 185d/16d * 5;
+        public static final double ENCODER_TO_MECHANISM_RATIO = 185d / 16d * 5;
 
         public static final Angle ZERO_ANGLE = Degrees.of(0);
         public static final double ZEROING_POWER = 0.5;
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
+        public static final MomentOfInertia MOI_SIM = KilogramSquareMeters.of(0.02);
+
         public static final Distance LENGTH = Meter.of(0.18);
     }
 
@@ -95,7 +95,9 @@ public class Turret extends SubsystemBase {
 
     /**
      * Creates a new Turret Subsystem.
-     * @param drivetrain the drivetrain to get the pose for the turret sim in advantage scope
+     *
+     * @param drivetrain the drivetrain to get the pose for the turret sim in
+     * advantage scope
      */
     public Turret(Swerve drivetrain) {
         this.drivetrain = drivetrain;
@@ -105,7 +107,7 @@ public class Turret extends SubsystemBase {
 
         TalonFXConfiguration config = motor.getConfig();
 
-        config.Slot0.kP = Robot.isReal() ? TurretConstants.kP : TurretConstants.kP_SIM;
+        config.Slot0.kP = TurretConstants.kP;
         config.Slot0.kI = TurretConstants.kI;
         config.Slot0.kD = TurretConstants.kD;
         config.Slot0.kS = TurretConstants.kS;
@@ -133,7 +135,9 @@ public class Turret extends SubsystemBase {
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
             turretSim = new SingleJointedArmSim(gearbox, TurretConstants.ENCODER_TO_MECHANISM_RATIO,
-                    TurretConstants.MOI.magnitude(), TurretConstants.LENGTH.in(Meters),
+                    Robot.isReal()
+                    ? TurretConstants.MOI.in(KilogramSquareMeters)
+                    : TurretConstants.MOI_SIM.in(KilogramSquareMeters), TurretConstants.LENGTH.in(Meters),
                     TurretConstants.MIN_ANGLE.in(Radians), TurretConstants.MAX_ANGLE.in(Radians),
                     false, 0);
 
@@ -263,7 +267,7 @@ public class Turret extends SubsystemBase {
 
     /**
      * Limit Switch at zero position
-     * 
+     *
      * @return if zero limit switch triggered
      */
     public boolean getZeroLimitSwitch() {
@@ -271,9 +275,9 @@ public class Turret extends SubsystemBase {
     }
 
     /**
-     * On E-Chain
+     * On E-Chain 
      * Only really tells us that we are near min or max
-     * 
+     *
      * @return if max limit switch triggered
      */
     public boolean getMaxLimitSwitch() {
@@ -281,7 +285,7 @@ public class Turret extends SubsystemBase {
     }
 
     /**
-     * Sets the encoder position to a specific angle
+     * Sets the encoder position to a specific angle 
      * WANRING: This does not move the turret, only sets the encoder position
      *
      * @param angle
@@ -329,7 +333,7 @@ public class Turret extends SubsystemBase {
 
             Angle turretAngle = fieldAngle.minus(robotPose.getRotation().getMeasure());
 
-            setAngle(turretAngle); 
+            setAngle(turretAngle);
         });
     }
 
@@ -337,7 +341,7 @@ public class Turret extends SubsystemBase {
         return run(() -> {
             Pose2d robotPose = drivetrain.getPose();
 
-            Translation2d target = drivetrain.findTargetPosition();
+            Translation2d target = drivetrain.getTargetPosition();
 
             Translation2d delta = target.minus(robotPose.getTranslation());
 
@@ -346,7 +350,7 @@ public class Turret extends SubsystemBase {
             Angle turretAngle
                     = fieldAngle.minus(robotPose.getRotation().getMeasure());
 
-            setAngle(turretAngle); 
+            setAngle(turretAngle);
         });
     }
 }
