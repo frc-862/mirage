@@ -111,9 +111,10 @@ public class SupplierBasedCannedShotCommand {
             Commands.parallel(
                 new PoseBasedAutoAlign(drivetrain, () -> shotData.shotPose()),
                 shooter.shootCommand(() -> shotData.shooterSpeed()),
-                hood.hoodCommand(() -> shotData.hoodAngle())
-            ).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_START.id())),
-            indexer.indexCommand(1d).deadlineFor(leds.enableState(LED_STATES.CANNED_SHOT_READY.id()))
+                hood.hoodCommand(() -> shotData.hoodAngle()),
+                leds.enableState(LED_STATES.CANNED_SHOT_START.id())
+            ),
+            indexer.indexCommand(1d).alongWith(leds.enableState(LED_STATES.CANNED_SHOT_READY.id()))
         ).handleInterrupt(() -> shooter.stop());
     }
 

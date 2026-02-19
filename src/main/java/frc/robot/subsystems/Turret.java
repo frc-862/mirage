@@ -37,9 +37,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
-import frc.util.Units;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
+import frc.util.units.ThunderUnits;
 
 public class Turret extends SubsystemBase {
 
@@ -227,8 +227,9 @@ public class Turret extends SubsystemBase {
      * @param angle sets the angle to the motor of the turret
      */
     public void setAngle(Angle angle) {
-        Angle wrappedPosition = Units.inputModulus(optimizeTurretAngle(angle), Degrees.of(-180), Degrees.of(180));
-        targetPosition = Units.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
+        Angle wrappedPosition = ThunderUnits.inputModulus(optimizeTurretAngle(angle), Degrees.of(-180), Degrees.of(180));
+
+        targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed) { // only allow position control if turret has been zeroed but store to apply when zeroed
             motor.setControl(positionPID.withPosition(targetPosition));
         }
