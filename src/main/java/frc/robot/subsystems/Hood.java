@@ -15,9 +15,6 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
-import edu.wpi.first.math.geometry.Rectangle2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import static edu.wpi.first.units.Units.Amps;
@@ -312,8 +309,8 @@ public class Hood extends SubsystemBase {
      */
     public Command hoodAim(Swerve drivetrain){
         return run(() -> {
-            double distance =  drivetrain.getShooterTranslation().getDistance(drivetrain.getTargetPosition());
-            Angle targetAngle = Degrees.of(HoodConstants.HOOD_MAP.get(distance));
+            Distance distance = Meters.of(drivetrain.getShooterTranslation().getDistance(drivetrain.getTargetPosition()));
+            Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
             setPosition(targetAngle);
         });
     }
