@@ -307,4 +307,13 @@ public class Hood extends SubsystemBase {
             setPosition(targetAngle);
         });
     }
+
+    /**
+     * Stows the hood to the max angle for trench
+     * Has to be seperate becuase it cannot end automatically
+     * @return command
+     */
+    public Command hoodStowCommand() {
+        return startEnd(() -> setPosition(HoodConstants.MAX_ANGLE), this::stop);
+    }
 }

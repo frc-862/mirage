@@ -97,7 +97,7 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(drivetrain.driveCommand(
                 () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
                         VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND)
-                        .times(driver.getRightBumperButton() ? DriveConstants.SLOW_MODE_MULT : 1.0),
+                        .times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0),
                         DriveConstants.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
                         DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW) 
                         * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
@@ -131,7 +131,7 @@ public class RobotContainer {
         new Trigger(() -> driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(drivetrain.robotCentricDrive(
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
                     VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND)
-                    .times(driver.getRightBumperButton() ? DriveConstants.SLOW_MODE_MULT : 1.0),
+                    .times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0),
                     DriveConstants.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
                     DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW) 
                     * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
@@ -139,18 +139,24 @@ public class RobotContainer {
 
         /* Copilot */
 
-        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.INDEX_POWER));
-        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.INDEX_POWER));
+        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, 
+            -IndexerConstants.TRANSFER_POWER));
+        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, 
+            IndexerConstants.TRANSFER_POWER));
+
+        new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
+            collector.pivotCommand(CollectorConstants.STOWED_ANGLE));
 
         // TODO: Bind SmartClimb to Y, and bind manual climb to Joystick
 
-        // TODO: Bind X to hood down
+        new Trigger(copilot::getXButton).whileTrue(hood.hoodStowCommand());
 
         // TODO: Bind A to OTF or something
 
         // TODO: Bind B to Smart Shoot
 
         new Trigger(copilot::getStartButton).whileTrue(collector.collectCommand(0d, CollectorConstants.STOWED_ANGLE));
+        new Trigger(copilot::getBackButton).whileTrue(turret.idle()); // disable turret
 
         // Temp Bindings for testing purposes
 
