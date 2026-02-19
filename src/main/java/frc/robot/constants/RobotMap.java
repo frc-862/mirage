@@ -29,4 +29,6 @@ public class RobotMap {
 
     public static final int DRIVER_PORT = 0;
     public static final int COPILOT_PORT = 1;
+
+    public static final int PDH = 21;
 }
