@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Inches;
-
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +28,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import static edu.wpi.first.units.Units.Inches;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -107,7 +106,6 @@ public class PhotonVision extends SubsystemBase {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    log("Failed to get data");
                 }
                 }
         }, 0, TimeUnit.MILLISECONDS);
@@ -124,7 +122,7 @@ public class PhotonVision extends SubsystemBase {
                 updatedPose.pose.estimatedPose.toPose2d(), 
                 Utils.fpgaToCurrentTime(updatedPose.pose.timestampSeconds), 
                 VecBuilder.fill(bestTagAmbiguity*1.7, bestTagAmbiguity*1.7, bestTagAmbiguity*1.7));
-            log("Added vision measurment");
+            // log("Added vision measurment");
         }
     }
 
@@ -171,14 +169,12 @@ public class PhotonVision extends SubsystemBase {
 
                 // Create the camera
                 this.cameras[i] = new CameraInfo(camera, poseEstimator);
-                log(VisionConstants.CAMERA_CONSTANTS[i].name() + " info created sucessfully");
             }
 
         }
 
         public VisionInfo getEstimatedPose() {
             if (cameras == null || cameras.length == 0) {
-                log("No cameras configured");
                 return null;
             }
 
@@ -308,13 +304,12 @@ public class PhotonVision extends SubsystemBase {
             }
 
             // We have no pose if were here
-            log("No pose");
             return null;
         }
     }
 
     // im lazy
-    private void log(String message) {
-        DataLogManager.log("[PHOTON VISION]" + message);
-    }
+    // private void log(String message) {
+    //     DataLogManager.log("[PHOTON VISION]" + message);
+    // }
 }

@@ -1,7 +1,6 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -9,8 +8,10 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import static edu.wpi.first.units.Units.Amps;
@@ -21,7 +22,6 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
@@ -43,26 +44,28 @@ import frc.util.units.ThunderUnits;
 public class Turret extends SubsystemBase {
 
     public class TurretConstants {
+
         public static final boolean INVERTED = false; // temp
         public static final Current STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean BRAKE = false; // temp
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Degrees.of(-120): Degrees.of(-220); // limit range temporarily
-        public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Degrees.of(120): Degrees.of(220);
+        public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Degrees.of(-120) : Degrees.of(-220); // limit range temporarily
+        public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Degrees.of(120) : Degrees.of(220);
 
         public static final double kP = 25d;
         public static final double kI = 0d;
         public static final double kD = 0d;
         public static final double kS = 0.45d;
 
-        public static final double ENCODER_TO_MECHANISM_RATIO = 185/22d * 5d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = 185d / 16d * 5;
 
         public static final Angle ZERO_ANGLE = Degrees.of(0);
         public static final double ZEROING_POWER = 0.5;
 
-        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.086);
+        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.02);
+
         public static final Distance LENGTH = Meter.of(0.18);
     }
 
@@ -91,7 +94,9 @@ public class Turret extends SubsystemBase {
 
     /**
      * Creates a new Turret Subsystem.
-     * @param drivetrain the drivetrain to get the pose for the turret sim in advantage scope
+     *
+     * @param drivetrain the drivetrain to get the pose for the turret sim in
+     * advantage scope
      */
     public Turret(Swerve drivetrain) {
         this.drivetrain = drivetrain;
@@ -129,7 +134,7 @@ public class Turret extends SubsystemBase {
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
             turretSim = new SingleJointedArmSim(gearbox, TurretConstants.ENCODER_TO_MECHANISM_RATIO,
-                    TurretConstants.MOI.magnitude(), TurretConstants.LENGTH.in(Meters),
+                    TurretConstants.MOI.in(KilogramSquareMeters), TurretConstants.LENGTH.in(Meters),
                     TurretConstants.MIN_ANGLE.in(Radians), TurretConstants.MAX_ANGLE.in(Radians),
                     false, 0);
 
@@ -203,7 +208,9 @@ public class Turret extends SubsystemBase {
      * @param angle sets the angle to the motor of the turret
      */
     public void setAngle(Angle angle) {
-        targetPosition = ThunderUnits.clamp(angle, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
+        Angle wrappedPosition = ThunderUnits.inputModulus(optimizeTurretAngle(angle), Degrees.of(-180), Degrees.of(180));
+
+        targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed) { // only allow position control if turret has been zeroed but store to apply when zeroed
             motor.setControl(positionPID.withPosition(targetPosition));
         }
@@ -242,7 +249,7 @@ public class Turret extends SubsystemBase {
 
     /**
      * Limit Switch at zero position
-     * 
+     *
      * @return if zero limit switch triggered
      */
     public boolean getZeroLimitSwitch() {
@@ -250,9 +257,9 @@ public class Turret extends SubsystemBase {
     }
 
     /**
-     * On E-Chain
+     * On E-Chain 
      * Only really tells us that we are near min or max
-     * 
+     *
      * @return if max limit switch triggered
      */
     public boolean getMaxLimitSwitch() {
@@ -260,7 +267,7 @@ public class Turret extends SubsystemBase {
     }
 
     /**
-     * Sets the encoder position to a specific angle
+     * Sets the encoder position to a specific angle 
      * WANRING: This does not move the turret, only sets the encoder position
      *
      * @param angle
@@ -274,5 +281,58 @@ public class Turret extends SubsystemBase {
      */
     public void stop() {
         motor.stopMotor();
+    }
+
+    /**
+     * Extend angle past 180 / -180 if possible while remaining within -220 /
+     * 220
+     *
+     * @param desired the angle between -180 and 180 calculated for the turret
+     * @return the angle optimized between -220 and 220
+     */
+    public Angle optimizeTurretAngle(Angle desired) {
+        double targetDeg = desired.in(Degrees);
+        double current = getAngle().in(Degrees);
+
+        double error = targetDeg - current;
+
+        if (error > 180) {
+            targetDeg -= 360;
+        } else if (error < -180) {
+            targetDeg += 360;
+        }
+
+        return Degrees.of(targetDeg);
+    }
+
+    public Command aimWithTarget(Swerve drivetrain, Translation2d target) {
+        return run(() -> {
+            Pose2d robotPose = drivetrain.getPose();
+
+            Translation2d delta = target.minus(robotPose.getTranslation());
+
+            Angle fieldAngle = delta.getAngle().getMeasure();
+
+            Angle turretAngle = fieldAngle.minus(robotPose.getRotation().getMeasure());
+
+            setAngle(turretAngle);
+        });
+    }
+
+    public Command aimWithoutTarget(Swerve drivetrain) {
+        return run(() -> {
+            Pose2d robotPose = drivetrain.getPose();
+
+            Translation2d target = drivetrain.getTargetPosition();
+
+            Translation2d delta = target.minus(robotPose.getTranslation());
+
+            Angle fieldAngle = delta.getAngle().getMeasure();
+
+            Angle turretAngle
+                    = fieldAngle.minus(robotPose.getRotation().getMeasure());
+
+            setAngle(turretAngle);
+        });
     }
 }

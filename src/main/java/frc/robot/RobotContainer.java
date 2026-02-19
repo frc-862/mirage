@@ -3,16 +3,15 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
@@ -21,7 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.TurretAim;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
@@ -156,8 +154,8 @@ public class RobotContainer {
 
             new Trigger(() -> copilot.getPOV() == 180).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA.unaryMinus())));
 
-            new Trigger(driver::getBButton).onTrue(new TurretAim(drivetrain, turret, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
-        }
+            new Trigger(driver::getBButton).onTrue(turret.aimWithTarget(drivetrain, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
+        } 
 
         if (RobotMap.IS_OASIS) {
             new Trigger(copilot::getLeftBumperButton).whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
@@ -176,7 +174,9 @@ public class RobotContainer {
                 () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
                 .finallyDo(shooter::stop));
 
-            new Trigger(copilot::getBButton).whileTrue(new TurretAim(drivetrain, turret));
+            new Trigger(copilot::getXButton).whileTrue(turret.runOnce(() -> turret.setAngle(Degrees.of(LightningShuffleboard.getDouble("Turret", "Setpoint", 0)))));
+
+            new Trigger(copilot::getBButton).whileTrue(turret.aimWithTarget(drivetrain, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
         }
     }
     private void configureNamedCommands(){
