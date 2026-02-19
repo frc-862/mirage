@@ -310,7 +310,7 @@ public class Hood extends SubsystemBase {
 
     /**
      * Stows the hood to the max angle for trench
-     * Has to be seperate becuase it cannot end automatically
+     * Has to be separate because it cannot end automatically
      * @return command
      */
     public Command hoodStowCommand() {
