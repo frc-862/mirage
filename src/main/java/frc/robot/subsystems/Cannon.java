@@ -87,7 +87,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command setCannonValues(Angle hoodAngle, AngularVelocity shooterVelocity) {
-        return runEnd(() -> {
+        return startEnd(() -> {
             shooter.shootCommand(shooterVelocity);
             hood.setPosition(hoodAngle);
         }, () -> shooter.coast());
@@ -98,7 +98,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command setCannonValues(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity) {
-        return runEnd(() -> {
+        return startEnd(() -> {
             shooter.shootCommand(shooterVelocity);
             hood.setPosition(hoodAngle);
             turret.setAngle(turretAngle);
@@ -144,7 +144,7 @@ public class Cannon extends SubsystemBase {
      * @return The command to run
      */
     public Command smartShoot(Indexer indexer) {
-        return run(
+        return runOnce(
             () -> shooter.setVelocity(Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
         ).andThen(runEnd(() -> {
             if (turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget()) {
