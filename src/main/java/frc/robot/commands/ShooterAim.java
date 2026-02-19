@@ -4,8 +4,7 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
@@ -13,9 +12,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.Hood.HoodConstants;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
@@ -49,18 +51,17 @@ public class ShooterAim extends Command {
         this.turret = turret;
         this.indexer = indexer;
 
-        addRequirements(shooter, hood, turret, indexer);
+        addRequirements(shooter, hood, indexer);
     }
 
     @Override
     public void execute() {
-        if (turret.isOnTarget() & hood.isOnTarget() & shooter.isOnTarget()) {
+        if (turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget()) {
             indexer.setSpindexerPower(Indexer.IndexerConstants.SPINDEXDER_POWER); //TEMP
             indexer.setTransferPower(Indexer.IndexerConstants.TRANSFER_POWER);
         }
 
         Pose2d robotPose = swerve.getPose();
-        double distanceMeters = robotPose.getTranslation().getDistance(target);
 
         if(redAllianceZone.contains(robotPose.getTranslation())){
             target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION);
@@ -72,9 +73,10 @@ public class ShooterAim extends Command {
             target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
         }
 
+        Distance distance = Meters.of(robotPose.getTranslation().getDistance(target));
 
-        AngularVelocity shooterVelocity = RotationsPerSecond.of(Shooter.ShooterConstants.VELOCITY_MAP.get(distanceMeters));
-        Angle hoodAngle = Degrees.of(Hood.HoodConstants.HOOD_MAP.get(distanceMeters));
+        AngularVelocity shooterVelocity = ShooterConstants.VELOCITY_MAP.get(distance);
+        Angle hoodAngle = HoodConstants.HOOD_MAP.get(distance);
 
         hood.setPosition(hoodAngle);
         shooter.setVelocity(shooterVelocity);

@@ -79,6 +79,10 @@ public class PoseBasedAutoAlign extends Command {
 
     @Override
     public void initialize() {
+        pidX.reset();
+        pidY.reset();
+        pidR.reset();
+        
         targetPose = targetPoseSupplier.get();
     }
 
