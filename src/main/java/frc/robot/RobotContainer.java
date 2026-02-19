@@ -156,7 +156,7 @@ public class RobotContainer {
         // TODO: Bind B to Smart Shoot
 
         new Trigger(copilot::getStartButton).whileTrue(collector.collectCommand(0d, CollectorConstants.STOWED_ANGLE));
-        new Trigger(copilot::getBackButton).whileTrue(turret.idle()); // disable turret
+        new Trigger(copilot::getBackButton).whileTrue(turret.idleCommand()); // disable turret
 
         // Temp Bindings for testing purposes
 

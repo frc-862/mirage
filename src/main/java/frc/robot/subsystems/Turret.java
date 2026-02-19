@@ -283,6 +283,10 @@ public class Turret extends SubsystemBase {
         motor.stopMotor();
     }
 
+    public Command idleCommand() {
+        return runOnce(this::stop).andThen(idle());
+    }
+
     /**
      * Extend angle past 180 / -180 if possible while remaining within -220 /
      * 220
