@@ -33,7 +33,7 @@ public class ShooterAim extends Command {
     /**
      * Point the shooter and angle the hood so the fuel shot reaches the hub
      * @param shooter the shooter subsystem
-     * @param swerve swerve to get robot pose
+     * @param drivetrain swerve to get robot pose
      * @param hood the hood susbsystem
      * @param turret the turret subsystem
      * @param indexer the indexer subs
