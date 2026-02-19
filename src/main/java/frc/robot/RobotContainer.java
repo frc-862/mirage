@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.DriveConstants;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
@@ -107,7 +106,7 @@ public class RobotContainer {
         if (RobotMap.IS_OASIS || Robot.isSimulation()) {
             indexer.setDefaultCommand(indexer.indexRunCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis())));
             shooter.setDefaultCommand(shooter.coast());
-            hood.setDefaultCommand(hood.hoodAim(drivetrain));
+            // hood.setDefaultCommand(hood.hoodAim(drivetrain));
             // turret.setDefaultCommand(new TurretAim(drivetrain, turret));
         }
     }
@@ -155,7 +154,7 @@ public class RobotContainer {
 
             new Trigger(() -> copilot.getPOV() == 180).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA.unaryMinus())));
 
-            new Trigger(driver::getBButton).onTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
+            // new Trigger(driver::getBButton).onTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
         } 
 
         if (RobotMap.IS_OASIS) {
@@ -177,7 +176,7 @@ public class RobotContainer {
 
             new Trigger(copilot::getXButton).whileTrue(turret.runOnce(() -> turret.setAngle(Degrees.of(LightningShuffleboard.getDouble("Turret", "Setpoint", 0)))));
 
-            new Trigger(copilot::getBButton).whileTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
+            // new Trigger(copilot::getBButton).whileTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
         }
     }
     private void configureNamedCommands(){

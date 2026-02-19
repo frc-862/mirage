@@ -143,12 +143,15 @@ public class Cannon extends SubsystemBase {
      * Remodel of shooter aim-- automatically decides when to shoot 
      * @return The command to run
      */
-    public Command smartShoot() {
-        return run(() -> {
-            
-        });
+    public Command smartShoot(Indexer indexer) {
+        return run(
+            () -> shooter.setVelocity(Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
+        ).andThen(runEnd(() -> {
+            if (turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget()) {
+                indexer.setPower(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER);
+            }
+        }, () -> shooter.coast()));
     }
-
 
     // ======== CANNON CONSTANTS ========
 
@@ -156,5 +159,7 @@ public class Cannon extends SubsystemBase {
         public static final Translation2d SHOOTER_TRANSLATION = new Translation2d();
 
         public static final record candShotValues(Angle hoodAngle){};
+
+        // TODO: ADD CAND SHOT VALUES HERE TO CREATE CAND SHOTS USING THE NEW BETTER METHOD :))))))
     }
 }
