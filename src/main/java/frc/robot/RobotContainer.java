@@ -113,7 +113,7 @@ public class RobotContainer {
 
     private void configureBindings() {
         new Trigger(() -> drivetrain.isNearTrench())
-            .whileTrue(hood.run(() -> hood.retract()));
+            .whileTrue(hood.retract());
 
         /* Driver */
         new Trigger(driver::getXButton)
@@ -158,7 +158,7 @@ public class RobotContainer {
             new Trigger(() -> copilot.getPOV() == 180).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA.unaryMinus())));
 
             new Trigger(driver::getBButton).onTrue(turret.aimWithTarget(drivetrain, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
-        } 
+        }
 
         if (RobotMap.IS_OASIS) {
             new Trigger(copilot::getStartButton).whileTrue(hood.retract());
