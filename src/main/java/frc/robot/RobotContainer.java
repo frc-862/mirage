@@ -14,7 +14,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -54,6 +56,7 @@ public class RobotContainer {
     private Hood hood;
     private Shooter shooter;
     private final LEDSubsystem leds;
+    public final PowerDistribution pdh;
 
     private final Telemetry logger;
 
@@ -67,6 +70,7 @@ public class RobotContainer {
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
+        pdh = new PowerDistribution(RobotMap.PDH, ModuleType.kRev);
 
         if (RobotMap.IS_OASIS || Robot.isSimulation()) {
             collector = new Collector();
