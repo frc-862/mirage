@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -213,6 +214,10 @@ public class Hood extends SubsystemBase {
     public void changeBias(Angle bias) {
         hoodBias.mut_plus(bias);
         applyControl();
+    }
+
+    public Command changeBiasCommand(Angle bias) {
+        return new InstantCommand(() -> changeBias(bias));
     }
 
     public void setBias(Angle bias) {
