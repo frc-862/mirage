@@ -59,6 +59,8 @@ public class Turret extends SubsystemBase {
         public static final double kD = 0d;
         public static final double kS = 0.45d;
 
+        public static final double kP_SIM = 5d;
+
         public static final double ENCODER_TO_MECHANISM_RATIO = 185d/16d * 5;
 
         public static final Angle ZERO_ANGLE = Degrees.of(0);
@@ -103,7 +105,7 @@ public class Turret extends SubsystemBase {
 
         TalonFXConfiguration config = motor.getConfig();
 
-        config.Slot0.kP = TurretConstants.kP;
+        config.Slot0.kP = Robot.isReal() ? TurretConstants.kP : TurretConstants.kP_SIM;
         config.Slot0.kI = TurretConstants.kI;
         config.Slot0.kD = TurretConstants.kD;
         config.Slot0.kS = TurretConstants.kS;
@@ -325,8 +327,7 @@ public class Turret extends SubsystemBase {
 
             Angle fieldAngle = delta.getAngle().getMeasure();
 
-            Angle turretAngle
-                    = fieldAngle.minus(robotPose.getRotation().getMeasure());
+            Angle turretAngle = fieldAngle.minus(robotPose.getRotation().getMeasure());
 
             setAngle(turretAngle); 
         });
