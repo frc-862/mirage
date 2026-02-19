@@ -139,8 +139,8 @@ public class RobotContainer {
 
         /* Copilot */
 
-        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-CollectorConstants.COLLECT_POWER));
-        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(CollectorConstants.COLLECT_POWER));
+        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.INDEX_POWER));
+        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.INDEX_POWER));
 
         // TODO: Bind SmartClimb to Y, and bind manual climb to Joystick
 
