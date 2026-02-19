@@ -69,6 +69,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
         public static final Target GOAL_POSITION = new Target(new Translation2d(4.625594, 4.034536), new Translation2d(11.915394, 4.034536));
         public static final Target DEPOT_POSITION = new Target(new Translation2d(0.3937, 0.665988), new Translation2d(16.147288, 7.403338));
+        public static final Target TOWER_POSITION = new Target(new Translation2d(1.638665, 3.747870), new Translation2d(14.948129, 4.280249));
+
+        public static final Pose2D TOWER_POSE = new Pose2d(, ),
 
         public static Translation2d getTargetData(Target target) {
             return AllianceHelpers.isBlueAlliance() ? target.blue() : target.red();

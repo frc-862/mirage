@@ -12,6 +12,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CANDShotCommand;
+import frc.robot.commands.PoseBasedAutoAlign;
 import frc.robot.commands.TurretAim;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.LEDConstants;
@@ -30,6 +32,7 @@ import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerConstants;
+import frc.robot.subsystems.Swerve.FieldConstants;
 import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.PhotonVision;
 import frc.robot.subsystems.Shooter;
@@ -181,7 +184,12 @@ public class RobotContainer {
         NamedCommands.registerCommand("LED_COLLECT", leds.enableStateWithTimeout(LED_STATES.COLLECT.id(), 2));
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
 
-        NamedCommands.registerCommand("SCORE_PRELOADED", new InstantCommand()); //Temporary Command. Planning on using smart shoot.
+        NamedCommands.registerCommand("SHOOT", new InstantCommand()); //Temporary Command. Planning on using smart shoot.
+        NamedCommands.registerCommand("CLIMB", new InstantCommand()); //Temp
+
+
+       NamedCommands.registerCommand("AUTOALIGN_TOWER", new PoseBasedAutoAlign(drivetrain, new Pose2d(FieldConstants.getTargetData(FieldConstants.TOWER_POSITION))));
+
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
     }
