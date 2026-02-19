@@ -4,14 +4,6 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -25,6 +17,13 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -40,6 +39,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.Target;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -98,6 +99,8 @@ public class Hood extends SubsystemBase {
     private MechanismRoot2d root2d;
     private Mechanism2d mech2d;
 
+    private Swerve drivetrain;
+
     /** Creates a new Hood Subsystem. */
     public Hood() {
         motor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS, HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
@@ -139,7 +142,6 @@ public class Hood extends SubsystemBase {
         motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
 
         motor.applyConfig(motorConfig);
-
 
 
         if (Robot.isSimulation()) {
@@ -293,12 +295,20 @@ public class Hood extends SubsystemBase {
 
     /**
      * keeps the hood pointed at the target of the Robot.
-     * @param drivetrain
+     * @param cannon
      * @return Command for repositioning the hood.
      */
-    public Command hoodAim(Swerve drivetrain){
+    public Command hoodAim(Cannon cannon){
         return run(() -> {
-            Distance distance = Meters.of(drivetrain.getShooterTranslation().getDistance(drivetrain.getTargetPosition()));
+            Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(cannon.getTarget()));
+            Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
+            setPosition(targetAngle);
+        });
+    }
+
+    public Command hoodAim(Cannon cannon, Target target){
+        return run(() -> {
+            Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(FieldConstants.getTargetData(target)));
             Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
             setPosition(targetAngle);
         });

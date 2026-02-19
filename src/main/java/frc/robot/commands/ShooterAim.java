@@ -4,21 +4,21 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Meters;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Shooter.ShooterConstants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Hood.HoodConstants;
 import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
 
@@ -64,13 +64,13 @@ public class ShooterAim extends Command {
         Pose2d robotPose = swerve.getPose();
 
         if(redAllianceZone.contains(robotPose.getTranslation())){
-            target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION);
+            target = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
         }
         else if (neutralZone.contains(robotPose.getTranslation())) {
-            target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
+            target = FieldConstants.getTargetData(FieldConstants.DEPOT_POSITION);
         }
         else if(blueallianceZone.contains(robotPose.getTranslation())){
-            target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
+            target = FieldConstants.getTargetData(FieldConstants.DEPOT_POSITION);
         }
 
         Distance distance = Meters.of(robotPose.getTranslation().getDistance(target));
