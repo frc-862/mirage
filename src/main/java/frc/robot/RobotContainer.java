@@ -110,6 +110,9 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        new Trigger(() -> drivetrain.isNearTrench())
+            .whileTrue(hood.run(() -> hood.retract()));
+
         /* Driver */
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()

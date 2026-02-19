@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.Hood.HoodConstants;
 import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
@@ -290,7 +291,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-        
+
         targetPosition = findTargetPosition();
     }
 
@@ -411,6 +412,15 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return getState().Pose;
     }
 
+    public boolean isNearTrench() {
+        Translation2d robotTranslation = getPose().getTranslation();
+        boolean isNearTrench = HoodConstants.LEFT_BLUE_TRENCH.contains(robotTranslation) ||
+            HoodConstants.RIGHT_BLUE_TRENCH.contains(robotTranslation) ||
+            HoodConstants.LEFT_RED_TRENCH.contains(robotTranslation) ||
+            HoodConstants.RIGHT_RED_TRENCH.contains(robotTranslation);
+        return isNearTrench;
+    }
+
     /**
      * Getting the position of the shooter on the field.
      * @return The translation of the shooter.
@@ -452,7 +462,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         if (isInZone()) {
             return FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
         }
-        
+
         boolean isTop = robotPose.getY() > FieldConstants.FIELD_MIDDLE_Y;
 
         if (AllianceHelpers.isBlueAlliance()) {

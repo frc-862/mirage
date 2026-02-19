@@ -309,7 +309,7 @@ public class Hood extends SubsystemBase {
      * @return the command for retracting the hood
      */
     public Command retract() {
-        return run(() -> setPosition(HoodConstants.MAX_ANGLE.minus(hoodBias)));
+        return startEnd(() -> setPosition(HoodConstants.MAX_ANGLE.minus(hoodBias)), () -> {});
     }
 
     /**
@@ -319,18 +319,9 @@ public class Hood extends SubsystemBase {
      */
     public Command hoodAim(Swerve drivetrain){
         return run(() -> {
-            Translation2d robotTranslation = drivetrain.getPose().getTranslation();
-            boolean isNearTrench = HoodConstants.LEFT_BLUE_TRENCH.contains(robotTranslation) ||
-                HoodConstants.RIGHT_BLUE_TRENCH.contains(robotTranslation) ||
-                HoodConstants.LEFT_RED_TRENCH.contains(robotTranslation) ||
-                HoodConstants.RIGHT_RED_TRENCH.contains(robotTranslation);
-            if (isNearTrench) {
-                setPosition(HoodConstants.MAX_ANGLE.minus(hoodBias));
-            } else {
-                double distance =  drivetrain.getShooterTranslation().getDistance(drivetrain.getTargetPosition());
-                Angle targetAngle = Degrees.of(HoodConstants.HOOD_MAP.get(distance));
-                setPosition(targetAngle);
-            }
+            double distance =  drivetrain.getShooterTranslation().getDistance(drivetrain.getTargetPosition());
+            Angle targetAngle = Degrees.of(HoodConstants.HOOD_MAP.get(distance));
+            setPosition(targetAngle);
         });
     }
 }
