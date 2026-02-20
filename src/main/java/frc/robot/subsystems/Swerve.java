@@ -21,7 +21,6 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
@@ -431,7 +430,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      * @return The translation of the shooter.
      */
     public Translation2d getShooterTranslation() {
-        return getPose().plus(new Transform2d(ShooterConstants.SHOOTER_POSITION_ON_ROBOT, new Rotation2d())).getTranslation();
+        return getPose().getTranslation().plus(ShooterConstants.SHOOTER_POSITION_ON_ROBOT.rotateBy(getPose().getRotation()));
     }
 
     public ChassisSpeeds getCurrentRobotChassisSpeeds(){
