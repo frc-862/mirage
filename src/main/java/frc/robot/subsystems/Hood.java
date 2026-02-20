@@ -197,10 +197,6 @@ public class Hood extends SubsystemBase {
         LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
     }
 
-    public double getInterpolationMapValues(double distance) {
-        return HoodConstants.HOOD_MAP.get(distance);
-    }
-
     /**
      * Sets position of the hood
      * @param position in degrees

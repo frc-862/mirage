@@ -76,7 +76,7 @@ public class RobotContainer {
         hood = new Hood();
         turret = new Turret(drivetrain);
         new PhotonVision(drivetrain);
-        
+
 
         if (Robot.isSimulation()) {
             new MapleSim(drivetrain, collector, indexer, turret, hood, shooter);
@@ -99,7 +99,7 @@ public class RobotContainer {
                         VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND)
                         .times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0),
                         DriveConstants.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                        DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW) 
+                        DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
                         * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         collector.setDefaultCommand(collector.collectRunCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
@@ -109,11 +109,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        new Trigger(() -> drivetrain.isNearTrench())
-            .whileTrue(hood.retract());
-      
-        new Trigger(copilot::getStartButton).whileTrue(hood.retract());
-
 
         /* Driver */
         new Trigger(driver::getXButton)
@@ -139,14 +134,17 @@ public class RobotContainer {
                     VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND)
                     .times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0),
                     DriveConstants.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                    DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW) 
+                    DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
                     * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         /* Copilot */
+        new Trigger(() -> drivetrain.isNearTrench())
+            .whileTrue(hood.retract());
+        new Trigger(copilot::getStartButton).whileTrue(hood.retract());
 
-        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, 
+        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER,
             -IndexerConstants.TRANSFER_POWER));
-        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, 
+        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER,
             IndexerConstants.TRANSFER_POWER));
 
         new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
@@ -174,7 +172,7 @@ public class RobotContainer {
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
             shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
             .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
-            .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
+            .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER),
             () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
             .finallyDo(shooter::stop));
     }
