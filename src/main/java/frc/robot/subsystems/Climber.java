@@ -5,7 +5,9 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.compound.Diff_TorqueCurrentFOC_Open;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
@@ -21,12 +23,18 @@ import static edu.wpi.first.units.Units.Pounds;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
+import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Climber extends SubsystemBase {
 
@@ -62,6 +70,9 @@ public class Climber extends SubsystemBase {
     private TalonFXSimState motorSim;
     private ElevatorSim climberSim;
     private CANcoderSimState encoderSim;
+    private DutyCycleOut dutyCycleOut;
+    private DigitalInput forwardLimitSwitch;
+    private DigitalInput reverseLimitSwitch;
 
     /** Creates a new Climber Subsystem. */
     public Climber() {
@@ -83,6 +94,7 @@ public class Climber extends SubsystemBase {
         config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         climberMotor.applyConfig(config);
+        dutyCycleOut = new DutyCycleOut(0);
 
         if (Robot.isSimulation()){
             gearbox = DCMotor.getKrakenX60Foc(1);
@@ -102,30 +114,49 @@ public class Climber extends SubsystemBase {
         climberSim.setInputVoltage(motorSim.getMotorVoltage());
         climberSim.update(Robot.kDefaultPeriod);
         motorSim.setRawRotorPosition(Units.metersToInches(climberSim.getPositionMeters()));
+        LightningShuffleboard.setDouble("Climber", "DutyCycle", dutyCycleOut.Output);
     }
 
     /**
-     * Sets the target position of the climber motor.
-     *
-     * @param positionVolts the target position in volts
+     * Set the climber's duty cycle output with the specified power.
+     * @param power
      */
-    public void setPosition(double positionVolts) {
-        climberMotor.setControl(positionPID.withPosition(positionVolts));
+    public void setDutyCycle(double power) {
+        climberMotor.setControl(dutyCycleOut.withOutput(power));
     }
 
     /**
-     * gets the position of the climber
-     * @return climber position
+     * 
      */
-    public double getTargetPosition() {
-        return positionPID.Position;
+    public boolean getForwardLimitSwitchState() {
+       return forwardLimitSwitch.get();
+
+    }
+    public boolean getReverseLimitSwitchState() {
+        return reverseLimitSwitch.get();
     }
 
-    /**
-     * gets if the climber is on target
-     * @return if climber is on target
-     */
-    public boolean onTarget() {
-        return positionPID.getPositionMeasure().isNear(climberMotor.getPosition().getValue(), ClimberConstants.CLIMB_TOLERANCE);
+    public void setPower(double power){
+        climberMotor.setControl(dutyCycleOut.withOutput(power));
     }
+
+    public double setFowardPower(){
+        return 1.0;
+    }
+
+    public double setReversePower(){
+        return -1.0;
+    }
+
+    public Command climberCommand(){
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> setPower(setFowardPower())).until(() -> getForwardLimitSwitchState()),
+            new InstantCommand(() -> setPower(setReversePower())).until(() -> getReverseLimitSwitchState()),
+            new InstantCommand(() -> setPower(setFowardPower())).until(() -> getForwardLimitSwitchState()),
+            new InstantCommand(() -> setPower(setReversePower())).until(() -> getReverseLimitSwitchState()),
+            new InstantCommand(() -> setPower(setFowardPower())).until(() -> getForwardLimitSwitchState()),
+            new InstantCommand(() -> setPower(setReversePower())).until(() -> getReverseLimitSwitchState()));
+        }
 }
+
+

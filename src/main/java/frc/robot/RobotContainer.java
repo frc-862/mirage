@@ -24,6 +24,7 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
@@ -53,6 +54,7 @@ public class RobotContainer {
     private Turret turret;
     private Hood hood;
     private Shooter shooter;
+    private Climber climber;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
 
@@ -177,6 +179,8 @@ public class RobotContainer {
             new Trigger(copilot::getXButton).whileTrue(turret.runOnce(() -> turret.setAngle(Degrees.of(LightningShuffleboard.getDouble("Turret", "Setpoint", 0)))));
 
             new Trigger(copilot::getBButton).whileTrue(turret.aimWithTarget(drivetrain, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
+
+            new Trigger(copilot::getYButton).whileTrue(climber.climberCommand());
         }
     }
     private void configureNamedCommands(){
