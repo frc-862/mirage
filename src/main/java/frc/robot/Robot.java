@@ -4,17 +4,22 @@
 
 package frc.robot;
 
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Robot extends TimedRobot {
     private Command autonomousCommand;
 
     private static RobotContainer robotContainer;
+
+    private DoubleLogEntry totalCurrentEntry;
+    private DoubleLogEntry voltageEntry;
 
     public Robot() {
         getContainer();
@@ -43,11 +48,24 @@ public class Robot extends TimedRobot {
         
         // No Live Window for now
         LiveWindow.disableAllTelemetry();
+
+        if (DriverStation.isFMSAttached()) {
+            totalCurrentEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/TotalCurrent");
+            voltageEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/Voltage");
+        }
     }
 
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+
+        if (DriverStation.isFMSAttached()) {
+            totalCurrentEntry.append(getContainer().pdh.getTotalCurrent());
+            voltageEntry.append(getContainer().pdh.getVoltage());
+        } else {
+            LightningShuffleboard.setDouble("PDH", "Total Current", getContainer().pdh.getTotalCurrent());
+            LightningShuffleboard.setDouble("PDH", "Voltage", getContainer().pdh.getVoltage());
+        }
     }
 
     @Override

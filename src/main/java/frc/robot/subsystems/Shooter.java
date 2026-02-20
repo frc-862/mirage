@@ -18,7 +18,6 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
@@ -193,6 +192,10 @@ public class Shooter extends SubsystemBase {
         if (targetVelocity.gt(RotationsPerSecond.zero())) {
             applyChange();
         }
+    }
+
+    public Command changeBiasCommand(AngularVelocity bias) {
+        return new InstantCommand(() -> changeBias(bias));
     }
 
     public void setBias(AngularVelocity bias) {

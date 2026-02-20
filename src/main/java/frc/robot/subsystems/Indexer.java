@@ -168,8 +168,4 @@ public class Indexer extends SubsystemBase {
     public Command indexCommand(double spindexerPower, double transferPower) {
         return indexCommand(() -> spindexerPower, () -> transferPower);
     }
-
-    public Command indexRunCommand(DoubleSupplier power){
-        return runEnd(() -> setPower(power.getAsDouble()), this::stop);
-    }
 }
