@@ -26,12 +26,14 @@ import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
+import frc.robot.subsystems.Hood.HoodConstants;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.PhotonVision;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
@@ -46,13 +48,11 @@ public class RobotContainer {
     private final XboxController copilot;
 
     private final Swerve drivetrain;
-
-    // TODO: make final after subsystems are added
-    private Collector collector;
-    private Indexer indexer;
-    private Turret turret;
-    private Hood hood;
-    private Shooter shooter;
+    private final Collector collector;
+    private final Indexer indexer;
+    private final Turret turret;
+    private final Hood hood;
+    private final Shooter shooter;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
 
@@ -70,14 +70,13 @@ public class RobotContainer {
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
         pdh = new PowerDistribution(RobotMap.PDH, ModuleType.kRev);
 
-        if (RobotMap.IS_OASIS || Robot.isSimulation()) {
-            collector = new Collector();
-            indexer = new Indexer();
-            shooter = new Shooter();
-            hood = new Hood();
-            turret = new Turret(drivetrain);
-            new PhotonVision(drivetrain);
-        }
+        collector = new Collector();
+        indexer = new Indexer();
+        shooter = new Shooter();
+        hood = new Hood();
+        turret = new Turret(drivetrain);
+        new PhotonVision(drivetrain);
+        
 
         if (Robot.isSimulation()) {
             new MapleSim(drivetrain, collector, indexer, turret, hood, shooter);
@@ -97,18 +96,16 @@ public class RobotContainer {
         */
         drivetrain.setDefaultCommand(drivetrain.driveCommand(
                 () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
-                        VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), RobotMap.CONTROLLER_DEADBAND)
-                        .times(driver.getRightBumperButton() ? DriveConstants.SLOW_MODE_MULT : 1.0),
-                        RobotMap.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                        RobotMap.CONTROLLER_DEADBAND), RobotMap.CONTROLLER_POW) * (driver.getRightBumperButton()
-                ? DriveConstants.SLOW_MODE_MULT : 1.0)));
+                        VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND)
+                        .times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0),
+                        DriveConstants.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                        DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW) 
+                        * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
-        if (RobotMap.IS_OASIS || Robot.isSimulation()) {
-            indexer.setDefaultCommand(indexer.indexRunCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis())));
-            shooter.setDefaultCommand(shooter.coast());
-            hood.setDefaultCommand(hood.hoodAim(drivetrain));
-            // turret.setDefaultCommand(new TurretAim(drivetrain, turret));
-        }
+        collector.setDefaultCommand(collector.collectRunCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
+        shooter.setDefaultCommand(shooter.coast());
+        // hood.setDefaultCommand(hood.hoodAim(drivetrain)); // TODO: Uncomment when ready
+        // turret.setDefaultCommand(new TurretAim(drivetrain, turret));
     }
 
     private void configureBindings() {
@@ -118,67 +115,65 @@ public class RobotContainer {
                     .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
             );
 
+        // TODO: Bind OTF to LB and Climb AA to RB
+
+        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
+        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_DOWN).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA));
+        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_LEFT).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA.unaryMinus()));
+        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_RIGHT).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA));
+
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
             .onTrue(drivetrain.resetFieldCentricCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        new Trigger(driver::getLeftBumperButton).whileTrue(drivetrain.robotCentricDrive(
+        new Trigger(() -> driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(drivetrain.robotCentricDrive(
             () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
-                    VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), RobotMap.CONTROLLER_DEADBAND)
-                    .times(driver.getRightBumperButton() ? DriveConstants.SLOW_MODE_MULT : 1.0),
-                    RobotMap.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                    RobotMap.CONTROLLER_DEADBAND), RobotMap.CONTROLLER_POW) * (driver.getRightBumperButton()
-            ? DriveConstants.SLOW_MODE_MULT : 1.0)));
+                    VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND)
+                    .times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0),
+                    DriveConstants.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                    DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW) 
+                    * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
+
 
         /* Copilot */
-            if (Robot.isSimulation()) {
-            new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(60))));
 
-            new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
-                shooter.setVelocity(RotationsPerSecond.of(100));
-                indexer.setSpindexerPower(1d);
-            })).onFalse(new InstantCommand(() -> {
-                shooter.stop();
-                indexer.stop();
-            }));
+        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, 
+            -IndexerConstants.TRANSFER_POWER));
+        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, 
+            IndexerConstants.TRANSFER_POWER));
 
-            new Trigger(copilot::getBButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().plus(Degrees.of(0.5)))));
+        new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
+            collector.pivotCommand(CollectorConstants.DEPLOY_ANGLE));
 
-            new Trigger(copilot::getXButton).whileTrue(hood.run(() -> hood.setPosition(hood.getTargetAngle().minus(Degrees.of(0.5)))));
+        // TODO: Bind SmartClimb to Y, and bind manual climb to Joystick
 
-            new Trigger(() -> copilot.getPOV() == 270).onTrue(new InstantCommand(() -> hood.changeBias(Hood.HoodConstants.BIAS_DELTA.unaryMinus()))); // Assign a trigger soon
-            new Trigger(() -> copilot.getPOV() == 90).onTrue(new InstantCommand(() -> hood.changeBias(Hood.HoodConstants.BIAS_DELTA))); // Assign a trigger soon
-            new Trigger(() -> copilot.getPOV() == 0).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA)));
+        new Trigger(copilot::getXButton).whileTrue(hood.hoodStowCommand());
 
-            new Trigger(() -> copilot.getPOV() == 180).onTrue(new InstantCommand(() -> shooter.changeBias(Shooter.ShooterConstants.BIAS_DELTA.unaryMinus())));
+        // TODO: Bind A to OTF or something
 
-            new Trigger(driver::getBButton).onTrue(turret.aimWithTarget(drivetrain, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
-        } 
+        // TODO: Bind B to Smart Shoot
 
-        if (RobotMap.IS_OASIS) {
-            new Trigger(copilot::getLeftBumperButton).whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
-            new Trigger(copilot::getRightBumperButton).whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
+        new Trigger(copilot::getStartButton).whileTrue(collector.pivotCommand(CollectorConstants.STOWED_ANGLE));
+        new Trigger(copilot::getBackButton).whileTrue(turret.idle().beforeStarting(turret::stop)); // disable turret
 
-            // Temp Bindings for testing purposes
+        // Temp Bindings for testing purposes
 
-            new Trigger(copilot::getYButton).whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
-                .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
-                .finallyDo(shooter::stop));
+        // Temp Cand shots
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT || copilot.getPOV() == DriveConstants.DPAD_RIGHT)
+            .whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
+            .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
+            .finallyDo(shooter::stop));
 
-            new Trigger(copilot::getAButton).whileTrue(
-                shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
-                .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
-                .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
-                () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
-                .finallyDo(shooter::stop));
-
-            new Trigger(copilot::getXButton).whileTrue(turret.runOnce(() -> turret.setAngle(Degrees.of(LightningShuffleboard.getDouble("Turret", "Setpoint", 0)))));
-
-            new Trigger(copilot::getBButton).whileTrue(turret.aimWithTarget(drivetrain, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
-        }
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
+            shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
+            .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
+            .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
+            () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
+            .finallyDo(shooter::stop));
     }
+
     private void configureNamedCommands(){
         NamedCommands.registerCommand("LED_SHOOT", leds.enableStateWithTimeout(LED_STATES.SHOOT.id(), 2));
         NamedCommands.registerCommand("LED_COLLECT", leds.enableStateWithTimeout(LED_STATES.COLLECT.id(), 2));

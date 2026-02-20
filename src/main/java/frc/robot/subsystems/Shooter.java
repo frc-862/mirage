@@ -193,6 +193,10 @@ public class Shooter extends SubsystemBase {
         }
     }
 
+    public Command changeBiasCommand(AngularVelocity bias) {
+        return new InstantCommand(() -> changeBias(bias));
+    }
+
     public void setBias(AngularVelocity bias) {
         shooterBias.mut_replace(bias);
         if (targetVelocity.gt(RotationsPerSecond.zero())) {
