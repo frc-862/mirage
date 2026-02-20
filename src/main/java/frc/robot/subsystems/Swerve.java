@@ -469,7 +469,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Distance getDistanceToTarget() {
-        return Meters.of(getShooterTranslation().getDistance(targetPosition));
+        return Meters.of(getShooterTranslation().getDistance(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
     }
 
     /**

@@ -60,9 +60,8 @@ public class Hood extends SubsystemBase {
 
         public static final ThunderMap<Distance, Angle> HOOD_MAP = new ThunderMap<>() {
             {
-                put(Meters.of(2d), Degrees.of(80));
-                put(Meters.of(4d), Degrees.of(60));
-                put(Meters.of(8d), Degrees.of(50));
+                put(Meters.of(1.902d), Degrees.of(80));
+                put(Meters.of(2.866), Degrees.of(77));
             }
         };
 
