@@ -62,6 +62,8 @@ public class Hood extends SubsystemBase {
             {
                 put(Meters.of(1.902d), Degrees.of(80));
                 put(Meters.of(2.866), Degrees.of(77));
+                put(Meters.of(3.39d), Degrees.of(75));
+                put(Meters.of(4.344), Degrees.of(74));
             }
         };
 

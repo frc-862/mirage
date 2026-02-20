@@ -29,7 +29,7 @@ public class ShooterAim extends Command {
     private final Turret turret;
     private final Indexer indexer;
 
-    private Translation2d target;
+    private Translation2d target = new Translation2d(4.625594, 4.034536);
 
     private Pose2d pose = new Pose2d(0, 0, Rotation2d.fromDegrees(0)); //Temp
     private Rectangle2d redAllianceZone = new Rectangle2d(pose, 0, 0); //Temp
@@ -56,7 +56,7 @@ public class ShooterAim extends Command {
 
     @Override
     public void execute() {
-        if (turret.isOnTarget() & hood.isOnTarget() & shooter.isOnTarget()) {
+        if (hood.isOnTarget() && shooter.isOnTarget()) {
             indexer.setSpindexerPower(Indexer.IndexerConstants.SPINDEXDER_POWER); //TEMP
             indexer.setTransferPower(Indexer.IndexerConstants.TRANSFER_POWER);
         }
@@ -64,15 +64,15 @@ public class ShooterAim extends Command {
         Pose2d robotPose = swerve.getPose();
         Distance distance = Meters.of(robotPose.getTranslation().getDistance(target));
 
-        if(redAllianceZone.contains(robotPose.getTranslation())){
-            target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION);
-        }
-        else if (neutralZone.contains(robotPose.getTranslation())) {
-            target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
-        }
-        else if(blueallianceZone.contains(robotPose.getTranslation())){
-            target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
-        }
+        // if(redAllianceZone.contains(robotPose.getTranslation())){
+        //     target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION);
+        // }
+        // else if (neutralZone.contains(robotPose.getTranslation())) {
+        //     target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
+        // }
+        // else if(blueallianceZone.contains(robotPose.getTranslation())){
+        //     target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
+        // }
 
 
         AngularVelocity shooterVelocity = ShooterConstants.VELOCITY_MAP.get(distance);

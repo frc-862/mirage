@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.ShooterAim;
 import frc.robot.commands.TurretAim;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.LEDConstants;
@@ -177,7 +178,7 @@ public class RobotContainer {
             new Trigger(copilot::getXButton).onTrue(new InstantCommand(() -> LightningShuffleboard.setDouble("Shooter", 
                 "Distance", drivetrain.getDistanceToTarget().in(Meters))));
 
-            new Trigger(copilot::getBButton).whileTrue(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
+            new Trigger(copilot::getBButton).whileTrue(new ShooterAim(shooter, drivetrain, hood, turret, indexer));
         }
     }
     private void configureNamedCommands(){
