@@ -38,7 +38,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
-import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
 
@@ -382,14 +381,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Pose2d getPose(){
         return getState().Pose;
-    }
-
-    /**
-     * Getting the position of the shooter on the field.
-     * @return The translation of the shooter.
-     */
-    public Translation2d getShooterTranslation() {
-        return getPose().getTranslation().plus(ShooterConstants.SHOOTER_POSITION_ON_ROBOT.rotateBy(getPose().getRotation()));
     }
 
     public ChassisSpeeds getCurrentRobotChassisSpeeds(){

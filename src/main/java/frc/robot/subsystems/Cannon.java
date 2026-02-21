@@ -76,7 +76,7 @@ public class Cannon extends SubsystemBase {
      * @return Returns its position
      */
     public Translation2d getShooterTranslation() {
-        return drivetrain.getPose().getTranslation().plus(CannonConstants.SHOOTER_TRANSLATION);
+        return drivetrain.getPose().getTranslation().plus(CannonConstants.SHOOTER_TRANSLATION.rotateBy(drivetrain.getPose().getRotation()));
     }
 
     /**
