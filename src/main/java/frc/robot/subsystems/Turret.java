@@ -208,7 +208,7 @@ public class Turret extends SubsystemBase {
      * @param angle sets the angle to the motor of the turret
      */
     public void setAngle(Angle angle) {
-        Angle wrappedPosition = ThunderUnits.inputModulus(optimizeTurretAngle(angle), Degrees.of(-180), Degrees.of(180));
+        Angle wrappedPosition = ThunderUnits.inputModulus(optimizeTurretAngle(angle), Degrees.of(-180), Degrees.of(180)); // TODO: fix
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed) { // only allow position control if turret has been zeroed but store to apply when zeroed
@@ -298,7 +298,7 @@ public class Turret extends SubsystemBase {
 
         if (error > 180) {
             targetDeg -= 360;
-        } else if (error < -180) {
+        } else if (error < -180) { // TODO: use constants and wpilib units
             targetDeg += 360;
         }
 
@@ -307,7 +307,7 @@ public class Turret extends SubsystemBase {
 
     public Command aimWithTarget(Swerve drivetrain, Translation2d target) {
         return run(() -> {
-            Pose2d robotPose = drivetrain.getPose();
+            Pose2d robotPose = drivetrain.getPose(); // TODO: account for offset
 
             Translation2d delta = target.minus(robotPose.getTranslation());
 

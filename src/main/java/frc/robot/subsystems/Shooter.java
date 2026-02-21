@@ -70,7 +70,9 @@ public class Shooter extends SubsystemBase {
                 put(Meters.of(1.902d), RotationsPerSecond.of(43d));
                 put(Meters.of(2.866), RotationsPerSecond.of(45d));
                 put(Meters.of(3.39d), RotationsPerSecond.of(50d));
-                put(Meters.of(4.344), RotationsPerSecond.of(56d));
+                put(Meters.of(4.344d), RotationsPerSecond.of(56d));
+                put(Meters.of(5.69d), RotationsPerSecond.of(63d));
+                put(Meters.of(8.27), RotationsPerSecond.of(90d)); // This is well over the max distance in AZ
             }
         };
 
