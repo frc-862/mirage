@@ -39,16 +39,6 @@ public class Climber extends SubsystemBase {
         public static final Current CLIMBER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean CLIMBER_MOTOR_BRAKE_MODE = true; // temp
 
-        public static final double CLIMB_KP = 0.0; // temp
-        public static final double CLIMB_KI = 0.0; // temp
-        public static final double CLIMB_KD = 0.0; // temp
-        public static final double CLIMB_KS = 0.0; // temp
-        public static final double CLIMB_KV = 0.0; // temp
-        public static final double CLIMB_KA = 0.0; // temp
-        public static final double CLIMB_KG = 0.0; // temp
-
-        public static final double CLIMB_TOLERANCE = 0.5;
-
         public static final double GEARING_RATIO = 1d; // temp
         public static final Mass WEIGHT = Pounds.of(20); // temp
         public static final Distance LENGTH = Inches.of(0.5); // temp
@@ -56,7 +46,6 @@ public class Climber extends SubsystemBase {
         public static final Distance MIN_HEIGHT = Inches.of(1); // temp
         public static final Distance MAX_HEIGHT = Inches.of(12); // temp
         public static final Distance START_HEIGHT  = Inches.of(3); // temp
-        public static final double  STANDARD_DEVIATION = 1d; // temp
     }
 
     private ThunderBird climberMotor;
@@ -73,17 +62,6 @@ public class Climber extends SubsystemBase {
             ClimberConstants.CLIMBER_MOTOR_INVERTED, ClimberConstants.CLIMBER_MOTOR_STATOR_LIMIT,
             ClimberConstants.CLIMBER_MOTOR_BRAKE_MODE);
 
-        TalonFXConfiguration config = climberMotor.getConfig();
-        config.Slot0.kP = ClimberConstants.CLIMB_KP;
-        config.Slot0.kI = ClimberConstants.CLIMB_KI;
-        config.Slot0.kD = ClimberConstants.CLIMB_KD;
-        config.Slot0.kS = ClimberConstants.CLIMB_KS;
-        config.Slot0.kV = ClimberConstants.CLIMB_KV;
-        config.Slot0.kA = ClimberConstants.CLIMB_KA;
-        config.Slot0.kG = ClimberConstants.CLIMB_KG;
-        config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-
-        climberMotor.applyConfig(config);
         dutyCycleOut = new DutyCycleOut(0);
 
         forwardLimitSwitch = new DigitalInput(RobotMap.CLIMBER_FORWARD_LIMIT_SWITCH);
