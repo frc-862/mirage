@@ -4,11 +4,7 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.sim.CANcoderSimState;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -21,29 +17,24 @@ import static edu.wpi.first.units.Units.Pounds;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
+import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Climber extends SubsystemBase {
 
     public class ClimberConstants {
         public static final boolean CLIMBER_MOTOR_INVERTED = false; // temp
         public static final Current CLIMBER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
-        public static final boolean CLIMBER_MOTOR_BRAKE_MODE = false; // temp
-
-        public static final double CLIMB_KP = 0.0; // temp
-        public static final double CLIMB_KI = 0.0; // temp
-        public static final double CLIMB_KD = 0.0; // temp
-        public static final double CLIMB_KS = 0.0; // temp
-        public static final double CLIMB_KV = 0.0; // temp
-        public static final double CLIMB_KA = 0.0; // temp
-        public static final double CLIMB_KG = 0.0; // temp
-
-        public static final double CLIMB_TOLERANCE = 0.5;
+        public static final boolean CLIMBER_MOTOR_BRAKE_MODE = true; // temp
 
         public static final double GEARING_RATIO = 1d; // temp
         public static final Mass WEIGHT = Pounds.of(20); // temp
@@ -52,80 +43,102 @@ public class Climber extends SubsystemBase {
         public static final Distance MIN_HEIGHT = Inches.of(1); // temp
         public static final Distance MAX_HEIGHT = Inches.of(12); // temp
         public static final Distance START_HEIGHT  = Inches.of(3); // temp
-        public static final double  STANDARD_DEVIATION = 0d; // temp
     }
 
     private ThunderBird climberMotor;
-    private CANcoder encoder;
-    private final PositionVoltage positionPID;
     private DCMotor gearbox;
     private TalonFXSimState motorSim;
     private ElevatorSim climberSim;
-    private CANcoderSimState encoderSim;
+    private DutyCycleOut dutyCycleOut;
+    private DigitalInput forwardLimitSwitch;
+    private DigitalInput reverseLimitSwitch;
 
     /** Creates a new Climber Subsystem. */
     public Climber() {
         climberMotor = new ThunderBird(RobotMap.CLIMBER, RobotMap.CAN_BUS,
             ClimberConstants.CLIMBER_MOTOR_INVERTED, ClimberConstants.CLIMBER_MOTOR_STATOR_LIMIT,
             ClimberConstants.CLIMBER_MOTOR_BRAKE_MODE);
-        encoder = new CANcoder(RobotMap.CLIMBER_ENCODER);
 
-        positionPID = new PositionVoltage(0);
+        dutyCycleOut = new DutyCycleOut(0);
 
-        TalonFXConfiguration config = climberMotor.getConfig();
-        config.Slot0.kP = ClimberConstants.CLIMB_KP;
-        config.Slot0.kI = ClimberConstants.CLIMB_KI;
-        config.Slot0.kD = ClimberConstants.CLIMB_KD;
-        config.Slot0.kS = ClimberConstants.CLIMB_KS;
-        config.Slot0.kV = ClimberConstants.CLIMB_KV;
-        config.Slot0.kA = ClimberConstants.CLIMB_KA;
-        config.Slot0.kG = ClimberConstants.CLIMB_KG;
-        config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-
-        climberMotor.applyConfig(config);
+        forwardLimitSwitch = new DigitalInput(RobotMap.CLIMBER_FORWARD_LIMIT_SWITCH);
+        reverseLimitSwitch = new DigitalInput(RobotMap.CLIMBER_REVERSE_LIMIT_SWITCH);
 
         if (Robot.isSimulation()){
             gearbox = DCMotor.getKrakenX60Foc(1);
             climberSim = new ElevatorSim(gearbox, ClimberConstants.GEARING_RATIO, ClimberConstants.WEIGHT.in(Kilograms),
             ClimberConstants.LENGTH.in(Meters), ClimberConstants.MIN_HEIGHT.in(Meters), ClimberConstants.MAX_HEIGHT.in(Meters),
-             true, ClimberConstants.START_HEIGHT.in(Meters), ClimberConstants.STANDARD_DEVIATION);
+             true, ClimberConstants.START_HEIGHT.in(Meters));
             motorSim = new TalonFXSimState(climberMotor);
-            encoderSim = new CANcoderSimState(encoder);
         }
     }
 
     public void simulationPeriodic(){
         double batteryVoltage = RobotController.getBatteryVoltage();
         motorSim.setSupplyVoltage(batteryVoltage);
-        encoderSim.setSupplyVoltage(batteryVoltage);
 
         climberSim.setInputVoltage(motorSim.getMotorVoltage());
         climberSim.update(Robot.kDefaultPeriod);
         motorSim.setRawRotorPosition(Units.metersToInches(climberSim.getPositionMeters()));
+        LightningShuffleboard.getBool("Climber", "Climber Foward Limit Switch", false);
+        LightningShuffleboard.getBool("Climber", "Climber Reverse Limit Switch", false);
     }
 
     /**
-     * Sets the target position of the climber motor.
-     *
-     * @param positionVolts the target position in volts
+     * Set the climber's duty cycle output with the specified power.
+     * @param power
      */
-    public void setPosition(double positionVolts) {
-        climberMotor.setControl(positionPID.withPosition(positionVolts));
+    public void setDutyCycle(double power) {
+        climberMotor.setControl(dutyCycleOut.withOutput(power));
     }
 
     /**
-     * gets the position of the climber
-     * @return climber position
+     * Get the state of the forward limit switch.
+     * @return true if the forward limit switch is triggered, otherwise returns false.
      */
-    public double getTargetPosition() {
-        return positionPID.Position;
+    public boolean getForwardLimitSwitchState() {
+       return forwardLimitSwitch.get();
     }
 
     /**
-     * gets if the climber is on target
-     * @return if climber is on target
+     * Get the state of the reverse limit switch.
+     * @return true if the reverse limit switch is triggered, otherwise returns false.
      */
-    public boolean onTarget() {
-        return positionPID.getPositionMeasure().isNear(climberMotor.getPosition().getValue(), ClimberConstants.CLIMB_TOLERANCE);
+    public boolean getReverseLimitSwitchState() {
+        return reverseLimitSwitch.get();
+    }
+
+    /**
+     * Stop the climber motor.
+     */
+    public void stop() {
+        climberMotor.stopMotor();
+    }
+    
+    /**
+     * The command extends the climber until it hits the forward limit switch, then reverses until the climber hits the reverse limit switch.
+     * @return the level 3 climb command
+     */
+    public Command l3Climb(){
+        return new SequentialCommandGroup(
+            new RunCommand(() -> setDutyCycle(1d)).until(() -> getForwardLimitSwitchState()),
+            new RunCommand(() -> setDutyCycle(-1d)).until(() -> getReverseLimitSwitchState()),
+            new RunCommand(() -> setDutyCycle(1d)).until(() -> getForwardLimitSwitchState()),
+            new RunCommand(() -> setDutyCycle(-1d)).until(() -> getReverseLimitSwitchState()),
+            new RunCommand(() -> setDutyCycle(1d)).until(() -> getForwardLimitSwitchState()),
+            new RunCommand(() -> setDutyCycle(-1d)).until(() -> getReverseLimitSwitchState()))
+            .finallyDo(this::stop);
+        }
+
+    /**
+     * The command extends the climber once until it hits the forward limit switch and then reverses for a little bit
+     * NOTE: This command contains temporailly values for the reverse power & time.
+     * @return The level 1 climb command
+     */
+    public Command l1Climb(){
+        return new SequentialCommandGroup(
+            new RunCommand(() -> setDutyCycle(1d)).until(() -> getForwardLimitSwitchState()),
+            new RunCommand(() -> setDutyCycle(-1d)).withTimeout(2)
+            .finallyDo(this::stop));
     }
 }
