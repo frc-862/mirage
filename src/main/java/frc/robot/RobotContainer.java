@@ -143,8 +143,6 @@ public class RobotContainer {
             .whileTrue(hood.retract());
         new Trigger(copilot::getXButton).whileTrue(hood.retract());
 
-        new Trigger(copilot::getAButton).whileTrue(hood.hoodCommand(Degrees.of(60)));
-
         new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER,
             -IndexerConstants.TRANSFER_POWER));
         new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER,

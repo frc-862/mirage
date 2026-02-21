@@ -310,7 +310,7 @@ public class Hood extends SubsystemBase {
             isHoodRetracted = true;
         }, () -> {
             isHoodRetracted = false;
-        }).withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
+        });
     }
 
     /**
