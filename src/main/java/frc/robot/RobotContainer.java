@@ -35,7 +35,6 @@ import frc.robot.subsystems.PhotonVision;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.Swerve.FieldConstants;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.leds.Color;
