@@ -23,7 +23,6 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
@@ -53,7 +52,6 @@ public class RobotContainer {
     private final Turret turret;
     private final Hood hood;
     private final Shooter shooter;
-    private final Climber climber;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
     private final PhotonVision vision;
@@ -76,7 +74,6 @@ public class RobotContainer {
         shooter = new Shooter();
         hood = new Hood();
         turret = new Turret(drivetrain);
-        climber = new Climber();
         vision = new PhotonVision(drivetrain);
         
 
