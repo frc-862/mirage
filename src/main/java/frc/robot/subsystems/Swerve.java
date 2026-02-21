@@ -19,9 +19,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
@@ -38,8 +36,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
-import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
 
@@ -64,6 +62,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
+<<<<<<< HEAD
     public static class FieldConstants {
         private record Target(Translation2d blue, Translation2d red) {}
 
@@ -96,6 +95,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
         public static final double FIELD_MIDDLE_Y = 4.034663;
     }
+=======
+>>>>>>> main
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     @SuppressWarnings("unused")
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -298,8 +299,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-        
-        targetPosition = findTargetPosition();
     }
 
     @Override
@@ -419,14 +418,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return getState().Pose;
     }
 
-    /**
-     * Getting the position of the shooter on the field.
-     * @return The translation of the shooter.
-     */
-    public Translation2d getShooterTranslation() {
-        return getPose().plus(new Transform2d(ShooterConstants.SHOOTER_POSITION_ON_ROBOT, new Rotation2d())).getTranslation();
-    }
-
     public ChassisSpeeds getCurrentRobotChassisSpeeds(){
         return getState().Speeds;
     }
@@ -450,31 +441,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     /**
-     * Finds the optimal target position on the field based on the robot's pose
-     *
-     * @return Translation2d of the last-computed target position (updated in periodic())
-     */
-    public Translation2d findTargetPosition() {
-        Pose2d robotPose = getPose();
-
-        if (isInZone()) {
-            return FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
-        }
-        
-        boolean isTop = robotPose.getY() > FieldConstants.FIELD_MIDDLE_Y;
-
-        if (AllianceHelpers.isBlueAlliance()) {
-            return isTop ? FieldConstants.ZONE_POSITION_BLUE_TOP : FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
-        } else {
-            return isTop ? FieldConstants.ZONE_POSITION_RED_TOP : FieldConstants.ZONE_POSITION_RED_BOTTOM;
-        }
-    }
-
-    public Translation2d getTargetPosition() {
-        return targetPosition;
-    }
-
-    /**
      * Checks if the robot's pose is within the current alliance's zone
      *
      * @return true if the robot is in the zone, false otherwise
@@ -482,9 +448,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     public boolean isInZone() {
         Pose2d robotPose = getPose();
         if (AllianceHelpers.isRedAlliance()) {
-            return (Swerve.FieldConstants.RED_ALLIANCE_RECT.contains(robotPose.getTranslation()));
+            return (FieldConstants.RED_ALLIANCE_RECT.contains(robotPose.getTranslation()));
         } else {
-            return (Swerve.FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
+            return (FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
         }
     }
 }

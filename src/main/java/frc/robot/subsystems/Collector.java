@@ -6,6 +6,9 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import java.util.function.DoubleSupplier;
+
 import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -26,6 +29,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -94,6 +98,7 @@ public class Collector extends SubsystemBase {
     private MechanismRoot2d root2d;
     private MechanismLigament2d ligament;
     private Angle targetPivotPosition;
+    @SuppressWarnings("unused")
     private final PositionVoltage positionPID;
 
     private DCMotor gearbox;
@@ -236,7 +241,7 @@ public class Collector extends SubsystemBase {
     public void setPivotAngle(Angle position) {
         targetPivotPosition = ThunderUnits.clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
         
-        pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
+        // pivotMotor.setControl(positionPID.withPosition(targetPivotPosition)); // TODO: Uncomment when pivot is figured out
     }
 
     /**
@@ -256,11 +261,18 @@ public class Collector extends SubsystemBase {
      */
     public Command collectCommand(double power, Angle position) {
         return new StartEndCommand(() -> deployCollector(power, position), () -> stopCollector(), this);
-
     }
 
     public Command collectCommand(double power) {
         return new StartEndCommand(() -> setCollectorPower(power), () -> stopCollector(), this);
+    }
+
+    public Command collectRunCommand(DoubleSupplier power) {
+        return runEnd(() -> setCollectorPower(power.getAsDouble()), () -> stopCollector());
+    }
+
+    public Command pivotCommand(Angle position) {
+        return new InstantCommand(() -> setPivotAngle(position)); // Cannot require collector b/c of default command
     }
 
     /**

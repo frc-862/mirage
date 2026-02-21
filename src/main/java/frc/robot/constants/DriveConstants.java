@@ -83,4 +83,12 @@ public class DriveConstants {
     public static final RobotConfig getConfig(Translation2d... moduleLocations) {
         return new RobotConfig(ROBOT_MASS, ROBOT_MOI, MODULE_CONFIG, moduleLocations);
     }
+
+    public static final double JOYSTICK_DEADBAND = 0.1;
+    public static final int CONTROLLER_POW = 2;
+    public static final double TRIGGER_DEADBAND = 0.25;
+    public static final int DPAD_UP = 0;
+    public static final int DPAD_RIGHT = 90;
+    public static final int DPAD_DOWN = 180;
+    public static final int DPAD_LEFT = 270;
 }
