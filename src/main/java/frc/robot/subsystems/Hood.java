@@ -99,6 +99,7 @@ public class Hood extends SubsystemBase {
     private MechanismLigament2d ligament;
     private MechanismRoot2d root2d;
     private Mechanism2d mech2d;
+    private Boolean isHoodRetracted = false;
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
@@ -226,7 +227,9 @@ public class Hood extends SubsystemBase {
     }
 
     private void applyControl() {
-        motor.setControl(request.withPosition(getTargetAngleWithBias()));
+        if (!isHoodRetracted) {
+            motor.setControl(request.withPosition(getTargetAngleWithBias()));
+        }
     }
 
 
@@ -301,7 +304,12 @@ public class Hood extends SubsystemBase {
      * @return the command for retracting the hood
      */
     public Command retract() {
-        return startEnd(() -> setPosition(HoodConstants.MAX_ANGLE.minus(hoodBias)), () -> {});
+        return startEnd(() -> {
+            motor.setControl(request.withPosition(HoodConstants.MAX_ANGLE));
+            isHoodRetracted = true;
+        }, () -> {
+            isHoodRetracted = false;
+        });
     }
 
     /**
