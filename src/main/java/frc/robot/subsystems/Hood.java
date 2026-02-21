@@ -311,6 +311,12 @@ public class Hood extends SubsystemBase {
         });
     }
 
+    /**
+     * Aims the hood at the target
+     * @param cannon The cannon 
+     * @param target The target
+     * @return the command
+     */
     public Command hoodAim(Cannon cannon, Target target){
         return run(() -> {
             Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(FieldConstants.getTargetData(target)));
@@ -322,7 +328,7 @@ public class Hood extends SubsystemBase {
     /**
      * A command to set the posiiton of the hood
      * @param angle the angle to set it at
-     * @return
+     * @return the command
      */
     public Command setPositionCommand(Angle angle) {
         return new InstantCommand(() -> setPosition(angle));
