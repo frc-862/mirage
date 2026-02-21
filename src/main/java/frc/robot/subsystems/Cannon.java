@@ -19,19 +19,19 @@ import frc.util.AllianceHelpers;
 public class Cannon extends SubsystemBase {
     // ======== CANNON CONSTANTS ========
 
-    public static class CannonConstants {
-        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d();
+    public class CannonConstants {
+        public static Translation2d SHOOTER_TRANSLATION = new Translation2d();
 
-        public static final record candShotValue(Angle hoodAngle, AngularVelocity shooterVelocity){};
+        public record candShotValue(Angle hoodAngle, AngularVelocity shooterVelocity){};
 
         // TODO: ADD CAND SHOT VALUES HERE TO CREATE CAND SHOTS USING THE NEW BETTER METHOD :)
     }
 
     // Subsystems
-    private final Shooter shooter;
-    private final Turret turret;
-    private final Hood hood;
-    private final Swerve drivetrain;
+    private Shooter shooter;
+    private Turret turret;
+    private Hood hood;
+    private Swerve drivetrain;
 
     // Target storage
     private Translation2d storedTarget;
@@ -42,7 +42,7 @@ public class Cannon extends SubsystemBase {
         this.turret = turret;
         this.hood = hood;
         this.drivetrain = drivetrain;
-    } 
+    }
 
     @Override
     public void periodic() {
@@ -52,7 +52,7 @@ public class Cannon extends SubsystemBase {
         if (drivetrain.isInZone()) {
             storedTarget =  FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
         }
-        
+
         boolean isTop = robotPose.getY() > FieldConstants.FIELD_MIDDLE_Y;
 
         if (AllianceHelpers.isBlueAlliance()) {
@@ -82,7 +82,7 @@ public class Cannon extends SubsystemBase {
     }
 
     /**
-     * Gets the distance from the robot to the target 
+     * Gets the distance from the robot to the target
      * @return The distance
      */
     public Distance getTargetDistance() {
@@ -94,6 +94,8 @@ public class Cannon extends SubsystemBase {
 
     /**
      * Returns a command to set the hood and shooter values
+     * @param hoodAngle The angle of the hood to set at
+     * @param shooterVelocity The velocity to set the shooter to
      * @return The command
      */
     public Command setCannonValues(Angle hoodAngle, AngularVelocity shooterVelocity) {
@@ -103,6 +105,9 @@ public class Cannon extends SubsystemBase {
 
     /**
      * Returns a command to set the hood and shooter values
+     * @param turretAngle the angle to set the turret to
+     * @param hoodAngle the angle to set the hood to
+     * @param shooterVelocity the velocity to set the shooter to 
      * @return The command
      */
     public Command setCannonValues(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity) {
@@ -147,6 +152,7 @@ public class Cannon extends SubsystemBase {
 
     /**
      * Remodel of shooter aim-- automatically decides when to shoot
+     * @param indexer The indexer to use to index the balls
      * @return The command to run
      */
     public Command smartShoot(Indexer indexer) {
