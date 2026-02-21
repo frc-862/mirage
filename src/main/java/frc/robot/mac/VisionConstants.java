@@ -4,9 +4,7 @@ import java.util.List;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import static edu.wpi.first.units.Units.Inches;
 
 public class VisionConstants {
     // A list of tags that we want to ignore in our results
@@ -23,31 +21,7 @@ public class VisionConstants {
     // Carmera constants to store camera name and offsets
     public record CameraConstant(String name, Transform3d offset) {};
     public static final CameraConstant[] CAMERA_CONSTANTS = new CameraConstant[] {
-        new CameraConstant("leftCam",
-            new Transform3d(
-                Inches.of(11.25),   // forward
-                Inches.of(11.25),   // LEFT
-                Inches.of(10.5),    // up
-                new Rotation3d(
-                    0.0,
-                    Math.toRadians(-15),  // pitch up
-                    Math.toRadians(45)    // yaw outward (left)
-                )
-            )
-        ),
-
-        new CameraConstant("rightCam",
-            new Transform3d(
-                Inches.of(11.25),   // forward
-                Inches.of(-11.25),  // RIGHT
-                Inches.of(10.5),    // up
-                new Rotation3d(
-                    0.0,
-                    Math.toRadians(-15),   // pitch up
-                    Math.toRadians(-45)    // yaw outward (right)
-                )
-            )
-        ),
+        // TODO: ADD CAMERAS
     };
 
 }
