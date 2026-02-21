@@ -28,6 +28,12 @@
           "data": {
             "pathName": "LeftTowerPath"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "CLIMB"
+          }
         }
       ]
     }
