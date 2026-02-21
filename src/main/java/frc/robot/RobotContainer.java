@@ -19,12 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-<<<<<<< HEAD
-import frc.robot.commands.PoseBasedAutoAlign;
-import frc.robot.commands.ShooterAim;
-import frc.robot.commands.TurretAim;
-=======
->>>>>>> main
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
@@ -35,7 +29,6 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Hood.HoodConstants;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerConstants;
-import frc.robot.subsystems.Swerve.FieldConstants;
 import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.PhotonVision;
 import frc.robot.subsystems.Shooter;
@@ -182,8 +175,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
 
         NamedCommands.registerCommand("SCORE_PRELOADED", new InstantCommand()); //Temporary Command. Planning on using smart shoot.
-        NamedCommands.registerCommand("MOVE_TO_TOWER", new PoseBasedAutoAlign(drivetrain, () -> FieldConstants.TOWER_POSITION.getPose()));
-        NamedCommands.registerCommand("SHOOT", new ShooterAim(shooter, drivetrain, hood, turret, indexer));
+        // NamedCommands.registerCommand("MOVE_TO_TOWER", new PoseBasedAutoAlign(drivetrain, () -> FieldConstants.TOWER_POSITION.getPose()));
+        // NamedCommands.registerCommand("SHOOT", new ShooterAim(shooter, drivetrain, hood, turret, indexer));
         NamedCommands.registerCommand("COLLECT", collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
         autoChooser = AutoBuilder.buildAutoChooser();
