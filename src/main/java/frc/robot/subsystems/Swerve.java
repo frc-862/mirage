@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import org.photonvision.EstimatedRobotPose;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -273,6 +274,20 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     private void startSimThread() {
+        /* Increase signal update frequencies to prevent stale CAN frame warnings in sim */
+        for (var module : getModules()) {
+            BaseStatusSignal.setUpdateFrequencyForAll(1000,
+                module.getDriveMotor().getPosition(),
+                module.getDriveMotor().getVelocity(),
+                module.getSteerMotor().getPosition(),
+                module.getSteerMotor().getVelocity()
+            );
+        }
+        BaseStatusSignal.setUpdateFrequencyForAll(1000,
+            getPigeon2().getYaw(),
+            getPigeon2().getAngularVelocityZWorld()
+        );
+
         swerveSim = DriveConstants.getSwerveSim(this);
         /* Run simulation at a faster rate so PID gains behave more reasonably */
         m_simNotifier = new Notifier(swerveSim::update);

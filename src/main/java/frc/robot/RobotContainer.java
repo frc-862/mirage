@@ -210,6 +210,6 @@ public class RobotContainer {
         // At startup, turn on the "vision bad" LED state to indicate that the pose/vision estimate may be unreliable.
         leds.setState(LED_STATES.VISION_BAD.id(), true);
         // Turn off the "vision bad" LED state once the drivetrain has moved away from the origin, indicating we likely have a valid pose estimate.
-        new Trigger(() -> (DriverStation.isEnabled() || drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)));
+        new Trigger(() -> (DriverStation.isEnabled() || drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)).ignoringDisable(true));
     }
 }
