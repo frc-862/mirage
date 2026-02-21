@@ -13,6 +13,8 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.photonvision.PhotonCamera;
+
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.math.VecBuilder;
@@ -20,6 +22,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class PhotonVision extends SubsystemBase implements AutoCloseable {
@@ -46,6 +49,10 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
      * @param drivetrain The main drivetrain on the robot
      */
     public PhotonVision(Swerve drivetrain) {
+        if (Robot.isSimulation()) {
+            PhotonCamera.setVersionCheckEnabled(false);
+        }
+
         this.drivetrain = drivetrain;
         pose = new AtomicReference<>(null);
 
