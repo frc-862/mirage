@@ -56,7 +56,7 @@ public class RobotContainer {
     private final Climber climber;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
-
+    private final PhotonVision vision;
     private final Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -77,7 +77,7 @@ public class RobotContainer {
         hood = new Hood();
         turret = new Turret(drivetrain);
         climber = new Climber();
-        new PhotonVision(drivetrain);
+        vision = new PhotonVision(drivetrain);
         
 
         if (Robot.isSimulation()) {
