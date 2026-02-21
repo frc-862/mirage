@@ -54,7 +54,7 @@ public class RobotContainer {
     private final Shooter shooter;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
-
+    private final PhotonVision vision;
     private final Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -74,7 +74,7 @@ public class RobotContainer {
         shooter = new Shooter();
         hood = new Hood();
         turret = new Turret(drivetrain);
-        new PhotonVision(drivetrain);
+        vision = new PhotonVision(drivetrain);
         
 
         if (Robot.isSimulation()) {
