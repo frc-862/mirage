@@ -370,7 +370,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     /**
-     * Use for autonomous driving ex. auto align, auton
+     * Use for autonomous driving ex. auto  align, auton
      * Use whenever you want a specific velocity with closed loop control
      * Always uses blue alliace perspective
      * @param xInput input for the x velocity

@@ -140,7 +140,7 @@ public class RobotContainer {
         /* Copilot */
         new Trigger(() -> drivetrain.isNearTrench())
             .whileTrue(hood.retract());
-        new Trigger(copilot::getStartButton).whileTrue(hood.retract());
+        new Trigger(copilot::getXButton).whileTrue(hood.retract());
 
         new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER,
             -IndexerConstants.TRANSFER_POWER));
