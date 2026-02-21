@@ -11,6 +11,9 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import javax.naming.CannotProceedException;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -23,6 +26,7 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
+import frc.robot.subsystems.Cannon;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
@@ -36,6 +40,7 @@ import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Cannon.CannonConstants;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
@@ -52,6 +57,7 @@ public class RobotContainer {
     private final Turret turret;
     private final Hood hood;
     private final Shooter shooter;
+    private final Cannon cannon;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
 
@@ -74,6 +80,7 @@ public class RobotContainer {
         shooter = new Shooter();
         hood = new Hood();
         turret = new Turret(drivetrain);
+        cannon = new Cannon(shooter, turret, hood, drivetrain, indexer);
         new PhotonVision(drivetrain);
         
 
@@ -137,14 +144,20 @@ public class RobotContainer {
 
 
         /* Copilot */
-
         new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, 
             -IndexerConstants.TRANSFER_POWER));
         new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, 
             IndexerConstants.TRANSFER_POWER));
 
-        new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
-            collector.pivotCommand(CollectorConstants.DEPLOY_ANGLE));
+        // new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
+        //     collector.pivotCommand(CollectorConstants.DEPLOY_ANGLE));
+           new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
+           .whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
+           new Trigger(() -> copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
+           .whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
+
+           //new Trigger(() -> copilot.getXButton()).whileTrue(cannon.hoodAim(HoodConstants.MIN_ANGLE));
+        
 
         // TODO: Bind SmartClimb to Y, and bind manual climb to Joystick
 
@@ -160,12 +173,18 @@ public class RobotContainer {
         // Temp Bindings for testing purposes
 
         // Temp Cand shots
-        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT || copilot.getPOV() == DriveConstants.DPAD_RIGHT)
-            .whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
-            .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
-            .finallyDo(shooter::stop));
+           new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT)); //LEFT_SHOT is Temp
+           new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_RIGHT).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT)); //RIGHT_SHOT is Temp
+
+
+        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT || copilot.getPOV() == DriveConstants.DPAD_RIGHT)
+        //     .whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
+        //     .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
+        //     .finallyDo(shooter::stop));
 
             // new Trigger(copilot::getBButton).whileTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
+
+
         }
     
 
