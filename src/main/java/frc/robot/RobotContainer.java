@@ -9,6 +9,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
+
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -141,6 +143,8 @@ public class RobotContainer {
             .whileTrue(hood.retract());
         new Trigger(copilot::getXButton).whileTrue(hood.retract());
 
+        new Trigger(copilot::getAButton).whileTrue(hood.hoodCommand(Degrees.of(60)));
+
         new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER,
             -IndexerConstants.TRANSFER_POWER));
         new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER,
@@ -170,7 +174,7 @@ public class RobotContainer {
 
             // new Trigger(copilot::getBButton).whileTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
         }
-    
+
 
     private void configureNamedCommands() {
         NamedCommands.registerCommand("LED_SHOOT", leds.enableStateWithTimeout(LED_STATES.SHOOT.id(), 2));

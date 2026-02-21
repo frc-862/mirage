@@ -205,7 +205,7 @@ public class Hood extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        targetAngle = position;
+        targetAngle = ThunderUnits.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
         applyControl();
     }
 

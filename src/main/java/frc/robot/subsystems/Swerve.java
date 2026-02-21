@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.Cannon.CannonConstants;
 import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
 
@@ -384,20 +385,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public boolean isNearTrench() {
-        Translation2d shooterTranslation2d = getShooterTranslation();
+        Translation2d shooterTranslation2d = CannonConstants.SHOOTER_TRANSLATION;
         boolean isNearTrench = FieldConstants.LEFT_BLUE_TRENCH.contains(shooterTranslation2d) ||
             FieldConstants.RIGHT_BLUE_TRENCH.contains(shooterTranslation2d) ||
             FieldConstants.LEFT_RED_TRENCH.contains(shooterTranslation2d) ||
             FieldConstants.RIGHT_RED_TRENCH.contains(shooterTranslation2d);
         return isNearTrench;
-    }
-
-    /**
-     * Getting the position of the shooter on the field.
-     * @return The translation of the shooter.
-     */
-    public Translation2d getShooterTranslation() {
-        return getPose().getTranslation().plus(ShooterConstants.SHOOTER_POSITION_ON_ROBOT.rotateBy(getPose().getRotation()));
     }
 
     public ChassisSpeeds getCurrentRobotChassisSpeeds(){
