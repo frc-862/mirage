@@ -218,6 +218,10 @@ public class Hood extends SubsystemBase {
         applyControl();
     }
 
+    public Command changeBiasCommand(Angle bias) {
+        return new InstantCommand(() -> changeBias(bias));
+    }
+
     public void setBias(Angle bias) {
         hoodBias.mut_replace(bias);
         applyControl();
