@@ -146,7 +146,7 @@ public class Cannon extends SubsystemBase {
     }
 
     /**
-     * Remodel of shooter aim-- automatically decides when to shoot 
+     * Remodel of shooter aim-- automatically decides when to shoot
      * @return The command to run
      */
     public Command smartShoot(Indexer indexer) {
