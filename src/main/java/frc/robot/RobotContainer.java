@@ -181,7 +181,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
 
         NamedCommands.registerCommand("MOVE_TO_TOWER", new PoseBasedAutoAlign(drivetrain, FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
-        NamedCommands.registerCommand("SHOOT", cannon.smartShoot());
+        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot());
         NamedCommands.registerCommand("COLLECT", collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
         autoChooser = AutoBuilder.buildAutoChooser();
