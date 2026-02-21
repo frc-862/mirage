@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
@@ -145,14 +146,15 @@ public class RobotContainer {
         new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, 
             IndexerConstants.TRANSFER_POWER));
         
-        new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
-           .whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
-        new Trigger(() -> copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
-           .whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
+        // new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
+        //    .whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
+        // new Trigger(() -> copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
+        //    .whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
 
         // TODO: Bind SmartClimb to Y, and bind manual climb to Joystick
 
         // new Trigger(driver::getBButton).onTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
+        new Trigger(() -> copilot.getBButton()).whileTrue(cannon.turretAim(FieldConstants.GOAL_POSITION));
 
         // TODO: Bind A to OTF or something
 
