@@ -5,11 +5,10 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -23,15 +22,15 @@ import frc.robot.constants.FieldConstants.Target;
 import frc.util.AllianceHelpers;
 
 public class Cannon extends SubsystemBase {
-    // ======== CANNON CONSTANTS ========
-
+    /* ======== CANNON CONSTANTS ======== */
     public class CannonConstants { 
         public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(3.275, 3.275);
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
-
         // TODO: ADD CAND SHOT VALUES HERE TO CREATE CAND SHOTS USING THE NEW BETTER METHOD :)
+        public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
+        public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
     }
 
     // Subsystems
