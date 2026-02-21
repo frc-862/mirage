@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.Cannon.CannonConstants;
 import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
 
@@ -352,7 +353,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     /**
-     * Use for autonomous driving ex. auto align, auton
+     * Use for autonomous driving ex. auto  align, auton
      * Use whenever you want a specific velocity with closed loop control
      * Always uses blue alliace perspective
      * @param xInput input for the x velocity
@@ -396,6 +397,15 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public Pose2d getPose(){
         return getState().Pose;
+    }
+
+    public boolean isNearTrench() {
+        Translation2d shooterTranslation2d = getPose().getTranslation();
+        boolean isNearTrench = FieldConstants.LEFT_BLUE_TRENCH.contains(shooterTranslation2d) ||
+            FieldConstants.RIGHT_BLUE_TRENCH.contains(shooterTranslation2d) ||
+            FieldConstants.LEFT_RED_TRENCH.contains(shooterTranslation2d) ||
+            FieldConstants.RIGHT_RED_TRENCH.contains(shooterTranslation2d);
+        return isNearTrench;
     }
 
     public ChassisSpeeds getCurrentRobotChassisSpeeds(){
