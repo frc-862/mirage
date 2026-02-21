@@ -69,9 +69,10 @@ public class ShooterAim extends Command {
         else if (neutralZone.contains(robotPose.getTranslation())) {
             target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
         }
-        else if(blueallianceZone.contains(robotPose.getTranslation())){
+        else {    //if(blueallianceZone.contains(robotPose.getTranslation())){
             target = Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.DEPOT_POSITION);
         }
+
 
         Distance distance = Meters.of(robotPose.getTranslation().getDistance(target));
 
