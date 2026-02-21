@@ -22,12 +22,14 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -166,6 +168,10 @@ public class Turret extends SubsystemBase {
             setEncoderPosition(TurretConstants.ZERO_ANGLE);
             zeroed = true;
             setAngle(targetPosition);
+        }
+
+        if (DriverStation.isFMSAttached() && DriverStation.isDisabled()) {
+            LightningShuffleboard.setBool("Drive Team", "Turret Zeroed", getZeroLimitSwitch());
         }
     }
 

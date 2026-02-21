@@ -114,7 +114,9 @@ public class Robot extends TimedRobot {
     public void testPeriodic() {}
 
     @Override
-    public void testExit() {}
+    public void testExit() {
+        LightningShuffleboard.setBool("Drive Team", "Auton Set", false); // reset auton set for next match
+    }
 
     @Override
     public void simulationPeriodic() {}
