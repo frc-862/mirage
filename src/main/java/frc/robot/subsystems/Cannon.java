@@ -36,7 +36,13 @@ public class Cannon extends SubsystemBase {
     // Target storage
     private Translation2d storedTarget;
 
-    /** Creates a new Cannon. */
+    /**
+     * Creates a new cannon
+     * @param shooter shooter
+     * @param turret turret
+     * @param hood hood 
+     * @param drivetrain serve
+     */
     public Cannon(Shooter shooter, Turret turret, Hood hood, Swerve drivetrain) {
         this.shooter = shooter;
         this.turret = turret;
