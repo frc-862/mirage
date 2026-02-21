@@ -20,9 +20,9 @@ public class Cannon extends SubsystemBase {
     // ======== CANNON CONSTANTS ========
 
     public class CannonConstants {
-        public static Translation2d SHOOTER_TRANSLATION = new Translation2d();
+        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d();
 
-        public record candShotValue(Angle hoodAngle, AngularVelocity shooterVelocity){};
+        public record CandShotValue(Angle hoodAngle, AngularVelocity shooterVelocity){};
 
         // TODO: ADD CAND SHOT VALUES HERE TO CREATE CAND SHOTS USING THE NEW BETTER METHOD :)
     }
@@ -127,7 +127,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command hoodAim() {
-        return hood.hoodAim(this) ;
+        return hood.hoodAim(this);
     }
 
     /**
