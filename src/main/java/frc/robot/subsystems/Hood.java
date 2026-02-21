@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.robot.Robot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
@@ -309,7 +310,7 @@ public class Hood extends SubsystemBase {
             isHoodRetracted = true;
         }, () -> {
             isHoodRetracted = false;
-        });
+        }).withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
     }
 
     /**
@@ -327,7 +328,7 @@ public class Hood extends SubsystemBase {
 
     /**
      * Aims the hood at the target
-     * @param cannon The cannon 
+     * @param cannon The cannon
      * @param target The target
      * @return the command
      */
