@@ -33,6 +33,7 @@ public class Cannon extends SubsystemBase {
     private Turret turret;
     private Hood hood;
     private Swerve drivetrain;
+    private Indexer indexer;
 
     // Target storage
     private Translation2d storedTarget;
@@ -44,11 +45,13 @@ public class Cannon extends SubsystemBase {
      * @param hood hood 
      * @param drivetrain serve
      */
-    public Cannon(Shooter shooter, Turret turret, Hood hood, Swerve drivetrain) {
+    public Cannon(Shooter shooter, Turret turret, Hood hood, Swerve drivetrain, Indexer indexer) {
         this.shooter = shooter;
         this.turret = turret;
         this.hood = hood;
         this.drivetrain = drivetrain;
+
+        this.indexer = indexer;
     }
 
     @Override
@@ -159,10 +162,9 @@ public class Cannon extends SubsystemBase {
 
     /**
      * Remodel of shooter aim-- automatically decides when to shoot
-     * @param indexer The indexer to use to index the balls
      * @return The command to run
      */
-    public Command smartShoot(Indexer indexer) {
+    public Command smartShoot() {
         return runOnce(
             () -> shooter.setVelocity(Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
         ).andThen(runEnd(() -> {
