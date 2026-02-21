@@ -36,9 +36,12 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.Target;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -140,7 +143,6 @@ public class Hood extends SubsystemBase {
         motor.applyConfig(motorConfig);
 
 
-
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
             hoodSim = new DCMotorSim(
@@ -212,6 +214,10 @@ public class Hood extends SubsystemBase {
     public void changeBias(Angle bias) {
         hoodBias.mut_plus(bias);
         applyControl();
+    }
+
+    public Command changeBiasCommand(Angle bias) {
+        return new InstantCommand(() -> changeBias(bias));
     }
 
     public void setBias(Angle bias) {
@@ -292,14 +298,37 @@ public class Hood extends SubsystemBase {
 
     /**
      * keeps the hood pointed at the target of the Robot.
-     * @param drivetrain
+     * @param cannon
      * @return Command for repositioning the hood.
      */
-    public Command hoodAim(Swerve drivetrain){
+    public Command hoodAim(Cannon cannon){
         return run(() -> {
-            Distance distance = Meters.of(drivetrain.getShooterTranslation().getDistance(drivetrain.getTargetPosition()));
+            Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(cannon.getTarget()));
             Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
             setPosition(targetAngle);
         });
+    }
+
+    /**
+     * Aims the hood at the target
+     * @param cannon The cannon 
+     * @param target The target
+     * @return the command
+     */
+    public Command hoodAim(Cannon cannon, Target target){
+        return run(() -> {
+            Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(FieldConstants.getTargetData(target)));
+            Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
+            setPosition(targetAngle);
+        });
+    }
+
+    /**
+     * A command to set the posiiton of the hood
+     * @param angle the angle to set it at
+     * @return the command
+     */
+    public Command setPositionCommand(Angle angle) {
+        return new InstantCommand(() -> setPosition(angle));
     }
 }
