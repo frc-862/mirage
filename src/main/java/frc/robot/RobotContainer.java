@@ -78,7 +78,7 @@ public class RobotContainer {
         hood = new Hood();
         turret = new Turret(drivetrain);
         cannon = new Cannon(shooter, turret, hood, drivetrain, indexer);
-        new PhotonVision(drivetrain);
+        vision = new PhotonVision(drivetrain);
         
 
         if (Robot.isSimulation()) {
