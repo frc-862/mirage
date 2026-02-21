@@ -447,8 +447,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
-
-    public SwerveRequest PoseBasedAutoAlign(){
+    public SwerveRequest poseBasedAutoAlign(){
         Pose2d currentPose = drivetrain.getPose();
 
         pidX.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
