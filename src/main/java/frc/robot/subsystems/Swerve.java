@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
 

@@ -9,7 +9,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,8 +25,8 @@ import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
-import frc.robot.subsystems.Hood.HoodConstants;
 import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.Hood.HoodConstants;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.MapleSim;
@@ -150,7 +149,6 @@ public class RobotContainer {
         // TODO: Bind SmartClimb to Y, and bind manual climb to Joystick
 
             // new Trigger(driver::getBButton).onTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
-        } 
 
         // TODO: Bind A to OTF or something
 
@@ -169,9 +167,9 @@ public class RobotContainer {
 
             // new Trigger(copilot::getBButton).whileTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
         }
-    }
+    
 
-    private void configureNamedCommands(){
+    private void configureNamedCommands() {
         NamedCommands.registerCommand("LED_SHOOT", leds.enableStateWithTimeout(LED_STATES.SHOOT.id(), 2));
         NamedCommands.registerCommand("LED_COLLECT", leds.enableStateWithTimeout(LED_STATES.COLLECT.id(), 2));
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
