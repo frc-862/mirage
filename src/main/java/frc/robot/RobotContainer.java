@@ -77,6 +77,7 @@ public class RobotContainer {
             indexer = new Indexer();
             shooter = new Shooter();
             hood = new Hood();
+            climber = new Climber();
             turret = new Turret(drivetrain);
             new PhotonVision(drivetrain);
         }
@@ -135,8 +136,10 @@ public class RobotContainer {
             ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         /* Copilot */
-            if (Robot.isSimulation()) {
+        if (Robot.isSimulation()) {
             new Trigger(driver::getAButton).whileTrue(hood.run(() -> hood.setPosition(Degrees.of(60))));
+
+            new Trigger(copilot::getYButton).whileTrue(climber.l3Climb());
 
             new Trigger(driver::getYButton).onTrue(new InstantCommand(() -> { // VERY TEMPORARY
                 shooter.setVelocity(RotationsPerSecond.of(100));
@@ -165,9 +168,9 @@ public class RobotContainer {
 
             // Temp Bindings for testing purposes
 
-            new Trigger(copilot::getYButton).whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
-                .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
-                .finallyDo(shooter::stop));
+            // new Trigger(copilot::getYButton).whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
+            //     .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
+            //     .finallyDo(shooter::stop));
 
             new Trigger(copilot::getAButton).whileTrue(
                 shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
@@ -179,8 +182,6 @@ public class RobotContainer {
             new Trigger(copilot::getXButton).whileTrue(turret.runOnce(() -> turret.setAngle(Degrees.of(LightningShuffleboard.getDouble("Turret", "Setpoint", 0)))));
 
             new Trigger(copilot::getBButton).whileTrue(turret.aimWithTarget(drivetrain, Swerve.FieldConstants.getTargetData(Swerve.FieldConstants.GOAL_POSITION)));
-
-            new Trigger(copilot::getYButton).whileTrue(climber.climberCommand());
         }
     }
     private void configureNamedCommands(){

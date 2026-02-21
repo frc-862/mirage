@@ -34,4 +34,6 @@ public class RobotMap {
     public static final int COPILOT_PORT = 1;
 
     public static final int PDH = 21;
+    public static final int CLIMBER_FORWARD_LIMIT_SWITCH = 2;
+    public static final int CLIMBER_REVERSE_LIMIT_SWITCH = 3;
 }
