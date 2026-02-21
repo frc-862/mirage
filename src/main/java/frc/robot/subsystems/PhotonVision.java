@@ -4,83 +4,42 @@
 
 package frc.robot.subsystems;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.Utils;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import static edu.wpi.first.units.Units.Inches;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.util.shuffleboard.LightningShuffleboard;
 
-public class PhotonVision extends SubsystemBase {
-
-    public class VisionConstants {
-
-        public static final List<Short> TAG_IGNORE_LIST = List.of();
-
-        public static final AprilTagFieldLayout DEFAULT_TAG_LAYOUT = AprilTagFieldLayout
-                .loadField(AprilTagFields.k2026RebuiltWelded);
-
-        public static final double POSE_AMBIGUITY_TOLERANCE = 1;
-        public static final double TAG_DISTANCE_TOLERANCE = 10;
-
-        public record CameraConstant(String name, Transform3d offset) {};
-
-        public static final CameraConstant[] CAMERA_CONSTANTS = new CameraConstant[] {
-            new CameraConstant("leftCam",
-                new Transform3d(
-                    Inches.of(11.25),   // forward
-                    Inches.of(11.25),   // LEFT
-                    Inches.of(10.5),    // up
-                    new Rotation3d(
-                        0.0,
-                        Math.toRadians(-15),  // pitch up
-                        Math.toRadians(45)    // yaw outward (left)
-                    )
-                )
-            ),
-        };
-
-
-    }
-
-    private record VisionInfo(PhotonPipelineResult result, EstimatedRobotPose pose) {};
+public class PhotonVision extends SubsystemBase implements AutoCloseable {
+    // Records to store specific groups of data
+    private record VisionInfo(double timestamp, double ambiguity, Pose2d pose) {};
 
     // The drivetrain to add vision measurments
     Swerve drivetrain;
 
-    // mac
-    MacMini mac;
-
-    // Atomic
+    // An atomic refrence to store our newley recieved pose, thread safe
     AtomicReference<VisionInfo> pose;
 
-    // executor
-    ScheduledExecutorService executor1;
-    ExecutorService executor2;
+    // Stores the time offset for the difference in time between mac and rio
+    double macTimeOffset = 0;
 
+    // A datagram socket which we connect to to recieve packets from the mac
+    DatagramSocket socket;
+
+    // Thread to run code recieve vision data from the socket
+    Thread receiveThread;
 
     /** Creates a new PhotonVision.
      * 
@@ -88,228 +47,109 @@ public class PhotonVision extends SubsystemBase {
      */
     public PhotonVision(Swerve drivetrain) {
         this.drivetrain = drivetrain;
-        mac = new MacMini();
-
-        executor1 = Executors.newSingleThreadScheduledExecutor();
-        executor2 = Executors.newSingleThreadExecutor();
-
         pose = new AtomicReference<>(null);
 
-        LightningShuffleboard.setPose2d("vision", "vision_pose", new Pose2d());
+        try {
+            // Bind to the port
+            socket = new DatagramSocket(12345,InetAddress.getByName("10.8.62.2")); 
+        } catch (SocketException e) {
+            log("*** ERROR CREATING DATAGRAM SOCKET ***" + e);
+        } catch (UnknownHostException e) {
+            log("***ERROR CREATING SOCKET -- HOST DOES NOT EXIST***");
+        }
 
-        executor1.schedule(() -> {
-            while (true) { 
+        // Start a separate thread to receive packets
+        receiveThread = new Thread(() -> {
+            // Run while the thread is still valid
+            while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    VisionInfo result = executor2.submit(() -> mac.getEstimatedPose()).get();
-                    if (result != null) {
-                        pose.set(result);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    // Create a new packet to fill with recieved data
+                    byte[] receiveData = new byte[40];
+                    var receivePacket = new DatagramPacket(receiveData, receiveData.length, InetAddress.getByName("10.8.62.2"), 12345);
+                    socket.receive(receivePacket); // Blocks this thread, not the robot
+                    
+                    // Fresh vision data :)
+                    VisionInfo data = parseBinaryPacket(receivePacket);
+
+                    // Store data atomically
+                    pose.set(data);
+                    
+                } catch (IllegalArgumentException e) {
+                    log("Thread Error: " + e.getMessage());
+                } catch (IOException e) {
+                    log("Error recieving packet");
                 }
-                }
-        }, 0, TimeUnit.MILLISECONDS);
+            }
+        });
+
+        receiveThread.start();
     }
- 
+    
     @Override
     public void periodic() {
-        if (pose.get() != null) {
+        LightningShuffleboard.setDouble("Vision", "robot_time", Utils.getCurrentTimeSeconds());
+
+        if (pose.get() != null && pose.get().pose != null && pose.get().ambiguity < 1 && pose.get().timestamp > 0) {
+            // Take the value from the new post and then set it to null
             VisionInfo updatedPose = pose.getAndSet(null);
 
-            double bestTagAmbiguity = updatedPose.result.getBestTarget().poseAmbiguity;
-             LightningShuffleboard.setPose2d("vision", "vision_pose", updatedPose.pose.estimatedPose.toPose2d());
+            // If the time offset has not been set yet, calculate it
+            if (macTimeOffset == 0) {
+                macTimeOffset = Utils.getCurrentTimeSeconds() - updatedPose.timestamp;
+            }
+
+            // Calculate the standard deviation to use-- small multiplier so not too low
+            double trust = updatedPose.ambiguity() * 1.2;
+
+            LightningShuffleboard.setPose2d("Vision", "updated pose", updatedPose.pose);
+            LightningShuffleboard.setDouble("Vision", "mac time offset", macTimeOffset);
+            
+            // Adds our estimated pose from vision to our drivetrain's pose, fuses with odometry
             drivetrain.addVisionMeasurement(
-                updatedPose.pose.estimatedPose.toPose2d(), 
-                Utils.fpgaToCurrentTime(updatedPose.pose.timestampSeconds), 
-                VecBuilder.fill(bestTagAmbiguity*1.7, bestTagAmbiguity*1.7, bestTagAmbiguity*1.7));
-            // log("Added vision measurment");
-        }
+                updatedPose.pose(), 
+                updatedPose.timestamp + macTimeOffset, 
+                VecBuilder.fill(trust, trust, trust)
+            );
+        }     
     }
 
-    // -------------------------------------
-
-    private class MacMini {
-        // Camera info
-        private record CameraInfo(PhotonCamera camera, PhotonPoseEstimator poseEstimator) {}; 
-        // private record VisionInfo(PhotonPipelineResult result, EstimatedRobotPose pose) {};
-
-        // Cameras
-        CameraInfo[] cameras;
-
-        MacMini() {            
-            this.cameras = new CameraInfo[VisionConstants.CAMERA_CONSTANTS.length];
-            
-            // Create the cameras
-            for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
-                @SuppressWarnings("unused")
-                AprilTagFieldLayout fieldLayout;
-
-                try {
-                    // Get the path to the field from the deploy directory
-                    Path fieldPath = Filesystem.getDeployDirectory()
-                        .toPath()
-                        .resolve("field0120.json");
-
-                    fieldLayout = new AprilTagFieldLayout(fieldPath);
-                } catch (Exception e) {
-                    // Just use the default field if we can't get it
-                    DataLogManager.log("[PHOTON VISION] Can't load field resource-- using default field");
-                    fieldLayout = VisionConstants.DEFAULT_TAG_LAYOUT;
-                }
-
-                // Get the pose estimator
-                PhotonPoseEstimator poseEstimator =
-                        new PhotonPoseEstimator(
-                                AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded),
-                                VisionConstants.CAMERA_CONSTANTS[i].offset()
-                        );
-                    
-                // Create the camera using the name from our constant
-                PhotonCamera camera = new PhotonCamera(VisionConstants.CAMERA_CONSTANTS[i].name());
-
-                // Create the camera
-                this.cameras[i] = new CameraInfo(camera, poseEstimator);
-            }
-
+    /**
+     * Unpacks a datagram packet into the Unpacked Data object
+     * 
+     * @param packet The packet to unpack
+     * @return Unpacked Data, Pose, ambiguity, timestamp, and a counter
+     */
+    private VisionInfo parseBinaryPacket(DatagramPacket packet) {
+        byte[] data = packet.getData();
+        
+        // Safety check for length
+        if (packet.getLength() < 40) {
+            throw new IllegalArgumentException("Packet too small");
         }
 
-        public VisionInfo getEstimatedPose() {
-            if (cameras == null || cameras.length == 0) {
-                return null;
-            }
+        // Wrap the data in a ByteBuffer
+        ByteBuffer buffer = ByteBuffer.wrap(data, 0, 40);
 
-            try {
-                VisionInfo[] poses = new VisionInfo[VisionConstants.CAMERA_CONSTANTS.length];
-                
-                for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
-                    poses[i] = getVisionPose(cameras[i]);
-                }
+        // Read doubles in the same order they were packed
+        double x = buffer.getDouble();
+        double y = buffer.getDouble();
+        double rotRadians = buffer.getDouble();
+        double ambiguity = buffer.getDouble();
+        double timestamp = buffer.getDouble();
 
-                return getBestPose(poses);
-            } catch (Exception e) {
-                // log("Failed to get pose");
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        // Gets the latest result from multiple results
-        private PhotonPipelineResult getLatestResult(List<PhotonPipelineResult> results) {
-            int latestResultIndex = 0;
-
-            for (int i = 0; i < results.size(); i++) {
-                if (results.get(i).getTimestampSeconds() > results.get(latestResultIndex).getTimestampSeconds()) {
-                    latestResultIndex = i;
-                }
-            }
-
-            PhotonPipelineResult latestResult = results.get(latestResultIndex);
-
-            return latestResult;
-        }
-
-        // This will get the best pose
-        private VisionInfo getBestPose(VisionInfo[] visionInfos) {
-            VisionInfo bestPose = null;
-
-            for (VisionInfo info : visionInfos) {
-                if (info == null) {
-                    continue;
-                }
-                
-                if (bestPose == null) {
-                    bestPose = info;
-                    continue;
-                }
-
-                if (bestPose.result().getBestTarget().poseAmbiguity > info.result().getBestTarget().poseAmbiguity) {
-                    bestPose = info;
-                }
-            }
-            // log("Got best pose");
-            return bestPose;
-        }
-
-        private VisionInfo getVisionPose(CameraInfo cameraInfo) {
-            PhotonCamera camera = cameraInfo.camera;
-
-            List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-
-            // If theres no results just skip this iteration
-            if (results.isEmpty()) {
-                // log(cameraInfo.camera.getName() + "'s Result is null");
-                return null;
-            }
-            
-            // Get the latest result of all thme
-            PhotonPipelineResult latestResult = getLatestResult(results);
-
-            // Filter out the targets
-            List<PhotonTrackedTarget> filteredTargets = new ArrayList<>(latestResult.getTargets());
-            filteredTargets.removeIf((tag) -> VisionConstants.TAG_IGNORE_LIST.contains((short) tag.getFiducialId()));
-
-            // Scrap it if the new result has no target
-            if (filteredTargets.isEmpty()) {
-                return null;
-            }
-
-            PhotonPipelineResult useableResult = latestResult;
-
-            // Create a new result to use -- Using the same metadata as the original latest result
-            if (!latestResult.getTargets().stream().allMatch((target) -> filteredTargets.contains(target))) {
-                useableResult = new PhotonPipelineResult(
-                    latestResult.metadata,
-                    filteredTargets,
-                    Optional.empty()
-                );
-            }
-
-            // If pose ambiguity is to high well scrap the result
-            boolean highPoseAmbiguity = latestResult.getBestTarget().getPoseAmbiguity() > VisionConstants.POSE_AMBIGUITY_TOLERANCE;
-
-            // If the best tag's distance is too far than scrap the result
-            double bestDistance = useableResult.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
-            boolean highDistance = bestDistance > VisionConstants.TAG_DISTANCE_TOLERANCE;
-
-            // If we have high ambiguity or high distance then just return back a null/"empty" value
-            if (highPoseAmbiguity || highDistance) {
-                return null;
-            }
-            
-            // Get the estimated position
-            Optional<EstimatedRobotPose> poseOpt = cameraInfo.poseEstimator().estimateCoprocMultiTagPose(useableResult);
-
-            // If the estimated position is there run this code
-            if (poseOpt.isPresent()) {
-                // The pose
-                EstimatedRobotPose pose = poseOpt.get();
-                
-                // log("Used multitag result");
-
-                // Add the vision measurment
-                return new VisionInfo(useableResult, pose);
-            } else {
-                // Get the estimated position
-                poseOpt = cameraInfo.poseEstimator().estimateLowestAmbiguityPose(useableResult);
-                
-                if (poseOpt.isPresent()) {
-                    // The pose
-                    EstimatedRobotPose pose = poseOpt.get();
-
-                    // log("Used singletag result");
-
-                    // Add the vision measurment
-                    return new VisionInfo(useableResult, pose);
-                }
-            }
-
-            // We have no pose if were here
-            return null;
-        }
+        // Construct a new pose using the unpacked data
+        Pose2d newPose = new Pose2d(x, y, new Rotation2d(rotRadians));
+        
+        return new VisionInfo(timestamp, ambiguity, newPose);
     }
 
-    // im lazy
-    // private void log(String message) {
-    //     DataLogManager.log("[PHOTON VISION]" + message);
-    // }
+    // Logs a message with the [PHOTON VISION] tag in front 
+    private void log(String message) {
+        DataLogManager.log("[PHOTON VISION] " + message);
+    }
+
+    @Override
+    public void close() throws Exception {
+        socket.close();
+    }
 }
