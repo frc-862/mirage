@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -24,7 +26,8 @@ public class Cannon extends SubsystemBase {
     public class CannonConstants { 
         public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(3.275, 3.275);
 
-        public record CandShotValue(Angle hoodAngle, AngularVelocity shooterVelocity){};
+        public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
+
 
         // TODO: ADD CAND SHOT VALUES HERE TO CREATE CAND SHOTS USING THE NEW BETTER METHOD :)
     }
@@ -110,8 +113,11 @@ public class Cannon extends SubsystemBase {
      * @param shooterVelocity The velocity to set the shooter to
      * @return The command
      */
-    public Command setCannonValues(Angle hoodAngle, AngularVelocity shooterVelocity) {
-        return new ParallelCommandGroup(shooter.shootCommand(shooterVelocity), hood.setPositionCommand(hoodAngle));     
+    public Command createCannonCommand(Angle hoodAngle, AngularVelocity shooterVelocity) {
+        return new ParallelCommandGroup(
+            shooter.shootCommand(shooterVelocity), 
+            hood.setPositionCommand(hoodAngle)
+        );     
     }
 
     /**
@@ -121,12 +127,30 @@ public class Cannon extends SubsystemBase {
      * @param shooterVelocity the velocity to set the shooter to 
      * @return The command
      */
-    public Command setCannonValues(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity) {
+    public Command createCannonCommand(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity) {
         return new ParallelCommandGroup(
             shooter.shootCommand(shooterVelocity), 
             turret.setAngleCommand(turretAngle), 
             hood.setPositionCommand(hoodAngle)
         );
+    }
+
+    /**
+     * Creates a cand shot command that uses only hood and shooter
+     * @param value The cand shot value
+     * @return The command
+     */
+    public Command createCandShotCommand(CannonConstants.CandShot value) {
+        return createCannonCommand(Degrees.of(0), value.hoodAngle, value.shooterVelocity);
+    }
+
+    /**
+     * Creates a cand shot command that also uses turret
+     * @param value The cand shot to use
+     * @return The command
+     */
+    public Command createTurretCandShotCommand(CannonConstants.CandShot value) {
+        return createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity);
     }
 
     /**
