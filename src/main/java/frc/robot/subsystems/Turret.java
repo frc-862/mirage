@@ -34,8 +34,11 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.Target;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -304,12 +307,12 @@ public class Turret extends SubsystemBase {
 
         return Degrees.of(targetDeg);
     }
-
-    public Command aimWithTarget(Swerve drivetrain, Translation2d target) {
+    
+    public Command turretAim(Target target) {
         return run(() -> {
             Pose2d robotPose = drivetrain.getPose();
 
-            Translation2d delta = target.minus(robotPose.getTranslation());
+            Translation2d delta = FieldConstants.getTargetData(target).minus(robotPose.getTranslation());
 
             Angle fieldAngle = delta.getAngle().getMeasure();
 
@@ -319,11 +322,11 @@ public class Turret extends SubsystemBase {
         });
     }
 
-    public Command aimWithoutTarget(Swerve drivetrain) {
+    public Command turretAim(Cannon cannon) {
         return run(() -> {
             Pose2d robotPose = drivetrain.getPose();
 
-            Translation2d target = drivetrain.getTargetPosition();
+            Translation2d target = cannon.getTarget();
 
             Translation2d delta = target.minus(robotPose.getTranslation());
 
@@ -334,5 +337,14 @@ public class Turret extends SubsystemBase {
 
             setAngle(turretAngle);
         });
+    }
+
+    /**
+     * Returns a command to set the angle of the turret
+     * @param angle The angle to set
+     * @return The command
+     */
+    public Command setAngleCommand(Angle angle) {
+        return new InstantCommand(() -> setAngle(angle));
     }
 }

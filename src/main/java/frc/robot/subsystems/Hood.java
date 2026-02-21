@@ -40,6 +40,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.Target;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -139,7 +141,6 @@ public class Hood extends SubsystemBase {
         motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
 
         motor.applyConfig(motorConfig);
-
 
 
         if (Robot.isSimulation()) {
@@ -305,23 +306,37 @@ public class Hood extends SubsystemBase {
 
     /**
      * keeps the hood pointed at the target of the Robot.
-     * @param drivetrain
+     * @param cannon
      * @return Command for repositioning the hood.
      */
-    public Command hoodAim(Swerve drivetrain){
+    public Command hoodAim(Cannon cannon){
         return run(() -> {
-            Distance distance = Meters.of(drivetrain.getShooterTranslation().getDistance(drivetrain.getTargetPosition()));
+            Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(cannon.getTarget()));
             Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
             setPosition(targetAngle);
         });
     }
 
     /**
-     * Stows the hood to the max angle for trench
-     * Has to be separate because it cannot end automatically
-     * @return command
+     * Aims the hood at the target
+     * @param cannon The cannon 
+     * @param target The target
+     * @return the command
      */
-    public Command hoodStowCommand() {
-        return startEnd(() -> motor.setControl(request.withPosition(HoodConstants.MAX_ANGLE)), this::stop);
+    public Command hoodAim(Cannon cannon, Target target){
+        return run(() -> {
+            Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(FieldConstants.getTargetData(target)));
+            Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
+            setPosition(targetAngle);
+        });
+    }
+
+    /**
+     * A command to set the posiiton of the hood
+     * @param angle the angle to set it at
+     * @return the command
+     */
+    public Command setPositionCommand(Angle angle) {
+        return new InstantCommand(() -> setPosition(angle));
     }
 }
