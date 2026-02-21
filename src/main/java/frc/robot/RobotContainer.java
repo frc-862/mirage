@@ -186,6 +186,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("SCORE_PRELOADED", new InstantCommand()); //Temporary Command. Planning on using smart shoot.
         NamedCommands.registerCommand("MOVE_TO_TOWER", new PoseBasedAutoAlign(drivetrain, () -> FieldConstants.TOWER_POSITION.getPose()));
         NamedCommands.registerCommand("SHOOT", new ShooterAim(shooter, drivetrain, hood, turret, indexer));
+        NamedCommands.registerCommand("COLLECT", collector.collectCommand(CollectorConstants.COLLECT_POWER));
 
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
