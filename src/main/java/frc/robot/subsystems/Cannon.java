@@ -12,6 +12,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
@@ -43,6 +44,7 @@ public class Cannon extends SubsystemBase {
      * @param shooter shooter
      * @param turret turret
      * @param hood hood 
+     * @param indexer indexer
      * @param drivetrain serve
      */
     public Cannon(Shooter shooter, Turret turret, Hood hood, Swerve drivetrain, Indexer indexer) {
@@ -96,7 +98,7 @@ public class Cannon extends SubsystemBase {
      * @return The distance
      */
     public Distance getTargetDistance() {
-        return Meters.of(getTarget().minus(drivetrain.getPose().getTranslation()).getNorm());
+        return Meters.of(getTarget().minus(getShooterTranslation()).getNorm());
     }
 
 
@@ -109,8 +111,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command setCannonValues(Angle hoodAngle, AngularVelocity shooterVelocity) {
-        return shooter.shootCommand(shooterVelocity)
-            .alongWith(hood.setPositionCommand(hoodAngle));
+        return new ParallelCommandGroup(shooter.shootCommand(shooterVelocity), hood.setPositionCommand(hoodAngle));     
     }
 
     /**
@@ -121,9 +122,11 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command setCannonValues(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity) {
-        return shooter.shootCommand(shooterVelocity)
-            .alongWith(turret.setAngleCommand(turretAngle))
-            .alongWith(hood.setPositionCommand(hoodAngle));
+        return new ParallelCommandGroup(
+            shooter.shootCommand(shooterVelocity), 
+            turret.setAngleCommand(turretAngle), 
+            hood.setPositionCommand(hoodAngle)
+        );
     }
 
     /**
