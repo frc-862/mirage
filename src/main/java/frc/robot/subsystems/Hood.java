@@ -100,8 +100,6 @@ public class Hood extends SubsystemBase {
     private MechanismRoot2d root2d;
     private Mechanism2d mech2d;
 
-    private Swerve drivetrain;
-
     /** Creates a new Hood Subsystem. */
     public Hood() {
         motor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS, HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,

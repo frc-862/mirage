@@ -15,7 +15,9 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
 import frc.util.AllianceHelpers;
@@ -192,14 +194,13 @@ public class Cannon extends SubsystemBase {
      * @return The command to run
      */
     public Command smartShoot() {
-        return runOnce(
-            () -> shooter.setVelocity(Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
-        ).andThen(runEnd(() -> {
-            if (turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget()) {
-                indexer.setPower(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER);
-            } else {
-                indexer.stop();
-            }
-        }, () -> shooter.coast()));
+        return new SequentialCommandGroup(
+            shooter.shootCommand(Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance())),
+            new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget()),
+            indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
+        ).finallyDo((end) -> {
+            shooter.setPower(Shooter.ShooterConstants.COAST_DC);
+            indexer.stop();
+        });
     }
 }
