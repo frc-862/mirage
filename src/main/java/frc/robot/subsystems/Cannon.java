@@ -17,6 +17,16 @@ import frc.robot.constants.FieldConstants.Target;
 import frc.util.AllianceHelpers;
 
 public class Cannon extends SubsystemBase {
+    // ======== CANNON CONSTANTS ========
+
+    public static class CannonConstants {
+        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d();
+
+        public static final record candShotValue(Angle hoodAngle, AngularVelocity shooterVelocity){};
+
+        // TODO: ADD CAND SHOT VALUES HERE TO CREATE CAND SHOTS USING THE NEW BETTER METHOD :)
+    }
+
     // Subsystems
     private final Shooter shooter;
     private final Turret turret;
@@ -87,10 +97,8 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command setCannonValues(Angle hoodAngle, AngularVelocity shooterVelocity) {
-        return startEnd(() -> {
-            shooter.shootCommand(shooterVelocity);
-            hood.setPosition(hoodAngle);
-        }, () -> shooter.coast());
+        return shooter.shootCommand(shooterVelocity)
+            .alongWith(hood.setPositionCommand(hoodAngle));
     }
 
     /**
@@ -98,11 +106,9 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command setCannonValues(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity) {
-        return startEnd(() -> {
-            shooter.shootCommand(shooterVelocity);
-            hood.setPosition(hoodAngle);
-            turret.setAngle(turretAngle);
-        }, () -> shooter.coast());
+        return shooter.shootCommand(shooterVelocity)
+            .alongWith(turret.setAngleCommand(turretAngle))
+            .alongWith(hood.setPositionCommand(hoodAngle));
     }
 
     /**
@@ -110,7 +116,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command hoodAim() {
-        return hood.hoodAim(this);
+        return hood.hoodAim(this) ;
     }
 
     /**
@@ -149,17 +155,9 @@ public class Cannon extends SubsystemBase {
         ).andThen(runEnd(() -> {
             if (turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget()) {
                 indexer.setPower(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER);
+            } else {
+                indexer.stop();
             }
         }, () -> shooter.coast()));
-    }
-
-    // ======== CANNON CONSTANTS ========
-
-    public static class CannonConstants {
-        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d();
-
-        public static final record candShotValues(Angle hoodAngle){};
-
-        // TODO: ADD CAND SHOT VALUES HERE TO CREATE CAND SHOTS USING THE NEW BETTER METHOD :))))))
     }
 }

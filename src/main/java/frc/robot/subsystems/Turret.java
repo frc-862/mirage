@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.FieldConstants;
@@ -336,5 +337,14 @@ public class Turret extends SubsystemBase {
 
             setAngle(turretAngle);
         });
+    }
+
+    /**
+     * Returns a command to set the angle of the turret
+     * @param angle The angle to set
+     * @return The command
+     */
+    public Command setAngleCommand(Angle angle) {
+        return new InstantCommand(() -> setAngle(angle));
     }
 }

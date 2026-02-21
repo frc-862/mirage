@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -312,5 +313,14 @@ public class Hood extends SubsystemBase {
             Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
             setPosition(targetAngle);
         });
+    }
+
+    /**
+     * A command to set the posiiton of the hood
+     * @param angle the angle to set it at
+     * @return
+     */
+    public Command setPositionCommand(Angle angle) {
+        return new InstantCommand(() -> setPosition(angle));
     }
 }
