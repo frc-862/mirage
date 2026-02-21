@@ -60,7 +60,7 @@ public class RobotContainer {
     private final Cannon cannon;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
-
+    private final PhotonVision vision;
     private final Telemetry logger;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
