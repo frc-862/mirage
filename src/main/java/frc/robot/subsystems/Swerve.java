@@ -385,7 +385,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public boolean isNearTrench() {
-        Translation2d shooterTranslation2d = CannonConstants.SHOOTER_TRANSLATION;
+        Translation2d shooterTranslation2d = getPose().getTranslation();
         boolean isNearTrench = FieldConstants.LEFT_BLUE_TRENCH.contains(shooterTranslation2d) ||
             FieldConstants.RIGHT_BLUE_TRENCH.contains(shooterTranslation2d) ||
             FieldConstants.LEFT_RED_TRENCH.contains(shooterTranslation2d) ||

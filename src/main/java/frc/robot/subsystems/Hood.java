@@ -100,7 +100,7 @@ public class Hood extends SubsystemBase {
     private MechanismLigament2d ligament;
     private MechanismRoot2d root2d;
     private Mechanism2d mech2d;
-    private Boolean isHoodRetracted = false;
+    public boolean isHoodRetracted = false;
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
