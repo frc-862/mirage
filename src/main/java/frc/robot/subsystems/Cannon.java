@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.units.measure.Angle;
@@ -19,8 +20,8 @@ import frc.util.AllianceHelpers;
 public class Cannon extends SubsystemBase {
     // ======== CANNON CONSTANTS ========
 
-    public class CannonConstants {
-        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d();
+    public class CannonConstants { 
+        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(3.275, 3.275);
 
         public record CandShotValue(Angle hoodAngle, AngularVelocity shooterVelocity){};
 
