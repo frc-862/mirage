@@ -48,7 +48,7 @@ public class Collector extends SubsystemBase {
         public static final Current STATOR_LIMIT = Amps.of(80); // temp
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean BRAKE = true; // temp
-        public static final double  COLLECT_POWER = 1d;
+        public static final double COLLECT_POWER = 1d;
 
         public static final MomentOfInertia COLLECTOR_MOI = KilogramSquareMeters.of(0.001); //temp 
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
