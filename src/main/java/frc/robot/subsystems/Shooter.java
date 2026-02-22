@@ -245,7 +245,7 @@ public class Shooter extends SubsystemBase {
 
     /**
      * velocity control command for shooter
-     * @param velocity
+     * @param velocity the velociyt to set the shooter as
      * @return the command for running the shooter
      */
     public Command shootCommand(AngularVelocity velocity) {
@@ -254,7 +254,7 @@ public class Shooter extends SubsystemBase {
 
     /**
      * velocity control command for shooter
-     * @param velocitySupplier
+     * @param velocitySupplier the supplier for velocity
      * @return the command for running the shooter
      */
     public Command shootCommand(Supplier<AngularVelocity> velocitySupplier) {
