@@ -301,7 +301,7 @@ public class Turret extends SubsystemBase {
 
         if (error > 180) {
             targetDeg -= 360;
-        } else if (error < -180) { // TODO: use constants and wpilib units
+        } else if (error < -180) {
             targetDeg += 360;
         }
 
@@ -310,7 +310,7 @@ public class Turret extends SubsystemBase {
     
     public Command turretAim(Target target) {
         return run(() -> {
-            Pose2d robotPose = drivetrain.getPose(); // TODO: account for offset
+            Pose2d robotPose = drivetrain.getPose();
 
             Translation2d delta = FieldConstants.getTargetData(target).minus(robotPose.getTranslation());
 
