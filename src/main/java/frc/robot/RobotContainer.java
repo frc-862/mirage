@@ -144,16 +144,14 @@ public class RobotContainer {
 
         new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
             collector.pivotCommand(CollectorConstants.DEPLOY_ANGLE));
+        new Trigger(copilot::getYButton).whileTrue(collector.pivotCommand(CollectorConstants.STOWED_ANGLE));
 
-        // TODO: Bind SmartClimb to Y, and bind manual climb to Joystick
-
-            // new Trigger(driver::getBButton).onTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
+        // TODO: Bind bind manual climb to Joystick and smart climb to Start Button
 
         // TODO: Bind A to OTF or something
 
         // TODO: Bind B to Smart Shoot
 
-        new Trigger(copilot::getStartButton).whileTrue(collector.pivotCommand(CollectorConstants.STOWED_ANGLE));
         new Trigger(copilot::getBackButton).whileTrue(turret.idle().beforeStarting(turret::stop)); // disable turret
 
         // Temp Bindings for testing purposes
@@ -163,9 +161,7 @@ public class RobotContainer {
             .whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
             .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
             .finallyDo(shooter::stop));
-
-            // new Trigger(copilot::getBButton).whileTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
-        }
+    }
     
 
     private void configureNamedCommands() {
