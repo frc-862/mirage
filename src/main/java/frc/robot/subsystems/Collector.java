@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.function.DoubleSupplier;
 
+import javax.swing.undo.StateEdit;
+
 import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -217,6 +219,11 @@ public class Collector extends SubsystemBase {
         setPivotAngle(position);
     }
 
+    public void stowCollector(double power, Angle position) {
+        setCollectorPower(power);
+        setPivotAngle(position);
+    }
+
     /**
      * Stops all movement to the collector motor
      */
@@ -259,8 +266,12 @@ public class Collector extends SubsystemBase {
      * @param position
      * @return the command for running the collector
      */
-    public Command collectCommand(double power, Angle position) {
+    public Command collectDeployCommand(double power, Angle position) {
         return new StartEndCommand(() -> deployCollector(power, position), () -> stopCollector(), this);
+    }
+
+    public Command colectStowCommand(double power, Angle position) {
+        return new StartEndCommand(() -> stowCollector(power, position), () -> stopCollector(), this);
     }
 
     public Command collectCommand(double power) {
