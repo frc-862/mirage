@@ -26,11 +26,8 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
-<<<<<<< 277-autons
 import frc.robot.constants.FieldConstants;
-=======
 import frc.robot.subsystems.Cannon;
->>>>>>> main
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
@@ -63,7 +60,6 @@ public class RobotContainer {
     private final Turret turret;
     private final Hood hood;
     private final Shooter shooter;
-    private final Cannon cannon;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
     @SuppressWarnings("unused")
@@ -90,7 +86,6 @@ public class RobotContainer {
         turret = new Turret(drivetrain);
         cannon = new Cannon(shooter, turret, hood, drivetrain, indexer);
         vision = new PhotonVision(drivetrain);
-        cannon = new Cannon(shooter, turret, hood, drivetrain, indexer);
         
 
         if (Robot.isSimulation()) {
