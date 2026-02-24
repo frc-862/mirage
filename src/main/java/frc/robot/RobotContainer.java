@@ -10,6 +10,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
+
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -24,7 +26,11 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
+<<<<<<< 277-autons
 import frc.robot.constants.FieldConstants;
+=======
+import frc.robot.subsystems.Cannon;
+>>>>>>> main
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
@@ -57,8 +63,10 @@ public class RobotContainer {
     private final Turret turret;
     private final Hood hood;
     private final Shooter shooter;
+    private final Cannon cannon;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
+    @SuppressWarnings("unused")
     private final PhotonVision vision;
     private final Telemetry logger;
     private final Cannon cannon;
@@ -80,6 +88,7 @@ public class RobotContainer {
         shooter = new Shooter();
         hood = new Hood();
         turret = new Turret(drivetrain);
+        cannon = new Cannon(shooter, turret, hood, drivetrain, indexer);
         vision = new PhotonVision(drivetrain);
         cannon = new Cannon(shooter, turret, hood, drivetrain, indexer);
         
@@ -141,6 +150,9 @@ public class RobotContainer {
                     DriveConstants.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
                     DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW) 
                     * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
+
+        new Trigger(driver::getAButton).whileTrue(cannon.run(() -> // temp for interp map tuning
+            LightningShuffleboard.setDouble("Cannon", "Target Distance", cannon.getTargetDistance().in(Meters))));
 
 
         /* Copilot */

@@ -211,7 +211,7 @@ public class Turret extends SubsystemBase {
      * @param angle sets the angle to the motor of the turret
      */
     public void setAngle(Angle angle) {
-        Angle wrappedPosition = ThunderUnits.inputModulus(optimizeTurretAngle(angle), Degrees.of(-180), Degrees.of(180));
+        Angle wrappedPosition = ThunderUnits.inputModulus(optimizeTurretAngle(angle), Degrees.of(-180), Degrees.of(180)); // TODO: fix
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed) { // only allow position control if turret has been zeroed but store to apply when zeroed
