@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -25,8 +26,9 @@ public class Cannon extends SubsystemBase {
     // ======== CANNON CONSTANTS ========
 
     public class CannonConstants { 
-        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(3.275, 3.275);
         public static final Distance SMART_SHOOT_MAX_DISTANCE = Meters.of(1); //temp
+        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(3.275), Inches.of(-3.275));
+        public static final Distance SHOOTER_HEIGHT = Inches.of(18);
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
@@ -42,7 +44,7 @@ public class Cannon extends SubsystemBase {
     private Indexer indexer;
 
     // Target storage
-    private Translation2d storedTarget;
+    private Translation2d storedTarget = new Translation2d();
 
     /**
      * Creates a new cannon
@@ -141,7 +143,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command createCandShotCommand(CannonConstants.CandShot value) {
-        return createCannonCommand(Degrees.of(0), value.hoodAngle, value.shooterVelocity);
+        return createCannonCommand(Degrees.of(0d), value.hoodAngle, value.shooterVelocity);
     }
 
     /**
