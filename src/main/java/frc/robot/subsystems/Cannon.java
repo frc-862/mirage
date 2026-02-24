@@ -41,7 +41,7 @@ public class Cannon extends SubsystemBase {
     private Indexer indexer;
 
     // Target storage
-    private Translation2d storedTarget;
+    private Translation2d storedTarget = new Translation2d();
 
     /**
      * Creates a new cannon
