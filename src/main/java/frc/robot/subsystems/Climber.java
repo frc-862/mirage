@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.L3ClimbCommand;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
@@ -117,18 +118,12 @@ public class Climber extends SubsystemBase {
     
     /**
      * The command extends the climber until it hits the forward limit switch, then reverses until the climber hits the reverse limit switch.
+     * Repeats 3 times for a level 3 climb.
      * @return the level 3 climb command
      */
-    public Command l3Climb(){
-        return new SequentialCommandGroup(
-            new RunCommand(() -> setDutyCycle(1d)).until(() -> getForwardLimitSwitchState()),
-            new RunCommand(() -> setDutyCycle(-1d)).until(() -> getReverseLimitSwitchState()),
-            new RunCommand(() -> setDutyCycle(1d)).until(() -> getForwardLimitSwitchState()),
-            new RunCommand(() -> setDutyCycle(-1d)).until(() -> getReverseLimitSwitchState()),
-            new RunCommand(() -> setDutyCycle(1d)).until(() -> getForwardLimitSwitchState()),
-            new RunCommand(() -> setDutyCycle(-1d)).until(() -> getReverseLimitSwitchState()))
-            .finallyDo(this::stop);
-        }
+    public Command l3Climb() {
+        return new L3ClimbCommand(this);
+    }
 
     /**
      * The command extends the climber once until it hits the forward limit switch and then reverses for a little bit
