@@ -48,11 +48,6 @@ public class Robot extends TimedRobot {
         
         // No Live Window for now
         LiveWindow.disableAllTelemetry();
-
-        if (DriverStation.isFMSAttached()) {
-            totalCurrentEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/TotalCurrent");
-            voltageEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/Voltage");
-        }
     }
 
     @Override
@@ -60,6 +55,12 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
 
         if (DriverStation.isFMSAttached()) {
+
+            if (totalCurrentEntry == null) {
+                totalCurrentEntry = new DoubleLogEntry(DataLogManager.getLog(), "PDH/TotalCurrent");
+                voltageEntry = new DoubleLogEntry(DataLogManager.getLog(), "PDH/Voltage");
+            }
+
             totalCurrentEntry.append(getContainer().pdh.getTotalCurrent());
             voltageEntry.append(getContainer().pdh.getVoltage());
         } else {
