@@ -51,7 +51,7 @@ import frc.util.units.ThunderUnits;
 public class Hood extends SubsystemBase {
 
     public class HoodConstants {
-        public static final boolean INVERTED = true; // temp
+        public static final boolean INVERTED = false; // temp
         public static final Current STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean BRAKE = true; // temp
 
@@ -62,9 +62,13 @@ public class Hood extends SubsystemBase {
 
         public static final ThunderMap<Distance, Angle> HOOD_MAP = new ThunderMap<>() {
             {
-                put(Meters.of(2d), Degrees.of(80));
-                put(Meters.of(4d), Degrees.of(60));
-                put(Meters.of(8d), Degrees.of(50));
+                put(Meters.of(1.902d), Degrees.of(80d));
+                put(Meters.of(2.866), Degrees.of(77d));
+                put(Meters.of(3.39d), Degrees.of(75d));
+                put(Meters.of(4.344), Degrees.of(74d));
+                put(Meters.of(5.69), Degrees.of(72d)); // This is over the max distance in AZ
+                put(Meters.of(8.27), Degrees.of(61d));
+                put(Meters.of(8.270001), MIN_ANGLE); // anything above that just use lowest angle
             }
         };
 
@@ -174,6 +178,7 @@ public class Hood extends SubsystemBase {
     @Override
     public void periodic() {
         LightningShuffleboard.setDouble("Hood", "Angle (Degrees)", getAngle().in(Degrees));
+        LightningShuffleboard.setBool("Hood", "onTarget", isOnTarget());
     }
 
     @Override

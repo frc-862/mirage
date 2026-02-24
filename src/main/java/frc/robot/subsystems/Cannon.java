@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -42,7 +41,7 @@ public class Cannon extends SubsystemBase {
     private Indexer indexer;
 
     // Target storage
-    private Translation2d storedTarget;
+    private Translation2d storedTarget = new Translation2d();
 
     /**
      * Creates a new cannon
@@ -65,14 +64,12 @@ public class Cannon extends SubsystemBase {
     public void periodic() {
         // Code to calculate target position
         Pose2d robotPose = drivetrain.getPose();
+        
+        boolean isTop = robotPose.getY() > FieldConstants.FIELD_MIDDLE_Y;
 
         if (drivetrain.isInZone()) {
             storedTarget =  FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
-        }
-
-        boolean isTop = robotPose.getY() > FieldConstants.FIELD_MIDDLE_Y;
-
-        if (AllianceHelpers.isBlueAlliance()) {
+        } else if (AllianceHelpers.isBlueAlliance()) {
             storedTarget =  isTop ? FieldConstants.ZONE_POSITION_BLUE_TOP : FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
         } else {
             storedTarget =  isTop ? FieldConstants.ZONE_POSITION_RED_TOP : FieldConstants.ZONE_POSITION_RED_BOTTOM;
@@ -143,7 +140,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command createCandShotCommand(CannonConstants.CandShot value) {
-        return createCannonCommand(Degrees.of(0), value.hoodAngle, value.shooterVelocity);
+        return createCannonCommand(Degrees.of(0d), value.hoodAngle, value.shooterVelocity);
     }
 
     /**
