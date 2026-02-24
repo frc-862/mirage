@@ -3,7 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
-import com.fasterxml.jackson.databind.util.Named;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -41,7 +40,6 @@ import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
-import frc.robot.subsystems.Cannon;
 import frc.robot.commands.PoseBasedAutoAlign;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
