@@ -40,7 +40,6 @@ public class ThunderUnits {
 
         // Wrap input if it's above the maximum input
         int numMax = (int) value.minus(min).div(modulus).magnitude();
-        value.minus(modulus.times(numMax));
         value = (M) value.minus(modulus.times(numMax));
 
         // Wrap input if it's below the minimum input
