@@ -17,7 +17,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "COLLECT"
+                  "name": "DEPLOY_COLLECTOR"
                 }
               }
             ]
@@ -26,7 +26,7 @@
         {
           "type": "named",
           "data": {
-            "name": "SMART_SHOOT"
+            "name": "SHOOT"
           }
         }
       ]
