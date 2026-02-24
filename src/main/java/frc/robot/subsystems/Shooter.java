@@ -259,6 +259,15 @@ public class Shooter extends SubsystemBase {
     }
 
     /**
+     * velocity control command for shooter.
+     * @param velocitySupplier the supplier for velocity
+     * @return command for constantly running the shooter
+     */
+    public Command runShootCommand(Supplier<AngularVelocity> velocitySupplier) {
+        return run(() -> setVelocity(velocitySupplier.get()));
+    }
+
+    /**
      * Sets shooter motor into an idle power
      * @return the command for running the shooter at coast power
      */

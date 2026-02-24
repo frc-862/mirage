@@ -23,6 +23,7 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
+import frc.robot.subsystems.Cannon;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
@@ -52,6 +53,7 @@ public class RobotContainer {
     private final Turret turret;
     private final Hood hood;
     private final Shooter shooter;
+    private final Cannon cannon; 
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
     private final PhotonVision vision;
@@ -74,6 +76,7 @@ public class RobotContainer {
         shooter = new Shooter();
         hood = new Hood();
         turret = new Turret(drivetrain);
+        cannon = new Cannon(shooter, turret, hood, drivetrain, indexer);
         vision = new PhotonVision(drivetrain);
         
 
@@ -196,6 +199,7 @@ public class RobotContainer {
         leds.setBehavior(LED_STATES.CLIMB.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.YELLOW));
         leds.setBehavior(LED_STATES.CANNED_SHOT_START.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.YELLOW));
         leds.setBehavior(LED_STATES.CANNED_SHOT_READY.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREEN));
+        leds.setBehavior(LED_STATES.NEAR_HUB.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 3, Color.RED));
 
         new Trigger(DriverStation::isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
 
@@ -205,5 +209,8 @@ public class RobotContainer {
         leds.setState(LED_STATES.VISION_BAD.id(), true);
         // Turn off the "vision bad" LED state once the drivetrain has moved away from the origin, indicating we likely have a valid pose estimate.
         new Trigger(() -> (DriverStation.isEnabled() || drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)).ignoringDisable(true));
+
+        //Turn on the NEAR_HUB light when it is near the HUB.
+        new Trigger(() -> cannon.isNearHub()).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.NEAR_HUB.id(), true))).onFalse(new InstantCommand(() -> leds.setState(LED_STATES.NEAR_HUB.id(), false)));
     }
 }

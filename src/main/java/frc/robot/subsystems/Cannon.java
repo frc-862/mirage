@@ -27,6 +27,7 @@ public class Cannon extends SubsystemBase {
 
     public class CannonConstants { 
         public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(3.275, 3.275);
+        public static final Distance SMART_SHOOT_MAX_DISTANCE = Meters.of(1); //temp
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
@@ -195,12 +196,22 @@ public class Cannon extends SubsystemBase {
      */
     public Command smartShoot() {
         return new SequentialCommandGroup(
-            shooter.shootCommand(Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance())),
+            shooter.shootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance())),
             new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget()),
             indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
+        ).alongWith(shooter.runShootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
         ).finallyDo((end) -> {
             shooter.setPower(Shooter.ShooterConstants.COAST_DC);
             indexer.stop();
-        });
+        }).unless(() -> isNearHub());
+    }
+
+    /**
+     * finds the distance between shooter and hub and calculates if it is nearby.
+     * @return if the distance of shooter on the field and the hub is less than 1
+     */
+    public boolean isNearHub(){
+          Distance distance = Meters.of(this.getShooterTranslation().getDistance(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
+          return (distance.in(Meters) < CannonConstants.SMART_SHOOT_MAX_DISTANCE.in(Meters));
     }
 }
