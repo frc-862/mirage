@@ -298,18 +298,17 @@ public class Turret extends SubsystemBase {
 
         double error = targetDeg - current;
 
-        double optimized = targetDeg;
         if (error > 180) {
-            optimized -= 360;
+            targetDeg -= 360;
         } else if (error < -180) {
-            optimized += 360;
+            targetDeg += 360;
         }
 
         double min = TurretConstants.MIN_ANGLE.in(Degrees);
         double max = TurretConstants.MAX_ANGLE.in(Degrees);
 
-        if (optimized >= min && optimized <= max) {
-            return Degrees.of(optimized);
+        if (targetDeg >= min && targetDeg <= max) {
+            return Degrees.of(targetDeg);
         } else {
             return Degrees.of(targetDeg); 
         }
