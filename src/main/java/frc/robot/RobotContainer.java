@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import com.fasterxml.jackson.databind.util.Named;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -25,6 +26,7 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
+import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.Cannon;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
@@ -39,10 +41,13 @@ import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Cannon;
+import frc.robot.commands.PoseBasedAutoAlign;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
 import frc.util.shuffleboard.LightningShuffleboard;
+
 
 public class RobotContainer {
 
@@ -55,12 +60,12 @@ public class RobotContainer {
     private final Turret turret;
     private final Hood hood;
     private final Shooter shooter;
-    private final Cannon cannon;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
     @SuppressWarnings("unused")
     private final PhotonVision vision;
     private final Telemetry logger;
+    private final Cannon cannon;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -184,6 +189,12 @@ public class RobotContainer {
         NamedCommands.registerCommand("LED_SHOOT", leds.enableStateWithTimeout(LED_STATES.SHOOT.id(), 2));
         NamedCommands.registerCommand("LED_COLLECT", leds.enableStateWithTimeout(LED_STATES.COLLECT.id(), 2));
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
+
+        NamedCommands.registerCommand("MOVE_TO_TOWER", new PoseBasedAutoAlign(drivetrain, FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
+        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot());
+        NamedCommands.registerCommand("COLLECT", collector.collectCommand(CollectorConstants.COLLECT_POWER));
+        NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.collectCommand(CollectorConstants.DEPLOY_POWER, CollectorConstants.DEPLOY_ANGLE));
+        NamedCommands.registerCommand("STOW_COLLECTOR", collector.collectCommand(CollectorConstants.HOLD_POWER, CollectorConstants.STOWED_ANGLE));
 
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);

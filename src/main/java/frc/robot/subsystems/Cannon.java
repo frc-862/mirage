@@ -43,7 +43,7 @@ public class Cannon extends SubsystemBase {
     private Indexer indexer;
 
     // Target storage
-    private Translation2d storedTarget;
+    private Translation2d storedTarget = new Translation2d();
 
     /**
      * Creates a new cannon
@@ -142,7 +142,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command createCandShotCommand(CannonConstants.CandShot value) {
-        return createCannonCommand(Degrees.of(0), value.hoodAngle, value.shooterVelocity);
+        return createCannonCommand(Degrees.of(0d), value.hoodAngle, value.shooterVelocity);
     }
 
     /**
