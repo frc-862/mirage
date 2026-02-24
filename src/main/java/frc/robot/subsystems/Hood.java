@@ -41,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.robot.Robot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
@@ -57,8 +58,8 @@ public class Hood extends SubsystemBase {
         public static final Current STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean BRAKE = true; // temp
 
-        public static final Angle MIN_ANGLE = Degrees.of(50); 
-        public static final Angle MAX_ANGLE = Degrees.of(80); 
+        public static final Angle MIN_ANGLE = Degrees.of(50);
+        public static final Angle MAX_ANGLE = Degrees.of(80);
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.004); // Temp
         public static final Distance MECHANISM_LENGTH = Inches.of(6);
@@ -107,6 +108,7 @@ public class Hood extends SubsystemBase {
     private MechanismRoot2d root2d;
     private Mechanism2d mech2d;
     private CANcoderSimState encoderSim;
+    public boolean isHoodRetracted = false;
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
@@ -249,10 +251,12 @@ public class Hood extends SubsystemBase {
     }
 
     private void applyControl() {
-        motor.setControl(request.withPosition(getTargetAngleWithBias()));
+        if (!isHoodRetracted) {
+            motor.setControl(request.withPosition(getTargetAngleWithBias()));
+        }
     }
 
-    
+
     /**
      * Gets the current angle of the hood
      * @return current angle
@@ -320,6 +324,19 @@ public class Hood extends SubsystemBase {
     }
 
     /**
+     * Retracts the hood to its maximum angle ignoring the bias.
+     * @return the command for retracting the hood
+     */
+    public Command retract() {
+        return startEnd(() -> {
+            motor.setControl(request.withPosition(HoodConstants.MAX_ANGLE));
+            isHoodRetracted = true;
+        }, () -> {
+            isHoodRetracted = false;
+        });
+    }
+
+    /**
      * keeps the hood pointed at the target of the Robot.
      * @param cannon
      * @return Command for repositioning the hood.
@@ -334,7 +351,7 @@ public class Hood extends SubsystemBase {
 
     /**
      * Aims the hood at the target
-     * @param cannon The cannon 
+     * @param cannon The cannon
      * @param target The target
      * @return the command
      */
