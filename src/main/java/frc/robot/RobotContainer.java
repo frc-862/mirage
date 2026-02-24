@@ -107,7 +107,7 @@ public class RobotContainer {
                         VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND)
                         .times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0),
                         DriveConstants.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                        DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW) 
+                        DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
                         * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         collector.setDefaultCommand(collector.collectRunCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
@@ -117,6 +117,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+
         /* Driver */
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()
@@ -141,17 +142,20 @@ public class RobotContainer {
                     VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND)
                     .times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0),
                     DriveConstants.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                    DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW) 
+                    DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
                     * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         new Trigger(driver::getAButton).whileTrue(cannon.run(() -> // temp for interp map tuning
             LightningShuffleboard.setDouble("Cannon", "Target Distance", cannon.getTargetDistance().in(Meters))));
 
-
         /* Copilot */
-        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, 
+        new Trigger(() -> drivetrain.isNearTrench())
+            .whileTrue(hood.retract());
+        new Trigger(copilot::getXButton).whileTrue(hood.retract());
+
+        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER,
             -IndexerConstants.TRANSFER_POWER));
-        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, 
+        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER,
             IndexerConstants.TRANSFER_POWER));
 
         new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
