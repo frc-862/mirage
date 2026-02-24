@@ -9,6 +9,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -53,9 +55,10 @@ public class RobotContainer {
     private final Turret turret;
     private final Hood hood;
     private final Shooter shooter;
-    private final Cannon cannon; 
+    private final Cannon cannon;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
+    @SuppressWarnings("unused")
     private final PhotonVision vision;
     private final Telemetry logger;
 
@@ -138,6 +141,9 @@ public class RobotContainer {
                     DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW) 
                     * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
+        new Trigger(driver::getAButton).whileTrue(cannon.run(() -> // temp for interp map tuning
+            LightningShuffleboard.setDouble("Cannon", "Target Distance", cannon.getTargetDistance().in(Meters))));
+
 
         /* Copilot */
         new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, 
@@ -147,16 +153,14 @@ public class RobotContainer {
 
         new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
             collector.pivotCommand(CollectorConstants.DEPLOY_ANGLE));
+        new Trigger(copilot::getYButton).whileTrue(collector.pivotCommand(CollectorConstants.STOWED_ANGLE));
 
-        // TODO: Bind SmartClimb to Y, and bind manual climb to Joystick
-
-            // new Trigger(driver::getBButton).onTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
+        // TODO: Bind bind manual climb to Joystick and smart climb to Start Button
 
         // TODO: Bind A to OTF or something
 
         // TODO: Bind B to Smart Shoot
 
-        new Trigger(copilot::getStartButton).whileTrue(collector.pivotCommand(CollectorConstants.STOWED_ANGLE));
         new Trigger(copilot::getBackButton).whileTrue(turret.idle().beforeStarting(turret::stop)); // disable turret
 
         // Temp Bindings for testing purposes
@@ -167,8 +171,13 @@ public class RobotContainer {
             .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
             .finallyDo(shooter::stop));
 
-            // new Trigger(copilot::getBButton).whileTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
-        }
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
+            shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
+            .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
+            .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
+            () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
+            .finallyDo(shooter::stop));
+    }
     
 
     private void configureNamedCommands() {
