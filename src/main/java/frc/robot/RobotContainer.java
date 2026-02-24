@@ -183,8 +183,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("MOVE_TO_TOWER", new PoseBasedAutoAlign(drivetrain, FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
         NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot());
         NamedCommands.registerCommand("COLLECT", collector.collectCommand(CollectorConstants.COLLECT_POWER));
-        NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.collectDeployCommand(0.4d, CollectorConstants.DEPLOY_ANGLE));
-        NamedCommands.registerCommand("STOW_COLLECTOR", collector.colectStowCommand(0.4d, CollectorConstants.STOWED_ANGLE));
+        NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.collectCommand(CollectorConstants.DEPLOY_POWER, CollectorConstants.DEPLOY_ANGLE));
+        NamedCommands.registerCommand("STOW_COLLECTOR", collector.collectCommand(CollectorConstants.HOLD_POWER, CollectorConstants.STOWED_ANGLE));
 
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);

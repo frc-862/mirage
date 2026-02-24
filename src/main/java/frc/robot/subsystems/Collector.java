@@ -51,6 +51,8 @@ public class Collector extends SubsystemBase {
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 1d;
+        public static final double DEPLOY_POWER = 0.4d; // temp
+        public static final double HOLD_POWER = 0.1d; // temp
 
         public static final MomentOfInertia COLLECTOR_MOI = KilogramSquareMeters.of(0.001); //temp 
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
@@ -219,11 +221,6 @@ public class Collector extends SubsystemBase {
         setPivotAngle(position);
     }
 
-    public void stowCollector(double power, Angle position) {
-        setCollectorPower(power);
-        setPivotAngle(position);
-    }
-
     /**
      * Stops all movement to the collector motor
      */
@@ -266,12 +263,8 @@ public class Collector extends SubsystemBase {
      * @param position
      * @return the command for running the collector
      */
-    public Command collectDeployCommand(double power, Angle position) {
+    public Command collectCommand(double power, Angle position) {
         return new StartEndCommand(() -> deployCollector(power, position), () -> stopCollector(), this);
-    }
-
-    public Command colectStowCommand(double power, Angle position) {
-        return new StartEndCommand(() -> stowCollector(power, position), () -> stopCollector(), this);
     }
 
     public Command collectCommand(double power) {
