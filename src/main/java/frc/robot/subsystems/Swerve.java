@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import org.photonvision.EstimatedRobotPose;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -21,16 +22,11 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -76,7 +72,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     private Notifier m_simNotifier = null;
     protected SwerveSim swerveSim;
-    private Translation2d targetPosition = new Translation2d(0, 0);
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -300,6 +295,20 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     private void startSimThread() {
+        /* Increase signal update frequencies to prevent stale CAN frame warnings in sim */
+        for (var module : getModules()) {
+            BaseStatusSignal.setUpdateFrequencyForAll(1000,
+                module.getDriveMotor().getPosition(),
+                module.getDriveMotor().getVelocity(),
+                module.getSteerMotor().getPosition(),
+                module.getSteerMotor().getVelocity()
+            );
+        }
+        BaseStatusSignal.setUpdateFrequencyForAll(1000,
+            getPigeon2().getYaw(),
+            getPigeon2().getAngularVelocityZWorld()
+        );
+
         swerveSim = DriveConstants.getSwerveSim(this);
         /* Run simulation at a faster rate so PID gains behave more reasonably */
         m_simNotifier = new Notifier(swerveSim::update);
