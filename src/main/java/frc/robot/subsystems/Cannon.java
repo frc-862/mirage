@@ -140,7 +140,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command createCandShotCommand(CannonConstants.CandShot value) {
-        return createCannonCommand(Degrees.of(0), value.hoodAngle, value.shooterVelocity);
+        return createCannonCommand(value.hoodAngle, value.shooterVelocity);
     }
 
     /**
