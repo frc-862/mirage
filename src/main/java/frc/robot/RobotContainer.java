@@ -236,7 +236,7 @@ public class RobotContainer {
             leds.setState(LED_STATES.NOT_READY_FOR_MATCH.id(), true)).ignoringDisable(true);
 
         new Trigger(() -> DriverStation.isEnabled() || (turret.getZeroLimitSwitch() 
-            && LightningShuffleboard.getBool("Drive Team", "Auton Set", false)) && DriverStation.isFMSAttatched())
+            && LightningShuffleboard.getBool("Drive Team", "Auton Set", false)) && DriverStation.isFMSAttached())
             .onTrue(new InstantCommand(() -> leds.setState(LED_STATES.NOT_READY_FOR_MATCH.id(), false))
             .ignoringDisable(true));
     }
