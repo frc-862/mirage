@@ -233,7 +233,7 @@ public class RobotContainer {
             .ignoringDisable(true));
 
         new Trigger(() -> DriverStation.isFMSAttached()).onTrue(new InstantCommand(() -> // only set "not ready for match" if we're connected to the field, to avoid confusion during testing
-            leds.setState(LED_STATES.NOT_READY_FOR_MATCH.id(), true)));
+            leds.setState(LED_STATES.NOT_READY_FOR_MATCH.id(), true)).ignoringDisable(true);
 
         new Trigger(() -> DriverStation.isEnabled() || (turret.getZeroLimitSwitch() 
             && LightningShuffleboard.getBool("Drive Team", "Auton Set", false)) && DriverStation.isFMSAttatched())
