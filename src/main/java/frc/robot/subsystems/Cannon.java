@@ -64,14 +64,12 @@ public class Cannon extends SubsystemBase {
     public void periodic() {
         // Code to calculate target position
         Pose2d robotPose = drivetrain.getPose();
+        
+        boolean isTop = robotPose.getY() > FieldConstants.FIELD_MIDDLE_Y;
 
         if (drivetrain.isInZone()) {
             storedTarget =  FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
-        }
-
-        boolean isTop = robotPose.getY() > FieldConstants.FIELD_MIDDLE_Y;
-
-        if (AllianceHelpers.isBlueAlliance()) {
+        } else if (AllianceHelpers.isBlueAlliance()) {
             storedTarget =  isTop ? FieldConstants.ZONE_POSITION_BLUE_TOP : FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
         } else {
             storedTarget =  isTop ? FieldConstants.ZONE_POSITION_RED_TOP : FieldConstants.ZONE_POSITION_RED_BOTTOM;
