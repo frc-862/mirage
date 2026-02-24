@@ -108,8 +108,9 @@ public class RobotContainer {
 
         collector.setDefaultCommand(collector.collectRunCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
         shooter.setDefaultCommand(shooter.coast());
-        // hood.setDefaultCommand(hood.hoodAim(drivetrain)); // TODO: Uncomment when ready
-        // turret.setDefaultCommand(new TurretAim(drivetrain, turret));
+
+        hood.setDefaultCommand(hood.hoodAim(cannon));
+        cannon.setDefaultCommand(cannon.turretAim(FieldConstants.GOAL_POSITION));
     }
 
     private void configureBindings() {
@@ -141,24 +142,14 @@ public class RobotContainer {
                     * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
         /* Copilot */
-        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, 
-            -IndexerConstants.TRANSFER_POWER));
-        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, 
+        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, 
             IndexerConstants.TRANSFER_POWER));
-        
-        // new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
-        //    .whileTrue(collector.collectCommand(CollectorConstants.COLLECT_POWER));
-        // new Trigger(() -> copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
-        //    .whileTrue(collector.collectCommand(-CollectorConstants.COLLECT_POWER));
+        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, 
+            -IndexerConstants.TRANSFER_POWER));
 
-        // TODO: Bind SmartClimb to Y, and bind manual climb to Joystick
+        new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot());
+        new Trigger(() -> copilot.getXButton()).whileTrue(cannon.hoodAim());
 
-        // new Trigger(driver::getBButton).onTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
-        new Trigger(() -> copilot.getBButton()).whileTrue(cannon.turretAim(FieldConstants.GOAL_POSITION));
-
-        // TODO: Bind A to OTF or something
-
-        // TODO: Bind B to Smart Shoot
 
         new Trigger(copilot::getStartButton).whileTrue(collector.pivotCommand(CollectorConstants.STOWED_ANGLE));
         new Trigger(copilot::getBackButton).whileTrue(turret.idle().beforeStarting(turret::stop)); // disable turret
