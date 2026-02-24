@@ -23,7 +23,8 @@ public class LEDConstants {
         CANNED_SHOT_READY,
         CLIMB,
         COLLECT,
-        BRAKE;
+        BRAKE,
+        HUB_CLOSE;
 
         public int id() {
             return this.ordinal();

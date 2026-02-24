@@ -433,4 +433,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             return (FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
         }
     }
+
+    public double getDistanceToHub() {
+        Translation2d hubPosition = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
+        return getPose().getTranslation().getDistance(hubPosition);
+    }
 }

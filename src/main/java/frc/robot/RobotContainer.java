@@ -108,6 +108,10 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        //activate leds when too close to hub
+        //TODO: find the acual value wh we are too close, 1 is temp
+        new Trigger(() -> drivetrain.getDistanceToHub() < 1.0).whileTrue(leds.enableState(LED_STATES.HUB_CLOSE.id()));
+        
         /* Driver */
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()
@@ -196,6 +200,7 @@ public class RobotContainer {
         leds.setBehavior(LED_STATES.CLIMB.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.YELLOW));
         leds.setBehavior(LED_STATES.CANNED_SHOT_START.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.YELLOW));
         leds.setBehavior(LED_STATES.CANNED_SHOT_READY.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREEN));
+        leds.setBehavior(LED_STATES.HUB_CLOSE.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.PURPLE));
 
         new Trigger(DriverStation::isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
 
