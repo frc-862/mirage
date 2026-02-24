@@ -211,11 +211,11 @@ public class Turret extends SubsystemBase {
      * @param angle sets the angle to the motor of the turret
      */
     public void setAngle(Angle angle) {
-        Angle wrappedPosition = ThunderUnits.inputModulus(optimizeTurretAngle(angle), Degrees.of(-180), Degrees.of(180));
+        Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-180), Degrees.of(180));
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed) { // only allow position control if turret has been zeroed but store to apply when zeroed
-            motor.setControl(positionPID.withPosition(targetPosition));
+            motor.setControl(positionPID.withPosition(optimizeTurretAngle(targetPosition).in(Rotations)));
         }
     }
 
@@ -260,8 +260,7 @@ public class Turret extends SubsystemBase {
     }
 
     /**
-     * On E-Chain 
-     * Only really tells us that we are near min or max
+     * On E-Chain Only really tells us that we are near min or max
      *
      * @return if max limit switch triggered
      */
@@ -270,12 +269,12 @@ public class Turret extends SubsystemBase {
     }
 
     /**
-     * Sets the encoder position to a specific angle 
-     * WANRING: This does not move the turret, only sets the encoder position
+     * Sets the encoder position to a specific angle WANRING: This does not move
+     * the turret, only sets the encoder position
      *
      * @param angle
      */
-    public void setEncoderPosition(Angle angle){
+    public void setEncoderPosition(Angle angle) {
         motor.setPosition(angle);
     }
 
@@ -299,15 +298,23 @@ public class Turret extends SubsystemBase {
 
         double error = targetDeg - current;
 
+        double optimized = targetDeg;
         if (error > 180) {
-            targetDeg -= 360;
+            optimized -= 360;
         } else if (error < -180) {
-            targetDeg += 360;
+            optimized += 360;
         }
 
-        return Degrees.of(targetDeg);
+        double min = TurretConstants.MIN_ANGLE.in(Degrees);
+        double max = TurretConstants.MAX_ANGLE.in(Degrees);
+
+        if (optimized >= min && optimized <= max) {
+            return Degrees.of(optimized);
+        } else {
+            return Degrees.of(targetDeg); 
+        }
     }
-    
+
     public Command turretAim(Target target) {
         return run(() -> {
             Pose2d robotPose = drivetrain.getPose();
@@ -341,6 +348,7 @@ public class Turret extends SubsystemBase {
 
     /**
      * Returns a command to set the angle of the turret
+     *
      * @param angle The angle to set
      * @return The command
      */
