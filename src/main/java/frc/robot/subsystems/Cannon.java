@@ -26,7 +26,7 @@ public class Cannon extends SubsystemBase {
 
     public class CannonConstants { 
         public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(3.275, 3.275);
-        public static final Distance SMART_SHOOT_MAX_DISTANCE = Meters.of(1); //temp
+        public static final Distance SMART_SHOOT_MAX_DISTANCE = Meters.of(1.092d);
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
