@@ -16,6 +16,14 @@ public class FieldConstants {
             return AllianceHelpers.isBlueAlliance() ? target.blue() : target.red();
         }
 
+        public record TargetPose(Pose2d blue, Pose2d red) {}
+
+        public static final TargetPose TOWER_POSITION = new TargetPose(new Pose2d(1.707, 3.384, Rotation2d.fromDegrees(180)), new Pose2d(14.83, 4.69, Rotation2d.fromDegrees(0)));
+
+        public static Pose2d getPose(TargetPose targetPose) {
+            return AllianceHelpers.isBlueAlliance() ? targetPose.blue() : targetPose.red();
+        }
+
         // All Rectangle2ds probably have to be changed
         public static final Rectangle2d BLUE_ALLIANCE_RECT = new Rectangle2d(new Pose2d(2.312797, 4.034663, new Rotation2d()), 4.625594, 8.069326); // temp
         public static final Rectangle2d RED_ALLIANCE_RECT = new Rectangle2d(new Pose2d(14.228191, 4.034663, new Rotation2d()), 4.625594, 8.069326); // temp
