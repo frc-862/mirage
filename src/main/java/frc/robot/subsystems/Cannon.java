@@ -6,6 +6,9 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.DoubleArrayEntry;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
+
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
@@ -13,7 +16,9 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -53,8 +58,7 @@ public class Cannon extends SubsystemBase {
     // Target storage
     private Translation2d storedTarget = new Translation2d();
 
-    private DoubleLogEntry targetPositionXLog;
-    private DoubleLogEntry targetPositionYLog;
+    private DoubleArrayLogEntry targetPositionLog;
     private DoubleLogEntry distToTargetLog;
 
     /**
@@ -79,8 +83,7 @@ public class Cannon extends SubsystemBase {
     private void initLogging() {
         DataLog log = DataLogManager.getLog();
 
-        targetPositionXLog = new DoubleLogEntry(log, "/Cannon/TargetPosition/X");
-        targetPositionYLog = new DoubleLogEntry(log, "/Cannon/TargetPosition/Y");
+        targetPositionLog = new DoubleArrayLogEntry(log, "/Cannon/TargetPosition");
         distToTargetLog = new DoubleLogEntry(log, "/Cannon/DistanceToTarget");
     }
 
@@ -103,8 +106,7 @@ public class Cannon extends SubsystemBase {
     }
 
     private void updateLogging() {
-        targetPositionXLog.append(getTarget().getX());
-        targetPositionYLog.append(getTarget().getY());
+        targetPositionLog.append(new double[]{getTarget().getX(), getTarget().getY()});
         distToTargetLog.append(getTargetDistance().in(Meters));
 
         if(!DriverStation.isFMSAttached() || Robot.isSimulation()) {
