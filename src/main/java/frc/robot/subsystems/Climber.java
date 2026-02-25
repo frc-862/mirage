@@ -80,7 +80,7 @@ public class Climber extends SubsystemBase {
         climberSim.setInputVoltage(motorSim.getMotorVoltage());
         climberSim.update(Robot.kDefaultPeriod);
         motorSim.setRawRotorPosition(Units.metersToInches(climberSim.getPositionMeters()));
-        LightningShuffleboard.getBool("Climber", "Climber Foward Limit Switch", false);
+        LightningShuffleboard.setBool("Climber", "Climber Foward Limit Switch", false);
         LightningShuffleboard.getBool("Climber", "Climber Reverse Limit Switch", false);
     }
 
