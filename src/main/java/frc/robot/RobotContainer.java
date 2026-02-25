@@ -94,6 +94,7 @@ public class RobotContainer {
         if (Robot.isSimulation()) {
             new MapleSim(drivetrain, collector, indexer, turret, hood, shooter);
         }
+
         configureDefaultCommands();
         configureBindings();
         configureNamedCommands();
@@ -121,8 +122,8 @@ public class RobotContainer {
         collector.setDefaultCommand(collector.collectRunCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
         shooter.setDefaultCommand(shooter.coast());
 
-        hood.setDefaultCommand(hood.hoodAim(cannon));
-        cannon.setDefaultCommand(cannon.turretAim(FieldConstants.GOAL_POSITION));
+        hood.setDefaultCommand(cannon.hoodAim());
+        turret.setDefaultCommand(cannon.turretAim());
     }
 
     private void configureBindings() {
