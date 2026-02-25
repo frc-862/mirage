@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
@@ -60,6 +59,8 @@ public class Cannon extends SubsystemBase {
         this.drivetrain = drivetrain;
 
         this.indexer = indexer;
+        
+        this.storedTarget = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
     }
 
     @Override
