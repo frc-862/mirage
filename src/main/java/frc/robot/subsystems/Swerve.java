@@ -27,6 +27,9 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
 
+import static edu.wpi.first.units.Units.Degrees;
+import edu.wpi.first.units.measure.Distance;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -35,7 +38,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
@@ -55,20 +57,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         public static final double DRIVE_D = 0.08;
         public static final Distance DRIVE_TOLERANCE = Meters.of(0.05);
         public static final double DRIVE_KS = 0;
-
-        public static final double ROT_P = 0.03;
-        public static final double ROT_I = 0;
-        public static final double ROT_D = 0;
-        public static final Angle ROT_TOLERANCE = Degrees.of(1.5);
-        public static final double ROT_KS = 0; // 0.01 NOT APPLIED
     }
 
-    private Swerve drivetrain;
-    private PIDController pidX = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
-    private PIDController pidY = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
-    private PIDController pidR = new PIDController(PoseConstants.ROT_P, PoseConstants.ROT_I, PoseConstants.ROT_D);
-
-    private Pose2d targetPose;
 
     private Notifier m_simNotifier = null;
     protected SwerveSim swerveSim;
@@ -456,18 +446,15 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
-    public SwerveRequest poseBasedAutoAlign(){
-        Pose2d currentPose = getPose();
+    public Command poseBasedAutoAlign(){
+        PIDController pidX = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
+        PIDController pidY = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
+        PIDController pidR = new PIDController(DriveConstants.ROT_P, DriveConstants.ROT_I, DriveConstants.ROT_D);
 
         pidX.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
         pidY.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
-        pidR.setTolerance(PoseConstants.ROT_TOLERANCE.in(Degrees));
-
-            return DriveConstants.fieldCentricRequest.withVelocityX(pidX.calculate(currentPose.getX(), targetPose.getX()))
-            .withVelocityY(pidY.calculate(currentPose.getY(), targetPose.getY()))
-            .withRotationalRate(pidR.calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()))
-            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-            .withDriveRequestType(DriveRequestType.Velocity);
-
+        pidR.setTolerance(DriveConstants.ROT_TOLERANCE.in(Degrees));
+        
+        return autoDrive(() -> pidX.calculate(kNumConfigAttempts), () -> pidY.calculate(kNumConfigAttempts), () -> pidR.calculate(kNumConfigAttempts));
     }
 }
