@@ -6,11 +6,10 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -30,6 +29,7 @@ import frc.util.AllianceHelpers;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Cannon extends SubsystemBase {
+    // ======== CANNON CONSTANTS ========
 
     public class CannonConstants { 
         public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(3.275), Inches.of(-3.275));
@@ -37,8 +37,10 @@ public class Cannon extends SubsystemBase {
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
-
         // TODO: ADD CAND SHOT VALUES HERE TO CREATE CAND SHOTS USING THE NEW BETTER METHOD :)
+        public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
+        public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
+        public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
     }
 
     // Subsystems
