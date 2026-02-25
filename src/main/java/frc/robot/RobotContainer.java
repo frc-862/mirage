@@ -199,8 +199,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("COLLECT", collector.collectCommand(CollectorConstants.COLLECT_POWER));
         NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.collectCommand(CollectorConstants.DEPLOY_POWER, CollectorConstants.DEPLOY_ANGLE));
         NamedCommands.registerCommand("STOW_COLLECTOR", collector.collectCommand(CollectorConstants.HOLD_POWER, CollectorConstants.STOWED_ANGLE));
-        NamedCommands.registerCommand("TURRET_AIM", turret.turretAim(cannon));
-
+        
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
     }
