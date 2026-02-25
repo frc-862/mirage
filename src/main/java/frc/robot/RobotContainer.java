@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -62,7 +63,6 @@ public class RobotContainer {
     private final Turret turret;
     private final Hood hood;
     private final Shooter shooter;
-    private final Cannon cannon;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
     @SuppressWarnings("unused")
@@ -174,12 +174,12 @@ public class RobotContainer {
 
         // Temp Cand shots
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT || copilot.getPOV() == DriveConstants.DPAD_RIGHT)
-            .whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
+            .whileTrue(shooter.shootCommand(RadiansPerSecond.of(65))
             .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
             .finallyDo(shooter::stop));
 
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
-            shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
+            shooter.shootCommand(() -> RadiansPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
             .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
             .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
             () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
