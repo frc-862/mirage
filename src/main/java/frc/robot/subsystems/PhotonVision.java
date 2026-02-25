@@ -73,7 +73,9 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     // Create a new packet to fill with recieved data
                     byte[] receiveData = new byte[40];
                     var receivePacket = new DatagramPacket(receiveData, receiveData.length, InetAddress.getByName("10.8.62.2"), 12345);
-                    socket.receive(receivePacket); // Blocks this thread, not the robot
+                    if (socket != null) {
+                        socket.receive(receivePacket); // Blocks this thread, not the robot
+                    }
                     
                     // Fresh vision data :)
                     VisionInfo data = parseBinaryPacket(receivePacket);
@@ -157,6 +159,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        socket.close();
+        if (socket != null) {
+            socket.close();
+        }
     }
 }
