@@ -77,9 +77,9 @@ public class MapleSim extends SubsystemBase {
         }
         Pose3d cannonPose = new Pose3d(drivetrainSim.getSimulatedDriveTrainPose())
             .plus(new Transform3d(
-                Shooter.ShooterConstants.SHOOTER_POSITION_ON_ROBOT.getX(), 
-                Shooter.ShooterConstants.SHOOTER_POSITION_ON_ROBOT.getY(), 
-                Shooter.ShooterConstants.SHOOTER_HEIGHT.in(Meters), 
+                Cannon.CannonConstants.SHOOTER_TRANSLATION.getX(), 
+                Cannon.CannonConstants.SHOOTER_TRANSLATION.getY(), 
+                Cannon.CannonConstants.SHOOTER_HEIGHT.in(Meters), 
                 new Rotation3d(Degrees.zero(), hood.getAngle(), turret.getAngle().plus(Degrees.of(180)))
             ));
         LightningShuffleboard.setPose3d("Cannon", "Pose", cannonPose);
@@ -89,10 +89,10 @@ public class MapleSim extends SubsystemBase {
         if (collectorSim.obtainGamePieceFromIntake()) {
             arena.addGamePieceProjectile(new RebuiltFuelOnFly(
                 drivetrainSim.getSimulatedDriveTrainPose().getTranslation(),
-                Shooter.ShooterConstants.SHOOTER_POSITION_ON_ROBOT,
+                Cannon.CannonConstants.SHOOTER_TRANSLATION,
                 drivetrainSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
                 drivetrainSim.getSimulatedDriveTrainPose().getRotation().plus(new Rotation2d(turret.getAngle())),
-                Shooter.ShooterConstants.SHOOTER_HEIGHT, 
+                Cannon.CannonConstants.SHOOTER_HEIGHT, 
                 MetersPerSecond.of(shooter.getLeftVelocity().in(RotationsPerSecond) * Shooter.ShooterConstants.FLYWHEEL_CIRCUMFERENCE.in(Meters) * Shooter.ShooterConstants.SHOOTER_EFFICIENCY),
                 hood.getAngle()
             ));       
