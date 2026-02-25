@@ -463,14 +463,12 @@ public class LightningShuffleboard {
     }
 
     /**
-     * @deprecated use {@link #send(String, String, Sendable)} instead
      *
      * Set a {@link <a href="https://docs.wpilib.org/en/stable/docs/software/telemetry/robot-telemetry-with-sendable.html">Sendable</a>} object to NT through shuffleboard
      * @param tabName the tab this shuffleboard entry will be placed in
      * @param key the name of the shuffleboard entry
      * @param value the value of the shuffleboard entry
      */
-    @Deprecated
     public static void set(String tabName, String key, Sendable value) {
         ShuffleboardTab tab = Shuffleboard.getTab(tabName);
 
