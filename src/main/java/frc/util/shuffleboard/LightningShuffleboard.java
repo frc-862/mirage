@@ -25,6 +25,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -38,6 +39,8 @@ public class LightningShuffleboard {
     //seperate hm for poses in order to retain publishers.
     private static HashMap<String, StructPublisher<Pose2d>> poseList = new HashMap<String, StructPublisher<Pose2d>>();
     private static HashMap<String, StructPublisher<Pose3d>> pose3dList = new HashMap<String, StructPublisher<Pose3d>>();
+
+    private static HashMap<String, StructPublisher<Translation2d>> translation2dList = new HashMap<String, StructPublisher<Translation2d>>();
 
     /**
      * Creates and sets a double to NT through shuffleboard
@@ -367,6 +370,33 @@ public class LightningShuffleboard {
         } else if(!keyList.get(index).equals(value)) {
             keyList.put(index, value);
             poseList.get(index).accept(value);
+        }
+    }
+
+    /**
+     * Creates and sets a Translation2d from NT through shuffleboard in AdvantageScope Struct formar
+     * @param tabName the tab to set the value to
+     * @param key the name of the shuffleboard entry
+     * @param value the value of the shuffleboard entry
+     * @implNote must be called periodically to update
+     */
+    public static void setTranslation2d(String tabName, String key, Translation2d value) {
+        // ShuffleboardTab tab = Shuffleboard.getTab(tabName);
+
+        String index = tabName + "/" + key;
+
+        /* logic breakdown:
+         * if the key does not exist, create it
+         * if they exists but is not updated, update it
+         * else, the key exists and is up-to-date, so nothing needs to be done
+         */
+        if(!keyList.containsKey(index)) {
+            keyList.put(index, value);
+            translation2dList.put(index, NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getStructTopic(key, Translation2d.struct).publish());
+            translation2dList.get(index).accept(value);
+        } else if(!keyList.get(index).equals(value)) {
+            keyList.put(index, value);
+            translation2dList.get(index).accept(value);
         }
     }
 
