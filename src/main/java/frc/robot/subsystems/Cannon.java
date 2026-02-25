@@ -10,20 +10,26 @@ import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.Robot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
 import frc.util.AllianceHelpers;
+import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Cannon extends SubsystemBase {
-    // ======== CANNON CONSTANTS ========
 
     public class CannonConstants { 
         public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(3.275), Inches.of(-3.275));
@@ -45,6 +51,10 @@ public class Cannon extends SubsystemBase {
     // Target storage
     private Translation2d storedTarget = new Translation2d();
 
+    private DoubleLogEntry targetPositionXLog;
+    private DoubleLogEntry targetPositionYLog;
+    private DoubleLogEntry distToTargetLog;
+
     /**
      * Creates a new cannon
      * @param shooter shooter
@@ -60,6 +70,16 @@ public class Cannon extends SubsystemBase {
         this.drivetrain = drivetrain;
 
         this.indexer = indexer;
+
+        initLogging();
+    }
+
+    private void initLogging() {
+        DataLog log = DataLogManager.getLog();
+
+        targetPositionXLog = new DoubleLogEntry(log, "/Cannon/TargetPosition/X");
+        targetPositionYLog = new DoubleLogEntry(log, "/Cannon/TargetPosition/Y");
+        distToTargetLog = new DoubleLogEntry(log, "/Cannon/DistanceToTarget");
     }
 
     @Override
@@ -76,10 +96,20 @@ public class Cannon extends SubsystemBase {
         } else {
             storedTarget =  isTop ? FieldConstants.ZONE_POSITION_RED_TOP : FieldConstants.ZONE_POSITION_RED_BOTTOM;
         }
+
+        updateLogging();
     }
 
+    private void updateLogging() {
+        targetPositionXLog.append(getTarget().getX());
+        targetPositionYLog.append(getTarget().getY());
+        distToTargetLog.append(getTargetDistance().in(Meters));
 
-    // ======== GETTERS ========
+        if(!DriverStation.isFMSAttached() || Robot.isSimulation()) {
+            LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
+            LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
+        }
+    }
 
     /**
      * Gets the translation of the shooter relative to the field
@@ -104,9 +134,6 @@ public class Cannon extends SubsystemBase {
     public Distance getTargetDistance() {
         return Meters.of(getTarget().minus(getShooterTranslation()).getNorm());
     }
-
-
-    // ======== COMMAND FACTORIES ========
 
     /**
      * Returns a command to set the hood and shooter values

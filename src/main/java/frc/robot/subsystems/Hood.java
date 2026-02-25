@@ -17,7 +17,6 @@ import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
@@ -32,6 +31,11 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -41,7 +45,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.robot.Robot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
@@ -109,6 +112,10 @@ public class Hood extends SubsystemBase {
     private Mechanism2d mech2d;
     private CANcoderSimState encoderSim;
     public boolean isHoodRetracted = false;
+
+    private DoubleLogEntry angleLog;
+    private DoubleLogEntry biasLog;
+    private BooleanLogEntry onTargetLog;
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
@@ -182,19 +189,42 @@ public class Hood extends SubsystemBase {
             ligament = root2d.append(new MechanismLigament2d("Hood", 1.5, HoodConstants.MAX_ANGLE.in(Degrees)));
             LightningShuffleboard.send("Hood", "Mech2d", mech2d);
         }
+
         if (!hasEncoder()){
             motor.setPosition(HoodConstants.MAX_ANGLE); // needs to be after config and sim
         }
+
+        initLogging();
     }
 
-    private static boolean hasEncoder(){
-        return !RobotMap.IS_OASIS;
+    private void initLogging() {
+        DataLog log = DataLogManager.getLog();
+
+        angleLog = new DoubleLogEntry(log, "/Hood/Angle");
+        onTargetLog = new BooleanLogEntry(log, "/Hood/OnTarget");
+        biasLog = new DoubleLogEntry(log, "/Hood/Bias");
     }
 
     @Override
     public void periodic() {
-        LightningShuffleboard.setDouble("Hood", "Angle (Degrees)", getAngle().in(Degrees));
-        LightningShuffleboard.setBool("Hood", "onTarget", isOnTarget());
+        updateLogging();
+    }
+
+    private void updateLogging() {
+        angleLog.append(getAngle().in(Degrees));
+        onTargetLog.append(isOnTarget());
+        biasLog.append(getBias().in(Degrees));
+
+        if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
+            LightningShuffleboard.setDouble("Hood", "Angle", getAngle().in(Degrees));
+            LightningShuffleboard.setBool("Hood", "onTarget", isOnTarget());
+            if (hasEncoder()) {
+                LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
+            }
+            LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
+            LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
+            LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
+        }
     }
 
     @Override
@@ -216,11 +246,11 @@ public class Hood extends SubsystemBase {
         encoderSim.setRawPosition(simAngle.times(HoodConstants.ENCODER_TO_MECHANISM_RATIO));
         // encoderSim.setVelocity(simVeloc.times(HoodConstants.ENCODER_TO_MECHANISM_RATIO));
 
-        LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
-        LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
-        LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
-        LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
+    }
+
+    private static boolean hasEncoder(){
+        return !RobotMap.IS_OASIS;
     }
 
     /**
