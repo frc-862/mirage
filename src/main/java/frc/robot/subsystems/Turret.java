@@ -304,14 +304,9 @@ public class Turret extends SubsystemBase {
             targetDeg += 360;
         }
 
-        double min = TurretConstants.MIN_ANGLE.in(Degrees);
-        double max = TurretConstants.MAX_ANGLE.in(Degrees);
-
-        if (targetDeg >= min && targetDeg <= max) {
-            return Degrees.of(targetDeg);
-        } else {
-            return Degrees.of(targetDeg); 
-        }
+        Angle optimized = Degrees.of(targetDeg);
+        optimized = ThunderUnits.clamp(optimized, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
+        return optimized;
     }
 
     public Command turretAim(Target target) {
