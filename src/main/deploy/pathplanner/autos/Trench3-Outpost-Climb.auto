@@ -14,12 +14,6 @@
                   "pathName": "OutpostPath"
                 }
               },
-              {
-                "type": "named",
-                "data": {
-                  "name": "TURRET_AIM"
-                }
-              }
             ]
           }
         },
