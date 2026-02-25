@@ -62,9 +62,9 @@ public class MapleSim extends SubsystemBase {
     public void simulationPeriodic(){
         posePublisher.set(arena.getGamePiecesPosesByType("Fuel").toArray(new Pose3d[0]));
 
-        if (collector.getVelocity().gt(Collector.CollectorConstants.SIM_COLLECTING_THRESHOLD) && !collectorSim.isRunning()) {
+        if (collector.getCollectorVelocity().gt(Collector.CollectorConstants.SIM_COLLECTING_THRESHOLD) && !collectorSim.isRunning()) {
             collectorSim.startIntake();
-        } else if (collector.getVelocity().lt(Collector.CollectorConstants.SIM_COLLECTING_THRESHOLD) && collectorSim.isRunning()) {
+        } else if (collector.getCollectorVelocity().lt(Collector.CollectorConstants.SIM_COLLECTING_THRESHOLD) && collectorSim.isRunning()) {
             collectorSim.stopIntake();
         }
 
