@@ -115,6 +115,10 @@ public class RobotContainer {
                         DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
                         * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
+
+        /*
+         * Copilot Default Commands
+         */
         collector.setDefaultCommand(collector.collectRunCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
         shooter.setDefaultCommand(shooter.coast());
 
@@ -132,6 +136,9 @@ public class RobotContainer {
 
         // TODO: Bind OTF to LB and Climb AA to RB
 
+        /*
+         * change biases for the driver
+         */
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_DOWN).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA));
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_LEFT).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA.unaryMinus()));
@@ -165,7 +172,6 @@ public class RobotContainer {
             IndexerConstants.TRANSFER_POWER));
         new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, 
             -IndexerConstants.TRANSFER_POWER));
-
         new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot());
         new Trigger(() -> copilot.getXButton()).whileTrue(cannon.hoodAim());
 
