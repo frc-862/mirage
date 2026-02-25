@@ -157,6 +157,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        socket.close();
+        if (socket != null) {
+            socket.close();
+        }
     }
 }
