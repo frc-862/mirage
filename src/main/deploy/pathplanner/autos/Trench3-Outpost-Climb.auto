@@ -5,25 +5,32 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "OutpostPath"
-          }
-        },
-        {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "wait",
+                "type": "path",
                 "data": {
-                  "waitTime": 5.0
+                  "pathName": "OutpostPath"
                 }
-              },
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
               {
                 "type": "named",
                 "data": {
                   "name": "SMART_SHOOT"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 5.0
                 }
               }
             ]

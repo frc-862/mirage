@@ -32,6 +32,12 @@
         {
           "type": "named",
           "data": {
+            "name": "MOVE_TO_TOWER"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "CLIMB"
           }
         }

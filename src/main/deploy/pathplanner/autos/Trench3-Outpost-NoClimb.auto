@@ -17,9 +17,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "SMART_SHOOT"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "SMART_SHOOT"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
           }
         }
       ]
