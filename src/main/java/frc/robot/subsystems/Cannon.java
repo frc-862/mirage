@@ -57,7 +57,8 @@ public class Cannon extends SubsystemBase {
         this.shooter = shooter;
         this.turret = turret;
         this.hood = hood;
-        this.drivetrain = drivetrain;
+        this.drivetrain = drivelg
+        train;
 
         this.indexer = indexer;
     }
