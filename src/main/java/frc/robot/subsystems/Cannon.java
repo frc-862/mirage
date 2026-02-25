@@ -35,6 +35,7 @@ public class Cannon extends SubsystemBase {
         // TODO: ADD CAND SHOT VALUES HERE TO CREATE CAND SHOTS USING THE NEW BETTER METHOD :)
     }
 
+    
     // Subsystems
     private Shooter shooter;
     private Turret turret;
