@@ -273,7 +273,7 @@ public class Collector extends SubsystemBase {
 
     /**
      * gets the target position of the pivot as an {@link Angle}
-     * @return
+     * @return the target position of the pivot
      */
     public Angle getTargetPivotAngle() {
         return targetPivotPosition;
