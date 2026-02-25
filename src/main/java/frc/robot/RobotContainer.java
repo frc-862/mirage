@@ -94,7 +94,6 @@ public class RobotContainer {
         if (Robot.isSimulation()) {
             new MapleSim(drivetrain, collector, indexer, turret, hood, shooter);
         }
-
         configureDefaultCommands();
         configureBindings();
         configureNamedCommands();
