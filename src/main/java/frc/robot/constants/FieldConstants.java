@@ -16,6 +16,14 @@ public class FieldConstants {
             return AllianceHelpers.isBlueAlliance() ? target.blue() : target.red();
         }
 
+        public record TargetPose(Pose2d blue, Pose2d red) {}
+
+        public static final TargetPose TOWER_POSITION = new TargetPose(new Pose2d(1.707, 3.384, Rotation2d.fromDegrees(180)), new Pose2d(14.83, 4.69, Rotation2d.fromDegrees(0)));
+
+        public static Pose2d getPose(TargetPose targetPose) {
+            return AllianceHelpers.isBlueAlliance() ? targetPose.blue() : targetPose.red();
+        }
+
         // All Rectangle2ds probably have to be changed
         public static final Rectangle2d BLUE_ALLIANCE_RECT = new Rectangle2d(new Pose2d(2.312797, 4.034663, new Rotation2d()), 4.625594, 8.069326); // temp
         public static final Rectangle2d RED_ALLIANCE_RECT = new Rectangle2d(new Pose2d(14.228191, 4.034663, new Rotation2d()), 4.625594, 8.069326); // temp
@@ -28,6 +36,11 @@ public class FieldConstants {
 
         public static final Translation2d ZONE_POSITION_RED_TOP = new Translation2d(13.915394, 5.963158);
         public static final Translation2d ZONE_POSITION_RED_BOTTOM = new Translation2d(13.915394, 2.105914);
+
+        public static final Rectangle2d LEFT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 1), new Translation2d(5.2, 0)); // temp, values found with sim
+        public static final Rectangle2d RIGHT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 8), new Translation2d(5.2, 7)); // temp, values found with sim
+        public static final Rectangle2d LEFT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 1), new Translation2d(12.4, 0)); // temp, values found with sim
+        public static final Rectangle2d RIGHT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 8), new Translation2d(12.4, 7)); // temp, values found with sim
 
         public static final double FIELD_MIDDLE_Y = 4.034663;
     }
