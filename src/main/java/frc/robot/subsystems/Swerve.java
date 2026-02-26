@@ -44,7 +44,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
-import frc.robot.subsystems.Cannon.CannonConstants;
 import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
 
@@ -60,7 +59,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         public static final Distance DRIVE_TOLERANCE = Meters.of(0.05);
         public static final double DRIVE_KS = 0;
     }
-
 
     private Notifier m_simNotifier = null;
     protected SwerveSim swerveSim;
@@ -457,7 +455,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
-    public Command poseBasedAutoAlign(){
+    public Command poseBasedAutoAlign(Pose2d targetPose){
         PIDController pidX = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
         PIDController pidY = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
         PIDController pidR = new PIDController(DriveConstants.ROT_P, DriveConstants.ROT_I, DriveConstants.ROT_D);
@@ -466,6 +464,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         pidY.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
         pidR.setTolerance(DriveConstants.ROT_TOLERANCE.in(Degrees));
         
-        return autoDrive(() -> pidX.calculate(kNumConfigAttempts), () -> pidY.calculate(kNumConfigAttempts), () -> pidR.calculate(kNumConfigAttempts));
+        return autoDrive(() -> pidX.calculate(getPose().getX(), targetPose.getX()),
+        () -> pidY.calculate(getPose().getY(), targetPose.getY()), 
+        () -> pidR.calculate(getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees()));
     }
 }
