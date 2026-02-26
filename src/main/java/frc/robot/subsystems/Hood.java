@@ -250,7 +250,7 @@ public class Hood extends SubsystemBase {
     }
 
     private static boolean hasEncoder(){
-        return !RobotMap.IS_OASIS;
+        return false;
     }
 
     /**
