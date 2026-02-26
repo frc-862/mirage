@@ -12,13 +12,14 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
@@ -30,8 +31,13 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -39,7 +45,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.robot.Robot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
@@ -59,7 +64,8 @@ public class Hood extends SubsystemBase {
         public static final Angle MIN_ANGLE = Degrees.of(50);
         public static final Angle MAX_ANGLE = Degrees.of(80);
 
-        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.1); // Temp
+        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.004); // Temp
+        public static final Distance MECHANISM_LENGTH = Inches.of(6);
 
         public static final ThunderMap<Distance, Angle> HOOD_MAP = new ThunderMap<>() {
             {
@@ -83,8 +89,8 @@ public class Hood extends SubsystemBase {
         public static final Angle BIAS_DELTA = Degrees.of(0.5); // temp
 
         // Conversion ratios
-        public static final double ROTOR_TO_ENCODER_RATIO = !hasEncoder() ? 1 : 50/22d;
-        public static final double ENCODER_TO_MECHANISM_RATIO = !hasEncoder() ? 50/22d * 156/15d : 156/15d;
+        public static final double ROTOR_TO_ENCODER_RATIO = !hasEncoder() ? 1 : 9*42/18d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = !hasEncoder() ? 50/22d * 156/15d : 18/42d*156/15d;
         public static final double ROTOR_TO_MECHANISM_RATIO = ROTOR_TO_ENCODER_RATIO * ENCODER_TO_MECHANISM_RATIO; // only used in sim
 
         public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
@@ -98,13 +104,18 @@ public class Hood extends SubsystemBase {
     private Angle targetAngle;
     private MutAngle hoodBias;
 
-    private DCMotorSim hoodSim;
+    private SingleJointedArmSim hoodSim;
     private TalonFXSimState motorSim;
     private DCMotor gearbox;
     private MechanismLigament2d ligament;
     private MechanismRoot2d root2d;
     private Mechanism2d mech2d;
+    private CANcoderSimState encoderSim;
     public boolean isHoodRetracted = false;
+
+    private DoubleLogEntry angleLog;
+    private DoubleLogEntry biasLog;
+    private BooleanLogEntry onTargetLog;
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
@@ -126,8 +137,8 @@ public class Hood extends SubsystemBase {
 
         if (hasEncoder()) {
             CANcoderConfiguration angleConfig = new CANcoderConfiguration();
-            angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5d;
-            angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? HoodConstants.ENCODER_OFFSET.in(Rotations) : 0d;
+            angleConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1d;
+            // angleConfig.MagnetSensor.MagnetOffset = Robot.isReal() ? HoodConstants.ENCODER_OFFSET.in(Rotations) : 0d;
             angleConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
             encoder.getConfigurator().apply(angleConfig);
         }
@@ -151,16 +162,26 @@ public class Hood extends SubsystemBase {
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
-            hoodSim = new DCMotorSim(
-                LinearSystemId.createDCMotorSystem(gearbox, HoodConstants.MOI.magnitude(), HoodConstants.ROTOR_TO_MECHANISM_RATIO),
-                gearbox
+            hoodSim = new SingleJointedArmSim(
+                gearbox, 
+                HoodConstants.ENCODER_TO_MECHANISM_RATIO, 
+                HoodConstants.MOI.magnitude(), 
+                HoodConstants.MECHANISM_LENGTH.in(Meters), 
+                HoodConstants.MIN_ANGLE.in(Radians), 
+                HoodConstants.MAX_ANGLE.in(Radians),
+                false,
+                HoodConstants.MAX_ANGLE.in(Radians)
             );
 
             motorSim = motor.getSimState();
             motorSim.Orientation = ChassisReference.Clockwise_Positive;
+            encoderSim = encoder.getSimState();
+
+            encoderSim.Orientation = ChassisReference.Clockwise_Positive;
 
             hoodSim.setState(HoodConstants.MAX_ANGLE.in(Radians), 0);
             motorSim.setRawRotorPosition(HoodConstants.MAX_ANGLE.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+            encoderSim.setRawPosition(HoodConstants.MAX_ANGLE.times(HoodConstants.ENCODER_TO_MECHANISM_RATIO));
 
             mech2d = new Mechanism2d(2,  2);
             root2d =  mech2d.getRoot("Hood", 0.2, 0.2);
@@ -168,41 +189,68 @@ public class Hood extends SubsystemBase {
             ligament = root2d.append(new MechanismLigament2d("Hood", 1.5, HoodConstants.MAX_ANGLE.in(Degrees)));
             LightningShuffleboard.send("Hood", "Mech2d", mech2d);
         }
+
         if (!hasEncoder()){
             motor.setPosition(HoodConstants.MAX_ANGLE); // needs to be after config and sim
         }
+
+        initLogging();
     }
 
-    private static boolean hasEncoder(){
-        return !RobotMap.IS_OASIS && !Robot.isSimulation();
+    private void initLogging() {
+        DataLog log = DataLogManager.getLog();
+
+        angleLog = new DoubleLogEntry(log, "/Hood/Angle");
+        onTargetLog = new BooleanLogEntry(log, "/Hood/OnTarget");
+        biasLog = new DoubleLogEntry(log, "/Hood/Bias");
     }
 
     @Override
     public void periodic() {
-        LightningShuffleboard.setDouble("Hood", "Angle (Degrees)", getAngle().in(Degrees));
-        LightningShuffleboard.setBool("Hood", "onTarget", isOnTarget());
+        updateLogging();
+    }
+
+    private void updateLogging() {
+        angleLog.append(getAngle().in(Degrees));
+        onTargetLog.append(isOnTarget());
+        biasLog.append(getBias().in(Degrees));
+
+        if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
+            LightningShuffleboard.setDouble("Hood", "Angle", getAngle().in(Degrees));
+            LightningShuffleboard.setBool("Hood", "onTarget", isOnTarget());
+            if (hasEncoder()) {
+                LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
+            }
+            LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
+            LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
+            LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
+        }
     }
 
     @Override
     public void simulationPeriodic() {
         double batteryVoltage = RobotController.getBatteryVoltage();
         motorSim.setSupplyVoltage(batteryVoltage);
+        encoderSim.setSupplyVoltage(batteryVoltage);
 
         hoodSim.setInputVoltage(motorSim.getMotorVoltage());
         hoodSim.update(Robot.kDefaultPeriod);
 
-        Angle simAngle = Radians.of(hoodSim.getAngularPositionRad());
-        AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getAngularVelocityRadPerSec());
+        Angle simAngle = Radians.of(hoodSim.getAngleRads());
+        AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getVelocityRadPerSec());
 
         motorSim.setRawRotorPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
-        motorSim.setRotorVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
+        // motorSim.setRotorVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
 
         ligament.setAngle(simAngle.in(Degrees));
+        encoderSim.setRawPosition(simAngle.times(HoodConstants.ENCODER_TO_MECHANISM_RATIO));
+        // encoderSim.setVelocity(simVeloc.times(HoodConstants.ENCODER_TO_MECHANISM_RATIO));
 
         LightningShuffleboard.setDouble("Hood", "Sim Angle", simAngle.in(Degrees));
-        LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
-        LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
-        LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
+    }
+
+    private static boolean hasEncoder(){
+        return !RobotMap.IS_OASIS;
     }
 
     /**
