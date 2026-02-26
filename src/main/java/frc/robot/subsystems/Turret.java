@@ -58,8 +58,8 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = true ? Degrees.of(-120) : Degrees.of(-220); // limit range temporarily
-        public static final Angle MAX_ANGLE = true ? Degrees.of(120) : Degrees.of(220);
+        public static final Angle MIN_ANGLE = Degrees.of(-120); // limit range temporarily
+        public static final Angle MAX_ANGLE = Degrees.of(120);
 
         public static final double kP = 25d;
         public static final double kI = 0d;
@@ -138,7 +138,7 @@ public class Turret extends SubsystemBase {
         zeroLimitSwitch = new DigitalInput(RobotMap.TURRET_ZERO_SWITCH);
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
 
-        zeroed = Robot.isSimulation() || RobotMap.IS_OASIS; // only zero when real // TODO: remove isOasis check after limit switches added
+        zeroed = true; // only zero when real // TODO: remove isOasis check after limit switches added
         if (!zeroed) {
             setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
         }

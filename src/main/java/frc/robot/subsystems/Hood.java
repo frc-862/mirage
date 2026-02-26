@@ -23,10 +23,8 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
@@ -237,7 +235,6 @@ public class Hood extends SubsystemBase {
         hoodSim.update(Robot.kDefaultPeriod);
 
         Angle simAngle = Radians.of(hoodSim.getAngleRads());
-        AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getVelocityRadPerSec());
 
         motorSim.setRawRotorPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
         // motorSim.setRotorVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
@@ -250,7 +247,7 @@ public class Hood extends SubsystemBase {
     }
 
     private static boolean hasEncoder(){
-        return false;
+        return Robot.isSimulation();
     }
 
     /**
