@@ -58,8 +58,8 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Degrees.of(-120) : Degrees.of(-220); // limit range temporarily
-        public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Degrees.of(120) : Degrees.of(220);
+        public static final Angle MIN_ANGLE = true ? Degrees.of(-120) : Degrees.of(-220); // limit range temporarily
+        public static final Angle MAX_ANGLE = true ? Degrees.of(120) : Degrees.of(220);
 
         public static final double kP = 25d;
         public static final double kI = 0d;
