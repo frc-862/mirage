@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -93,6 +94,9 @@ public class Hood extends SubsystemBase {
 
         public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
         public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
+
+        public static final double CURRENT_LIMIT = 0; // temp
+        public static final double HOOD_RETRACT_POWER = 0.2; // temp
     }
 
     private ThunderBird motor;
@@ -115,6 +119,8 @@ public class Hood extends SubsystemBase {
     private DoubleLogEntry biasLog;
     private BooleanLogEntry onTargetLog;
 
+    private final DutyCycleOut hoodDutyCycle;
+
     /** Creates a new Hood Subsystem. */
     public Hood() {
         motor = new ThunderBird(RobotMap.HOOD, RobotMap.CAN_BUS, HoodConstants.INVERTED, HoodConstants.STATOR_LIMIT,
@@ -126,6 +132,8 @@ public class Hood extends SubsystemBase {
         }
 
         TalonFXConfiguration motorConfig = motor.getConfig();
+
+        hoodDutyCycle = new DutyCycleOut(0d);
 
         request = new PositionVoltage(0d);
 
@@ -206,6 +214,11 @@ public class Hood extends SubsystemBase {
     @Override
     public void periodic() {
         updateLogging();
+
+        if (motor.getStatorCurrent().getValueAsDouble() > HoodConstants.CURRENT_LIMIT) {
+            motor.setPosition(HoodConstants.MAX_ANGLE);
+            motor.setControl(hoodDutyCycle.withOutput(HoodConstants.HOOD_RETRACT_POWER));
+        }
     }
 
     private void updateLogging() {
