@@ -52,9 +52,12 @@ import frc.util.simulation.SwerveSim;
  * Subsystem so it can easily be used in command-based projects.
  */
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
-    public class PoseConstants {
-        
-    }
+        public static final double DRIVE_P = 1.5d;
+        public static final double DRIVE_I = 0;
+        public static final double DRIVE_D = 0.08;
+        public static final Distance DRIVE_TOLERANCE = Meters.of(0.05);
+        public static final double DRIVE_KS = 0;
+
 
     private Notifier m_simNotifier = null;
     protected SwerveSim swerveSim;
@@ -452,12 +455,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command poseBasedAutoAlign(Pose2d targetPose){
-        PIDController pidX = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
-        PIDController pidY = new PIDController(PoseConstants.DRIVE_P, PoseConstants.DRIVE_I, PoseConstants.DRIVE_D);
+        PIDController pidX = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
+        PIDController pidY = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
         PIDController pidR = new PIDController(DriveConstants.ROT_P, DriveConstants.ROT_I, DriveConstants.ROT_D);
 
-        pidX.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
-        pidY.setTolerance(PoseConstants.DRIVE_TOLERANCE.in(Meters));
+        pidX.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
+        pidY.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
         pidR.setTolerance(DriveConstants.ROT_TOLERANCE.in(Degrees));
         
         return autoDrive(() -> pidX.calculate(getPose().getX(), targetPose.getX()),
