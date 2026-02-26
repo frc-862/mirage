@@ -41,7 +41,7 @@ public class Indexer extends SubsystemBase {
         public static final double SPINDEXDER_POWER = 1d;
 
         // transfer
-        public static final boolean TRANSFER_MOTOR_INVERTED = true; // temp
+        public static final boolean TRANSFER_MOTOR_INVERTED = false; // temp
         public static final Current TRANSFER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean TRANSFER_MOTOR_BRAKE_MODE = true; // temp
 
