@@ -6,10 +6,9 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Amps;
 
 import java.util.function.DoubleSupplier;
-
-import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -25,6 +24,11 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
@@ -43,12 +47,14 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 public class Collector extends SubsystemBase {
 
     public class CollectorConstants {
-        // motor rollers
+        // Collector Rollers
         public static final boolean INVERTED = true; // temp
         public static final Current STATOR_LIMIT = Amps.of(80); // temp
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 1d;
+        public static final double DEPLOY_POWER = 0.4d; // temp
+        public static final double HOLD_POWER = 0.1d; // temp
 
         public static final MomentOfInertia COLLECTOR_MOI = KilogramSquareMeters.of(0.001); //temp 
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
@@ -83,14 +89,14 @@ public class Collector extends SubsystemBase {
         public static final AngularVelocity SIM_COLLECTING_THRESHOLD = RotationsPerSecond.of(1); // temp
     }
 
-    //Collector
+    // Collector Rollers
     private ThunderBird collectorMotor;
     private TalonFXSimState collectorMotorSim;
     private DCMotorSim collectorSim;
     private final DutyCycleOut collectorDutyCycle;
     private DCMotor collectorGearbox;
 
-    //Pivot
+    // Pivot
     private ThunderBird pivotMotor;
     private TalonFXSimState pivotMotorSim;
     private SingleJointedArmSim collectorPivotSim;
@@ -102,6 +108,9 @@ public class Collector extends SubsystemBase {
     private final PositionVoltage positionPID;
 
     private DCMotor gearbox;
+
+    private DoubleLogEntry pivotTargetAngleLog;
+    private BooleanLogEntry pivotOnTargetLog;
 
     /**
      * Creates a new Collector Subsystem.
@@ -157,6 +166,15 @@ public class Collector extends SubsystemBase {
             
             LightningShuffleboard.send("Collector", "mech 2d", mech2d);
         }
+
+        initLogging();
+    }
+
+    private void initLogging() {
+        DataLog log = DataLogManager.getLog();
+
+        pivotTargetAngleLog = new DoubleLogEntry(log, "/Collector/pivotTargetAngle");
+        pivotOnTargetLog = new BooleanLogEntry(log, "/Collector/pivotOnTarget");
     }
 
     @Override
@@ -164,6 +182,20 @@ public class Collector extends SubsystemBase {
         // if (pivotMotor.getStatorCurrent().getValue().gt((CollectorConstants.COLLECTOR_MOTOR_CURRENT_THRESHOLD))) {
         //     setPivotAngle(Degrees.of(90));
         // }
+
+        updateLogging();
+    }
+
+    private void updateLogging() {
+        pivotTargetAngleLog.append(getTargetPivotAngle().in(Degrees));
+        pivotOnTargetLog.append(pivotOnTarget());
+
+        if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
+            LightningShuffleboard.setDouble("Collector", "Collector Pivot Position", getPivotAngle().in(Degrees));
+            LightningShuffleboard.setDouble("Collector", "Collector Target Angle", getTargetPivotAngle().in(Degrees));
+            LightningShuffleboard.setBool("Collector", "Collector Pivot On Target", pivotOnTarget());
+            LightningShuffleboard.setDouble("Collector", "Collector Velocity", getCollectorVelocity().in(RotationsPerSecond));
+        }
     }
 
     @Override
@@ -192,11 +224,6 @@ public class Collector extends SubsystemBase {
         pivotMotorSim.setRawRotorPosition(pivotSimAngle.times(CollectorConstants.ENCODER_TO_MECHANISM_RATIO));
         pivotMotorSim.setRotorVelocity(pivotSimVelocity.times(CollectorConstants.ENCODER_TO_MECHANISM_RATIO));
         ligament.setAngle(90 - getPivotAngle().in(Degrees));
-
-        LightningShuffleboard.setDouble("Collector", "Collector Pivot Position", getPivotAngle().in(Degrees));
-        LightningShuffleboard.setDouble("Collector", "Collector Target Angle", targetPivotPosition.in(Degrees));
-        LightningShuffleboard.setBool("Collector", "Collector On Target", pivotOnTarget());
-        LightningShuffleboard.setDouble("Collector", "Collector Velocity", collectorSimVelocity.in(RotationsPerSecond));
     }
 
     /**
@@ -229,7 +256,7 @@ public class Collector extends SubsystemBase {
      *
      * @return the collector motor velocity as an {@link AngularVelocity}
      */
-    public AngularVelocity getVelocity() {
+    public AngularVelocity getCollectorVelocity() {
         return collectorMotor.getVelocity().getValue();
     }
 
@@ -242,6 +269,14 @@ public class Collector extends SubsystemBase {
         targetPivotPosition = ThunderUnits.clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
         
         // pivotMotor.setControl(positionPID.withPosition(targetPivotPosition)); // TODO: Uncomment when pivot is figured out
+    }
+
+    /**
+     * gets the target position of the pivot as an {@link Angle}
+     * @return the target position of the pivot
+     */
+    public Angle getTargetPivotAngle() {
+        return targetPivotPosition;
     }
 
     /**

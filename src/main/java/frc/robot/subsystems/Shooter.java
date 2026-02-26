@@ -15,10 +15,10 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
@@ -28,9 +28,15 @@ import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -51,13 +57,14 @@ public class Shooter extends SubsystemBase {
         public static final boolean BRAKE = false; // temp
         public static final double COAST_DC = 0.05; // Shooter power when coasting
 
-        public static final double kP = 0.5d; //0.25
+        public static final double kP = 0.75d;
         public static final double kI = 0d;
         public static final double kD = 0d;
-        public static final double kV = 0.1185d;
-        public static final double kS = 0.38d;
+        public static final double kV = RobotMap.IS_OASIS ? 0.1185d : 0.122d;
+        public static final double kS = RobotMap.IS_OASIS ? 0.37 : 0.35;
         public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
         public static final AngularVelocity BIAS_DELTA = RotationsPerSecond.of(1);
+        public static final Frequency UPDATE_FREQUENCY = Hertz.of(1000);
 
         public static final double GEAR_RATIO = 1d; // temp
         public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI);
@@ -67,16 +74,17 @@ public class Shooter extends SubsystemBase {
         // Input is distance to target in meters, output is shooter speed in rotations per second
         public static final ThunderMap<Distance, AngularVelocity> VELOCITY_MAP = new ThunderMap<>() {
             {
-                put(Meters.of(2d), RotationsPerSecond.of(20d));
-                put(Meters.of(4d), RotationsPerSecond.of(40d));
-                put(Meters.of(6d), RotationsPerSecond.of(60d));
+                put(Meters.of(1.902d), RotationsPerSecond.of(43d));
+                put(Meters.of(2.866), RotationsPerSecond.of(45d));
+                put(Meters.of(3.39d), RotationsPerSecond.of(50d));
+                put(Meters.of(4.344d), RotationsPerSecond.of(56d));
+                put(Meters.of(5.69d), RotationsPerSecond.of(63d));
+                put(Meters.of(8.27), RotationsPerSecond.of(90d)); // This is well over the max distance in AZ
             }
         };
 
         // Sim
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
-        public static final Translation2d SHOOTER_POSITION_ON_ROBOT = new Translation2d(Inches.of(9), Inches.of(9)); // temp
-        public static final Distance SHOOTER_HEIGHT = Inches.of(18);
         public static final Time MAX_SHOOTING_PERIOD = Seconds.of(0.1); // 10 balls per second
     }
 
@@ -88,11 +96,14 @@ public class Shooter extends SubsystemBase {
 
     private AngularVelocity targetVelocity;
 
-
     private MutAngularVelocity shooterBias;
 
     private TalonFXSimState motorSim;
     private FlywheelSim shooterSim;
+
+    private DoubleLogEntry targetVelocityLog;
+    private DoubleLogEntry biasLog;
+    private BooleanLogEntry onTargetLog;
 
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
@@ -127,6 +138,7 @@ public class Shooter extends SubsystemBase {
         config.Slot0.kS = ShooterConstants.kS;
 
         config.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO;
+        motorLeft.getMotorVoltage().setUpdateFrequency(ShooterConstants.UPDATE_FREQUENCY);
 
         motorLeft.applyConfig(config);
         motorRight.setControl(new Follower(RobotMap.SHOOTER_LEFT, MotorAlignmentValue.Opposed));
@@ -139,6 +151,34 @@ public class Shooter extends SubsystemBase {
                 DCMotor.getKrakenX60Foc(2), ShooterConstants.MOI.in(KilogramSquareMeters),
                 ShooterConstants.GEAR_RATIO), DCMotor.getKrakenX60Foc(2));
         }
+
+        initLogging();
+    }
+
+    private void initLogging() {
+        DataLog log = DataLogManager.getLog();
+
+        targetVelocityLog = new DoubleLogEntry(log, "/Shooter/TargetVelocity");
+        biasLog = new DoubleLogEntry(log, "/Shooter/Bias");
+        onTargetLog = new BooleanLogEntry(log, "/Shooter/OnTarget");
+    }
+
+    @Override
+    public void periodic() {
+        updateLogging();
+    }
+
+    private void updateLogging() {
+        targetVelocityLog.append(getTargetVelocity().in(RotationsPerSecond));
+        biasLog.append(getBias().in(RotationsPerSecond));
+        onTargetLog.append(isOnTarget());
+
+        if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
+            LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
+            LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
+            LightningShuffleboard.setDouble("Shooter", "Target Velocity", getTargetVelocity().in(RotationsPerSecond));
+            LightningShuffleboard.setDouble("Shooter", "Bias", getBias().in(RotationsPerSecond));
+        }
     }
 
     @Override
@@ -149,11 +189,6 @@ public class Shooter extends SubsystemBase {
         shooterSim.update(Robot.kDefaultPeriod);
 
         motorSim.setRotorVelocity(shooterSim.getAngularVelocity());
-
-        LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
-        LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
-        LightningShuffleboard.setDouble("Shooter", "Target Velocity", targetVelocity.in(RotationsPerSecond));
-        LightningShuffleboard.setDouble("Shooter", "Bias", shooterBias.in(RotationsPerSecond));
     }
 
      /**
@@ -214,7 +249,8 @@ public class Shooter extends SubsystemBase {
      */
     public AngularVelocity getBias() {
         return shooterBias;
-    } 
+    }
+
     /**
      * @return the velocity of the shooter motor
      */

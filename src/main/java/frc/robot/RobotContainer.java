@@ -9,6 +9,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -19,10 +21,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
+import frc.robot.subsystems.Cannon;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
@@ -36,10 +41,12 @@ import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
+import frc.robot.commands.PoseBasedAutoAlign;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
 import frc.util.shuffleboard.LightningShuffleboard;
+
 
 public class RobotContainer {
 
@@ -54,8 +61,10 @@ public class RobotContainer {
     private final Shooter shooter;
     private final LEDSubsystem leds;
     public final PowerDistribution pdh;
+    @SuppressWarnings("unused")
     private final PhotonVision vision;
     private final Telemetry logger;
+    private final Cannon cannon;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -74,6 +83,7 @@ public class RobotContainer {
         shooter = new Shooter();
         hood = new Hood();
         turret = new Turret(drivetrain);
+        cannon = new Cannon(shooter, turret, hood, drivetrain, indexer);
         vision = new PhotonVision(drivetrain);
         
 
@@ -98,24 +108,33 @@ public class RobotContainer {
                         VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND)
                         .times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0),
                         DriveConstants.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                        DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW) 
+                        DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
                         * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
+
+        /*
+         * Copilot Default Commands
+         */
         collector.setDefaultCommand(collector.collectRunCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
         shooter.setDefaultCommand(shooter.coast());
-        // hood.setDefaultCommand(hood.hoodAim(drivetrain)); // TODO: Uncomment when ready
-        // turret.setDefaultCommand(new TurretAim(drivetrain, turret));
+
+        hood.setDefaultCommand(cannon.hoodAim());
+        turret.setDefaultCommand(cannon.turretAim());
     }
 
     private void configureBindings() {
+
         /* Driver */
         new Trigger(driver::getXButton)
             .whileTrue(drivetrain.brakeCommand()
-                    .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
+                .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
             );
 
         // TODO: Bind OTF to LB and Climb AA to RB
 
+        /*
+         * change biases for the driver
+         */
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_DOWN).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA));
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_LEFT).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA.unaryMinus()));
@@ -132,47 +151,54 @@ public class RobotContainer {
                     VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND)
                     .times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0),
                     DriveConstants.CONTROLLER_POW), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                    DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW) 
+                    DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
                     * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
+        new Trigger(driver::getAButton).whileTrue(cannon.run(() -> // temp for interp map tuning
+            LightningShuffleboard.setDouble("Cannon", "Target Distance", cannon.getTargetDistance().in(Meters))));
 
         /* Copilot */
+        new Trigger(() -> drivetrain.isNearTrench())
+            .whileTrue(hood.retract());
+        new Trigger(copilot::getXButton).whileTrue(hood.retract());
 
-        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER, 
+        new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER,
             -IndexerConstants.TRANSFER_POWER));
-        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, 
+        new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER,
             IndexerConstants.TRANSFER_POWER));
+
+        new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot());
 
         new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
             collector.pivotCommand(CollectorConstants.DEPLOY_ANGLE));
+        new Trigger(copilot::getYButton).whileTrue(collector.pivotCommand(CollectorConstants.STOWED_ANGLE));
 
-        // TODO: Bind SmartClimb to Y, and bind manual climb to Joystick
-
-            // new Trigger(driver::getBButton).onTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
-
-        // TODO: Bind A to OTF or something
-
-        // TODO: Bind B to Smart Shoot
-
-        new Trigger(copilot::getStartButton).whileTrue(collector.pivotCommand(CollectorConstants.STOWED_ANGLE));
         new Trigger(copilot::getBackButton).whileTrue(turret.idle().beforeStarting(turret::stop)); // disable turret
 
-        // Temp Bindings for testing purposes
-
         // Temp Cand shots
-        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT || copilot.getPOV() == DriveConstants.DPAD_RIGHT)
-            .whileTrue(shooter.shootCommand(RotationsPerSecond.of(65))
-            .andThen(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER))
+        //RIGHT_, LEFT_, and MIDDLE_ are all set to 0, so temp shots wont work right now
+        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_RIGHT).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT));
+        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT));
+        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT));
+
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
+            shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
+            .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
+            .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
+            () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
             .finallyDo(shooter::stop));
-
-            // new Trigger(copilot::getBButton).whileTrue(turret.aimWithTarget(drivetrain, FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
-        }
+    }
     
-
     private void configureNamedCommands() {
         NamedCommands.registerCommand("LED_SHOOT", leds.enableStateWithTimeout(LED_STATES.SHOOT.id(), 2));
         NamedCommands.registerCommand("LED_COLLECT", leds.enableStateWithTimeout(LED_STATES.COLLECT.id(), 2));
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
+
+        NamedCommands.registerCommand("MOVE_TO_TOWER", new PoseBasedAutoAlign(drivetrain, FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
+        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot());
+        NamedCommands.registerCommand("COLLECT", collector.collectCommand(CollectorConstants.COLLECT_POWER));
+        NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.collectCommand(CollectorConstants.DEPLOY_POWER, CollectorConstants.DEPLOY_ANGLE));
+        NamedCommands.registerCommand("STOW_COLLECTOR", collector.collectCommand(CollectorConstants.HOLD_POWER, CollectorConstants.STOWED_ANGLE));
 
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
@@ -205,6 +231,6 @@ public class RobotContainer {
         // At startup, turn on the "vision bad" LED state to indicate that the pose/vision estimate may be unreliable.
         leds.setState(LED_STATES.VISION_BAD.id(), true);
         // Turn off the "vision bad" LED state once the drivetrain has moved away from the origin, indicating we likely have a valid pose estimate.
-        new Trigger(() -> (DriverStation.isEnabled() || drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)));
+        new Trigger(() -> (DriverStation.isEnabled() || drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)).ignoringDisable(true));
     }
 }
