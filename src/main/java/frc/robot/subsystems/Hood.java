@@ -77,18 +77,18 @@ public class Hood extends SubsystemBase {
             }
         };
 
-        public static final double kS = 0.05d;
-        public static final double kG = -0.3d; // negative because negative power is up
-        public static final double kP = 50d;
+        public static final double kS = RobotMap.IS_OASIS ? 0.05d : 0.37d;
+        public static final double kG = RobotMap.IS_OASIS ? -0.3d : 0; // negative because negative power is up
+        public static final double kP = RobotMap.IS_OASIS ? 50d : 300d;
         public static final double kI = 0.0;
-        public static final double kD = 1d;
+        public static final double kD = RobotMap.IS_OASIS ? 1d : 7d;
 
         public static final Angle POSITION_TOLERANCE = Degrees.of(3); // temp
         public static final Angle BIAS_DELTA = Degrees.of(0.5); // temp
 
         // Conversion ratios
         public static final double ROTOR_TO_ENCODER_RATIO = !hasEncoder() ? 1 : 9*42/18d;
-        public static final double ENCODER_TO_MECHANISM_RATIO = !hasEncoder() ? 50/22d * 156/15d : 18/42d*156/15d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = RobotMap.IS_OASIS ? 50/22d * 156/15d : 9 * 156/15;
         public static final double ROTOR_TO_MECHANISM_RATIO = ROTOR_TO_ENCODER_RATIO * ENCODER_TO_MECHANISM_RATIO; // only used in sim
 
         public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp

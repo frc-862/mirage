@@ -58,8 +58,8 @@ public class Shooter extends SubsystemBase {
         public static final double kP = 0.75d;
         public static final double kI = 0d;
         public static final double kD = 0d;
-        public static final double kV = 0.13d;
-        public static final double kS = 0;
+        public static final double kV = RobotMap.IS_OASIS ? 0.1185d : 0.122d;
+        public static final double kS = RobotMap.IS_OASIS ? 0.37 : 0.35d;
         public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
         public static final AngularVelocity BIAS_DELTA = RotationsPerSecond.of(1);
 
