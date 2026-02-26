@@ -6,6 +6,11 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import java.util.function.DoubleSupplier;
+
+import javax.swing.undo.StateEdit;
+
 import static edu.wpi.first.units.Units.Amps;
 
 import java.util.function.DoubleSupplier;
@@ -75,9 +80,10 @@ public class Collector extends SubsystemBase {
         public static final double ENCODER_TO_MECHANISM_RATIO = 36d; // temp
         public static final Angle MIN_ANGLE = Degrees.of(0); // temp
         public static final Angle MAX_ANGLE = Degrees.of(90); // temp
-        public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
-        public static final Angle STOWED_ANGLE = MIN_ANGLE;
-        public static final Angle TOLERANCE = Degrees.of(2); // temp
+        public static final double DEPLOY_DC = 0.4;
+        public static final double DEPLOY_HOLD_DC = 0.05;
+        public static final double STOW_DC = -0.4;
+        public static final double STOW_HOLD_DC = -0.05;
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.01); // temp
         public static final Distance LENGTH = Inches.of(6);
@@ -100,12 +106,19 @@ public class Collector extends SubsystemBase {
     private ThunderBird pivotMotor;
     private TalonFXSimState pivotMotorSim;
     private SingleJointedArmSim collectorPivotSim;
+    private final DutyCycleOut pivotDutyCycle;
     private Mechanism2d mech2d;
     private MechanismRoot2d root2d;
     private MechanismLigament2d ligament;
-    private Angle targetPivotPosition;
-    @SuppressWarnings("unused")
-    private final PositionVoltage positionPID;
+    public enum PIVOT_STATES {
+        UNKNOWN,
+        DEPLOYING,
+        DEPLOYED,
+        STOWING,
+        STOWED
+    }
+    private PIVOT_STATES pivotState = PIVOT_STATES.UNKNOWN;
+    private PIVOT_STATES nextPivotState = PIVOT_STATES.UNKNOWN;
 
     private DCMotor gearbox;
 
@@ -179,11 +192,38 @@ public class Collector extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // if (pivotMotor.getStatorCurrent().getValue().gt((CollectorConstants.COLLECTOR_MOTOR_CURRENT_THRESHOLD))) {
-        //     setPivotAngle(Degrees.of(90));
-        // }
-
-        updateLogging();
+        if (pivotState != nextPivotState) {
+            switch (nextPivotState) {
+                case DEPLOYING:
+                    setPivotPower(CollectorConstants.DEPLOY_DC);
+                    break;
+                case DEPLOYED:
+                    setPivotPower(CollectorConstants.DEPLOY_HOLD_DC);
+                    break;
+                case STOWING:
+                    setPivotPower(CollectorConstants.STOW_DC);
+                    break;
+                case STOWED:
+                    setPivotPower(CollectorConstants.STOW_HOLD_DC);
+                    break;
+                default:
+            }
+        }
+        switch (pivotState) {
+            case DEPLOYING:
+                if (pivotMotor.getSupplyCurrent().getValue().gt(CollectorConstants.CURRENT_THRESHOLD)) {
+                    nextPivotState = PIVOT_STATES.DEPLOYED;
+                };
+                break;
+            case STOWING:
+                if (pivotMotor.getSupplyCurrent().getValue().lt(CollectorConstants.CURRENT_THRESHOLD.unaryMinus())) {
+                    nextPivotState = PIVOT_STATES.STOWED;
+                }
+                break;
+            default:
+        }
+        pivotState = nextPivotState;
+                updateLogging();
     }
 
     private void updateLogging() {
@@ -235,13 +275,25 @@ public class Collector extends SubsystemBase {
     }
 
     /**
-     * Deploys the collector with specified power and position
-     * @param power applying power with duty cycle
-     * @param position set the pivot position
+     * Set the power of the pivot motor using duty cycle out
+     * @param power duty cycle value from -1.0 to 1.0
      */
-    public void deployCollector(double power, Angle position) {
-        setCollectorPower(power);
-        setPivotAngle(position);
+    public void setPivotPower(double power) {
+        pivotMotor.setControl(pivotDutyCycle.withOutput(power));
+    }
+
+    /**
+     * Starts deploying the pivot motor
+     */
+    public void deployCollector() {
+        nextPivotState = PIVOT_STATES.DEPLOYING;
+    }
+
+    /**
+     * Starts stowing the pivot motor
+     */
+    public void stowCollector() {
+        nextPivotState = PIVOT_STATES.STOWING;
     }
 
     /**
@@ -260,61 +312,7 @@ public class Collector extends SubsystemBase {
         return collectorMotor.getVelocity().getValue();
     }
 
-    /**
-     * Set the pivot position in degrees
-     *
-     * @param position in degrees
-     */
-    public void setPivotAngle(Angle position) {
-        targetPivotPosition = ThunderUnits.clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
-        
-        // pivotMotor.setControl(positionPID.withPosition(targetPivotPosition)); // TODO: Uncomment when pivot is figured out
-    }
-
-    /**
-     * gets the target position of the pivot as an {@link Angle}
-     * @return the target position of the pivot
-     */
-    public Angle getTargetPivotAngle() {
-        return targetPivotPosition;
-    }
-
-    /**
-     * Checks if the wrist is on target
-     *
-     * @return True if the wrist is on target
-     */
-    public boolean pivotOnTarget() {
-        return targetPivotPosition.isNear(getPivotAngle(), CollectorConstants.TOLERANCE);
-    }
-
-    /**
-     * dutycycleout command for collector
-     * @param power
-     * @param position
-     * @return the command for running the collector
-     */
-    public Command collectCommand(double power, Angle position) {
-        return new StartEndCommand(() -> deployCollector(power, position), () -> stopCollector(), this);
-    }
-
-    public Command collectCommand(double power) {
-        return new StartEndCommand(() -> setCollectorPower(power), () -> stopCollector(), this);
-    }
-
     public Command collectRunCommand(DoubleSupplier power) {
         return runEnd(() -> setCollectorPower(power.getAsDouble()), () -> stopCollector());
-    }
-
-    public Command pivotCommand(Angle position) {
-        return new InstantCommand(() -> setPivotAngle(position)); // Cannot require collector b/c of default command
-    }
-
-    /**
-     * Get the angle of the pivot
-     * @return angle of the pivot
-     */
-    public Angle getPivotAngle(){
-        return pivotMotor.getPosition().getValue();
     }
 }
