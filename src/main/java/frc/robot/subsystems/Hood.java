@@ -77,13 +77,13 @@ public class Hood extends SubsystemBase {
             }
         };
 
-        public static final double kS = RobotMap.IS_OASIS ? 0.05d : 0.37d;
+        public static final double kS = RobotMap.IS_OASIS ? 0.05d : 0.33d;
         public static final double kG = RobotMap.IS_OASIS ? -0.3d : 0; // negative because negative power is up
-        public static final double kP = RobotMap.IS_OASIS ? 50d : 300d;
+        public static final double kP = RobotMap.IS_OASIS ? 50d : 500d;
         public static final double kI = 0.0;
-        public static final double kD = RobotMap.IS_OASIS ? 1d : 7d;
+        public static final double kD = RobotMap.IS_OASIS ? 1d : 12d;
 
-        public static final Angle POSITION_TOLERANCE = Degrees.of(3); // temp
+        public static final Angle POSITION_TOLERANCE = Degrees.of(0.5); // temp
         public static final Angle BIAS_DELTA = Degrees.of(0.5); // temp
 
         // Conversion ratios
