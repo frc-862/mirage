@@ -22,6 +22,7 @@ public class VisionConstants {
     public record CameraConstant(String name, Transform3d offset) {};
     public static final CameraConstant[] CAMERA_CONSTANTS = new CameraConstant[] {
         // TODO: ADD CAMERAS
+        new CameraConstant("leftCam", new Transform3d())
     };
 
 }
