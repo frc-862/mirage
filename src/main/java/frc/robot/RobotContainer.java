@@ -235,6 +235,6 @@ public class RobotContainer {
         new Trigger(() -> (DriverStation.isEnabled() || drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)).ignoringDisable(true));
 
         //Turn on the NEAR_HUB light when it is near the HUB.
-        new Trigger(() -> cannon.isNearHub()).onTrue(leds.enableState(LED_STATES.NEAR_HUB.id())).onFalse(new InstantCommand(() -> leds.setState(LED_STATES.NEAR_HUB.id(), false)));
+        new Trigger(() -> cannon.isNearHub()).onTrue(leds.enableState(LED_STATES.NEAR_HUB.id()));
     }
 }

@@ -197,7 +197,7 @@ public class Cannon extends SubsystemBase {
     public Command smartShoot() {
         return shooter.runShootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
         .alongWith(new SequentialCommandGroup(
-            new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget() && isNearHub()),
+            new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget() && !isNearHub()),
             indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER))
         ).finallyDo((end) -> {
             shooter.setPower(Shooter.ShooterConstants.COAST_DC);
