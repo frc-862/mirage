@@ -53,11 +53,7 @@ import frc.util.simulation.SwerveSim;
  */
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     public class PoseConstants {
-        public static final double DRIVE_P = 1.5d;
-        public static final double DRIVE_I = 0;
-        public static final double DRIVE_D = 0.08;
-        public static final Distance DRIVE_TOLERANCE = Meters.of(0.05);
-        public static final double DRIVE_KS = 0;
+        
     }
 
     private Notifier m_simNotifier = null;
