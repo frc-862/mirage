@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
+import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.AllianceHelpers;
 
 public class Cannon extends SubsystemBase {
@@ -194,15 +195,14 @@ public class Cannon extends SubsystemBase {
      * @return The command to run
      */
     public Command smartShoot() {
-        return new SequentialCommandGroup(
-            shooter.shootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance())),
-            new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget()),
-            indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
-        ).alongWith(shooter.runShootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
+        return shooter.runShootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
+        .alongWith(new SequentialCommandGroup(
+            new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget() && isNearHub()),
+            indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER))
         ).finallyDo((end) -> {
             shooter.setPower(Shooter.ShooterConstants.COAST_DC);
             indexer.stop();
-        }).unless(() -> isNearHub());
+        });
     }
 
     /**
@@ -211,6 +211,6 @@ public class Cannon extends SubsystemBase {
      */
     public boolean isNearHub(){
           Distance distance = Meters.of(this.getShooterTranslation().getDistance(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
-          return (distance.in(Meters) < CannonConstants.SMART_SHOOT_MIN_DISTANCE.in(Meters));
+          return distance.lt(CannonConstants.SMART_SHOOT_MIN_DISTANCE);
     }
 }

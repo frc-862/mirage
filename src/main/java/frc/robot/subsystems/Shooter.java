@@ -266,7 +266,7 @@ public class Shooter extends SubsystemBase {
      * @return command for constantly running the shooter
      */
     public Command runShootCommand(Supplier<AngularVelocity> velocitySupplier) {
-        return new RunCommand(() -> setVelocity(velocitySupplier.get()));
+        return run(() -> setVelocity(velocitySupplier.get()));
     }
 
     /**
