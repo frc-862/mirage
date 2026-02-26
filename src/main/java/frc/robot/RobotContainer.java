@@ -3,7 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
-import com.fasterxml.jackson.databind.util.Named;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -214,6 +213,7 @@ public class RobotContainer {
         ));
         leds.setBehavior(LED_STATES.ERROR.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
         leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.RED));
+        leds.setBehavior(LED_STATES.NOT_READY_FOR_MATCH.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.PURPLE));
         leds.setBehavior(LED_STATES.BRAKE.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
         leds.setBehavior(LED_STATES.SHOOT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.ORANGE));
         leds.setBehavior(LED_STATES.COLLECT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.BLUE));
@@ -228,6 +228,16 @@ public class RobotContainer {
         // At startup, turn on the "vision bad" LED state to indicate that the pose/vision estimate may be unreliable.
         leds.setState(LED_STATES.VISION_BAD.id(), true);
         // Turn off the "vision bad" LED state once the drivetrain has moved away from the origin, indicating we likely have a valid pose estimate.
-        new Trigger(() -> (DriverStation.isEnabled() || drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)).ignoringDisable(true));
+        new Trigger(() -> (DriverStation.isEnabled() || drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1))
+            .onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false))
+            .ignoringDisable(true));
+
+        new Trigger(() -> DriverStation.isFMSAttached()).onTrue(new InstantCommand(() -> // only set "not ready for match" if we're connected to the field, to avoid confusion during testing
+            leds.setState(LED_STATES.NOT_READY_FOR_MATCH.id(), true)).ignoringDisable(true));
+
+        new Trigger(() -> DriverStation.isEnabled() || (turret.getZeroLimitSwitch() 
+            && LightningShuffleboard.getBool("Drive Team", "Auton Set", false)) && DriverStation.isFMSAttached())
+            .onTrue(new InstantCommand(() -> leds.setState(LED_STATES.NOT_READY_FOR_MATCH.id(), false))
+            .ignoringDisable(true));
     }
 }

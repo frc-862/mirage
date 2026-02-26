@@ -48,11 +48,6 @@ public class Robot extends TimedRobot {
         
         // No Live Window for now
         LiveWindow.disableAllTelemetry();
-
-        if (DriverStation.isFMSAttached()) {
-            totalCurrentEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/TotalCurrent");
-            voltageEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/Voltage");
-        }
     }
 
     @Override
@@ -60,11 +55,17 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
 
         if (DriverStation.isFMSAttached()) {
-            totalCurrentEntry.append(getContainer().pdh.getTotalCurrent());
-            voltageEntry.append(getContainer().pdh.getVoltage());
+
+            if (totalCurrentEntry == null) {
+                totalCurrentEntry = new DoubleLogEntry(DataLogManager.getLog(), "PDH/TotalCurrent");
+                voltageEntry = new DoubleLogEntry(DataLogManager.getLog(), "PDH/Voltage");
+            }
+
+            totalCurrentEntry.append(robotContainer.pdh.getTotalCurrent());
+            voltageEntry.append(robotContainer.pdh.getVoltage());
         } else {
-            LightningShuffleboard.setDouble("PDH", "Total Current", getContainer().pdh.getTotalCurrent());
-            LightningShuffleboard.setDouble("PDH", "Voltage", getContainer().pdh.getVoltage());
+            LightningShuffleboard.setDouble("PDH", "Total Current", robotContainer.pdh.getTotalCurrent());
+            LightningShuffleboard.setDouble("PDH", "Voltage", robotContainer.pdh.getVoltage());
         }
     }
 
@@ -103,7 +104,9 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {}
 
     @Override
-    public void teleopExit() {}
+    public void teleopExit() {
+        LightningShuffleboard.setBool("Drive Team", "Auton Set", false); // reset auton set for next match
+    }
 
     @Override
     public void testInit() {
