@@ -63,8 +63,8 @@ public class Robot extends TimedRobot {
             totalCurrentEntry.append(getContainer().pdh.getTotalCurrent());
             voltageEntry.append(getContainer().pdh.getVoltage());
         } else {
-            LightningShuffleboard.setDouble("PDH", "Total Current", getContainer().pdh.getTotalCurrent());
-            LightningShuffleboard.setDouble("PDH", "Voltage", getContainer().pdh.getVoltage());
+            // LightningShuffleboard.setDouble("PDH", "Total Current", getContainer().pdh.getTotalCurrent());
+            // LightningShuffleboard.setDouble("PDH", "Voltage", getContainer().pdh.getVoltage());
         }
     }
 
