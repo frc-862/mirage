@@ -17,6 +17,7 @@ public class LEDConstants {
         TEST,
         ERROR,
         VISION_BAD,
+        NEAR_HUB,
         AUTO,
         SHOOT,
         CANNED_SHOT_START,

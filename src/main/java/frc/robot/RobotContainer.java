@@ -222,6 +222,7 @@ public class RobotContainer {
         leds.setBehavior(LED_STATES.CLIMB.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.YELLOW));
         leds.setBehavior(LED_STATES.CANNED_SHOT_START.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.YELLOW));
         leds.setBehavior(LED_STATES.CANNED_SHOT_READY.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREEN));
+        leds.setBehavior(LED_STATES.NEAR_HUB.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 3, Color.RED));
 
         new Trigger(DriverStation::isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
 
@@ -231,5 +232,8 @@ public class RobotContainer {
         leds.setState(LED_STATES.VISION_BAD.id(), true);
         // Turn off the "vision bad" LED state once the drivetrain has moved away from the origin, indicating we likely have a valid pose estimate.
         new Trigger(() -> (DriverStation.isEnabled() || drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)).ignoringDisable(true));
+
+        //Turn on the NEAR_HUB light when it is near the HUB.
+        new Trigger(() -> cannon.isNearHub()).whileTrue(leds.enableState(LED_STATES.NEAR_HUB.id()));
     }
 }
