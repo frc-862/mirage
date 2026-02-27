@@ -45,6 +45,7 @@ public class Cannon extends SubsystemBase {
         public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
     }
 
+    
     // Subsystems
     private Shooter shooter;
     private Turret turret;
