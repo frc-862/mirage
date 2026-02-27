@@ -17,13 +17,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "MOVE_TO_TOWER"
+                  "name": "SMART_SHOOT"
                 }
               },
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 1.5
+                  "waitTime": 2.0
                 }
               }
             ]
@@ -36,13 +36,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "SMART_SHOOT"
+                  "name": "MOVE_TO_TOWER"
                 }
               },
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.0
+                  "waitTime": 1.5
                 }
               }
             ]
