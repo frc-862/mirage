@@ -19,6 +19,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
@@ -67,13 +68,9 @@ public class Hood extends SubsystemBase {
 
         public static final ThunderMap<Distance, Angle> HOOD_MAP = new ThunderMap<>() {
             {
-                put(Meters.of(1.902d), Degrees.of(80d));
-                put(Meters.of(2.866), Degrees.of(77d));
-                put(Meters.of(3.39d), Degrees.of(75d));
-                put(Meters.of(4.344), Degrees.of(74d));
-                put(Meters.of(5.69), Degrees.of(72d)); // This is over the max distance in AZ
-                put(Meters.of(8.27), Degrees.of(61d));
-                put(Meters.of(8.270001), MIN_ANGLE); // anything above that just use lowest angle
+                put(Inches.of(64), Degrees.of(80));
+                put(Inches.of(183), Degrees.of(80));
+                put(Feet.of(23), Degrees.of(66));
             }
         };
 
