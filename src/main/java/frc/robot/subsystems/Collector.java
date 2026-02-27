@@ -12,6 +12,7 @@ import java.util.function.DoubleSupplier;
 import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
@@ -52,7 +53,7 @@ public class Collector extends SubsystemBase {
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
 
         // pivot
-        public static final boolean PIVOT_INVERTED = false; // temp
+        public static final boolean PIVOT_INVERTED = true; // temp
         public static final Current PIVOT_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean PIVOT_BRAKE_MODE = true; // temp
         public static final double ROTOR_TO_ENCODER_RATIO = 1d; // temp
@@ -123,6 +124,7 @@ public class Collector extends SubsystemBase {
             CollectorConstants.MIN_ANGLE.in(Radians));
 
             pivotMotorSim = pivotMotor.getSimState();
+            pivotMotorSim.Orientation = ChassisReference.Clockwise_Positive;
             pivotMotorSim.setRawRotorPosition(CollectorConstants.MIN_ANGLE);
 
             // collector sim stuff
