@@ -117,8 +117,8 @@ public class RobotContainer {
         collector.setDefaultCommand(collector.collectRunCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
         shooter.setDefaultCommand(shooter.coast());
 
-        hood.setDefaultCommand(cannon.hoodAim());
-        turret.setDefaultCommand(cannon.turretAim());
+        // hood.setDefaultCommand(cannon.hoodAim());
+        // turret.setDefaultCommand(cannon.turretAim());
     }
 
     private void configureBindings() {
@@ -186,6 +186,9 @@ public class RobotContainer {
             .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
             () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
             .finallyDo(shooter::stop));
+
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(hood.hoodCommand(() -> 
+            Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
     }
     
     private void configureNamedCommands() {
