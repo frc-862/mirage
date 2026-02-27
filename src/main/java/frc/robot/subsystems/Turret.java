@@ -215,7 +215,7 @@ public class Turret extends SubsystemBase {
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed) { // only allow position control if turret has been zeroed but store to apply when zeroed
-            motor.setControl(positionPID.withPosition(optimizeTurretAngle(targetPosition).in(Rotations)));
+            motor.setControl(positionPID.withPosition(optimizeTurretAngle(targetPosition)));
         }
     }
 
