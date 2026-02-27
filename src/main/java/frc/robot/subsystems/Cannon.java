@@ -249,7 +249,8 @@ public class Cannon extends SubsystemBase {
           Distance distance = Meters.of(this.getShooterTranslation().getDistance(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
           return distance.lt(CannonConstants.SMART_SHOOT_MIN_DISTANCE);
     }
-
+    
+    /**
      * starts the indexer when the hood, turret, and shooter is on target.
      * @return The command
      */
