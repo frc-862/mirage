@@ -170,8 +170,10 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command createCandShotCommand(CannonConstants.CandShot value) {
-        startIndexing();
-        return createCannonCommand(value.hoodAngle, value.shooterVelocity);
+        return new ParallelCommandGroup(
+            createCannonCommand(value.hoodAngle, value.shooterVelocity)
+        ).alongWith(indexWhenOnTarget());
+        
     }
 
     /**
@@ -180,8 +182,9 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command createTurretCandShotCommand(CannonConstants.CandShot value) {
-        startIndexing();
-        return createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity);
+      return new ParallelCommandGroup(
+            createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity)
+        ).alongWith(indexWhenOnTarget());
     }
 
     /**
@@ -237,7 +240,7 @@ public class Cannon extends SubsystemBase {
      * starts the indexer when the hood, turret, and shooter is on target.
      * @return The command
      */
-    public Command startIndexing(){
+    public Command indexWhenOnTarget(){
         return new SequentialCommandGroup(
             new WaitUntilCommand(() -> isOnTarget()),
             indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
