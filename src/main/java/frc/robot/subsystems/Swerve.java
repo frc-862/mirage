@@ -29,7 +29,6 @@ import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
 
 import static edu.wpi.first.units.Units.Degrees;
-import edu.wpi.first.units.measure.Distance;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
@@ -52,13 +51,6 @@ import frc.util.simulation.SwerveSim;
  * Subsystem so it can easily be used in command-based projects.
  */
 public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
-        public static final double DRIVE_P = 1.5d;
-        public static final double DRIVE_I = 0;
-        public static final double DRIVE_D = 0.08;
-        public static final Distance DRIVE_TOLERANCE = Meters.of(0.05);
-        public static final double DRIVE_KS = 0;
-
-
     private Notifier m_simNotifier = null;
     protected SwerveSim swerveSim;
 
@@ -454,7 +446,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
-    public Command poseBasedAutoAlign(Pose2d targetPose){
+    public Command autoAlign(Pose2d targetPose) {
         PIDController pidX = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
         PIDController pidY = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
         PIDController pidR = new PIDController(DriveConstants.ROT_P, DriveConstants.ROT_I, DriveConstants.ROT_D);
