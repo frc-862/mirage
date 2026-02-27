@@ -171,7 +171,11 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command createCandShotCommand(CannonConstants.CandShot value) {
-        return createCannonCommand(Degrees.of(0d), value.hoodAngle, value.shooterVelocity);
+        return new ParallelCommandGroup(
+            createCannonCommand(value.hoodAngle, value.shooterVelocity),
+            indexWhenOnTarget()
+        );
+        
     }
 
     /**
@@ -180,7 +184,10 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command createTurretCandShotCommand(CannonConstants.CandShot value) {
-        return createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity);
+      return new ParallelCommandGroup(
+            createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity),
+            indexWhenOnTarget()
+        );
     }
 
     /**
@@ -230,5 +237,24 @@ public class Cannon extends SubsystemBase {
             shooter.setPower(Shooter.ShooterConstants.COAST_DC);
             indexer.stop();
         });
+    }
+
+    /**
+     * starts the indexer when the hood, turret, and shooter is on target.
+     * @return The command
+     */
+    public Command indexWhenOnTarget(){
+        return new SequentialCommandGroup(
+            new WaitUntilCommand(() -> isOnTarget()),
+            indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
+        );
+    }
+
+    /**
+     *  checks if the hood, turret, and shooter is on target.
+     * @return if they are on target.
+     */
+    public boolean isOnTarget(){
+        return (hood.isOnTarget() && turret.isOnTarget() && shooter.isOnTarget());
     }
 }
