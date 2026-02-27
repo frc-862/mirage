@@ -27,7 +27,12 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -47,22 +52,21 @@ import frc.util.units.ThunderUnits;
 public class Turret extends SubsystemBase {
 
     public class TurretConstants {
-
         public static final boolean INVERTED = false; // temp
         public static final Current STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean BRAKE = false; // temp
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Degrees.of(-120) : Degrees.of(-220); // limit range temporarily
-        public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Degrees.of(120) : Degrees.of(220);
+        public static final Angle MIN_ANGLE = Degrees.of(-120); // limit range temporarily
+        public static final Angle MAX_ANGLE = Degrees.of(120);
 
         public static final double kP = 25d;
         public static final double kI = 0d;
         public static final double kD = 0d;
         public static final double kS = 0.45d;
 
-        public static final double ENCODER_TO_MECHANISM_RATIO = 185d / 16d * 5;
+        public static final double ENCODER_TO_MECHANISM_RATIO = 92d / 12d * 5;
 
         public static final Angle ZERO_ANGLE = Degrees.of(0);
         public static final double ZEROING_POWER = 0.5;
@@ -94,6 +98,11 @@ public class Turret extends SubsystemBase {
     private boolean zeroed;
 
     private final Swerve drivetrain;
+
+    private DoubleLogEntry targetPositionLog;
+    private BooleanLogEntry onTargetLog;
+    private BooleanLogEntry zeroLimitSwitchLog;
+    private BooleanLogEntry maxLimitSwitchLog;
 
     /**
      * Creates a new Turret Subsystem.
@@ -129,7 +138,7 @@ public class Turret extends SubsystemBase {
         zeroLimitSwitch = new DigitalInput(RobotMap.TURRET_ZERO_SWITCH);
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
 
-        zeroed = Robot.isSimulation() || RobotMap.IS_OASIS; // only zero when real // TODO: remove isOasis check after limit switches added
+        zeroed = true; // only zero when real // TODO: remove isOasis check after limit switches added
         if (!zeroed) {
             setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
         }
@@ -151,11 +160,21 @@ public class Turret extends SubsystemBase {
 
             LightningShuffleboard.send("Turret", "mech 2d", mech2d);
         }
+
+        initLogging();
+    }
+
+    private void initLogging() {
+        DataLog log = DataLogManager.getLog();
+
+        targetPositionLog = new DoubleLogEntry(log, "Turret/TargetPosition");
+        onTargetLog = new BooleanLogEntry(log, "Turret/OnTarget");
+        zeroLimitSwitchLog = new BooleanLogEntry(log, "Turret/ZeroLimitSwitch");
+        maxLimitSwitchLog = new BooleanLogEntry(log, "Turret/MaxLimitSwitch");
     }
 
     @Override
     public void periodic() {
-
         // Max limit switch will be imprecise, so go the other direction toward zero switch when max is hit
         if (getMaxLimitSwitch() && !zeroed) {
             setPower(-TurretConstants.ZEROING_POWER);
@@ -167,7 +186,24 @@ public class Turret extends SubsystemBase {
             zeroed = true;
             setAngle(targetPosition);
         }
+
+        updateLogging();
     }
+
+    private void updateLogging() {
+        targetPositionLog.append(getTargetAngle().in(Degrees));
+        onTargetLog.append(isOnTarget());
+        zeroLimitSwitchLog.append(getZeroLimitSwitch());
+        maxLimitSwitchLog.append(getMaxLimitSwitch());
+
+        if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
+            LightningShuffleboard.setDouble("Turret", "Current Angle", getAngle().in(Degrees));
+            LightningShuffleboard.setDouble("Turret", "Target Angle", getTargetAngle().in(Degrees));
+            LightningShuffleboard.setBool("Turret", "On Target", isOnTarget());
+            LightningShuffleboard.setBool("Turret", "Zero Limit Switch", getZeroLimitSwitch());
+            LightningShuffleboard.setBool("Turret", "Max Limit Switch", getMaxLimitSwitch());
+        }
+     }
 
     @Override
     public void simulationPeriodic() {
@@ -183,14 +219,6 @@ public class Turret extends SubsystemBase {
         motorSim.setRotorVelocity(simVeloc.times(TurretConstants.ENCODER_TO_MECHANISM_RATIO));
 
         ligament.setAngle(simAngle.in(Degrees));
-
-        LightningShuffleboard.setDouble("Turret", "Motor encoder angle",
-                motor.getPosition().getValue().in(Degrees));
-        LightningShuffleboard.setDouble("Turret", "sim angle", simAngle.in(Degrees));
-
-        LightningShuffleboard.setDouble("Turret", "current angle", getAngle().in(Degrees));
-        LightningShuffleboard.setDouble("Turret", "target angle", getTargetAngle().in(Degrees));
-        LightningShuffleboard.setBool("Turret", "on target", isOnTarget());
 
         Translation3d robotTranslation3d = new Translation3d(
                 drivetrain.getPose().getX(),
