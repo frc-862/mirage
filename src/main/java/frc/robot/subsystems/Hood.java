@@ -95,7 +95,7 @@ public class Hood extends SubsystemBase {
         public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
         public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
 
-        public static final double CURRENT_LIMIT = 0; // temp
+        public static final double CURRENT_THRESHOLD = 0; // temp
         public static final double HOOD_RETRACT_POWER = 0.2; // temp
     }
 
@@ -215,9 +215,11 @@ public class Hood extends SubsystemBase {
     public void periodic() {
         updateLogging();
 
-        if (motor.getStatorCurrent().getValueAsDouble() > HoodConstants.CURRENT_LIMIT) {
+        if (motor.getStatorCurrent().getValueAsDouble() > HoodConstants.CURRENT_THRESHOLD) {
             motor.setPosition(HoodConstants.MAX_ANGLE);
             motor.setControl(hoodDutyCycle.withOutput(HoodConstants.HOOD_RETRACT_POWER));
+        } else {
+            motor.setControl(hoodDutyCycle.withOutput(0.0));
         }
     }
 
