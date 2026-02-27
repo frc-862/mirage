@@ -24,6 +24,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
@@ -102,6 +103,8 @@ public class Collector extends SubsystemBase {
 
     private DCMotor gearbox;
 
+    private StringLogEntry pivotStateLog;
+
     /**
      * Creates a new Collector Subsystem.
      */
@@ -149,6 +152,7 @@ public class Collector extends SubsystemBase {
 
     private void initLogging() {
         DataLog log = DataLogManager.getLog();
+        pivotStateLog = new StringLogEntry(log, "/Collector/pivotState");
     }
 
     @Override
@@ -191,7 +195,7 @@ public class Collector extends SubsystemBase {
     }
 
     private void updateLogging() {
-
+        pivotStateLog.append(pivotState.toString());
         if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
             LightningShuffleboard.setString("Collector", "Pivot State", pivotState.toString());
             LightningShuffleboard.setDouble("Collector", "Collector Velocity", getCollectorVelocity().in(RotationsPerSecond));
