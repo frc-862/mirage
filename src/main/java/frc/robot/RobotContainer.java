@@ -167,8 +167,6 @@ public class RobotContainer {
 
         new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot());
 
-        new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
-            collector.deployPivotCommand());
         new Trigger(copilot::getYButton).whileTrue(collector.stowPivotCommand());
     
         new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND || copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
