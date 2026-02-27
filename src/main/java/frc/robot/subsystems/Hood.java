@@ -172,7 +172,7 @@ public class Hood extends SubsystemBase {
             );
 
             motorSim = motor.getSimState();
-            motorSim.Orientation = ChassisReference.Clockwise_Positive;
+            motorSim.Orientation = ChassisReference.CounterClockwise_Positive;
             encoderSim = encoder.getSimState();
 
             encoderSim.Orientation = ChassisReference.Clockwise_Positive;
