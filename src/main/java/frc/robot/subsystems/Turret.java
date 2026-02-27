@@ -155,8 +155,8 @@ public class Turret extends SubsystemBase {
             motorSim.setRawRotorPosition(Degrees.zero());
 
             mech2d = new Mechanism2d(3, 3);
-            root2d = mech2d.getRoot("Turret", 2, 0);
-            ligament = root2d.append(new MechanismLigament2d("Turret", 3, 90));
+            root2d = mech2d.getRoot("Turret", 1.5, 1.5);
+            ligament = root2d.append(new MechanismLigament2d("Turret", 2, 90));
 
             LightningShuffleboard.send("Turret", "mech 2d", mech2d);
         }
