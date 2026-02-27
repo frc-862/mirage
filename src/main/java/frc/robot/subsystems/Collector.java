@@ -176,7 +176,7 @@ public class Collector extends SubsystemBase {
             case DEPLOYING:
                 if (pivotMotor.getTorqueCurrent().getValue().gt(CollectorConstants.CURRENT_THRESHOLD)) {
                     nextPivotState = PIVOT_STATES.DEPLOYED;
-                };
+                }
                 break;
             case STOWING:
                 if (pivotMotor.getTorqueCurrent().getValue().lt(CollectorConstants.CURRENT_THRESHOLD.unaryMinus())) {
