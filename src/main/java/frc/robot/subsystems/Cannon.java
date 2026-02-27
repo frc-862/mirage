@@ -172,8 +172,9 @@ public class Cannon extends SubsystemBase {
      */
     public Command createCandShotCommand(CannonConstants.CandShot value) {
         return new ParallelCommandGroup(
-            createCannonCommand(value.hoodAngle, value.shooterVelocity)
-        ).alongWith(indexWhenOnTarget());
+            createCannonCommand(value.hoodAngle, value.shooterVelocity),
+            indexWhenOnTarget()
+        );
         
     }
 
@@ -184,8 +185,9 @@ public class Cannon extends SubsystemBase {
      */
     public Command createTurretCandShotCommand(CannonConstants.CandShot value) {
       return new ParallelCommandGroup(
-            createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity)
-        ).alongWith(indexWhenOnTarget());
+            createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity),
+            indexWhenOnTarget()
+        );
     }
 
     /**
