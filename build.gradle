@@ -125,6 +125,12 @@ deploy {
                     
                 }
 
+
+                frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
+                    postdeploy << { ctx -> 
+                        ctx.execute('/etc/init.d/update-mac')
+                    }
+                }
             }
         }
     }
