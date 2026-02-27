@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Robot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
-import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.AllianceHelpers;
 import frc.util.shuffleboard.LightningShuffleboard;
 

@@ -219,6 +219,7 @@ public class RobotContainer {
         ));
         leds.setBehavior(LED_STATES.ERROR.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
         leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.RED));
+        leds.setBehavior(LED_STATES.TURRET_BAD.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.RED));
         leds.setBehavior(LED_STATES.BRAKE.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
         leds.setBehavior(LED_STATES.SHOOT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.ORANGE));
         leds.setBehavior(LED_STATES.COLLECT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.BLUE));
@@ -230,6 +231,8 @@ public class RobotContainer {
         new Trigger(DriverStation::isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
 
         new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
+
+        new Trigger(() -> !turret.getZeroed() && DriverStation.isDisabled()).whileTrue(leds.enableState(LED_STATES.TURRET_BAD.id()));
 
         // At startup, turn on the "vision bad" LED state to indicate that the pose/vision estimate may be unreliable.
         leds.setState(LED_STATES.VISION_BAD.id(), true);

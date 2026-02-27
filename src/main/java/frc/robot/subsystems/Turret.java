@@ -22,6 +22,8 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -52,7 +54,7 @@ import frc.util.units.ThunderUnits;
 public class Turret extends SubsystemBase {
 
     public class TurretConstants {
-        public static final boolean INVERTED = false; // temp
+        public static final boolean INVERTED = true; // temp
         public static final Current STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean BRAKE = false; // temp
 
@@ -61,14 +63,14 @@ public class Turret extends SubsystemBase {
         public static final Angle MIN_ANGLE = Degrees.of(-180); // limit range temporarily
         public static final Angle MAX_ANGLE = Degrees.of(180);
 
-        public static final double kP = 25d;
+        public static final double kP = 150d;
         public static final double kI = 0d;
-        public static final double kD = 0d;
-        public static final double kS = 0.45d;
+        public static final double kD = 9d;
+        public static final double kS = 0.33d;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
 
-        public static final Angle ZERO_ANGLE = Degrees.of(0);
+        public static final Angle ZERO_ANGLE = Degrees.of(-1.2);
         public static final double ZEROING_POWER = 0.5;
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.02);
@@ -96,6 +98,7 @@ public class Turret extends SubsystemBase {
     private final DigitalInput zeroLimitSwitch;
     private final DigitalInput maxLimitSwitch;
     private boolean zeroed;
+    private boolean lsTriggeredOnLastLoopRun;
 
     private final Swerve drivetrain;
 
@@ -123,9 +126,6 @@ public class Turret extends SubsystemBase {
         config.Slot0.kD = TurretConstants.kD;
         config.Slot0.kS = TurretConstants.kS;
 
-        config.Voltage.PeakForwardVoltage = 2; // TODO: remove
-        config.Voltage.PeakReverseVoltage = -2; // temp
-
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = TurretConstants.MAX_ANGLE.in(Rotations);
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
@@ -138,7 +138,7 @@ public class Turret extends SubsystemBase {
         zeroLimitSwitch = new DigitalInput(RobotMap.TURRET_ZERO_SWITCH);
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
 
-        zeroed = true; // only zero when real // TODO: remove isOasis check after limit switches added
+        zeroed = RobotMap.IS_OASIS || Robot.isSimulation(); // only zero when real // TODO: remove isOasis check after limit switches added
         if (!zeroed) {
             setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
         }
@@ -176,16 +176,20 @@ public class Turret extends SubsystemBase {
     @Override
     public void periodic() {
         // Max limit switch will be imprecise, so go the other direction toward zero switch when max is hit
-        if (getMaxLimitSwitch() && !zeroed) {
-            setPower(-TurretConstants.ZEROING_POWER);
-        }
+        // if (getMaxLimitSwitch() && !zeroed) {
+        //     setPower(-TurretConstants.ZEROING_POWER);
+        // }
 
         // Zero limit switch is precise, so set encoder position when zero is hit
-        if (getZeroLimitSwitch() && !zeroed) { // TODO: add led strip indication?
+        if (!zeroed && !lsTriggeredOnLastLoopRun && getZeroLimitSwitch() 
+            && motor.getVelocity().getValue().lt(RotationsPerSecond.zero())) { // TODO: add led strip indication?
+
             setEncoderPosition(TurretConstants.ZERO_ANGLE);
             zeroed = true;
             setAngle(targetPosition);
         }
+
+        lsTriggeredOnLastLoopRun = getZeroLimitSwitch();
 
         updateLogging();
     }
@@ -202,6 +206,7 @@ public class Turret extends SubsystemBase {
             LightningShuffleboard.setBool("Turret", "On Target", isOnTarget());
             LightningShuffleboard.setBool("Turret", "Zero Limit Switch", getZeroLimitSwitch());
             LightningShuffleboard.setBool("Turret", "Max Limit Switch", getMaxLimitSwitch());
+            LightningShuffleboard.setBool("Turret", "Zeroed", zeroed);
         }
      }
 
@@ -284,7 +289,7 @@ public class Turret extends SubsystemBase {
      * @return if zero limit switch triggered
      */
     public boolean getZeroLimitSwitch() {
-        return zeroLimitSwitch.get();
+        return !zeroLimitSwitch.get();
     }
 
     /**
@@ -380,5 +385,9 @@ public class Turret extends SubsystemBase {
      */
     public Command setAngleCommand(Angle angle) {
         return new InstantCommand(() -> setAngle(angle));
+    }
+
+    public boolean getZeroed() {
+        return zeroed;
     }
 }
