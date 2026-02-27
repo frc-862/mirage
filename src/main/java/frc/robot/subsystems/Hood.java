@@ -23,10 +23,8 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
@@ -79,18 +77,18 @@ public class Hood extends SubsystemBase {
             }
         };
 
-        public static final double kS = 0.05d;
-        public static final double kG = -0.3d; // negative because negative power is up
-        public static final double kP = 50d;
+        public static final double kS = RobotMap.IS_OASIS ? 0.05d : 0.37d;
+        public static final double kG = RobotMap.IS_OASIS ? -0.3d : 0; // negative because negative power is up
+        public static final double kP = RobotMap.IS_OASIS ? 50d : 300d;
         public static final double kI = 0.0;
-        public static final double kD = 1d;
+        public static final double kD = RobotMap.IS_OASIS ? 1d : 7d;
 
         public static final Angle POSITION_TOLERANCE = Degrees.of(3); // temp
         public static final Angle BIAS_DELTA = Degrees.of(0.5); // temp
 
         // Conversion ratios
         public static final double ROTOR_TO_ENCODER_RATIO = !hasEncoder() ? 1 : 9*42/18d;
-        public static final double ENCODER_TO_MECHANISM_RATIO = !hasEncoder() ? 50/22d * 156/15d : 18/42d*156/15d;
+        public static final double ENCODER_TO_MECHANISM_RATIO = RobotMap.IS_OASIS ? 50/22d * 156/15d : 9d * 156/15d;
         public static final double ROTOR_TO_MECHANISM_RATIO = ROTOR_TO_ENCODER_RATIO * ENCODER_TO_MECHANISM_RATIO; // only used in sim
 
         public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
@@ -237,7 +235,6 @@ public class Hood extends SubsystemBase {
         hoodSim.update(Robot.kDefaultPeriod);
 
         Angle simAngle = Radians.of(hoodSim.getAngleRads());
-        AngularVelocity simVeloc = RadiansPerSecond.of(hoodSim.getVelocityRadPerSec());
 
         motorSim.setRawRotorPosition(simAngle.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
         // motorSim.setRotorVelocity(simVeloc.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
@@ -250,7 +247,7 @@ public class Hood extends SubsystemBase {
     }
 
     private static boolean hasEncoder(){
-        return !RobotMap.IS_OASIS;
+        return Robot.isSimulation();
     }
 
     /**

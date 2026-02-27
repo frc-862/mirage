@@ -18,6 +18,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
@@ -27,6 +28,7 @@ import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.Time;
@@ -58,10 +60,11 @@ public class Shooter extends SubsystemBase {
         public static final double kP = 0.75d;
         public static final double kI = 0d;
         public static final double kD = 0d;
-        public static final double kV = 0.1185d;
-        public static final double kS = 0.38d;
+        public static final double kV = RobotMap.IS_OASIS ? 0.1185d : 0.122d;
+        public static final double kS = RobotMap.IS_OASIS ? 0.37 : 0.35;
         public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
         public static final AngularVelocity BIAS_DELTA = RotationsPerSecond.of(1);
+        public static final Frequency UPDATE_FREQUENCY = Hertz.of(1000);
 
         public static final double GEAR_RATIO = 1d; // temp
         public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI);
@@ -135,6 +138,7 @@ public class Shooter extends SubsystemBase {
         config.Slot0.kS = ShooterConstants.kS;
 
         config.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO;
+        motorLeft.getMotorVoltage().setUpdateFrequency(ShooterConstants.UPDATE_FREQUENCY);
 
         motorLeft.applyConfig(config);
         motorRight.setControl(new Follower(RobotMap.SHOOTER_LEFT, MotorAlignmentValue.Opposed));

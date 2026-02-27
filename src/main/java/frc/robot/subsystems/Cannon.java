@@ -6,8 +6,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.networktables.DoubleArrayEntry;
-import edu.wpi.first.networktables.DoubleArraySubscriber;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
@@ -16,7 +14,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
@@ -48,6 +45,7 @@ public class Cannon extends SubsystemBase {
         public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
     }
 
+    
     // Subsystems
     private Shooter shooter;
     private Turret turret;
