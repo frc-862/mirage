@@ -224,6 +224,10 @@ public class Collector extends SubsystemBase {
         ligament.setAngle(90 - pivotSimAngle.in(Degrees));
     }
 
+    public PIVOT_STATES getPivotState() {
+        return pivotState;
+    }
+
     /**
      * Set the power of the collector motor using duty cycle out
      * @param power duty cycle value from -1.0 to 1.0
