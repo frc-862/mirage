@@ -119,6 +119,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             }
         });
 
+        reachableThread.setDaemon(true);
         reachableThread.start();
     }
     
@@ -194,5 +195,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         if (socket != null) {
             socket.close();
         }
+
+        reachableThread.interrupt();
     }
 }

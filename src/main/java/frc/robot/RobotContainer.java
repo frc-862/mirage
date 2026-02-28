@@ -199,9 +199,9 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("MOVE_TO_TOWER", drivetrain.autoAlign(FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
         NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot().deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
-        NamedCommands.registerCommand("COLLECT", collector.collectCommand(CollectorConstants.COLLECT_POWER).deadlineFor(leds.enableState(LED_STATES.COLLECT.id())));
-        NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.collectCommand(CollectorConstants.DEPLOY_POWER, CollectorConstants.DEPLOY_ANGLE));
-        NamedCommands.registerCommand("STOW_COLLECTOR", collector.collectCommand(CollectorConstants.HOLD_POWER, CollectorConstants.STOWED_ANGLE));
+        NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER).deadlineFor(leds.enableState(LED_STATES.COLLECT.id())));
+        NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.deployPivotCommand());
+        NamedCommands.registerCommand("STOW_COLLECTOR", collector.stowPivotCommand());
         NamedCommands.registerCommand("WAIT_UNTIL_DEPLOYED", new WaitUntilCommand(collector::isDeployed));
         NamedCommands.registerCommand("WAIT_UNTIL_STOWED", new WaitUntilCommand(collector::isStowed));
 
