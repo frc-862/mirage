@@ -18,6 +18,7 @@ public class LEDConstants {
         VISION_BAD,
         SEED_FIELD_FORWARD,
         CANNED_SHOT_READY,
+        HOOD_STOWED,
         SHOOT,
         COLLECT,
         CLIMB;

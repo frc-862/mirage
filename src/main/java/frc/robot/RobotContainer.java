@@ -216,9 +216,12 @@ public class RobotContainer {
         ));
         leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.RED));
         leds.setBehavior(LED_STATES.SEED_FIELD_FORWARD.id(), LEDBehaviorFactory.rainbow(LEDConstants.stripAll, 2));
+        leds.setBehavior(LED_STATES.HOOD_STOWED.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.BLUE));
         leds.setBehavior(LED_STATES.SHOOT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.PURPLE));
         leds.setBehavior(LED_STATES.COLLECT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.YELLOW));
         leds.setBehavior(LED_STATES.CANNED_SHOT_READY.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREEN));
+
+        new Trigger(hood::isStowed).whileTrue(leds.enableState(LED_STATES.HOOD_STOWED.id()));
 
         // At startup, turn on the "vision bad" LED state to indicate that the pose/vision estimate may be unreliable.
         leds.setState(LED_STATES.VISION_BAD.id(), true);
