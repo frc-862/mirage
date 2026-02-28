@@ -12,6 +12,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -347,26 +348,25 @@ public class Turret extends SubsystemBase {
         return desired;
     }
 
-    public void turretAim(Pose2d robotPose, Target target) {
-        Translation2d delta = FieldConstants.getTargetData(target).minus(robotPose.getTranslation());
+    public void turretAim(Pose2d turretPose, Target target) {
+        Translation2d delta = FieldConstants.getTargetData(target).minus(turretPose.getTranslation());
 
         Angle fieldAngle = delta.getAngle().getMeasure();
 
-        Angle turretAngle = fieldAngle.minus(robotPose.getRotation().getMeasure());
+        Angle turretAngle = fieldAngle.minus(turretPose.getRotation().getMeasure());
 
         setAngle(turretAngle);
     }
 
-    public Command turretAimCommand(Supplier<Pose2d> robotPose, Target target) {
-        return run(() -> turretAim(robotPose.get(), target));
-    }
-
-    public Command turretAimCommand(Target target) {
-        return turretAimCommand(() -> drivetrain.getPose(), target);
+    public Command turretAimCommand(Supplier<Pose2d> turretPose, Target target) {
+        return run(() -> turretAim(turretPose.get(), target));
     }
 
     public Command turretAimCommand(Cannon cannon) {
-        return turretAimCommand(cannon.getTarget());
+        return turretAimCommand(
+            () -> new Pose2d(cannon.getShooterTranslation(), new Rotation2d()),
+            cannon.getTarget()
+        );
     }
 
     /**

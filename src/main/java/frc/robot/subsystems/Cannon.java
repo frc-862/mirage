@@ -260,7 +260,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command turretAim(Target target) {
-        return turret.turretAimCommand(target);
+        return turret.turretAimCommand(this);
     }
 
     /**
