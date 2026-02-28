@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -88,6 +90,8 @@ public class Cannon extends SubsystemBase {
 
         this.indexer = indexer;
 
+        this.storedTarget = FieldConstants.GOAL_POSITION;
+
         initLogging();
     }
 
@@ -128,7 +132,7 @@ public class Cannon extends SubsystemBase {
 
     /**
      * Gets the translation of the shooter relative to the field
-     * @param A custom pose for the robot
+     * @param pose custom pose for the robot
      * @return Returns its position
      */
     public Translation2d getShooterTranslation(Pose2d pose) {

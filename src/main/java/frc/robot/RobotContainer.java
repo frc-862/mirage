@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.LEDConstants;
@@ -117,8 +116,8 @@ public class RobotContainer {
         collector.setDefaultCommand(collector.collectRunCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
         shooter.setDefaultCommand(shooter.coast());
 
-        // hood.setDefaultCommand(cannon.hoodAim());
-        // turret.setDefaultCommand(cannon.turretAim());
+        hood.setDefaultCommand(cannon.hoodAim());
+        turret.setDefaultCommand(cannon.turretAim());
     }
 
     private void configureBindings() {
@@ -130,6 +129,7 @@ public class RobotContainer {
             );
 
         // TODO: Bind OTF to LB and Climb AA to RB
+        new Trigger(driver::getLeftBumperButton).whileTrue(cannon.shootOTF());
 
         /*
          * change biases for the driver
