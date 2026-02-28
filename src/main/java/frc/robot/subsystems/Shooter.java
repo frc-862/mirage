@@ -305,6 +305,6 @@ public class Shooter extends SubsystemBase {
      * @return the command for running the shooter at coast power
      */
     public Command coast() {
-        return run(() -> setPower(ShooterConstants.COAST_DC));
+        return startEnd(() -> setPower(ShooterConstants.COAST_DC), () -> {});
     }
 }
