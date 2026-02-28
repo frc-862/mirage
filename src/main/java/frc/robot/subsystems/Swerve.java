@@ -446,6 +446,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
+    @SuppressWarnings("Unused")
     public Command autoAlign(Pose2d targetPose) {
         PIDController pidX = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
         PIDController pidY = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
@@ -454,7 +455,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         pidR.enableContinuousInput(-180, 180);
 
         pidX.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
-        pidY.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
+         pidY.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
         pidR.setTolerance(DriveConstants.ROT_TOLERANCE.in(Degrees));
         
         return autoDrive(() -> pidX.calculate(getPose().getX(), targetPose.getX()),

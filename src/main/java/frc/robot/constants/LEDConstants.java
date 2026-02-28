@@ -16,7 +16,10 @@ public class LEDConstants {
     public enum LED_STATES {
         TEST,
         VISION_BAD,
+        TURRET_BAD,
         SEED_FIELD_FORWARD,
+        NEAR_HUB,
+        AUTO,
         CANNED_SHOT_READY,
         HOOD_STOWED,
         SHOOT,

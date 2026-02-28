@@ -17,16 +17,29 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "DEPLOY_COLLECTOR"
+                  "name": "COLLECT"
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "SHOOT"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "SMART_SHOOT"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
           }
         }
       ]

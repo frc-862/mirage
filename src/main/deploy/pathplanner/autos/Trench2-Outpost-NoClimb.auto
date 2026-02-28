@@ -11,40 +11,28 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "race",
           "data": {
             "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 5.0
-                }
-              },
               {
                 "type": "named",
                 "data": {
                   "name": "SMART_SHOOT"
                 }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "OutpostTowerPath"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "MOVE_TO_TOWER"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "CLIMB"
           }
         }
       ]

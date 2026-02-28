@@ -5,9 +5,28 @@
     "data": {
       "commands": [
         {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "OutpostPath"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "COLLECT"
+                }
+              },
               {
                 "type": "named",
                 "data": {
@@ -17,7 +36,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
+                  "waitTime": 5.0
                 }
               }
             ]
@@ -26,7 +45,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LeftTowerPath"
+            "pathName": "OutpostTowerPath"
           }
         },
         {
