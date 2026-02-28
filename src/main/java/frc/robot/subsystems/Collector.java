@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.function.DoubleSupplier;
@@ -14,7 +15,6 @@ import static edu.wpi.first.units.Units.Amps;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
@@ -50,7 +50,7 @@ public class Collector extends SubsystemBase {
 
     public class CollectorConstants {
         // Collector Rollers
-        public static final boolean INVERTED = true; // temp
+        public static final boolean INVERTED = false; // temp
         public static final Current STATOR_LIMIT = Amps.of(80); // temp
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean BRAKE = true; // temp
@@ -60,11 +60,12 @@ public class Collector extends SubsystemBase {
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
 
         // pivot motor config
-        public static final double PIVOT_KP = 50d; // temp
+        public static final double PIVOT_KP = 15d; // temp
         public static final double PIVOT_KI = 0d; // temp
         public static final double PIVOT_KD = 0d; // temp
         public static final double PIVOT_KS = 0; // temp
         public static final double PIVOT_KG = 0d; // temp
+
 
         // pivot
         public static final boolean PIVOT_INVERTED = true; // temp
@@ -72,11 +73,11 @@ public class Collector extends SubsystemBase {
         public static final boolean PIVOT_BRAKE_MODE = true; // temp
         public static final double ROTOR_TO_ENCODER_RATIO = 1d; // temp
         public static final double ENCODER_TO_MECHANISM_RATIO = 9d * 24d/10d; // temp
-        public static final Angle MIN_ANGLE = Degrees.of(0);
-        public static final Angle MAX_ANGLE = Degrees.of(90);
+        public static final Angle MIN_ANGLE = Rotations.of(0);
+        public static final Angle MAX_ANGLE = Rotations.of(0.35);
         public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
         public static final Angle STOW_ANGLE = MIN_ANGLE;
-        public static final Angle TOLERANCE = Degrees.of(2);
+        public static final Angle TOLERANCE = Rotations.of(0.05);
         public static final DutyCycleOut PIVOT_ZEROING_DC = new DutyCycleOut(-0.1);
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.01); // temp
@@ -207,9 +208,9 @@ public class Collector extends SubsystemBase {
         pivotOnTargetLog.append(pivotOnTarget());
 
         if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
-            LightningShuffleboard.setDouble("Collector", "Collector Pivot Position", getPivotAngle().in(Degrees));
-            LightningShuffleboard.setDouble("Collector", "Collector Target Angle", getTargetPivotAngle().in(Degrees));
-            LightningShuffleboard.setBool("Collector", "Collector Pivot On Target", pivotOnTarget());
+            LightningShuffleboard.setDouble("Collector", "Pivot Rotations", getPivotAngle().in(Rotations));
+            LightningShuffleboard.setDouble("Collector", "Pivot Target Rotations", getTargetPivotAngle().in(Rotations));
+            LightningShuffleboard.setBool("Collector", "Pivot On Target", pivotOnTarget());
             LightningShuffleboard.setDouble("Collector", "Collector Velocity", getCollectorVelocity().in(RotationsPerSecond));
             LightningShuffleboard.setBool("Collector", "Pivot Zeroed", pivotZeroed);
             LightningShuffleboard.setDouble("Collector", "Pivot Timer", zeroingTimer.get());
