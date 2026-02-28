@@ -114,6 +114,16 @@ deploy {
                     deleteOldFiles = true // Change to true to delete files on roboRIO that no
                                            // longer exist in deploy directory of this project
                 }
+
+                frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
+                    postdeploy << { ctx ->
+                        ctx.execute('scp /home/lvuser/deploy/MacRobot.jar lightning@10.8.62.11:')
+                    }
+                    postdeploy << { ctx ->
+                        ctx.execute("ssh lightning@10.8.62.11 'echo \"[\$(TZ=America/New_York date)] Deployed MacRobotCode Jar\" >> ./deploylog.txt'")
+                    }
+                    
+                }
             }
         }
     }

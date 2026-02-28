@@ -19,6 +19,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
@@ -67,23 +68,19 @@ public class Hood extends SubsystemBase {
 
         public static final ThunderMap<Distance, Angle> HOOD_MAP = new ThunderMap<>() {
             {
-                put(Meters.of(1.902d), Degrees.of(80d));
-                put(Meters.of(2.866), Degrees.of(77d));
-                put(Meters.of(3.39d), Degrees.of(75d));
-                put(Meters.of(4.344), Degrees.of(74d));
-                put(Meters.of(5.69), Degrees.of(72d)); // This is over the max distance in AZ
-                put(Meters.of(8.27), Degrees.of(61d));
-                put(Meters.of(8.270001), MIN_ANGLE); // anything above that just use lowest angle
+                put(Inches.of(64), Degrees.of(80));
+                put(Inches.of(183), Degrees.of(80));
+                put(Feet.of(23), Degrees.of(66));
             }
         };
 
-        public static final double kS = RobotMap.IS_OASIS ? 0.05d : 0.37d;
+        public static final double kS = RobotMap.IS_OASIS ? 0.05d : 0.33d;
         public static final double kG = RobotMap.IS_OASIS ? -0.3d : 0; // negative because negative power is up
-        public static final double kP = RobotMap.IS_OASIS ? 50d : 300d;
+        public static final double kP = RobotMap.IS_OASIS ? 50d : 500d;
         public static final double kI = 0.0;
-        public static final double kD = RobotMap.IS_OASIS ? 1d : 7d;
+        public static final double kD = RobotMap.IS_OASIS ? 1d : 12d;
 
-        public static final Angle POSITION_TOLERANCE = Degrees.of(3); // temp
+        public static final Angle POSITION_TOLERANCE = Degrees.of(0.5); // temp
         public static final Angle BIAS_DELTA = Degrees.of(0.5); // temp
 
         // Conversion ratios
@@ -172,7 +169,7 @@ public class Hood extends SubsystemBase {
             );
 
             motorSim = motor.getSimState();
-            motorSim.Orientation = ChassisReference.Clockwise_Positive;
+            motorSim.Orientation = ChassisReference.CounterClockwise_Positive;
             encoderSim = encoder.getSimState();
 
             encoderSim.Orientation = ChassisReference.Clockwise_Positive;

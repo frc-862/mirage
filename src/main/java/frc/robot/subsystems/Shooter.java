@@ -18,10 +18,10 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -74,12 +74,9 @@ public class Shooter extends SubsystemBase {
         // Input is distance to target in meters, output is shooter speed in rotations per second
         public static final ThunderMap<Distance, AngularVelocity> VELOCITY_MAP = new ThunderMap<>() {
             {
-                put(Meters.of(1.902d), RotationsPerSecond.of(43d));
-                put(Meters.of(2.866), RotationsPerSecond.of(45d));
-                put(Meters.of(3.39d), RotationsPerSecond.of(50d));
-                put(Meters.of(4.344d), RotationsPerSecond.of(56d));
-                put(Meters.of(5.69d), RotationsPerSecond.of(63d));
-                put(Meters.of(8.27), RotationsPerSecond.of(90d)); // This is well over the max distance in AZ
+                put(Inches.of(64), RotationsPerSecond.of(42.5));
+                put(Inches.of(183), RotationsPerSecond.of(65));
+                put(Feet.of(23), RotationsPerSecond.of(79));
             }
         };
 
@@ -292,6 +289,15 @@ public class Shooter extends SubsystemBase {
      */
     public Command shootCommand(Supplier<AngularVelocity> velocitySupplier) {
         return new StartEndCommand(() -> setVelocity(velocitySupplier.get()), () -> {}, this).until(this::isOnTarget);
+    }
+
+    /**
+     * velocity control command for shooter.
+     * @param velocitySupplier the supplier for velocity
+     * @return command for constantly running the shooter
+     */
+    public Command runShootCommand(Supplier<AngularVelocity> velocitySupplier) {
+        return run(() -> setVelocity(velocitySupplier.get()));
     }
 
     /**
