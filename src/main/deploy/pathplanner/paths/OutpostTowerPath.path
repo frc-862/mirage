@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.4803440094899176,
-        "y": 0.6512336892052202
+        "x": 0.5403444444444443,
+        "y": 0.6297153024911029
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.67461447212337,
-        "y": 1.1676749703440104
+        "x": 1.7346149070778965,
+        "y": 1.146156583629893
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Outpost"
     },
     {
       "anchor": {
-        "x": 1.6638552787663117,
-        "y": 3.760640569395018
+        "x": 1.6992888888888888,
+        "y": 3.3396333333333335
       },
       "prevControl": {
-        "x": 1.588540925266905,
-        "y": 2.8676275207591937
+        "x": 2.3140333333333336,
+        "y": 2.543488888888888
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "ClimbLeft"
     }
   ],
   "rotationTargets": [],

@@ -12,20 +12,20 @@
         "y": 0.64047449584816
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Trench2-NoShoot"
     },
     {
       "anchor": {
-        "x": 0.5018623962040341,
+        "x": 0.5403444444444443,
         "y": 0.6297153024911029
       },
       "prevControl": {
-        "x": 1.190450771055754,
+        "x": 1.2289328192961642,
         "y": 0.6404744958481603
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Outpost"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
