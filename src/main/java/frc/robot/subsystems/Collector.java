@@ -105,7 +105,7 @@ public class Collector extends SubsystemBase {
     private MechanismLigament2d ligament;
     private Angle targetPivotPosition;
     private PositionVoltage positionPID;
-    private boolean pivotZeroed = false;
+    private boolean pivotZeroed = true;
     private final Timer zeroingTimer = new Timer();
 
     private DCMotor gearbox;
@@ -130,13 +130,10 @@ public class Collector extends SubsystemBase {
         TalonFXConfiguration config = pivotMotor.getConfig();
         positionPID = new PositionVoltage(0);
 
-
         config.Slot0.kP = CollectorConstants.PIVOT_KP;
         config.Slot0.kI = CollectorConstants.PIVOT_KI;
         config.Slot0.kD = CollectorConstants.PIVOT_KD;
         config.Slot0.kS = CollectorConstants.PIVOT_KS;
-        config.Slot0.kG = CollectorConstants.PIVOT_KG;
-        config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         config.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
 
@@ -148,8 +145,7 @@ public class Collector extends SubsystemBase {
 
             collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ENCODER_TO_MECHANISM_RATIO, CollectorConstants.MOI.magnitude(),
             CollectorConstants.LENGTH.magnitude(), CollectorConstants.MIN_ANGLE.in(Radians), CollectorConstants.MAX_ANGLE.in(Radians), true,
-            1);
-
+            CollectorConstants.STOW_ANGLE.in(Radians));
 
             pivotMotorSim = pivotMotor.getSimState();
             pivotMotorSim.Orientation = ChassisReference.Clockwise_Positive;
@@ -180,20 +176,28 @@ public class Collector extends SubsystemBase {
 
         pivotTargetAngleLog = new DoubleLogEntry(log, "/Collector/pivotTargetAngle");
         pivotOnTargetLog = new BooleanLogEntry(log, "/Collector/pivotOnTarget");
+
+        LightningShuffleboard.setBool("Collector", "Request Zeroing", false);
     }
 
     @Override
     public void periodic() {
-        if (!pivotZeroed && !DriverStation.isDisabled()) {
-            pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC);
-            zeroingTimer.start();
+        if (LightningShuffleboard.getBool("Collector", "Request Zeroing", false)) {
+            pivotZeroed = false;
+        }
+        if (!pivotZeroed && !DriverStation.isEnabled()) {
+            if (!zeroingTimer.isRunning()) {
+                zeroingTimer.restart();
+                pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC);
+            }
             if (!pivotMotor.getVelocity().getValue().isNear(RotationsPerSecond.zero(), RotationsPerSecond.of(0.1))) {
                 zeroingTimer.reset();
             } else if (zeroingTimer.hasElapsed(0.2)) {
                 pivotZeroed = true;
                 pivotMotor.setPosition(CollectorConstants.STOW_ANGLE);
-                pivotMotor.stopMotor();
                 zeroingTimer.stop();
+                LightningShuffleboard.setBool("Collector", "Request Zeroing", false);
+                setPivotAngle(targetPivotPosition);
             }
         }
         updateLogging();
@@ -262,7 +266,6 @@ public class Collector extends SubsystemBase {
      */
     public void stowPivot() {
         setPivotAngle(CollectorConstants.STOW_ANGLE);
-
     }
 
     /**
@@ -287,7 +290,9 @@ public class Collector extends SubsystemBase {
      */
     public void setPivotAngle(Angle position) {
         targetPivotPosition = ThunderUnits.clamp(position, CollectorConstants.MIN_ANGLE, CollectorConstants.MAX_ANGLE);
-        pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
+        if (pivotZeroed) {
+            pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
+        }
     }
 
 
