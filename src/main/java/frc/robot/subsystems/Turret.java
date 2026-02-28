@@ -363,16 +363,16 @@ public class Turret extends SubsystemBase {
 
     public Command turretAim(Cannon cannon) {
         return run(() -> {
-            Pose2d robotPose = drivetrain.getPose();
+            Translation2d shooterTranslation = cannon.getShooterTranslation();
 
             Translation2d target = cannon.getTarget();
 
-            Translation2d delta = target.minus(robotPose.getTranslation());
+            Translation2d delta = target.minus(shooterTranslation);
 
             Angle fieldAngle = delta.getAngle().getMeasure();
 
             Angle turretAngle
-                    = fieldAngle.minus(robotPose.getRotation().getMeasure());
+                    = fieldAngle.minus(drivetrain.getPose().getRotation().getMeasure());
 
             setAngle(turretAngle);
         });
