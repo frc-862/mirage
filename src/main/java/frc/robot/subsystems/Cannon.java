@@ -299,7 +299,7 @@ public class Cannon extends SubsystemBase {
 
                 futureDist = getTargetDistance(futurePose);
 
-                if (futurePose.minus(previousPose).getTranslation().getNorm() > CannonConstants.OTF_TOLERANCE.in(Meters)) {
+                if (Math.abs(futurePose.minus(previousPose).getTranslation().getNorm()) < CannonConstants.OTF_TOLERANCE.in(Meters)) {
                     break;
                 }
             }
