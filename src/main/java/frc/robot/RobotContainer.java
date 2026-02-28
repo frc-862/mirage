@@ -213,7 +213,8 @@ public class RobotContainer {
 
         leds.setBehavior(LED_STATES.TEST.id(), LEDBehaviorFactory.testStrip(LEDConstants.stripAll,
                 () -> turret.getMaxLimitSwitch(),
-                () -> turret.getZeroLimitSwitch()
+                () -> turret.getZeroLimitSwitch(),
+                () -> vision.getMacMiniConnection()
         ));
         leds.setBehavior(LED_STATES.ERROR.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
         leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.RED));
