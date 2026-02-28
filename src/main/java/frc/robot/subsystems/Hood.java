@@ -319,8 +319,7 @@ public class Hood extends SubsystemBase {
      * True if on target, false otherwise
      */
     public boolean isOnTarget() {
-        // return getAngle().isNear(getTargetAngleWithBias(), HoodConstants.POSITION_TOLERANCE);
-        return true;
+        return getAngle().isNear(getTargetAngleWithBias(), HoodConstants.POSITION_TOLERANCE);
     }
 
     /**

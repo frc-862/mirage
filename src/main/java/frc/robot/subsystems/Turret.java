@@ -66,7 +66,7 @@ public class Turret extends SubsystemBase {
         public static final double kP = 150d;
         public static final double kI = 0d;
         
-        public static final double kD = 9d;
+        public static final double kD = 12d;
         public static final double kS = 0.33d;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
