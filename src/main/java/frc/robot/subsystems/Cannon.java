@@ -23,10 +23,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Robot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
+import frc.robot.subsystems.Indexer.IndexerConstants;
+import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.AllianceHelpers;
 import frc.util.shuffleboard.LightningShuffleboard;
 
@@ -233,11 +236,13 @@ public class Cannon extends SubsystemBase {
         return shooter.runShootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
         .alongWith(new SequentialCommandGroup(
             new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget() && !isNearHub()),
-            indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER))
+            indexer.transferCommand(IndexerConstants.TRANSFER_POWER),
+            new WaitCommand(0.25),
+            indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)
         ).finallyDo((end) -> {
-            shooter.setPower(Shooter.ShooterConstants.COAST_DC);
+            shooter.setPower(ShooterConstants.COAST_DC);
             indexer.stop();
-        });
+        }));
     }
 
     /**

@@ -21,6 +21,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -38,7 +39,7 @@ public class Indexer extends SubsystemBase {
 
         public static final double SPINDEXER_SIM_kV = 0.24;
         public static final double SPINDEXER_SIM_kA = 0.8;
-        public static final double SPINDEXDER_POWER = 0.8d;
+        public static final double SPINDEXDER_POWER = 0.55d;
 
         // transfer
         public static final boolean TRANSFER_MOTOR_INVERTED = false; // temp
@@ -162,7 +163,11 @@ public class Indexer extends SubsystemBase {
     }
 
     public Command indexCommand(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
-        return new StartEndCommand(() -> setPower(spindexerPower.getAsDouble(), transferPower.getAsDouble()), () -> stop(), this);
+        return new StartEndCommand(() -> setPower(spindexerPower.getAsDouble(), transferPower.getAsDouble()), this::stop);
+    }
+
+    public Command transferCommand(double power){
+        return new InstantCommand(() -> this.setPower(power));
     }
 
     public Command indexCommand(double spindexerPower, double transferPower) {

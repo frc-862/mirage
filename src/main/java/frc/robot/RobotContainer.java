@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.constants.DriveConstants;
@@ -67,7 +68,7 @@ public class RobotContainer {
     private final Cannon cannon;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
-    
+
     public RobotContainer() {
         driver = new XboxController(RobotMap.DRIVER_PORT);
         copilot = new XboxController(RobotMap.COPILOT_PORT);
@@ -117,8 +118,8 @@ public class RobotContainer {
          */
         shooter.setDefaultCommand(shooter.coast());
 
-        // hood.setDefaultCommand(cannon.hoodAim());
-        // turret.setDefaultCommand(cannon.turretAim());
+        hood.setDefaultCommand(cannon.hoodAim());
+        turret.setDefaultCommand(cannon.turretAim());
     }
 
     private void configureBindings() {
@@ -184,12 +185,16 @@ public class RobotContainer {
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
             shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
             .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
+            .andThen(indexer.indexCommand(() -> 0, 
+            () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
+            .andThen(new WaitCommand(0.25))
             .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
             () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
-            .finallyDo(shooter::stop));
-
-        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(hood.hoodCommand(() -> 
-            Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
+            .andThen(indexer.idle())
+            .finallyDo(() -> {
+                indexer.stop();
+                shooter.stop();
+            }));
     }
     
     private void configureNamedCommands() {
@@ -199,11 +204,9 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("MOVE_TO_TOWER", drivetrain.autoAlign(FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
         NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot());
-        NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER));
-        NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.deployPivotCommand());
-        NamedCommands.registerCommand("STOW_COLLECTOR", collector.stowPivotCommand());
-        NamedCommands.registerCommand("WAIT_UNTIL_DEPLOYED", new WaitUntilCommand(collector::isDeployed));
-        NamedCommands.registerCommand("WAIT_UNTIL_STOWED", new WaitUntilCommand(collector::isStowed));
+        NamedCommands.registerCommand("COLLECT", collector.collectCommand(CollectorConstants.COLLECT_POWER));
+        NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.collectCommand(CollectorConstants.DEPLOY_POWER, CollectorConstants.DEPLOY_ANGLE));
+        NamedCommands.registerCommand("STOW_COLLECTOR", collector.collectCommand(CollectorConstants.HOLD_POWER, CollectorConstants.STOWED_ANGLE));
 
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
@@ -222,7 +225,6 @@ public class RobotContainer {
         ));
         leds.setBehavior(LED_STATES.ERROR.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
         leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.RED));
-        leds.setBehavior(LED_STATES.TURRET_BAD.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.RED));
         leds.setBehavior(LED_STATES.BRAKE.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.GREEN));
         leds.setBehavior(LED_STATES.SHOOT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.ORANGE));
         leds.setBehavior(LED_STATES.COLLECT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.BLUE));
@@ -234,8 +236,6 @@ public class RobotContainer {
         new Trigger(DriverStation::isTest).whileTrue(leds.enableState(LED_STATES.TEST.id()));
 
         new Trigger(() -> DriverStation.isAutonomous() && DriverStation.isEnabled()).whileTrue(leds.enableState(LED_STATES.AUTO.id()));
-
-        new Trigger(() -> !turret.getZeroed() && DriverStation.isDisabled()).whileTrue(leds.enableState(LED_STATES.TURRET_BAD.id()));
 
         // At startup, turn on the "vision bad" LED state to indicate that the pose/vision estimate may be unreliable.
         leds.setState(LED_STATES.VISION_BAD.id(), true);
