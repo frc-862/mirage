@@ -452,7 +452,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         PIDController pidR = new PIDController(DriveConstants.ROT_P, DriveConstants.ROT_I, DriveConstants.ROT_D);
 
         pidX.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
-        pidY.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
+         pidY.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
         pidR.setTolerance(DriveConstants.ROT_TOLERANCE.in(Degrees));
         
         return autoDrive(() -> pidX.calculate(getPose().getX(), targetPose.getX()),
