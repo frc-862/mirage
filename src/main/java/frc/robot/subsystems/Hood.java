@@ -111,6 +111,7 @@ public class Hood extends SubsystemBase {
     private Mechanism2d mech2d;
     private CANcoderSimState encoderSim;
     public boolean isHoodRetracted = false;
+    public boolean isZeroing = false;
 
     private DoubleLogEntry angleLog;
     private DoubleLogEntry biasLog;
@@ -213,9 +214,11 @@ public class Hood extends SubsystemBase {
         updateLogging();
 
         if (motor.getStatorCurrent().getValueAsDouble() > HoodConstants.CURRENT_THRESHOLD) {
-            motor.setPosition(HoodConstants.MAX_ANGLE);
+            isZeroing = true;
             motor.setControl(hoodDutyCycle.withOutput(HoodConstants.HOOD_RETRACT_POWER));
+            motor.setPosition(HoodConstants.MAX_ANGLE);
         } else {
+            isZeroing = false;
             motor.setControl(hoodDutyCycle.withOutput(0.0));
         }
     }
@@ -290,7 +293,7 @@ public class Hood extends SubsystemBase {
     }
 
     private void applyControl() {
-        if (!isHoodRetracted) {
+        if (!isHoodRetracted && !isZeroing) {
             motor.setControl(request.withPosition(getTargetAngleWithBias()));
         }
     }
