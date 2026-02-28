@@ -19,6 +19,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -27,6 +28,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -40,7 +43,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
-import frc.robot.subsystems.Cannon.CannonConstants;
 import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
 
@@ -367,7 +369,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             .withVelocityY(DriveConstants.MaxSpeed.times(yInput.getAsDouble()))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
+            .withDriveRequestType(DriveRequestType.Velocity)));
     }
 
     public Command driveCommand(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput) {
@@ -442,5 +444,22 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         } else {
             return (FieldConstants.BLUE_ALLIANCE_RECT.contains(robotPose.getTranslation()));
         }
+    }
+
+    @SuppressWarnings("Unused")
+    public Command autoAlign(Pose2d targetPose) {
+        PIDController pidX = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
+        PIDController pidY = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
+        PIDController pidR = new PIDController(DriveConstants.ROT_P, DriveConstants.ROT_I, DriveConstants.ROT_D);
+
+        pidR.enableContinuousInput(-180, 180);
+
+        pidX.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
+         pidY.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
+        pidR.setTolerance(DriveConstants.ROT_TOLERANCE.in(Degrees));
+        
+        return autoDrive(() -> pidX.calculate(getPose().getX(), targetPose.getX()),
+        () -> pidY.calculate(getPose().getY(), targetPose.getY()), 
+        () -> pidR.calculate(getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees()));
     }
 }
