@@ -32,6 +32,7 @@ import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -76,7 +77,7 @@ public class Collector extends SubsystemBase {
         public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
         public static final Angle STOW_ANGLE = MIN_ANGLE;
         public static final Angle TOLERANCE = Degrees.of(2);
-
+        public static final DutyCycleOut PIVOT_ZEROING_DC = new DutyCycleOut(-0.1);
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.01); // temp
         public static final Distance LENGTH = Inches.of(6);
@@ -104,6 +105,8 @@ public class Collector extends SubsystemBase {
     private MechanismLigament2d ligament;
     private Angle targetPivotPosition;
     private PositionVoltage positionPID;
+    private boolean pivotZeroed = false;
+    private final Timer zeroingTimer = new Timer();
 
     private DCMotor gearbox;
 
@@ -145,7 +148,7 @@ public class Collector extends SubsystemBase {
 
             collectorPivotSim = new SingleJointedArmSim(gearbox, CollectorConstants.ENCODER_TO_MECHANISM_RATIO, CollectorConstants.MOI.magnitude(),
             CollectorConstants.LENGTH.magnitude(), CollectorConstants.MIN_ANGLE.in(Radians), CollectorConstants.MAX_ANGLE.in(Radians), true,
-            CollectorConstants.STOW_ANGLE.in(Radians));
+            1);
 
 
             pivotMotorSim = pivotMotor.getSimState();
@@ -181,6 +184,18 @@ public class Collector extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (!pivotZeroed && !DriverStation.isDisabled()) {
+            pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC);
+            zeroingTimer.start();
+            if (!pivotMotor.getVelocity().getValue().isNear(RotationsPerSecond.zero(), RotationsPerSecond.of(0.1))) {
+                zeroingTimer.reset();
+            } else if (zeroingTimer.hasElapsed(0.2)) {
+                pivotZeroed = true;
+                pivotMotor.setPosition(CollectorConstants.STOW_ANGLE);
+                pivotMotor.stopMotor();
+                zeroingTimer.stop();
+            }
+        }
         updateLogging();
     }
 
@@ -193,6 +208,8 @@ public class Collector extends SubsystemBase {
             LightningShuffleboard.setDouble("Collector", "Collector Target Angle", getTargetPivotAngle().in(Degrees));
             LightningShuffleboard.setBool("Collector", "Collector Pivot On Target", pivotOnTarget());
             LightningShuffleboard.setDouble("Collector", "Collector Velocity", getCollectorVelocity().in(RotationsPerSecond));
+            LightningShuffleboard.setBool("Collector", "Pivot Zeroed", pivotZeroed);
+            LightningShuffleboard.setDouble("Collector", "Pivot Timer", zeroingTimer.get());
         }
     }
 
