@@ -129,7 +129,7 @@ public class RobotContainer {
             );
 
         // TODO: Bind OTF to LB and Climb AA to RB
-        new Trigger(driver::getLeftBumperButton).whileTrue(cannon.shootOTF());
+        new Trigger(copilot::getLeftBumperButton).whileTrue(cannon.shootOTF());
 
         /*
          * change biases for the driver
