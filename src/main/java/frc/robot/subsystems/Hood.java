@@ -325,6 +325,10 @@ public class Hood extends SubsystemBase {
         return getAngle().isNear(getTargetAngleWithBias(), HoodConstants.POSITION_TOLERANCE);
     }
 
+    public boolean isStowed() {
+        return getAngle().isNear(HoodConstants.MIN_ANGLE, HoodConstants.POSITION_TOLERANCE);
+    }
+
     /**
      * Stops all movement to the hood motor
      */
