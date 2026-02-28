@@ -21,6 +21,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -43,6 +44,12 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     // Thread to run code recieve vision data from the socket
     Thread receiveThread;
+
+    //Thread to check if the mac mini is online
+    Thread reachableThread;
+
+    //Shows whether the mac mini is connected or not
+    volatile boolean macMiniIsConnected;
 
     /** Creates a new PhotonVision.
      * 
@@ -92,6 +99,28 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         });
 
         receiveThread.start();
+
+        reachableThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                if (DriverStation.isDisabled()) {
+                    try {
+                        InetAddress macMiniAddress = InetAddress.getByName("10.8.62.11");
+                        macMiniIsConnected = macMiniAddress.isReachable(1000); //timeout in ms
+                    } catch (IOException e) {
+                        macMiniIsConnected = false;
+                    }
+                }
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    log("Error sleeping: " + e.getMessage());
+                }
+            }
+        });
+
+        reachableThread.setDaemon(true);
+        reachableThread.start();
     }
     
     @Override
@@ -152,6 +181,10 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         return new VisionInfo(timestamp, ambiguity, newPose);
     }
 
+    public boolean getMacMiniConnection() {
+        return macMiniIsConnected;
+    }
+
     // Logs a message with the [PHOTON VISION] tag in front 
     private void log(String message) {
         DataLogManager.log("[PHOTON VISION] " + message);
@@ -162,5 +195,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         if (socket != null) {
             socket.close();
         }
+
+        reachableThread.interrupt();
     }
 }

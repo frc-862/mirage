@@ -56,17 +56,33 @@ public class LEDSubsystem extends SubsystemBase {
      * This command will enable the state when started and disable it when ended.
      *
      * @param stateID The ID of the state to set.
+     * @param inverted Shows whether the state is enabled or not.
+     * @return A command that enables the specified state.
+     */
+    public Command enableState(int stateID, boolean inverted) {
+        return new StartEndCommand(
+            () -> {
+                enabledStates[stateID] = !inverted;
+            },
+            () -> {
+                enabledStates[stateID] = inverted;
+            }
+        ).ignoringDisable(true);
+    }
+
+    /**
+     * Creates a command that enables a specific state. </p>
+     * This command will enable the state when started and disable it when ended.
+     *
+     * @param stateID The ID of the state to set.
      * @return A command that enables the specified state.
      */
     public Command enableState(int stateID) {
-        return new StartEndCommand(
-            () -> {
-                enabledStates[stateID] = true;
-            },
-            () -> {
-                enabledStates[stateID] = false;
-            }
-        ).ignoringDisable(true);
+        return enableState(stateID, false);
+    }
+
+    public Command disableState(int stateID) {
+        return enableState(stateID, true);
     }
 
     /**
