@@ -29,7 +29,7 @@ public class VisionConstants {
                 Inches.of(-12.3),   // LEFT
                 Inches.of(7.6),    // up
                 new Rotation3d(
-                    Math.toRadians(90),
+                    0,
                     Math.toRadians(-25),  // pitch up
                     Math.toRadians(-90)    // yaw outward (left)
                 )
@@ -41,7 +41,7 @@ public class VisionConstants {
                 Inches.of(-7.1), 
                 Inches.of(8.2),    // up
                 new Rotation3d(
-                    Math.toRadians(180),
+                    0,
                     Math.toRadians(-20),  // pitch up
                    0    // yaw outward (left)
                 )
