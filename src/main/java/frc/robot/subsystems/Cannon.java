@@ -14,6 +14,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -29,6 +31,7 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
 import frc.util.AllianceHelpers;
 import frc.util.shuffleboard.LightningShuffleboard;
+import frc.util.units.ThunderMap;
 
 public class Cannon extends SubsystemBase {
     // ======== CANNON CONSTANTS ========
@@ -40,10 +43,13 @@ public class Cannon extends SubsystemBase {
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
-        // TODO: ADD CAND SHOT VALUES HERE TO CREATE CAND SHOTS USING THE NEW BETTER METHOD :)
         public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
         public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
         public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
+
+        // TODO: Create the actual map
+        public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap();
+
     }
 
     
@@ -240,6 +246,12 @@ public class Cannon extends SubsystemBase {
         });
     }
 
+    public Command shootOTF() {
+        return new RunCommand(() -> {
+            Time tof = CannonConstants.TIME_OF_FLIGHT_MAP.get(getTargetDistance());
+        }, turret, shooter, hood);
+    }
+
     /**
      * finds the distance between shooter and hub and calculates if it is nearby.
      * @return if the distance of shooter on the field and the hub is less than 1
@@ -261,7 +273,7 @@ public class Cannon extends SubsystemBase {
     }
 
     /**
-     *  checks if the hood, turret, and shooter is on target.
+     *  Checks if the hood, turret, and shooter is on target.
      * @return if they are on target.
      */
     public boolean isOnTarget(){
