@@ -3,6 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -355,12 +357,12 @@ public class Turret extends SubsystemBase {
         setAngle(turretAngle);
     }
 
-    public Command turretAimCommand(Pose2d robotPose, Target target) {
-        return run(() -> turretAim(robotPose, target));
+    public Command turretAimCommand(Supplier<Pose2d> robotPose, Target target) {
+        return run(() -> turretAim(robotPose.get(), target));
     }
 
     public Command turretAimCommand(Target target) {
-        return turretAimCommand(drivetrain.getPose(), target);
+        return turretAimCommand(() -> drivetrain.getPose(), target);
     }
 
     public Command turretAimCommand(Cannon cannon) {

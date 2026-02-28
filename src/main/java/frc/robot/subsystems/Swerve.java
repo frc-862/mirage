@@ -23,6 +23,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
@@ -415,17 +416,15 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Pose2d getFuturePoseFromTime(Time time) {
-        double xvel = getCurrentRobotChassisSpeeds().vxMetersPerSecond;
-        double yvel = getCurrentRobotChassisSpeeds().vyMetersPerSecond;
-        double rotvel = getCurrentRobotChassisSpeeds().omegaRadiansPerSecond;
-
-        double xdis = xvel * time.in(Second);
-        double ydis = yvel * time.in(Second);
-        double rotdis = rotvel * time.in(Second);
-
-        Pose2d poseDis = new Pose2d(xdis, ydis, Rotation2d.fromRadians(rotdis));
-
-        return getPose().relativeTo(poseDis);
+        ChassisSpeeds speeds = getCurrentRobotChassisSpeeds();
+        double dt = time.in(Seconds);
+        
+        Twist2d twist = new Twist2d(
+            speeds.vxMetersPerSecond * dt,
+            speeds.vyMetersPerSecond * dt,
+            speeds.omegaRadiansPerSecond * dt
+        );
+        return getPose().exp(twist);
     }
  
     public void configurePathplanner(){

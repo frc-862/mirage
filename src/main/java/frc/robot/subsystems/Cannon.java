@@ -1,4 +1,4 @@
-// Copyright (c) FIRST and other WPILib contributors.
+// Copyright (c) FIRST and other WPILib contributors
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
@@ -52,7 +52,9 @@ public class Cannon extends SubsystemBase {
 
         // TODO: Create the actual map
         public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap();
-        public static final int OTF_ITERATIONS = 5;
+        public static final int MAX_OTF_ITERATIONS = 10;
+
+        public static final Distance OTF_TOLERANCE = Inches.of(1.5);
 
     }
 
@@ -279,15 +281,23 @@ public class Cannon extends SubsystemBase {
     public Command shootOTF() {
         return new RunCommand(() -> {    
             Time tof;
-            Pose2d futurePose = new Pose2d();         
+
+            Pose2d previousPose;
+            Pose2d futurePose = drivetrain.getPose();  
+
             Distance futureDist = getTargetDistance(); 
 
-            for (int i = 0; i < CannonConstants.OTF_ITERATIONS; i++) {
+            for (int i = 0; i < CannonConstants.MAX_OTF_ITERATIONS; i++) {
                 tof = CannonConstants.TIME_OF_FLIGHT_MAP.get(futureDist);
 
+                previousPose = futurePose;
                 futurePose = drivetrain.getFuturePoseFromTime(tof);
 
                 futureDist = getTargetDistance(futurePose);
+
+                if (futurePose.minus(previousPose).getTranslation().getNorm() > CannonConstants.OTF_TOLERANCE.in(Meters)) {
+                    break;
+                }
             }
            
             Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(futureDist);
