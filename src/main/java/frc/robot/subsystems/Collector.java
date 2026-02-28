@@ -185,12 +185,11 @@ public class Collector extends SubsystemBase {
         if (LightningShuffleboard.getBool("Collector", "Request Zeroing", false)) {
             pivotZeroed = false;
         }
-        if (!pivotZeroed && !DriverStation.isEnabled()) {
+        if (!pivotZeroed && DriverStation.isEnabled()) {
             if (!zeroingTimer.isRunning()) {
                 zeroingTimer.restart();
                 pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC);
-            }
-            if (!pivotMotor.getVelocity().getValue().isNear(RotationsPerSecond.zero(), RotationsPerSecond.of(0.1))) {
+            } else if (!pivotMotor.getVelocity().getValue().isNear(RotationsPerSecond.zero(), RotationsPerSecond.of(0.1))) {
                 zeroingTimer.reset();
             } else if (zeroingTimer.hasElapsed(0.2)) {
                 pivotZeroed = true;
