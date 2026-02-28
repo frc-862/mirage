@@ -110,7 +110,6 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                         macMiniIsConnected = false;
                     }
                 }
-    
 
                 try {
                     Thread.sleep(1000);
