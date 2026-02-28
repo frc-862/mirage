@@ -34,6 +34,7 @@ public class Cannon extends SubsystemBase {
     // ======== CANNON CONSTANTS ========
 
     public class CannonConstants { 
+        public static final Distance SMART_SHOOT_MIN_DISTANCE = Meters.of(1.902d);
         public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(3.275), Inches.of(-3.275));
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
 
@@ -45,6 +46,7 @@ public class Cannon extends SubsystemBase {
         public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
     }
 
+    
     // Subsystems
     private Shooter shooter;
     private Turret turret;
@@ -53,7 +55,7 @@ public class Cannon extends SubsystemBase {
     private Indexer indexer;
 
     // Target storage
-    private Translation2d storedTarget = new Translation2d();
+    private Translation2d storedTarget;
 
     private DoubleArrayLogEntry targetPositionLog;
     private DoubleLogEntry distToTargetLog;
@@ -170,7 +172,11 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command createCandShotCommand(CannonConstants.CandShot value) {
-        return createCannonCommand(Degrees.of(0d), value.hoodAngle, value.shooterVelocity);
+        return new ParallelCommandGroup(
+            createCannonCommand(value.hoodAngle, value.shooterVelocity),
+            indexWhenOnTarget()
+        );
+        
     }
 
     /**
@@ -179,7 +185,10 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command createTurretCandShotCommand(CannonConstants.CandShot value) {
-        return createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity);
+      return new ParallelCommandGroup(
+            createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity),
+            indexWhenOnTarget()
+        );
     }
 
     /**
@@ -221,13 +230,41 @@ public class Cannon extends SubsystemBase {
      * @return The command to run
      */
     public Command smartShoot() {
-        return new SequentialCommandGroup(
-            shooter.shootCommand(Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance())),
-            new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget()),
-            indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
+        return shooter.runShootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
+        .alongWith(new SequentialCommandGroup(
+            new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget() && !isNearHub()),
+            indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER))
         ).finallyDo((end) -> {
             shooter.setPower(Shooter.ShooterConstants.COAST_DC);
             indexer.stop();
         });
+    }
+
+    /**
+     * finds the distance between shooter and hub and calculates if it is nearby.
+     * @return if the distance of shooter on the field and the hub is less than 1
+     */
+    public boolean isNearHub(){
+          Distance distance = Meters.of(this.getShooterTranslation().getDistance(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
+          return distance.lt(CannonConstants.SMART_SHOOT_MIN_DISTANCE);
+    }
+    
+    /**
+     * starts the indexer when the hood, turret, and shooter is on target.
+     * @return The command
+     */
+    public Command indexWhenOnTarget(){
+        return new SequentialCommandGroup(
+            new WaitUntilCommand(() -> isOnTarget()),
+            indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
+        );
+    }
+
+    /**
+     *  checks if the hood, turret, and shooter is on target.
+     * @return if they are on target.
+     */
+    public boolean isOnTarget(){
+        return (hood.isOnTarget() && turret.isOnTarget() && shooter.isOnTarget());
     }
 }
