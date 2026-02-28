@@ -23,7 +23,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -346,35 +345,26 @@ public class Turret extends SubsystemBase {
         return desired;
     }
 
-    public Command turretAim(Target target) {
-        return run(() -> {
-            Pose2d robotPose = drivetrain.getPose();
+    public void turretAim(Pose2d robotPose, Target target) {
+        Translation2d delta = FieldConstants.getTargetData(target).minus(robotPose.getTranslation());
 
-            Translation2d delta = FieldConstants.getTargetData(target).minus(robotPose.getTranslation());
+        Angle fieldAngle = delta.getAngle().getMeasure();
 
-            Angle fieldAngle = delta.getAngle().getMeasure();
+        Angle turretAngle = fieldAngle.minus(robotPose.getRotation().getMeasure());
 
-            Angle turretAngle = fieldAngle.minus(robotPose.getRotation().getMeasure());
-
-            setAngle(turretAngle);
-        });
+        setAngle(turretAngle);
     }
 
-    public Command turretAim(Cannon cannon) {
-        return run(() -> {
-            Pose2d robotPose = drivetrain.getPose();
+    public Command turretAimCommand(Pose2d robotPose, Target target) {
+        return run(() -> turretAim(robotPose, target));
+    }
 
-            Translation2d target = cannon.getTarget();
+    public Command turretAimCommand(Target target) {
+        return turretAimCommand(drivetrain.getPose(), target);
+    }
 
-            Translation2d delta = target.minus(robotPose.getTranslation());
-
-            Angle fieldAngle = delta.getAngle().getMeasure();
-
-            Angle turretAngle
-                    = fieldAngle.minus(robotPose.getRotation().getMeasure());
-
-            setAngle(turretAngle);
-        });
+    public Command turretAimCommand(Cannon cannon) {
+        return turretAimCommand(cannon.getTarget());
     }
 
     /**

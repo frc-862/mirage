@@ -367,7 +367,7 @@ public class Hood extends SubsystemBase {
      */
     public Command hoodAim(Cannon cannon){
         return run(() -> {
-            Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(cannon.getTarget()));
+            Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(cannon.getTargetTranslation()));
             Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
             setPosition(targetAngle);
         });

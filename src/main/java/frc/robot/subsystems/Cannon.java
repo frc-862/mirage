@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -39,6 +41,7 @@ public class Cannon extends SubsystemBase {
     public class CannonConstants { 
         public static final Distance SMART_SHOOT_MIN_DISTANCE = Meters.of(1.902d);
         public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(3.275), Inches.of(-3.275));
+        public static final Transform2d SHOOTER_TRANSFORM = new Transform2d(SHOOTER_TRANSLATION, new Rotation2d());
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
@@ -49,6 +52,7 @@ public class Cannon extends SubsystemBase {
 
         // TODO: Create the actual map
         public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap();
+        public static final int OTF_ITERATIONS = 5;
 
     }
 
@@ -61,7 +65,7 @@ public class Cannon extends SubsystemBase {
     private Indexer indexer;
 
     // Target storage
-    private Translation2d storedTarget;
+    private Target storedTarget;
 
     private DoubleArrayLogEntry targetPositionLog;
     private DoubleLogEntry distToTargetLog;
@@ -100,24 +104,33 @@ public class Cannon extends SubsystemBase {
         boolean isTop = robotPose.getY() > FieldConstants.FIELD_MIDDLE_Y;
 
         if (drivetrain.isInZone()) {
-            storedTarget =  FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
-        } else if (AllianceHelpers.isBlueAlliance()) {
-            storedTarget =  isTop ? FieldConstants.ZONE_POSITION_BLUE_TOP : FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
+            storedTarget =  FieldConstants.GOAL_POSITION;
+        } else if (isTop) {
+            storedTarget =  new Target(FieldConstants.ZONE_POSITION_BLUE_TOP, FieldConstants.ZONE_POSITION_RED_TOP);
         } else {
-            storedTarget =  isTop ? FieldConstants.ZONE_POSITION_RED_TOP : FieldConstants.ZONE_POSITION_RED_BOTTOM;
+            storedTarget =  new Target(FieldConstants.ZONE_POSITION_BLUE_BOTTOM, FieldConstants.ZONE_POSITION_RED_BOTTOM);
         }
 
         updateLogging();
     }
 
     private void updateLogging() {
-        targetPositionLog.append(new double[]{getTarget().getX(), getTarget().getY()});
+        targetPositionLog.append(new double[]{getTargetTranslation().getX(), getTargetTranslation().getY()});
         distToTargetLog.append(getTargetDistance().in(Meters));
 
         if(!DriverStation.isFMSAttached() || Robot.isSimulation()) {
-            LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
+            LightningShuffleboard.setTranslation2d("Cannon", "Target Position", FieldConstants.getTargetData(getTarget()));
             LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
         }
+    }
+
+    /**
+     * Gets the translation of the shooter relative to the field
+     * @param A custom pose for the robot
+     * @return Returns its position
+     */
+    public Translation2d getShooterTranslation(Pose2d pose) {
+        return pose.transformBy(CannonConstants.SHOOTER_TRANSFORM).getTranslation();
     }
 
     /**
@@ -125,15 +138,23 @@ public class Cannon extends SubsystemBase {
      * @return Returns its position
      */
     public Translation2d getShooterTranslation() {
-        return drivetrain.getPose().getTranslation().plus(CannonConstants.SHOOTER_TRANSLATION.rotateBy(drivetrain.getPose().getRotation()));
+        return getShooterTranslation(drivetrain.getPose());
     }
 
     /**
      * Gets the translation of the target that we want to aim at (all components)
      * @return The transltion
      */
-    public Translation2d getTarget() {
+    public Target getTarget() {
         return storedTarget;
+    }
+
+    /**
+     * Gets the current target's translation according to the alliance
+     * @return The translation
+    */
+    public Translation2d getTargetTranslation() {
+        return FieldConstants.getTargetData(getTarget());
     }
 
     /**
@@ -141,7 +162,16 @@ public class Cannon extends SubsystemBase {
      * @return The distance
      */
     public Distance getTargetDistance() {
-        return Meters.of(getTarget().minus(getShooterTranslation()).getNorm());
+        return Meters.of(getTargetTranslation().minus(getShooterTranslation()).getNorm());
+    }
+
+    /**
+     * Gets the distance from the robot to the target
+     * @param A custom pose to pass in
+     * @return The distance
+     */
+    public Distance getTargetDistance(Pose2d pose) {
+        return Meters.of(getTargetTranslation().minus(getShooterTranslation(pose)).getNorm());
     }
 
     /**
@@ -219,7 +249,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command turretAim() {
-        return turret.turretAim(this);
+        return turret.turretAimCommand(this);
     }
 
     /**
@@ -228,7 +258,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command turretAim(Target target) {
-        return turret.turretAim(target);
+        return turret.turretAimCommand(target);
     }
 
     /**
@@ -247,9 +277,26 @@ public class Cannon extends SubsystemBase {
     }
 
     public Command shootOTF() {
-        return new RunCommand(() -> {
-            Time tof = CannonConstants.TIME_OF_FLIGHT_MAP.get(getTargetDistance());
-        }, turret, shooter, hood);
+        return new RunCommand(() -> {    
+            Time tof;
+            Pose2d futurePose = new Pose2d();         
+            Distance futureDist = getTargetDistance(); 
+
+            for (int i = 0; i < CannonConstants.OTF_ITERATIONS; i++) {
+                tof = CannonConstants.TIME_OF_FLIGHT_MAP.get(futureDist);
+
+                futurePose = drivetrain.getFuturePoseFromTime(tof);
+
+                futureDist = getTargetDistance(futurePose);
+            }
+           
+            Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(futureDist);
+            AngularVelocity shooterVelocity = Shooter.ShooterConstants.VELOCITY_MAP.get(futureDist);
+
+            hood.setPosition(hoodAngle);
+            shooter.setVelocity(shooterVelocity);
+            turret.turretAim(futurePose, getTarget());
+      }, turret, shooter, hood);
     }
 
     /**

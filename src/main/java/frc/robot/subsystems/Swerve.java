@@ -27,12 +27,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
-
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -414,6 +414,20 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return getState().Speeds;
     }
 
+    public Pose2d getFuturePoseFromTime(Time time) {
+        double xvel = getCurrentRobotChassisSpeeds().vxMetersPerSecond;
+        double yvel = getCurrentRobotChassisSpeeds().vyMetersPerSecond;
+        double rotvel = getCurrentRobotChassisSpeeds().omegaRadiansPerSecond;
+
+        double xdis = xvel * time.in(Second);
+        double ydis = yvel * time.in(Second);
+        double rotdis = rotvel * time.in(Second);
+
+        Pose2d poseDis = new Pose2d(xdis, ydis, Rotation2d.fromRadians(rotdis));
+
+        return getPose().relativeTo(poseDis);
+    }
+ 
     public void configurePathplanner(){
         AutoBuilder.configure(
             this::getPose, // Supplier of current robot pose
@@ -455,7 +469,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         pidR.enableContinuousInput(-180, 180);
 
         pidX.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
-        pidY.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
+         pidY.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
         pidR.setTolerance(DriveConstants.ROT_TOLERANCE.in(Degrees));
         
         return autoDrive(() -> pidX.calculate(getPose().getX(), targetPose.getX()),
