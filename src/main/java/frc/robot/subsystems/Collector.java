@@ -71,7 +71,7 @@ public class Collector extends SubsystemBase {
         public static final Current PIVOT_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean PIVOT_BRAKE_MODE = true; // temp
         public static final double ROTOR_TO_ENCODER_RATIO = 1d; // temp
-        public static final double ENCODER_TO_MECHANISM_RATIO = 36d; // temp
+        public static final double ENCODER_TO_MECHANISM_RATIO = 9d * 24d/10d; // temp
         public static final Angle MIN_ANGLE = Degrees.of(0);
         public static final Angle MAX_ANGLE = Degrees.of(90);
         public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
