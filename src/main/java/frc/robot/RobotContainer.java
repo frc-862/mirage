@@ -28,6 +28,7 @@ import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Cannon;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
@@ -211,8 +212,8 @@ public class RobotContainer {
         leds.setDefaultBehavior(LEDBehaviorFactory.swirl(LEDConstants.stripAll, 10, 5, Color.ORANGE, Color.BLUE));
 
         leds.setBehavior(LED_STATES.TEST.id(), LEDBehaviorFactory.testStrip(LEDConstants.stripAll,
-                () -> false,
-                () -> true
+                () -> turret.getMaxLimitSwitch(),
+                () -> turret.getZeroLimitSwitch()
         ));
         leds.setBehavior(LED_STATES.ERROR.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.RED));
         leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.RED));
@@ -231,5 +232,10 @@ public class RobotContainer {
         leds.setState(LED_STATES.VISION_BAD.id(), true);
         // Turn off the "vision bad" LED state once the drivetrain has moved away from the origin, indicating we likely have a valid pose estimate.
         new Trigger(() -> (DriverStation.isEnabled() || drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)).ignoringDisable(true));
+
+        leds.setState(LED_STATES.TEST.id(), true);
+        new Trigger(DriverStation::isEnabled)
+            .onTrue(new InstantCommand(() -> leds.setState(LED_STATES.TEST.id(), false)))
+            .onFalse(new InstantCommand(() -> leds.setState(LED_STATES.TEST.id(), true)).ignoringDisable(true));
     }
 }
