@@ -173,7 +173,7 @@ public class Cannon extends SubsystemBase {
 
     /**
      * Gets the distance from the robot to the target
-     * @param A custom pose to pass in
+     * @param pose custom pose to pass in
      * @return The distance
      */
     public Distance getTargetDistance(Pose2d pose) {
