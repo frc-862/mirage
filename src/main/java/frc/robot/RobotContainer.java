@@ -31,7 +31,6 @@ import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Cannon;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
-import frc.robot.subsystems.Collector.PIVOT_STATES;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Hood.HoodConstants;
 import frc.robot.subsystems.Indexer;
@@ -203,8 +202,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER));
         NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.deployPivotCommand());
         NamedCommands.registerCommand("STOW_COLLECTOR", collector.stowPivotCommand());
-        NamedCommands.registerCommand("WAIT_UNTIL_DEPLOYED", new WaitUntilCommand(() -> collector.getPivotState() == PIVOT_STATES.DEPLOYED));
-        NamedCommands.registerCommand("WAIT_UNTIL_STOWED", new WaitUntilCommand(() -> collector.getPivotState() == PIVOT_STATES.STOWED));
+        NamedCommands.registerCommand("WAIT_UNTIL_DEPLOYED", new WaitUntilCommand(collector::isDeployed));
+        NamedCommands.registerCommand("WAIT_UNTIL_STOWED", new WaitUntilCommand(collector::isStowed));
 
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
