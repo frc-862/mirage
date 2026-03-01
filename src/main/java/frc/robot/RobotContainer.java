@@ -114,11 +114,7 @@ public class RobotContainer {
                         * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
 
-        /*
-         * Copilot Default Commands
-         */
         shooter.setDefaultCommand(shooter.coast());
-
         hood.setDefaultCommand(cannon.hoodAim());
         turret.setDefaultCommand(cannon.turretAim());
     }
@@ -133,9 +129,7 @@ public class RobotContainer {
 
         // TODO: Bind OTF to LB and Climb AA to RB
 
-        /*
-         * change biases for the driver
-         */
+        // change biases for the driver
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_DOWN).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA));
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_LEFT).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA.unaryMinus()));
@@ -167,7 +161,8 @@ public class RobotContainer {
         new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER,
             IndexerConstants.TRANSFER_POWER));
 
-        new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot().alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER)));
+        new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot()
+            .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER)));
 
         new Trigger(copilot::getStartButton).whileTrue(collector.stowPivotCommand());
     
@@ -176,8 +171,7 @@ public class RobotContainer {
 
         new Trigger(copilot::getBackButton).whileTrue(turret.idle().beforeStarting(turret::stop)); // disable turret
 
-        // Temp Cand shots
-        //RIGHT_, LEFT_, and MIDDLE_ are all set to 0, so temp shots wont work right now
+        // Cand shots
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_RIGHT).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT));
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT));
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT));
