@@ -46,7 +46,6 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
 import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
-import frc.util.units.ThunderUnits;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
