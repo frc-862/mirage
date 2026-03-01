@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.constants.DriveConstants;
@@ -29,6 +30,7 @@ import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Cannon;
+import frc.robot.subsystems.Cannon.CannonConstants;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
@@ -157,9 +159,8 @@ public class RobotContainer {
             LightningShuffleboard.setDouble("Cannon", "Target Distance", cannon.getTargetDistance().in(Meters))));
 
         /* Copilot */
-        new Trigger(() -> drivetrain.isNearTrench())
-            .whileTrue(hood.retract());
-        new Trigger(copilot::getXButton).whileTrue(hood.retract());
+        new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retract());
+        new Trigger(copilot::getXButton).whileTrue(hood.retract().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
         new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER,
             -IndexerConstants.TRANSFER_POWER));
@@ -177,11 +178,11 @@ public class RobotContainer {
 
         // Temp Cand shots
         //RIGHT_, LEFT_, and MIDDLE_ are all set to 0, so temp shots wont work right now
-        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_RIGHT).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT));
-        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT));
-        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT));
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_RIGHT).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT));
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT));
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT));
 
-        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(
             shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
             .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
             .andThen(indexer.autoIndex(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 

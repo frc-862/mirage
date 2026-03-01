@@ -142,9 +142,9 @@ public class Turret extends SubsystemBase {
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
 
         zeroed = RobotMap.IS_OASIS || Robot.isSimulation(); // only zero when real // TODO: remove isOasis check after limit switches added
-        if (!zeroed) {
-            setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
-        }
+        // if (!zeroed) {
+        //     setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
+        // }
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);

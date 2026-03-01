@@ -5,12 +5,14 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -42,10 +44,9 @@ public class Cannon extends SubsystemBase {
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
-        // TODO: ADD CAND SHOT VALUES HERE TO CREATE CAND SHOTS USING THE NEW BETTER METHOD :)
-        public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
-        public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
-        public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
+        public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(-40.5), Degrees.of(80), RotationsPerSecond.of(67)); //Temp
+        public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(42), Degrees.of(80), RotationsPerSecond.of(67)); //Temp
+        public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0), Degrees.of(80), RotationsPerSecond.of(53)); //Temp
     }
 
     
@@ -112,6 +113,7 @@ public class Cannon extends SubsystemBase {
 
         if(!DriverStation.isFMSAttached() || Robot.isSimulation()) {
             LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
+            LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTarget(), new Rotation2d()));
             LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
         }
     }
