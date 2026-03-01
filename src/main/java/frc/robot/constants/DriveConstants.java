@@ -84,7 +84,7 @@ public class DriveConstants {
     public static final PIDConstants TRANSLATION_PID = new PIDConstants(5, 0, 0); // TODO: Tune
     public static final PIDConstants ROTATION_PID = new PIDConstants(5, 0, 0);
 
-    protected static final Mass ROBOT_MASS = Pounds.of(88); // TODO: Update
+    protected static final Mass ROBOT_MASS = Pounds.of(115); // TODO: Update
     private static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(3.3927854218);
 
     private static final ModuleConfig MODULE_CONFIG = new ModuleConfig(
