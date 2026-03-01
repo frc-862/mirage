@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.DoubleSupplier;
@@ -18,11 +19,14 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import static edu.wpi.first.units.Units.Amps;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
@@ -38,7 +42,9 @@ public class Indexer extends SubsystemBase {
 
         public static final double SPINDEXER_SIM_kV = 0.24;
         public static final double SPINDEXER_SIM_kA = 0.8;
-        public static final double SPINDEXDER_POWER = 0.8d;
+        public static final double SPINDEXDER_POWER = 0.55d;
+
+        public static final Time SPINDEXER_DELAY = Seconds.of(0.25);
 
         // transfer
         public static final boolean TRANSFER_MOTOR_INVERTED = false; // temp
@@ -162,7 +168,17 @@ public class Indexer extends SubsystemBase {
     }
 
     public Command indexCommand(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
-        return new StartEndCommand(() -> setPower(spindexerPower.getAsDouble(), transferPower.getAsDouble()), () -> stop(), this);
+        return new StartEndCommand(() -> setPower(spindexerPower.getAsDouble(), transferPower.getAsDouble()), this::stop, this);
+    }
+
+    public Command autoIndex(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
+        return new InstantCommand(() -> setTransferPower(spindexerPower.getAsDouble()))
+            .andThen(new WaitCommand(IndexerConstants.SPINDEXER_DELAY))
+            .andThen(indexCommand(spindexerPower, transferPower));
+    }
+
+    public Command autoIndex(double spindexerPower, double transferPower) {
+        return autoIndex(() -> spindexerPower, () -> transferPower);
     }
 
     public Command indexCommand(double spindexerPower, double transferPower) {

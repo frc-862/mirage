@@ -60,12 +60,13 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = Degrees.of(-180); // limit range temporarily
-        public static final Angle MAX_ANGLE = Degrees.of(180);
+        public static final Angle MIN_ANGLE = Degrees.of(-300); // limit range temporarily
+        public static final Angle MAX_ANGLE = Degrees.of(60);
 
         public static final double kP = 150d;
         public static final double kI = 0d;
-        public static final double kD = 9d;
+        
+        public static final double kD = 12d;
         public static final double kS = 0.33d;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
@@ -141,9 +142,9 @@ public class Turret extends SubsystemBase {
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
 
         zeroed = RobotMap.IS_OASIS || Robot.isSimulation(); // only zero when real // TODO: remove isOasis check after limit switches added
-        if (!zeroed) {
-            setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
-        }
+        // if (!zeroed) {
+        //     setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
+        // }
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
@@ -248,7 +249,7 @@ public class Turret extends SubsystemBase {
      * @param angle sets the angle to the motor of the turret
      */
     public void setAngle(Angle angle) {
-        Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-180), Degrees.of(180));
+        Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-300), Degrees.of(60));
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed) { // only allow position control if turret has been zeroed but store to apply when zeroed
@@ -330,22 +331,22 @@ public class Turret extends SubsystemBase {
      * @return the angle optimized between -220 and 220
      */
     public Angle optimizeTurretAngle(Angle desired) {
-        Angle error = desired.minus(getAngle());
-        if (error.in(Degrees) > 180) {
-            desired = desired.minus(Degrees.of(360));
-        } else if (error.in(Degrees) < -180) {
-            desired = desired.plus(Degrees.of(360));
-        }
+        // Angle error = desired.minus(getAngle());
+        // if (error.in(Degrees) > 180) {
+        //     desired = desired.minus(Degrees.of(360));
+        // } else if (error.in(Degrees) < -180) {
+        //     desired = desired.plus(Degrees.of(360));
+        // }
 
-        double minDeg = TurretConstants.MIN_ANGLE.in(Degrees);
-        double maxDeg = TurretConstants.MAX_ANGLE.in(Degrees);
+        // double minDeg = TurretConstants.MIN_ANGLE.in(Degrees);
+        // double maxDeg = TurretConstants.MAX_ANGLE.in(Degrees);
 
-        while (desired.lt(Degrees.of(minDeg))) {
-            desired = desired.plus(Degrees.of(360));
-        }
-        while (desired.gt(Degrees.of(maxDeg))) {
-            desired = desired.minus(Degrees.of(360));
-        }
+        // while (desired.lt(Degrees.of(minDeg))) {
+        //     desired = desired.plus(Degrees.of(360));
+        // }
+        // while (desired.gt(Degrees.of(maxDeg))) {
+        //     desired = desired.minus(Degrees.of(360));
+        // }
 
         return desired;
     }
@@ -366,16 +367,16 @@ public class Turret extends SubsystemBase {
 
     public Command turretAim(Cannon cannon) {
         return run(() -> {
-            Pose2d robotPose = drivetrain.getPose();
+            Translation2d shooterTranslation = cannon.getShooterTranslation();
 
             Translation2d target = cannon.getTarget();
 
-            Translation2d delta = target.minus(robotPose.getTranslation());
+            Translation2d delta = target.minus(shooterTranslation);
 
             Angle fieldAngle = delta.getAngle().getMeasure();
 
             Angle turretAngle
-                    = fieldAngle.minus(robotPose.getRotation().getMeasure());
+                    = fieldAngle.minus(drivetrain.getPose().getRotation().getMeasure());
 
             setAngle(turretAngle);
         });
