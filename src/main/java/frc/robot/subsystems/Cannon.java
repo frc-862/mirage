@@ -38,7 +38,7 @@ public class Cannon extends SubsystemBase {
     // ======== CANNON CONSTANTS ========
 
     public class CannonConstants { 
-        public static final Distance SMART_SHOOT_MIN_DISTANCE = Meters.of(1.902d);
+        public static final Distance SMART_SHOOT_MIN_DISTANCE = Inches.of(64);
         public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(3.275), Inches.of(-3.275));
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
 

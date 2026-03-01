@@ -86,7 +86,7 @@ public class MapleSim extends SubsystemBase {
     }
 
     private void shootFuel(){
-        if (/* collectorSim.obtainGamePieceFromIntake() */ true) {
+        if (collectorSim.obtainGamePieceFromIntake()) {
             arena.addGamePieceProjectile(new RebuiltFuelOnFly(
                 drivetrainSim.getSimulatedDriveTrainPose().getTranslation(),
                 Cannon.CannonConstants.SHOOTER_TRANSLATION,
