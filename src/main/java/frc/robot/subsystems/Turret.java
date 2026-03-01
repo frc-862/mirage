@@ -76,6 +76,8 @@ public class Turret extends SubsystemBase {
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.02);
 
         public static final Distance LENGTH = Meter.of(0.18);
+
+        public static final double SIM_FRICTION = 0.2;
     }
 
     private final ThunderBird motor;
@@ -213,9 +215,11 @@ public class Turret extends SubsystemBase {
     @Override
     public void simulationPeriodic() {
         double batteryVoltage = RobotController.getBatteryVoltage();
+        double frictionVoltage = TurretConstants.SIM_FRICTION * turretSim.getVelocityRadPerSec();
         motorSim.setSupplyVoltage(batteryVoltage);
 
-        turretSim.setInputVoltage(motorSim.getMotorVoltage());
+        double motorVoltage = motorSim.getMotorVoltage();
+        turretSim.setInputVoltage(motorVoltage - frictionVoltage);
         turretSim.update(Robot.kDefaultPeriod);
 
         Angle simAngle = Radians.of(turretSim.getAngleRads());
