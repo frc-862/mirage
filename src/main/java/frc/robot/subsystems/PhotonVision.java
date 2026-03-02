@@ -80,8 +80,11 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     // Create a new packet to fill with recieved data
                     byte[] receiveData = new byte[40];
                     var receivePacket = new DatagramPacket(receiveData, receiveData.length, InetAddress.getByName("10.8.62.2"), 12345);
+                    
                     if (socket != null) {
-                        socket.receive(receivePacket); // Blocks this thread, not the robot
+                        socket.receive(receivePacket);
+                    } else {
+                        break;
                     }
                     
                     // Fresh vision data :)
@@ -98,6 +101,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             }
         });
 
+        receiveThread.setDaemon(true);
         receiveThread.start();
 
         reachableThread = new Thread(() -> {
@@ -197,5 +201,6 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         }
 
         reachableThread.interrupt();
+        receiveThread.interrupt();
     }
 }
