@@ -8,24 +8,40 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5562633451957306,
-        "y": 0.3607354685646504
+        "x": 5.009359430604986,
+        "y": 0.6297153024911029
       },
       "isLocked": false,
       "linkedName": "Trench2-NoShoot"
     },
     {
       "anchor": {
-        "x": 1.6992888888888888,
-        "y": 3.3396333333333335
+        "x": 6.516466666666666,
+        "y": 0.9814333333333332
       },
       "prevControl": {
-        "x": 3.097984025306445,
-        "y": 3.318114946619216
+        "x": 5.690088888888889,
+        "y": 0.5178555555555546
+      },
+      "nextControl": {
+        "x": 7.315884698133751,
+        "y": 1.4298873509856018
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.342844444444443,
+        "y": 4.045077777777778
+      },
+      "prevControl": {
+        "x": 6.342844444444443,
+        "y": 4.045077777777778
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ClimbLeft"
+      "linkedName": "Center"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +58,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -178.75463573323162
   },
   "reversed": false,
   "folder": null,
