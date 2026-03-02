@@ -3,6 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -10,6 +12,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -23,7 +26,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -350,35 +352,25 @@ public class Turret extends SubsystemBase {
         return desired;
     }
 
-    public Command turretAim(Target target) {
-        return run(() -> {
-            Pose2d robotPose = drivetrain.getPose();
+    public void turretAim(Pose2d turretPose, Target target) {
+        Translation2d delta = FieldConstants.getTargetData(target).minus(turretPose.getTranslation());
 
-            Translation2d delta = FieldConstants.getTargetData(target).minus(robotPose.getTranslation());
+        Angle fieldAngle = delta.getAngle().getMeasure();
 
-            Angle fieldAngle = delta.getAngle().getMeasure();
+        Angle turretAngle = fieldAngle.minus(turretPose.getRotation().getMeasure());
 
-            Angle turretAngle = fieldAngle.minus(robotPose.getRotation().getMeasure());
-
-            setAngle(turretAngle);
-        });
+        setAngle(turretAngle);
     }
 
-    public Command turretAim(Cannon cannon) {
-        return run(() -> {
-            Pose2d robotPose = drivetrain.getPose();
+    public Command turretAimCommand(Supplier<Pose2d> turretPose, Target target) {
+        return run(() -> turretAim(turretPose.get(), target));
+    }
 
-            Translation2d target = cannon.getTarget();
-
-            Translation2d delta = target.minus(robotPose.getTranslation());
-
-            Angle fieldAngle = delta.getAngle().getMeasure();
-
-            Angle turretAngle
-                    = fieldAngle.minus(robotPose.getRotation().getMeasure());
-
-            setAngle(turretAngle);
-        });
+    public Command turretAimCommand(Cannon cannon) {
+        return turretAimCommand(
+            () -> new Pose2d(cannon.getShooterTranslation(), new Rotation2d()),
+            cannon.getTarget()
+        );
     }
 
     /**
