@@ -12,20 +12,20 @@
         "y": 7.36497034400949
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Trench1-NoShoot"
     },
     {
       "anchor": {
-        "x": 1.642336892052195,
-        "y": 3.80367734282325
+        "x": 1.6589777777777779,
+        "y": 4.045077777777778
       },
       "prevControl": {
-        "x": 3.266975088967973,
-        "y": 6.450438908659549
+        "x": 3.283615974693556,
+        "y": 6.691839343614077
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "ClimbRight"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -78.69006752597981
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }
