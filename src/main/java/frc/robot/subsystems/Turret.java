@@ -331,22 +331,22 @@ public class Turret extends SubsystemBase {
      * @return the angle optimized between -220 and 220
      */
     public Angle optimizeTurretAngle(Angle desired) {
-        // Angle error = desired.minus(getAngle());
-        // if (error.in(Degrees) > 180) {
-        //     desired = desired.minus(Degrees.of(360));
-        // } else if (error.in(Degrees) < -180) {
-        //     desired = desired.plus(Degrees.of(360));
-        // }
+        Angle error = desired.minus(getAngle());
+        if (error.in(Degrees) > 180) {
+            desired = desired.minus(Degrees.of(360));
+        } else if (error.in(Degrees) < -180) {
+            desired = desired.plus(Degrees.of(360));
+        }
 
-        // double minDeg = TurretConstants.MIN_ANGLE.in(Degrees);
-        // double maxDeg = TurretConstants.MAX_ANGLE.in(Degrees);
+        double minDeg = TurretConstants.MIN_ANGLE.in(Degrees);
+        double maxDeg = TurretConstants.MAX_ANGLE.in(Degrees);
 
-        // while (desired.lt(Degrees.of(minDeg))) {
-        //     desired = desired.plus(Degrees.of(360));
-        // }
-        // while (desired.gt(Degrees.of(maxDeg))) {
-        //     desired = desired.minus(Degrees.of(360));
-        // }
+        while (desired.lt(Degrees.of(minDeg))) {
+            desired = desired.plus(Degrees.of(360));
+        }
+        while (desired.gt(Degrees.of(maxDeg))) {
+            desired = desired.minus(Degrees.of(360));
+        }
 
         return desired;
     }
