@@ -12,7 +12,7 @@
         "y": 7.36497034400949
       },
       "isLocked": false,
-      "linkedName": "Trench1-Shoot"
+      "linkedName": "Trench1-NoShoot"
     },
     {
       "anchor": {
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -78.69006752597981
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }
