@@ -46,7 +46,6 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
 import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
-import frc.util.units.ThunderUnits;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -448,7 +447,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
-    @SuppressWarnings("Unused")
+    @SuppressWarnings("resource")
     public Command autoAlign(Pose2d targetPose) {
         PIDController pidX = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
         PIDController pidY = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
