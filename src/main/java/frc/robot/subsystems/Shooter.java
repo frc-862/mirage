@@ -70,7 +70,7 @@ public class Shooter extends SubsystemBase {
         public static final Distance FLYWHEEL_CIRCUMFERENCE = Inches.of(4).times(Math.PI);
 
         // for sim to account for movement between shooter, fuel, and hood
-        public static final double SHOOTER_EFFICIENCY = 0.3; 
+        public static final double SHOOTER_EFFICIENCY = 0.53; 
         // Input is distance to target in meters, output is shooter speed in rotations per second
         public static final ThunderMap<Distance, AngularVelocity> VELOCITY_MAP = new ThunderMap<>() {
             {
@@ -81,8 +81,8 @@ public class Shooter extends SubsystemBase {
         };
 
         // Sim
-        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.05); // temp
-        public static final Time MAX_SHOOTING_PERIOD = Seconds.of(0.1); // 10 balls per second
+        public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.006); // temp
+        public static final Time MAX_SHOOTING_PERIOD = Seconds.of(0.5); // 10 balls per second
     }
 
     private final ThunderBird motorLeft;
