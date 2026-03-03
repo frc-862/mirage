@@ -219,7 +219,6 @@ public class Hood extends SubsystemBase {
             motor.setPosition(HoodConstants.MAX_ANGLE);
         } else {
             isZeroing = false;
-            motor.setControl(hoodDutyCycle.withOutput(0.0));
         }
     }
 
