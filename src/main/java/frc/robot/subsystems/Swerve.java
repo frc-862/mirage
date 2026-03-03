@@ -383,12 +383,14 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command robotCentricDrive(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput){
-        var xy = xyInput.get(); 
-        return run(() -> setControl(DriveConstants.robotCentricRequest
+        return run(() -> {
+            var xy = xyInput.get();
+            setControl(DriveConstants.robotCentricRequest
             .withVelocityX(DriveConstants.MaxSpeed.times(xy.get(0)))
             .withVelocityY(DriveConstants.MaxSpeed.times(xy.get(1)))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage));
+        });
     }
 
     public Command brakeCommand() {
