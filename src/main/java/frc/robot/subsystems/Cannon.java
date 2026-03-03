@@ -76,6 +76,8 @@ public class Cannon extends SubsystemBase {
 
         this.indexer = indexer;
 
+        storedTarget = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
+
         initLogging();
     }
 
