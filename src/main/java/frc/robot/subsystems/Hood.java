@@ -92,8 +92,8 @@ public class Hood extends SubsystemBase {
         public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
         public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
 
-        public static final double CURRENT_THRESHOLD = 0; // temp
-        public static final double HOOD_RETRACT_POWER = 0.2; // temp
+        public static final double CURRENT_THRESHOLD = 15; // temp
+        public static final double HOOD_RETRACT_POWER = -0.5; // temp
     }
 
     private ThunderBird motor;
@@ -111,7 +111,7 @@ public class Hood extends SubsystemBase {
     private Mechanism2d mech2d;
     private CANcoderSimState encoderSim;
     public boolean isHoodRetracted = false;
-    public boolean isZeroed = false;
+    public boolean isZeroed;
 
     private DoubleLogEntry angleLog;
     private DoubleLogEntry biasLog;
@@ -128,6 +128,8 @@ public class Hood extends SubsystemBase {
         if (hasEncoder()) {
             encoder = new CANcoder(RobotMap.HOOD_ENCODER, RobotMap.CAN_BUS);
         }
+
+        isZeroed = false;
 
         TalonFXConfiguration motorConfig = motor.getConfig();
 
