@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
@@ -19,9 +18,12 @@ import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Robot;
@@ -174,6 +176,7 @@ public class Cannon extends SubsystemBase {
     public Command createCandShotCommand(CannonConstants.CandShot value) {
         return new ParallelCommandGroup(
             createCannonCommand(value.hoodAngle, value.shooterVelocity),
+            
             indexWhenOnTarget()
         );
         
@@ -257,6 +260,18 @@ public class Cannon extends SubsystemBase {
         return new SequentialCommandGroup(
             new WaitUntilCommand(() -> isOnTarget()),
             indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
+        );
+    }
+
+    /**
+     * It waits until everything except turret is on target to start the rumble.
+     * @param controller To be able to use the copilot for rumble
+     * @return The command
+     */
+    public Command rumble(XboxController controller){
+        return new SequentialCommandGroup(
+            new WaitUntilCommand(() -> (hood.isOnTarget() && shooter.isOnTarget() && !turret.isOnTarget())),
+            new StartEndCommand(() -> controller.setRumble(GenericHID.RumbleType.kBothRumble, 1d), () -> controller.setRumble(GenericHID.RumbleType.kBothRumble, 0d))
         );
     }
 

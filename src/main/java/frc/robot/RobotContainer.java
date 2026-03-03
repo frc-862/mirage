@@ -9,10 +9,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -22,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
@@ -29,6 +28,7 @@ import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Cannon;
+import frc.robot.subsystems.Cannon.CannonConstants;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
@@ -115,7 +115,6 @@ public class RobotContainer {
         /*
          * Copilot Default Commands
          */
-        collector.setDefaultCommand(collector.collectRunCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
         shooter.setDefaultCommand(shooter.coast());
 
         // hood.setDefaultCommand(cannon.hoodAim());
@@ -169,27 +168,28 @@ public class RobotContainer {
 
         new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot());
 
-        new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
-            collector.pivotCommand(CollectorConstants.DEPLOY_ANGLE));
-        new Trigger(copilot::getYButton).whileTrue(collector.pivotCommand(CollectorConstants.STOWED_ANGLE));
+        new Trigger(copilot::getStartButton).whileTrue(collector.stowPivotCommand());
+    
+        new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND || copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
+            .whileTrue(collector.collectCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
 
         new Trigger(copilot::getBackButton).whileTrue(turret.idle().beforeStarting(turret::stop)); // disable turret
 
         // Temp Cand shots
         //RIGHT_, LEFT_, and MIDDLE_ are all set to 0, so temp shots wont work right now
-        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_RIGHT).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT));
-        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT));
-        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT));
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_RIGHT).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT).deadlineFor(cannon.rumble(copilot)));
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT).deadlineFor(cannon.rumble(copilot)));
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT).deadlineFor(cannon.rumble(copilot)));
 
-        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
-            shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
-            .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
-            .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
-            () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
-            .finallyDo(shooter::stop));
+        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
+        //     shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
+        //     .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
+        //     .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
+        //     () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
+        //     .finallyDo(shooter::stop));
 
-        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(hood.hoodCommand(() -> 
-            Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
+        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(hood.hoodCommand(() -> 
+        //     Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
 
         new Trigger(() -> (hood.isOnTarget() && shooter.isOnTarget() && !turret.isOnTarget()))
         .whileTrue(new StartEndCommand(() -> copilot.setRumble(GenericHID.RumbleType.kBothRumble, 1d), () -> copilot.setRumble(GenericHID.RumbleType.kBothRumble, 0d)));
@@ -202,10 +202,12 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("MOVE_TO_TOWER", drivetrain.autoAlign(FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
         NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot());
-        NamedCommands.registerCommand("COLLECT", collector.collectCommand(CollectorConstants.COLLECT_POWER));
-        NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.collectCommand(CollectorConstants.DEPLOY_POWER, CollectorConstants.DEPLOY_ANGLE));
-        NamedCommands.registerCommand("STOW_COLLECTOR", collector.collectCommand(CollectorConstants.HOLD_POWER, CollectorConstants.STOWED_ANGLE));
-        
+        NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER));
+        NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.deployPivotCommand());
+        NamedCommands.registerCommand("STOW_COLLECTOR", collector.stowPivotCommand());
+        NamedCommands.registerCommand("WAIT_UNTIL_DEPLOYED", new WaitUntilCommand(collector::isDeployed));
+        NamedCommands.registerCommand("WAIT_UNTIL_STOWED", new WaitUntilCommand(collector::isStowed));
+
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
     }

@@ -12,20 +12,20 @@
         "y": 7.440284697508897
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Trench1-NoShoot"
     },
     {
       "anchor": {
-        "x": 0.4588256227758012,
-        "y": 5.998552787663108
+        "x": 0.7620555555555557,
+        "y": 5.980011111111112
       },
       "prevControl": {
-        "x": 4.4720047449584825,
-        "y": 5.966275207591934
+        "x": 4.775234677738237,
+        "y": 5.947733531039938
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Depot"
     }
   ],
   "rotationTargets": [],
