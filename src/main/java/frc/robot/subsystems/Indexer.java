@@ -172,7 +172,7 @@ public class Indexer extends SubsystemBase {
     }
 
     public Command autoIndex(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
-        return new InstantCommand(() -> setTransferPower(spindexerPower.getAsDouble()))
+        return new InstantCommand(() -> setTransferPower(transferPower.getAsDouble()))
             .andThen(new WaitCommand(IndexerConstants.SPINDEXER_DELAY))
             .andThen(indexCommand(spindexerPower, transferPower));
     }
