@@ -30,11 +30,7 @@ import frc.robot.constants.LEDConstants;
 import frc.robot.constants.LEDConstants.LED_STATES;
 import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.Cannon;
-<<<<<<< 352-remove-test-led-states-setup-good-states
-import frc.robot.subsystems.Climber;
-=======
 import frc.robot.subsystems.Cannon.CannonConstants;
->>>>>>> main
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.Collector.CollectorConstants;
 import frc.robot.subsystems.Hood;
@@ -49,7 +45,6 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.leds.Color;
-import frc.util.leds.LEDBehavior;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
 import frc.util.shuffleboard.LightningShuffleboard;
