@@ -28,7 +28,7 @@
         "y": 6.977711111111111
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Trench1CenterMidpoint"
     },
     {
       "anchor": {
@@ -36,8 +36,8 @@
         "y": 4.045077777777778
       },
       "prevControl": {
-        "x": 6.342844444444443,
-        "y": 4.045077777777778
+        "x": 7.342844444444443,
+        "y": 5.325114250878889
       },
       "nextControl": null,
       "isLocked": false,

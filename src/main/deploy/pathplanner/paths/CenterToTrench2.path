@@ -28,7 +28,7 @@
         "y": 0.46834784462191703
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Trench2CenterMidpoint"
     },
     {
       "anchor": {
@@ -41,7 +41,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Trench2-NoShoot"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -58,7 +58,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 179.0487300483182
+    "rotation": -178.75463573323162
   },
   "reversed": false,
   "folder": null,
