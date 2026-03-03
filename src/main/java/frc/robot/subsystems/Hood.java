@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -25,6 +26,8 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -36,6 +39,7 @@ import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -93,6 +97,9 @@ public class Hood extends SubsystemBase {
 
         public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
         public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
+
+
+        public static final DutyCycleOut HOOD_ZEROING_DC = new DutyCycleOut(0.1);
     }
 
     private ThunderBird motor;
@@ -101,6 +108,9 @@ public class Hood extends SubsystemBase {
     final PositionVoltage request;
     private Angle targetAngle;
     private MutAngle hoodBias;
+
+    private boolean hoodZeroed = false;
+    private final Timer zeroingTimer = new Timer();
 
     private SingleJointedArmSim hoodSim;
     private TalonFXSimState motorSim;
@@ -180,7 +190,6 @@ public class Hood extends SubsystemBase {
 
             encoderSim.Orientation = ChassisReference.Clockwise_Positive;
 
-            hoodSim.setState(HoodConstants.MAX_ANGLE.in(Radians), 0);
             motorSim.setRawRotorPosition(HoodConstants.MAX_ANGLE.times(HoodConstants.ROTOR_TO_MECHANISM_RATIO));
             encoderSim.setRawPosition(HoodConstants.MAX_ANGLE.times(HoodConstants.ENCODER_TO_MECHANISM_RATIO));
 
@@ -208,6 +217,18 @@ public class Hood extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (!hoodZeroed && DriverStation.isEnabled()) {
+            if (!zeroingTimer.isRunning()) {
+                zeroingTimer.restart();
+                motor.setControl(HoodConstants.HOOD_ZEROING_DC);
+            } else if (!motor.getVelocity().getValue().isNear(RotationsPerSecond.zero(), RotationsPerSecond.of(0.1))) {
+                zeroingTimer.restart();
+            } else if (zeroingTimer.hasElapsed(0.2)) {
+                motor.setPosition(HoodConstants.MAX_ANGLE);
+                hoodZeroed = true;
+                zeroingTimer.stop();
+            }
+        }
         updateLogging();
     }
 
@@ -224,7 +245,7 @@ public class Hood extends SubsystemBase {
             LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
             LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
             LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
-            LightningShuffleboard.setBool("Hood", "Zeroed", isZeroed);
+            LightningShuffleboard.setBool("Hood", "Zeroed", hoodZeroed);
         }
     }
 
@@ -281,7 +302,7 @@ public class Hood extends SubsystemBase {
     }
 
     private void applyControl() {
-        if (!isHoodRetracted) {
+        if (!isHoodRetracted && hoodZeroed) {
             motor.setControl(request.withPosition(getTargetAngleWithBias()));
         }
     }
