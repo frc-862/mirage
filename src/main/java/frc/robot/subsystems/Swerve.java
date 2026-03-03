@@ -28,7 +28,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
-
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Second;
@@ -46,7 +45,6 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
 import frc.util.AllianceHelpers;
 import frc.util.simulation.SwerveSim;
-import frc.util.units.ThunderUnits;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -375,18 +373,20 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command driveCommand(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput) {
+        var xy = xyInput.get();
         return run(() -> setControl(DriveConstants.fieldCentricRequest
-            .withVelocityX(DriveConstants.MaxSpeed.times(xyInput.get().get(0)))
-            .withVelocityY(DriveConstants.MaxSpeed.times(xyInput.get().get(1)))
+            .withVelocityX(DriveConstants.MaxSpeed.times(xy.get(0)))
+            .withVelocityY(DriveConstants.MaxSpeed.times(xy.get(1)))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
     }
 
     public Command robotCentricDrive(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput){
+        var xy = xyInput.get(); 
         return run(() -> setControl(DriveConstants.robotCentricRequest
-            .withVelocityX(DriveConstants.MaxSpeed.times(xyInput.get().get(0)))
-            .withVelocityY(DriveConstants.MaxSpeed.times(xyInput.get().get(1)))
+            .withVelocityX(DriveConstants.MaxSpeed.times(xy.get(0)))
+            .withVelocityY(DriveConstants.MaxSpeed.times(xy.get(1)))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
     }
