@@ -16,6 +16,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -446,7 +447,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
-    @SuppressWarnings("Unused")
+    @SuppressWarnings("resource")
     public Command autoAlign(Pose2d targetPose) {
         PIDController pidX = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
         PIDController pidY = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
@@ -458,8 +459,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
          pidY.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
         pidR.setTolerance(DriveConstants.ROT_TOLERANCE.in(Degrees));
         
-        return autoDrive(() -> pidX.calculate(getPose().getX(), targetPose.getX()),
-        () -> pidY.calculate(getPose().getY(), targetPose.getY()), 
+        return autoDrive(() -> MathUtil.clamp(pidX.calculate(getPose().getX(), targetPose.getX()), -1, 1),
+        () -> MathUtil.clamp(pidY.calculate(getPose().getY(), targetPose.getY()), -1, 1), 
         () -> pidR.calculate(getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees()));
     }
 }
