@@ -212,7 +212,7 @@ public class Hood extends SubsystemBase {
 
         if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
             LightningShuffleboard.setDouble("Hood", "Angle", getAngle().in(Degrees));
-            LightningShuffleboard.setBool("Hood", "onTarget", isOnTarget());
+            LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
             if (hasEncoder()) {
                 LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
             }
