@@ -270,18 +270,6 @@ public class Cannon extends SubsystemBase {
     }
 
     /**
-     * It waits until everything except turret is on target to start the rumble.
-     * @param controller To be able to use the copilot for rumble
-     * @return The command
-     */
-    public Command rumble(XboxController controller){
-        return new SequentialCommandGroup(
-            new WaitUntilCommand(() -> (hood.isOnTarget() && shooter.isOnTarget() && !turret.isOnTarget())),
-            new StartEndCommand(() -> controller.setRumble(GenericHID.RumbleType.kBothRumble, 1d), () -> controller.setRumble(GenericHID.RumbleType.kBothRumble, 0d))
-        );
-    }
-
-    /**
      *  checks if the hood, turret, and shooter is on target.
      * @return if they are on target.
      */
