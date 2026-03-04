@@ -18,7 +18,7 @@ public class VisionConstants {
 
     // Tolerances for result filtering
     public static final double POSE_AMBIGUITY_TOLERANCE = 1;
-    public static final double TAG_DISTANCE_TOLERANCE = 10;
+    public static final double TAG_DISTANCE_TOLERANCE = 6;
 
     // Carmera constants to store camera name and offsets
     public record CameraConstant(String name, Transform3d offset) {};
