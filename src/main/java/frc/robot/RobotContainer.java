@@ -247,7 +247,6 @@ public class RobotContainer {
 
         /**
      * It waits until everything except turret is on target to start the rumble.
-     * @param controller To be able to use the copilot for rumble
      * @return The command
      */
     public Command rumble(){
