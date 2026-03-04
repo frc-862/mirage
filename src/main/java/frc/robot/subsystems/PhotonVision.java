@@ -102,10 +102,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     public void periodic() {
         LightningShuffleboard.setDouble("Vision", "robot_time", Utils.getCurrentTimeSeconds());
 
-        if (pose.get() != null && pose.get().pose != null && pose.get().ambiguity < 1 && pose.get().timestamp > 0) {
-            // Take the value from the new post and then set it to null
-            VisionInfo updatedPose = pose.getAndSet(null);
-
+        VisionInfo updatedPose = pose.getAndSet(null);
+        if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
             // If the time offset has not been set yet, calculate it
             if (macTimeOffset == 0) {
                 macTimeOffset = Utils.getCurrentTimeSeconds() - updatedPose.timestamp;
