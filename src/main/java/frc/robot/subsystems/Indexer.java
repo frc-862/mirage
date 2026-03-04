@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -172,7 +173,7 @@ public class Indexer extends SubsystemBase {
     }
 
     public Command autoIndex(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
-        return new InstantCommand(() -> setTransferPower(spindexerPower.getAsDouble()))
+        return runOnce(() -> setTransferPower(transferPower.getAsDouble()))
             .andThen(new WaitCommand(IndexerConstants.SPINDEXER_DELAY))
             .andThen(indexCommand(spindexerPower, transferPower));
     }
