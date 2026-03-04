@@ -92,8 +92,8 @@ public class Hood extends SubsystemBase {
         public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
         public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
 
-        public static final double CURRENT_THRESHOLD = 15; // temp
-        public static final double HOOD_RETRACT_POWER = -0.5; // temp
+        public static final double CURRENT_THRESHOLD = 30; // temp
+        public static final double HOOD_RETRACT_POWER = 0.5; // temp
     }
 
     private ThunderBird motor;
@@ -215,15 +215,7 @@ public class Hood extends SubsystemBase {
     public void periodic() {
         updateLogging();
 
-        if (!isZeroed) {
-            motor.setControl(hoodDutyCycle.withOutput(HoodConstants.HOOD_RETRACT_POWER));
-
-            if (motor.getStatorCurrent().getValueAsDouble() > HoodConstants.CURRENT_THRESHOLD) {
-                isZeroed = true;
-                motor.setPosition(HoodConstants.MAX_ANGLE);
-                stop();
-            }
-        }
+        LightningShuffleboard.setDouble("Hood", "Current", motor.getStatorCurrent().getValueAsDouble());
     }
 
     private void updateLogging() {
@@ -415,5 +407,16 @@ public class Hood extends SubsystemBase {
      */
     public Command setPositionCommand(Angle angle) {
         return new InstantCommand(() -> setPosition(angle));
+    }
+
+    public Command zeroCommand() {
+        return run(() -> {
+            motor.setControl(hoodDutyCycle.withOutput(HoodConstants.HOOD_RETRACT_POWER));
+        
+        }).until(() -> motor.getStatorCurrent().getValueAsDouble() > HoodConstants.CURRENT_THRESHOLD).andThen(new InstantCommand(() -> {
+            motor.setPosition(HoodConstants.MAX_ANGLE);
+            System.out.println("Is Zeroed!");
+            stop();
+        }));
     }
 }
