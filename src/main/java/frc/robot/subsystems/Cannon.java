@@ -80,6 +80,8 @@ public class Cannon extends SubsystemBase {
         this.drivetrain = drivetrain;
 
         this.indexer = indexer;
+        
+        this.storedTarget = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
 
         initLogging();
     }

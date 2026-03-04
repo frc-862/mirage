@@ -4,16 +4,17 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.sim.TalonFXSimState;
-
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
+
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.sim.TalonFXSimState;
+
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
@@ -80,8 +81,8 @@ public class Climber extends SubsystemBase {
         climberSim.setInputVoltage(motorSim.getMotorVoltage());
         climberSim.update(Robot.kDefaultPeriod);
         motorSim.setRawRotorPosition(Units.metersToInches(climberSim.getPositionMeters()));
-        LightningShuffleboard.getBool("Climber", "Climber Foward Limit Switch", false);
-        LightningShuffleboard.getBool("Climber", "Climber Reverse Limit Switch", false);
+        LightningShuffleboard.setBool("Climber", "Climber Foward Limit Switch", false);
+        LightningShuffleboard.setBool("Climber", "Climber Reverse Limit Switch", false);
     }
 
     /**

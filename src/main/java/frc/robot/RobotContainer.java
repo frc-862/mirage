@@ -127,6 +127,9 @@ public class RobotContainer {
                 .deadlineFor(leds.enableState(LED_STATES.BRAKE.id()))
             );
 
+
+        new Trigger(driver::getYButton).whileTrue(hood.zeroCommand());
+
         // TODO: Bind OTF to LB and Climb AA to RB
 
         // change biases for the driver
@@ -189,6 +192,8 @@ public class RobotContainer {
 
         new Trigger(() -> (hood.isOnTarget() && shooter.isOnTarget() && !turret.isOnTarget()))
         .whileTrue(new StartEndCommand(() -> copilot.setRumble(GenericHID.RumbleType.kBothRumble, 1d), () -> copilot.setRumble(GenericHID.RumbleType.kBothRumble, 0d)));
+
+        new Trigger(() -> DriverStation.isEnabled()).onTrue(hood.zeroCommand());
     }
     
     private void configureNamedCommands() {
