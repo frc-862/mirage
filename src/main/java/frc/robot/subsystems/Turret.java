@@ -98,7 +98,7 @@ public class Turret extends SubsystemBase {
     private final DigitalInput zeroLimitSwitch;
     private final DigitalInput maxLimitSwitch;
     private boolean zeroed;
-    private boolean lsTriggeredOnLastLoopRun;
+    // private boolean lsTriggeredOnLastLoopRun;
 
     private final Swerve drivetrain;
 
@@ -139,9 +139,9 @@ public class Turret extends SubsystemBase {
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
 
         zeroed = RobotMap.IS_OASIS || Robot.isSimulation(); // only zero when real // TODO: remove isOasis check after limit switches added
-        if (!zeroed) {
-            setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
-        }
+        // if (!zeroed) {
+        //     setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
+        // }
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
@@ -181,15 +181,15 @@ public class Turret extends SubsystemBase {
         // }
 
         // Zero limit switch is precise, so set encoder position when zero is hit
-        if (!zeroed && !lsTriggeredOnLastLoopRun && getZeroLimitSwitch() 
-            && motor.getVelocity().getValue().lt(RotationsPerSecond.zero())) { // TODO: add led strip indication?
+        // if (!zeroed && !lsTriggeredOnLastLoopRun && getZeroLimitSwitch() 
+        //     && motor.getVelocity().getValue().lt(RotationsPerSecond.zero())) { // TODO: add led strip indication?
 
-            setEncoderPosition(TurretConstants.ZERO_ANGLE);
-            zeroed = true;
-            setAngle(targetPosition);
-        }
+        //     setEncoderPosition(TurretConstants.ZERO_ANGLE);
+        //     zeroed = true;
+        //     setAngle(targetPosition);
+        // }
 
-        lsTriggeredOnLastLoopRun = getZeroLimitSwitch();
+        // lsTriggeredOnLastLoopRun = getZeroLimitSwitch();
 
         updateLogging();
     }
@@ -375,6 +375,20 @@ public class Turret extends SubsystemBase {
 
             setAngle(turretAngle);
         });
+    }
+
+    public Command zero() {
+        return run(() -> {
+            setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
+        }).until(() -> getZeroLimitSwitch())
+        .andThen(() -> {
+            setPower(TurretConstants.ZEROING_POWER);
+        }, this).until(() -> !getZeroLimitSwitch())
+        .finallyDo(() -> {
+            setEncoderPosition(TurretConstants.ZERO_ANGLE);
+            zeroed = true;
+        });
+        
     }
 
     /**

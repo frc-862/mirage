@@ -128,6 +128,8 @@ public class RobotContainer {
         /* Driver */
         new Trigger(driver::getXButton).whileTrue(drivetrain.brakeCommand());
 
+        new Trigger(driver::getYButton).whileTrue(turret.zero());
+
         // TODO: Bind OTF to LB and Climb AA to RB
 
         /*
