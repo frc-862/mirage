@@ -16,6 +16,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -27,7 +28,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
-
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Second;
@@ -373,20 +373,26 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command driveCommand(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput) {
-        return run(() -> setControl(DriveConstants.fieldCentricRequest
-            .withVelocityX(DriveConstants.MaxSpeed.times(xyInput.get().get(0)))
-            .withVelocityY(DriveConstants.MaxSpeed.times(xyInput.get().get(1)))
+        return run(() -> {
+            var xy = xyInput.get();
+            setControl(DriveConstants.fieldCentricRequest
+            .withVelocityX(DriveConstants.MaxSpeed.times(xy.get(0)))
+            .withVelocityY(DriveConstants.MaxSpeed.times(xy.get(1)))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage));
+        });
     }
 
     public Command robotCentricDrive(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput){
-        return run(() -> setControl(DriveConstants.robotCentricRequest
-            .withVelocityX(DriveConstants.MaxSpeed.times(xyInput.get().get(0)))
-            .withVelocityY(DriveConstants.MaxSpeed.times(xyInput.get().get(1)))
+        return run(() -> {
+            var xy = xyInput.get();
+            setControl(DriveConstants.robotCentricRequest
+            .withVelocityX(DriveConstants.MaxSpeed.times(xy.get(0)))
+            .withVelocityY(DriveConstants.MaxSpeed.times(xy.get(1)))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage));
+        });
     }
 
     public Command brakeCommand() {
@@ -446,7 +452,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
-    @SuppressWarnings("Unused")
+    @SuppressWarnings("resource")
     public Command autoAlign(Pose2d targetPose) {
         PIDController pidX = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
         PIDController pidY = new PIDController(DriveConstants.DRIVE_P, DriveConstants.DRIVE_I, DriveConstants.DRIVE_D);
@@ -458,8 +464,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
          pidY.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
         pidR.setTolerance(DriveConstants.ROT_TOLERANCE.in(Degrees));
         
-        return autoDrive(() -> pidX.calculate(getPose().getX(), targetPose.getX()),
-        () -> pidY.calculate(getPose().getY(), targetPose.getY()), 
+        return autoDrive(() -> MathUtil.clamp(pidX.calculate(getPose().getX(), targetPose.getX()), -1, 1),
+        () -> MathUtil.clamp(pidY.calculate(getPose().getY(), targetPose.getY()), -1, 1), 
         () -> pidR.calculate(getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees()));
     }
 }

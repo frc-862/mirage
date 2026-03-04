@@ -80,8 +80,11 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     // Create a new packet to fill with recieved data
                     byte[] receiveData = new byte[40];
                     var receivePacket = new DatagramPacket(receiveData, receiveData.length, InetAddress.getByName("10.8.62.2"), 12345);
+                    
                     if (socket != null) {
-                        socket.receive(receivePacket); // Blocks this thread, not the robot
+                        socket.receive(receivePacket);
+                    } else {
+                        break;
                     }
                     
                     // Fresh vision data :)
@@ -98,6 +101,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             }
         });
 
+        receiveThread.setDaemon(true);
         receiveThread.start();
 
         reachableThread = new Thread(() -> {
@@ -126,10 +130,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     public void periodic() {
         LightningShuffleboard.setDouble("Vision", "robot_time", Utils.getCurrentTimeSeconds());
 
-        if (pose.get() != null && pose.get().pose != null && pose.get().ambiguity < 1 && pose.get().timestamp > 0) {
-            // Take the value from the new post and then set it to null
-            VisionInfo updatedPose = pose.getAndSet(null);
-
+        VisionInfo updatedPose = pose.getAndSet(null);
+        if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
             // If the time offset has not been set yet, calculate it
             if (macTimeOffset == 0) {
                 macTimeOffset = Utils.getCurrentTimeSeconds() - updatedPose.timestamp;
@@ -194,5 +196,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         if (socket != null) {
             socket.close();
         }
+
+        receiveThread.interrupt();
     }
 }
