@@ -192,6 +192,8 @@ public class RobotContainer {
 
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(hood.hoodCommand(() -> 
             Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
+
+        new Trigger(() -> DriverStation.isEnabled()).onTrue(hood.zeroCommand());
     }
     
     private void configureNamedCommands() {

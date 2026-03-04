@@ -199,7 +199,7 @@ public class Hood extends SubsystemBase {
         if (!hasEncoder()){
             motor.setPosition(HoodConstants.MAX_ANGLE); // needs to be after config and sim
         }
-
+        
         initLogging();
     }
 
@@ -408,13 +408,12 @@ public class Hood extends SubsystemBase {
     }
 
     public Command zeroCommand() {
-        return run(() -> {
+        return startEnd(() -> {
             motor.setControl(hoodDutyCycle.withOutput(HoodConstants.HOOD_RETRACT_POWER));
-        
-        }).until(() -> motor.getStatorCurrent().getValueAsDouble() > HoodConstants.CURRENT_THRESHOLD).andThen(new InstantCommand(() -> {
+        }, () -> {
+            isZeroed = true;
             motor.setPosition(HoodConstants.MAX_ANGLE);
-            System.out.println("Is Zeroed!");
             stop();
-        }));
+        }).until(() -> (motor.getStatorCurrent().getValueAsDouble() > HoodConstants.CURRENT_THRESHOLD));
     }
 }
