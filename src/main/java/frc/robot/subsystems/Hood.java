@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -90,6 +91,9 @@ public class Hood extends SubsystemBase {
 
         public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
         public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
+
+        public static final double CURRENT_THRESHOLD = 30; // temp
+        public static final double HOOD_RETRACT_POWER = 0.5; // temp
     }
 
     private ThunderBird motor;
@@ -107,10 +111,13 @@ public class Hood extends SubsystemBase {
     private Mechanism2d mech2d;
     private CANcoderSimState encoderSim;
     public boolean isHoodRetracted = false;
+    public boolean isZeroed;
 
     private DoubleLogEntry angleLog;
     private DoubleLogEntry biasLog;
     private BooleanLogEntry onTargetLog;
+
+    private final DutyCycleOut hoodDutyCycle;
 
     /** Creates a new Hood Subsystem. */
     public Hood() {
@@ -122,7 +129,11 @@ public class Hood extends SubsystemBase {
             encoder = new CANcoder(RobotMap.HOOD_ENCODER, RobotMap.CAN_BUS);
         }
 
+        isZeroed = false;
+
         TalonFXConfiguration motorConfig = motor.getConfig();
+
+        hoodDutyCycle = new DutyCycleOut(0d);
 
         request = new PositionVoltage(0d);
 
@@ -188,7 +199,7 @@ public class Hood extends SubsystemBase {
         if (!hasEncoder()){
             motor.setPosition(HoodConstants.MAX_ANGLE); // needs to be after config and sim
         }
-
+        
         initLogging();
     }
 
@@ -275,7 +286,7 @@ public class Hood extends SubsystemBase {
     }
 
     private void applyControl() {
-        if (!isHoodRetracted) {
+        if (!isHoodRetracted && isZeroed) {
             motor.setControl(request.withPosition(getTargetAngleWithBias()));
         }
     }
@@ -394,5 +405,15 @@ public class Hood extends SubsystemBase {
      */
     public Command setPositionCommand(Angle angle) {
         return new InstantCommand(() -> setPosition(angle));
+    }
+
+    public Command zeroCommand() {
+        return startEnd(() -> {
+            motor.setControl(hoodDutyCycle.withOutput(HoodConstants.HOOD_RETRACT_POWER));
+        }, () -> {
+            isZeroed = true;
+            motor.setPosition(HoodConstants.MAX_ANGLE);
+            stop();
+        }).until(() -> (motor.getStatorCurrent().getValueAsDouble() > HoodConstants.CURRENT_THRESHOLD));
     }
 }
