@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.LEDConstants;
@@ -124,6 +123,9 @@ public class RobotContainer {
         /* Driver */
         new Trigger(driver::getXButton).whileTrue(drivetrain.brakeCommand());
 
+
+        new Trigger(driver::getYButton).whileTrue(hood.zeroCommand());
+
         // TODO: Bind OTF to LB and Climb AA to RB
 
         // change biases for the driver
@@ -183,6 +185,8 @@ public class RobotContainer {
                 indexer.stop();
                 shooter.stop();
             }));
+
+        new Trigger(() -> DriverStation.isEnabled()).onTrue(hood.zeroCommand());
     }
     
     private void configureNamedCommands() {
