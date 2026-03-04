@@ -214,8 +214,6 @@ public class Hood extends SubsystemBase {
     @Override
     public void periodic() {
         updateLogging();
-
-        LightningShuffleboard.setDouble("Hood", "Current", motor.getStatorCurrent().getValueAsDouble());
     }
 
     private void updateLogging() {
