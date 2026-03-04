@@ -117,7 +117,7 @@ public class RobotContainer {
 
 
         shooter.setDefaultCommand(shooter.coast());
-        hood.setDefaultCommand(cannon.hoodAim());
+        // hood.setDefaultCommand(cannon.hoodAim());
         turret.setDefaultCommand(cannon.turretAim());
     }
 
@@ -128,10 +128,7 @@ public class RobotContainer {
 
         new Trigger(driver::getYButton).whileTrue(turret.zero());
         
-        new Trigger(turret::getZeroed).whileFalse(leds.enableState(LED_STATES.TURRET_BAD.id()));
-
-
-        new Trigger(driver::getYButton).whileTrue(hood.zeroCommand());
+        new Trigger(turret::getZeroed).whileFalse(leds.enableState(LED_STATES.TURRET_BAD.id())); // turn off turret bad LED state once turret is zeroed
 
         // TODO: Bind OTF to LB and Climb AA to RB
 

@@ -60,8 +60,10 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = Degrees.of(-300); // limit range temporarily
-        public static final Angle MAX_ANGLE = Degrees.of(60);
+        public static final Current ZEROING_CURRENT_LIMIT = Amps.of(20); // temp
+
+        public static final Angle MIN_ANGLE = Degrees.of(-180); // limit range temporarily
+        public static final Angle MAX_ANGLE = Degrees.of(180);
 
         public static final double kP = 150d;
         public static final double kI = 0d;
@@ -72,7 +74,7 @@ public class Turret extends SubsystemBase {
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
 
         public static final Angle ZERO_ANGLE = Degrees.of(-1.2);
-        public static final double ZEROING_POWER = 0.5;
+        public static final double ZEROING_POWER = 0.2;
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.02);
 
@@ -101,6 +103,7 @@ public class Turret extends SubsystemBase {
     private final DigitalInput zeroLimitSwitch;
     private final DigitalInput maxLimitSwitch;
     private boolean zeroed;
+    private Angle lastAngle;
     // private boolean lsTriggeredOnLastLoopRun;
 
     private final Swerve drivetrain;
@@ -141,10 +144,7 @@ public class Turret extends SubsystemBase {
         zeroLimitSwitch = new DigitalInput(RobotMap.TURRET_ZERO_SWITCH);
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
 
-        zeroed = RobotMap.IS_OASIS || Robot.isSimulation(); // only zero when real // TODO: remove isOasis check after limit switches added
-        // if (!zeroed) {
-        //     setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
-        // }
+        zeroed = false;
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
@@ -193,6 +193,13 @@ public class Turret extends SubsystemBase {
         // }
 
         // lsTriggeredOnLastLoopRun = getZeroLimitSwitch();
+
+        if (!zeroed && getZeroLimitSwitch() && getAngle().minus(lastAngle).gt(Degrees.of(0))) {
+            setEncoderPosition(TurretConstants.ZERO_ANGLE);
+            zeroed = true;
+        }
+
+        lastAngle = getAngle();
 
         updateLogging();
     }
@@ -384,16 +391,19 @@ public class Turret extends SubsystemBase {
 
     public Command zero() {
         return run(() -> {
-            setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
-        }).until(() -> getZeroLimitSwitch())
+            setPower(TurretConstants.ZEROING_POWER);
+        }).onlyIf(() -> !zeroed).until(() -> zeroed).withTimeout(3)
+        .andThen(() -> {
+            setPower(-TurretConstants.ZEROING_POWER);
+        }).onlyIf(() -> !zeroed).until(() -> zeroed).withTimeout(3)
         .andThen(() -> {
             setPower(TurretConstants.ZEROING_POWER);
-        }, this).until(() -> !getZeroLimitSwitch())
-        .finallyDo(() -> {
-            setEncoderPosition(TurretConstants.ZERO_ANGLE);
-            zeroed = true;
-        });
+        }).onlyIf(() -> !zeroed).until(() -> zeroed).withTimeout(3);
         
+    }
+
+    public boolean atCurrentLimit() {
+        return motor.getStatorCurrent().getValue().gt(TurretConstants.ZEROING_CURRENT_LIMIT);
     }
 
     /**
