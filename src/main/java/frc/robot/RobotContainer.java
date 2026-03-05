@@ -130,8 +130,6 @@ public class RobotContainer {
 
         // new Trigger(driver::getYButton).whileTrue(turret.zero());
         
-        new Trigger(new LEDBooleanSupplier(turret::getZeroed)).whileFalse(leds.enableState(LED_STATES.TURRET_BAD.id())); // turn off turret bad LED state once turret is zeroed
-
         // TODO: Bind OTF to LB and Climb AA to RB
 
         // change biases for the driver
@@ -223,11 +221,12 @@ public class RobotContainer {
     private void configureLeds() {
         leds.setDefaultBehavior(LEDBehaviorFactory.swirl(LEDConstants.stripAll, 10, 5, Color.ORANGE, Color.BLUE));
 
-        leds.setBehavior(LED_STATES.TEST.id(), LEDBehaviorFactory.testStrip(LEDConstants.stripAll,
+        leds.setBehavior(LED_STATES.TEST.id(), LEDBehaviorFactory.testStrip(LEDConstants.stripShooter,
                 () -> turret.getMaxLimitSwitch(),
                 () -> turret.getZeroLimitSwitch(),
                 () -> vision.getMacMiniConnection()
         ));
+        leds.setBehavior(LED_STATES.TURRET_LOCKED.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 1, Color.GREY));
         leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripUnderglow, Color.RED));
         leds.setBehavior(LED_STATES.TURRET_BAD.id(), LEDBehaviorFactory.pulse(LEDConstants.stripShooter, 2, Color.ORANGE));
 
@@ -243,10 +242,8 @@ public class RobotContainer {
 
         new Trigger(hood::isStowed).whileTrue(leds.enableState(LED_STATES.HOOD_STOWED.id()));
 
-        new Trigger(() -> !turret.getZeroed() && DriverStation.isDisabled()).whileTrue(leds.enableState(LED_STATES.TURRET_BAD.id()));
+        new Trigger(new LEDBooleanSupplier(turret::getZeroed)).whileFalse(leds.enableState(LED_STATES.TURRET_BAD.id())); // turn off turret bad LED state once turret is zeroed
 
-        // At startup, turn on the "vision bad" LED state to indicate that the pose/vision estimate may be unreliable.
-        leds.setState(LED_STATES.VISION_BAD.id(), true);
         // Turn off the "vision bad" LED state once the drivetrain has moved away from the origin, indicating we likely have a valid pose estimate.
         new Trigger(new LEDBooleanSupplier(() -> (DriverStation.isDisabled() && drivetrain.getPose().getTranslation().getDistance(new Translation2d()) < 0.1))).whileTrue(leds.enableState(LED_STATES.VISION_BAD.id()));
 
