@@ -416,7 +416,7 @@ public class Hood extends SubsystemBase {
             motor.setControl(hoodDutyCycle.withOutput(HoodConstants.HOOD_RETRACT_POWER));
         }, () -> {
             isZeroed = true;
-            motor.setPosition(HoodConstants.MAX_ANGLE);
+            motor.setPosition(HoodConstants.MIN_ANGLE);
             motor.setControl(hoodDutyCycle.withOutput(0));
         }).until(() -> (motor.getStatorCurrent().getValueAsDouble() > HoodConstants.CURRENT_THRESHOLD)).withTimeout(3);
     }

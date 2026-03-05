@@ -119,7 +119,7 @@ public class RobotContainer {
 
 
         shooter.setDefaultCommand(shooter.coast());
-        // hood.setDefaultCommand(cannon.hoodAim());
+        hood.setDefaultCommand(cannon.hoodAim());
         turret.setDefaultCommand(cannon.turretAim());
     }
 
