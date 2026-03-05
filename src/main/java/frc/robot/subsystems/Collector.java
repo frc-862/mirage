@@ -76,7 +76,7 @@ public class Collector extends SubsystemBase {
         public static final double ENCODER_TO_MECHANISM_RATIO = 9d * 24d/10d; // temp
         public static final Angle MIN_ANGLE = Rotations.of(0);
         public static final Angle MAX_ANGLE = Rotations.of(0.35);
-        public static final Angle NEUTRAL_ANGLE = Rotations.of(0.276);
+        public static final Angle NEUTRAL_ANGLE = Rotations.of(0.22);
         public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
         public static final Angle STOW_ANGLE = MIN_ANGLE;
         public static final Angle TOLERANCE = Rotations.of(0.05);
