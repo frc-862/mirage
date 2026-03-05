@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -47,6 +48,7 @@ import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehavior;
+import frc.util.leds.LEDBooleanSupplier;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDSubsystem;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -126,9 +128,9 @@ public class RobotContainer {
         /* Driver */
         new Trigger(driver::getXButton).whileTrue(drivetrain.brakeCommand());
 
-        new Trigger(driver::getYButton).whileTrue(turret.zero());
+        // new Trigger(driver::getYButton).whileTrue(turret.zero());
         
-        new Trigger(turret::getZeroed).whileFalse(leds.enableState(LED_STATES.TURRET_BAD.id())); // turn off turret bad LED state once turret is zeroed
+        new Trigger(new LEDBooleanSupplier(turret::getZeroed)).whileFalse(leds.enableState(LED_STATES.TURRET_BAD.id())); // turn off turret bad LED state once turret is zeroed
 
         // TODO: Bind OTF to LB and Climb AA to RB
 
@@ -141,7 +143,7 @@ public class RobotContainer {
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
             .onTrue(drivetrain.resetFieldCentricCommand())
-            .onTrue(leds.enableStateWithTimeout(LEDConstants.LED_STATES.SEED_FIELD_FORWARD.id(), 3));
+            .onTrue(leds.enableStateWithTimeout(LEDConstants.LED_STATES.SEED_FIELD_FORWARD.id(), 1));
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -226,11 +228,11 @@ public class RobotContainer {
                 () -> turret.getZeroLimitSwitch(),
                 () -> vision.getMacMiniConnection()
         ));
-        leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.RED));
-        leds.setBehavior(LED_STATES.TURRET_BAD.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.RED));
+        leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripUnderglow, Color.RED));
+        leds.setBehavior(LED_STATES.TURRET_BAD.id(), LEDBehaviorFactory.pulse(LEDConstants.stripShooter, 2, Color.ORANGE));
 
         leds.setBehavior(LED_STATES.SEED_FIELD_FORWARD.id(), LEDBehaviorFactory.rainbow(LEDConstants.stripAll, 2));
-        leds.setBehavior(LED_STATES.HOOD_STOWED.id(), LEDBehaviorFactory.solid(LEDConstants.stripAll, Color.BLUE));
+        leds.setBehavior(LED_STATES.HOOD_STOWED.id(), LEDBehaviorFactory.solid(LEDConstants.stripShooter, Color.BLUE));
 
         leds.setBehavior(LED_STATES.SHOOT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.PURPLE));
         leds.setBehavior(LED_STATES.COLLECT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.YELLOW));
@@ -246,10 +248,9 @@ public class RobotContainer {
         // At startup, turn on the "vision bad" LED state to indicate that the pose/vision estimate may be unreliable.
         leds.setState(LED_STATES.VISION_BAD.id(), true);
         // Turn off the "vision bad" LED state once the drivetrain has moved away from the origin, indicating we likely have a valid pose estimate.
-        new Trigger(() -> (DriverStation.isEnabled() || drivetrain.getPose().getTranslation().getDistance(new Translation2d()) > 0.1)).onTrue(new InstantCommand(() -> leds.setState(LED_STATES.VISION_BAD.id(), false)).ignoringDisable(true));
+        new Trigger(new LEDBooleanSupplier(() -> (DriverStation.isDisabled() && drivetrain.getPose().getTranslation().getDistance(new Translation2d()) < 0.1))).whileTrue(leds.enableState(LED_STATES.VISION_BAD.id()));
 
-        leds.setState(LED_STATES.TEST.id(), true);
-        new Trigger(DriverStation::isEnabled).whileTrue(leds.disableState(LED_STATES.TEST.id()));
+        new Trigger(new LEDBooleanSupplier(DriverStation::isDisabled)).whileTrue(leds.enableState(LED_STATES.TEST.id()));
         
         //Turn on the NEAR_HUB light when it is near the HUB.
         new Trigger(() -> cannon.isNearHub()).whileTrue(leds.enableState(LED_STATES.NEAR_HUB.id()));

@@ -60,10 +60,8 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Current ZEROING_CURRENT_LIMIT = Amps.of(20); // temp
-
-        public static final Angle MIN_ANGLE = Degrees.of(-180); // limit range temporarily
-        public static final Angle MAX_ANGLE = Degrees.of(180);
+        public static final Angle MIN_ANGLE = Degrees.of(-290);
+        public static final Angle MAX_ANGLE = Degrees.of(130);
 
         public static final double kP = 150d;
         public static final double kI = 0d;
