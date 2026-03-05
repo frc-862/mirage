@@ -110,11 +110,13 @@ public class Collector extends SubsystemBase {
     private PositionVoltage positionPID;
     private boolean pivotZeroed = true;
     private final Timer zeroingTimer = new Timer();
+    private boolean pivotActive = false;
 
     private DCMotor gearbox;
 
     private DoubleLogEntry pivotTargetAngleLog;
     private BooleanLogEntry pivotOnTargetLog;
+
 
     /**
      * Creates a new Collector Subsystem.
@@ -202,6 +204,9 @@ public class Collector extends SubsystemBase {
                 setPivotAngle(targetPivotPosition);
             }
         }
+        if (DriverStation.isDisabled()) {
+            pivotActive = false;
+        }
         updateLogging();
     }
 
@@ -261,6 +266,7 @@ public class Collector extends SubsystemBase {
      */
     public void deployPivot() {
         setPivotAngle(CollectorConstants.DEPLOY_ANGLE);
+        pivotActive = true;
     }
 
     /**
@@ -299,6 +305,7 @@ public class Collector extends SubsystemBase {
         if (pivotZeroed) {
             pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
         }
+        pivotActive = targetPivotPosition.isEquivalent(Degrees.zero());
     }
 
 
@@ -345,7 +352,12 @@ public class Collector extends SubsystemBase {
     }
 
     public Command neutralPivotCommand() {
-        return startEnd(() -> neutralPivot(), () -> {});
+        return startEnd(() -> {
+            if (pivotActive) {
+                neutralPivot();
+            }
+        }, 
+        () -> {});
     }
 
     public Command collectCommand(DoubleSupplier power) {
