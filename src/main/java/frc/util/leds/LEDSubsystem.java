@@ -4,9 +4,11 @@
 
 package frc.util.leds;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.util.shuffleboard.LightningShuffleboard;
 
 public class LEDSubsystem extends SubsystemBase {
     private final LEDController leds;
@@ -128,6 +130,11 @@ public class LEDSubsystem extends SubsystemBase {
         }
 
         leds.apply();
+
+        if (!DriverStation.isFMSAttached()) {
+            LightningShuffleboard.setBoolArray("LEDs", "EnabledStates", enabledStates);
+        }
     }
+
 
 }
