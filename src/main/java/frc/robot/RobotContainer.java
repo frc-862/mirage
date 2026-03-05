@@ -225,6 +225,7 @@ public class RobotContainer {
                 () -> turret.getZeroLimitSwitch(),
                 () -> vision.getMacMiniConnection()
         ));
+        leds.setBehavior(LED_STATES.TURRET_LOCKED.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREY));
         leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripUnderglow, Color.RED));
         leds.setBehavior(LED_STATES.TURRET_BAD.id(), LEDBehaviorFactory.pulse(LEDConstants.stripShooter, 2, Color.ORANGE));
 
