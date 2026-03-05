@@ -24,6 +24,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import edu.wpi.first.units.CurrentUnit;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -59,6 +61,8 @@ public class Turret extends SubsystemBase {
         public static final boolean BRAKE = false; // temp
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
+
+        public static final Current ZEROING_CURRENT_LIMIT = Amps.of(10);
 
         public static final Angle MIN_ANGLE = Degrees.of(-290);
         public static final Angle MAX_ANGLE = Degrees.of(130);
