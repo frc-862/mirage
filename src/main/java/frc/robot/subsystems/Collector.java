@@ -266,7 +266,6 @@ public class Collector extends SubsystemBase {
      */
     public void deployPivot() {
         setPivotAngle(CollectorConstants.DEPLOY_ANGLE);
-        pivotActive = true;
     }
 
     /**
@@ -305,7 +304,7 @@ public class Collector extends SubsystemBase {
         if (pivotZeroed) {
             pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
         }
-        pivotActive = targetPivotPosition.isEquivalent(Degrees.zero());
+        pivotActive = !targetPivotPosition.isEquivalent(CollectorConstants.STOW_ANGLE);
     }
 
 
