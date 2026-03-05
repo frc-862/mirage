@@ -13,17 +13,17 @@ public class LEDConstants {
 
     public enum LED_STATES {
         TEST,
+        TURRET_LOCKED,
         TURRET_BAD,
         VISION_BAD,
         SEED_FIELD_FORWARD,
         NEAR_HUB,
         AUTO,
-        SHOOT,
-        CANNED_SHOT_START,
         CANNED_SHOT_READY,
-        CLIMB,
+        HOOD_STOWED,
+        SHOOT,
         COLLECT,
-        BRAKE;
+        CLIMB;
 
         public int id() {
             return this.ordinal();
