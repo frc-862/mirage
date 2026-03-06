@@ -20,8 +20,9 @@ import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -50,6 +51,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     //Shows whether the mac mini is connected or not
     volatile boolean macMiniIsConnected;
+
+    private BooleanLogEntry macConnectedLog;
 
     /** Creates a new PhotonVision.
      * 
@@ -106,13 +109,11 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         reachableThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
-                if (DriverStation.isDisabled()) {
-                    try {
-                        InetAddress macMiniAddress = InetAddress.getByName("10.8.62.11");
-                        macMiniIsConnected = macMiniAddress.isReachable(1000); //timeout in ms
-                    } catch (IOException e) {
-                        macMiniIsConnected = false;
-                    }
+                try {
+                    InetAddress macMiniAddress = InetAddress.getByName("10.8.62.11");
+                    macMiniIsConnected = macMiniAddress.isReachable(1000); //timeout in ms
+                } catch (IOException e) {
+                    macMiniIsConnected = false;
                 }
 
                 try {
@@ -125,11 +126,20 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         reachableThread.setDaemon(true);
         reachableThread.start();
+
+        initLogging();
+    }
+
+    private void initLogging() {
+        DataLog log = DataLogManager.getLog();
+
+        macConnectedLog = new BooleanLogEntry(log, "/Vision/isMacConnected");
     }
     
     @Override
     public void periodic() {
         LightningShuffleboard.setDouble("Vision", "robot_time", Utils.getCurrentTimeSeconds());
+        LightningShuffleboard.setBool("Vision", "is Mac Connected", macMiniIsConnected);
 
         VisionInfo updatedPose = pose.getAndSet(null);
         if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
@@ -151,6 +161,11 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                 VecBuilder.fill(trust, trust, trust)
             );
         }     
+        updateLogging();
+    }
+    
+    private void updateLogging() {
+        macConnectedLog.append(macMiniIsConnected);
     }
 
     /**
