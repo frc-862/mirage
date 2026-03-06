@@ -17,15 +17,15 @@
     {
       "anchor": {
         "x": 7.342844444444443,
-        "y": 7.310277777777777
+        "y": 7.149033333333333
       },
       "prevControl": {
         "x": 6.429827083023364,
-        "y": 7.472233534949022
+        "y": 7.310989090504577
       },
       "nextControl": {
         "x": 8.189377777777779,
-        "y": 7.160115302491103
+        "y": 6.998870858046658
       },
       "isLocked": false,
       "linkedName": "Trench1CenterMidpoint"
@@ -41,7 +41,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Center"
+      "linkedName": "Trench1-Center"
     }
   ],
   "rotationTargets": [],
@@ -72,7 +72,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 87.93618027154307
   },
   "reversed": false,
   "folder": null,

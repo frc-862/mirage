@@ -12,20 +12,20 @@
         "y": 5.12946101225781
       },
       "isLocked": false,
-      "linkedName": "Center"
+      "linkedName": "Trench1-Center"
     },
     {
       "anchor": {
-        "x": 7.343,
-        "y": 7.310277777777777
+        "x": 7.342844444444443,
+        "y": 7.149033333333333
       },
       "prevControl": {
-        "x": 8.006169824985665,
-        "y": 7.123994119073939
+        "x": 8.006014269430109,
+        "y": 6.962749674629494
       },
       "nextControl": {
-        "x": 5.549155555555556,
-        "y": 7.814166666666667
+        "x": 5.5489999999999995,
+        "y": 7.652922222222222
       },
       "isLocked": false,
       "linkedName": "Trench1CenterMidpoint"
@@ -41,7 +41,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Trench1-NoShoot"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -58,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 91.21644110277144
+    "rotation": 91.16789396421488
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 87.93618027154307
   },
   "useDefaultConstraints": true
 }
