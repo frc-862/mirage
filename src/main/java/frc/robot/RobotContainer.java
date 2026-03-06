@@ -166,7 +166,7 @@ public class RobotContainer {
             IndexerConstants.TRANSFER_POWER));
 
         new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot()
-            .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER)));
+            .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER * CollectorConstants.COLLECT_MULT)));
 
         new Trigger(copilot::getStartButton).whileTrue(collector.stowPivotCommand());
     
@@ -203,13 +203,16 @@ public class RobotContainer {
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
 
         NamedCommands.registerCommand("MOVE_TO_TOWER", drivetrain.autoAlign(FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
+        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot().alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER)));
+        NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER));
         NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot().deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
         NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER).deadlineFor(leds.enableState(LED_STATES.COLLECT.id())));
         NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.deployPivotCommand());
         NamedCommands.registerCommand("STOW_COLLECTOR", collector.stowPivotCommand());
         NamedCommands.registerCommand("WAIT_UNTIL_DEPLOYED", new WaitUntilCommand(collector::isDeployed));
         NamedCommands.registerCommand("WAIT_UNTIL_STOWED", new WaitUntilCommand(collector::isStowed));
-
+        NamedCommands.registerCommand("COLLECTOR_WHEELS", collector.runCollectorWheels(() -> CollectorConstants.COLLECT_POWER));
+        
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
     }
