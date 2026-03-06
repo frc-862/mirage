@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "SMART_SHOOT"
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [

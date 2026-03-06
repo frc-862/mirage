@@ -16,28 +16,28 @@
     },
     {
       "anchor": {
-        "x": 6.445922222222223,
-        "y": 7.179266666666667
+        "x": 7.342844444444443,
+        "y": 7.310277777777777
       },
       "prevControl": {
-        "x": 5.54568784719992,
-        "y": 7.401546759264767
+        "x": 6.429827083023364,
+        "y": 7.472233534949022
       },
       "nextControl": {
-        "x": 7.262222222222223,
-        "y": 6.977711111111111
+        "x": 8.189377777777779,
+        "y": 7.160115302491103
       },
       "isLocked": false,
       "linkedName": "Trench1CenterMidpoint"
     },
     {
       "anchor": {
-        "x": 7.342844444444443,
-        "y": 4.045077777777778
+        "x": 7.705644444444445,
+        "y": 4.014844444444445
       },
       "prevControl": {
-        "x": 7.342844444444443,
-        "y": 5.325114250878889
+        "x": 7.705644444444445,
+        "y": 5.294880917545556
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,21 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.1216341689879283,
+      "maxWaypointRelativePos": 1.9387186629526516,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -58,13 +72,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -178.75463573323162
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.11656467434612582
+    "rotation": 91.21644110277144
   },
   "useDefaultConstraints": true
 }
