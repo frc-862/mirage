@@ -1,4 +1,4 @@
-// Copyright (c) FIRST and other WPILib contributors.
+s// Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
@@ -189,7 +189,7 @@ public class RobotContainer {
         new Trigger(() -> (hood.isOnTarget() && shooter.isOnTarget() && !turret.isOnTarget()))
         .whileTrue(new StartEndCommand(() -> copilot.setRumble(GenericHID.RumbleType.kBothRumble, 1d), () -> copilot.setRumble(GenericHID.RumbleType.kBothRumble, 0d)));
 
-        new Trigger(() -> DriverStation.isEnabled()).onTrue(hood.zeroCommand());
+        // new Trigger(() -> DriverStation.isEnabled()).onTrue(hood.zeroCommand());
     }
     
     private void configureNamedCommands() {
