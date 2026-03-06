@@ -103,6 +103,8 @@ public class Turret extends SubsystemBase {
     private boolean zeroed;
     private boolean lsTriggeredOnLastLoopRun;
 
+    private boolean locked;
+
     private final Swerve drivetrain;
 
     private DoubleLogEntry targetPositionLog;
@@ -163,6 +165,8 @@ public class Turret extends SubsystemBase {
 
             LightningShuffleboard.send("Turret", "mech 2d", mech2d);
         }
+
+        locked = false;
 
         initLogging();
     }
@@ -252,7 +256,7 @@ public class Turret extends SubsystemBase {
         Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-300), Degrees.of(60));
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
-        if (zeroed) { // only allow position control if turret has been zeroed but store to apply when zeroed
+        if (zeroed && !locked) { // only allow position control if turret has been zeroed but store to apply when zeroed
             motor.setControl(positionPID.withPosition(optimizeTurretAngle(targetPosition)));
         }
     }
@@ -276,7 +280,9 @@ public class Turret extends SubsystemBase {
     }
 
     public void setPower(double power) {
-        motor.setControl(dutyCycle.withOutput(power));
+        if (!locked){
+            motor.setControl(dutyCycle.withOutput(power));
+        }
     }
 
     /**
@@ -394,5 +400,18 @@ public class Turret extends SubsystemBase {
 
     public boolean getZeroed() {
         return zeroed;
+    }
+
+    public Command lock() {
+        return runOnce(() -> {
+            locked = !locked;
+            if (locked) {
+                stop();
+            }
+        });
+    }
+
+    public boolean getLocked() {
+        return locked;
     }
 }
