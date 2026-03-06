@@ -5,25 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "SMART_SHOOT"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 5.0
-                }
-              }
-            ]
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [
@@ -34,9 +15,22 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "COLLECT"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "COLLECT"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -59,9 +53,28 @@
                 }
               },
               {
-                "type": "wait",
+                "type": "sequential",
                 "data": {
-                  "waitTime": 5.0
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 3.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "STOW_COLLECTOR"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "COLLECTOR_WHEELS"
+                      }
+                    }
+                  ]
                 }
               }
             ]

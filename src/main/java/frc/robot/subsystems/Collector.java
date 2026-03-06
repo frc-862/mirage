@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.time.Instant;
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.Amps;
@@ -38,6 +39,8 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
@@ -56,6 +59,7 @@ public class Collector extends SubsystemBase {
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 0.8d;
+        public static final double COLLECT_MULT = 0.8d;
 
         public static final MomentOfInertia COLLECTOR_MOI = KilogramSquareMeters.of(0.001); //temp 
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
@@ -76,7 +80,7 @@ public class Collector extends SubsystemBase {
         public static final double ENCODER_TO_MECHANISM_RATIO = 9d * 24d/10d; // temp
         public static final Angle MIN_ANGLE = Rotations.of(0);
         public static final Angle MAX_ANGLE = Rotations.of(0.35);
-        public static final Angle NEUTRAL_ANGLE = Rotations.of(0.22);
+        public static final Angle NEUTRAL_ANGLE = Rotations.of(0.25);
         public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
         public static final Angle STOW_ANGLE = MIN_ANGLE;
         public static final Angle TOLERANCE = Rotations.of(0.05);
@@ -370,6 +374,7 @@ public class Collector extends SubsystemBase {
     }
 
     public Command runCollectorWheels(DoubleSupplier power){
-        return startEnd(() -> setCollectorPower(power.getAsDouble()));
+        return new InstantCommand(() -> setCollectorPower(power.getAsDouble()));
     }
-}
+    }
+

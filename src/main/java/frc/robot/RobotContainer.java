@@ -166,7 +166,7 @@ public class RobotContainer {
             IndexerConstants.TRANSFER_POWER));
 
         new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot()
-            .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER)));
+            .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER * CollectorConstants.COLLECT_MULT)));
 
         new Trigger(copilot::getStartButton).whileTrue(collector.stowPivotCommand());
     

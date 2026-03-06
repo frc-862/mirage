@@ -15,9 +15,22 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "COLLECT"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "COLLECT"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -46,13 +59,19 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 3.0
+                        "waitTime": 3.5
                       }
                     },
                     {
                       "type": "named",
                       "data": {
                         "name": "STOW_COLLECTOR"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "COLLECTOR_WHEELS"
                       }
                     }
                   ]
