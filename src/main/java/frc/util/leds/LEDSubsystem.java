@@ -4,6 +4,8 @@
 
 package frc.util.leds;
 
+import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -16,6 +18,8 @@ public class LEDSubsystem extends SubsystemBase {
     private final boolean[] enabledStates;
     private final LEDBehavior[] ledBehaviors;
     private LEDBehavior defaultBehavior;
+
+    private BooleanArrayLogEntry stateLog;
 
     /**
      * Creates a new nLEDs. </p>
@@ -32,6 +36,8 @@ public class LEDSubsystem extends SubsystemBase {
         leds = new LEDController(numLEDs, pwmPort);
 
         defaultBehavior = new LEDBehavior() { @Override public void apply(LEDController leds) {} };
+
+        stateLog = new BooleanArrayLogEntry(DataLogManager.getLog(), "/LEDs/States");
     }
 
     /**
@@ -134,6 +140,7 @@ public class LEDSubsystem extends SubsystemBase {
         if (!DriverStation.isFMSAttached()) {
             LightningShuffleboard.setBoolArray("LEDs", "EnabledStates", enabledStates);
         }
+        stateLog.append(enabledStates);
     }
 
 

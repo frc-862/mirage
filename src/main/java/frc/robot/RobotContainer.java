@@ -161,7 +161,8 @@ public class RobotContainer {
             IndexerConstants.TRANSFER_POWER));
 
         new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot()
-            .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER * CollectorConstants.COLLECT_MULT)));
+            .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER * CollectorConstants.COLLECT_MULT))
+            .deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
 
         new Trigger(copilot::getStartButton).whileTrue(collector.stowPivotCommand());
     
@@ -177,7 +178,7 @@ public class RobotContainer {
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT).deadlineFor(rumble()));
 
         // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
-        //     shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
+        //     shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble(\Shooter", "RPS", 65)))
         //     .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
         //     .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
         //     () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
@@ -186,7 +187,7 @@ public class RobotContainer {
         // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(hood.hoodCommand(() -> 
         //     Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
 
-        new Trigger(() -> (hood.isOnTarget() && shooter.isOnTarget() && !turret.isOnTarget()))
+        new Trigger(() -> (hood.isOnTarget() && shooter.isOnTarget() && turret.isOnTarget()))
         .whileTrue(new StartEndCommand(() -> copilot.setRumble(GenericHID.RumbleType.kBothRumble, 1d), () -> copilot.setRumble(GenericHID.RumbleType.kBothRumble, 0d)));
 
         // new Trigger(() -> DriverStation.isEnabled()).onTrue(hood.zeroCommand());

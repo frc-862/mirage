@@ -223,13 +223,13 @@ public class Hood extends SubsystemBase {
 
         if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
             LightningShuffleboard.setDouble("Hood", "Angle", getAngle().in(Degrees));
-            LightningShuffleboard.setBool("Hood", "onTarget", isOnTarget());
             if (hasEncoder()) {
                 LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
             }
             LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
             LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
             LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
+            LightningShuffleboard.setBool("Hood", "Zeroed", isZeroed);
         }
     }
 
@@ -286,7 +286,7 @@ public class Hood extends SubsystemBase {
     }
 
     private void applyControl() {
-        if (!isHoodRetracted && isZeroed) {
+        if (!isHoodRetracted) {
             motor.setControl(request.withPosition(getTargetAngleWithBias()));
         }
     }
@@ -334,7 +334,8 @@ public class Hood extends SubsystemBase {
     }
 
     public boolean isStowed() {
-        return getAngle().isNear(HoodConstants.MIN_ANGLE, HoodConstants.POSITION_TOLERANCE);
+        // return getAngle().isNear(HoodConstants.MAX_ANGLE, HoodConstants.POSITION_TOLERANCE);
+        return getTargetAngle().equals(HoodConstants.MAX_ANGLE) && isOnTarget();
     }
 
     /**
