@@ -67,12 +67,6 @@
                       "data": {
                         "name": "STOW_COLLECTOR"
                       }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "COLLECTOR_WHEELS"
-                      }
                     }
                   ]
                 }

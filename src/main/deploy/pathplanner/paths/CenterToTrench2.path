@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 7.363,
-        "y": 1.1225222222222226
+        "x": 7.130435897435898,
+        "y": 0.6297153024911029
       },
       "prevControl": {
-        "x": 8.22106680655123,
-        "y": 1.632264879579389
+        "x": 7.9885027039871215,
+        "y": 1.1394579598482693
       },
       "nextControl": {
-        "x": 6.345144444444444,
-        "y": 0.5178555555555557
+        "x": 6.112580341880342,
+        "y": 0.02504863582443595
       },
       "isLocked": false,
       "linkedName": "Trench2CenterMidpoint"
@@ -36,15 +36,24 @@
         "y": 0.6297153024911029
       },
       "prevControl": {
-        "x": 5.145888888888888,
-        "y": 0.6488666666666665
+        "x": 5.1391259661884465,
+        "y": 0.6297153024911027
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 1.10059171597633,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -58,7 +67,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -89.17842232265802
+    "rotation": -177.83892051177352
   },
   "reversed": false,
   "folder": null,

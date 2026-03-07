@@ -149,7 +149,7 @@ public class RobotContainer {
                     DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
                     * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
-        new Trigger(driver::getBButton).onTrue(turret.lock()).toggleOnTrue(leds.enableState(LED_STATES.TURRET_LOCKED.id()));
+        new Trigger(driver::getBButton).toggleOnTrue(turret.lock());
 
         /* Copilot */
         new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retract());
@@ -168,7 +168,7 @@ public class RobotContainer {
         new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND || copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
             .whileTrue(collector.collectCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
 
-        new Trigger(copilot::getBackButton).whileTrue(turret.idle().beforeStarting(turret::stop).alongWith(leds.enableState(LED_STATES.TURRET_LOCKED.id()))); // disable turret
+        new Trigger(copilot::getBackButton).whileTrue(turret.lock()); // disable turret
 
         // Temp Cand shots
         //RIGHT_, LEFT_, and MIDDLE_ are all set to 0, so temp shots wont work right now
@@ -239,6 +239,8 @@ public class RobotContainer {
         leds.setBehavior(LED_STATES.NEAR_HUB.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 3, Color.RED));
 
         new Trigger(hood::isStowed).whileTrue(leds.enableState(LED_STATES.HOOD_STOWED.id()));
+
+        new Trigger(turret::getLocked).whileTrue(leds.enableState(LED_STATES.TURRET_LOCKED.id()));
 
         new Trigger(() -> !turret.getZeroed() && DriverStation.isDisabled()).whileTrue(leds.enableState(LED_STATES.TURRET_BAD.id()));
 
