@@ -20,10 +20,10 @@ public class LEDConstants {
         NEAR_HUB,
         AUTO,
         CANNED_SHOT_READY,
-        HOOD_STOWED,
         SHOOT,
         COLLECT,
-        CLIMB;
+        CLIMB,
+        HOOD_STOWED;
 
         public int id() {
             return this.ordinal();

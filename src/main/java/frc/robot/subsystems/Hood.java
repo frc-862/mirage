@@ -58,7 +58,7 @@ public class Hood extends SubsystemBase {
 
     public class HoodConstants {
         public static final boolean INVERTED = false; // temp
-        public static final Current STATOR_LIMIT = Amps.of(40); // temp
+        public static final Current STATOR_LIMIT = Amps.of(10); // temp
         public static final boolean BRAKE = true; // temp
 
         public static final Angle MIN_ANGLE = Degrees.of(50);
