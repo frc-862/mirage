@@ -181,7 +181,12 @@ public class Cannon extends SubsystemBase {
             createCannonCommand(value.hoodAngle, value.shooterVelocity).andThen(hood.idle(), shooter.idle()),
             
             indexWhenOnTarget()
-        );
+        ).handleInterrupt(() -> {
+            shooter.stop();
+            turret.stop();
+            hood.stop();
+            indexer.stop();
+        });
         
     }
 

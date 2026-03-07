@@ -166,7 +166,7 @@ public class RobotContainer {
         new Trigger(copilot::getStartButton).whileTrue(collector.stowPivotCommand());
     
         new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND || copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
-            .whileTrue(collector.collectCommand(() -> copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()));
+            .whileTrue(collector.collectCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()) *  CollectorConstants.COLLECT_MULT));
 
         new Trigger(copilot::getBackButton).whileTrue(turret.lock()); // disable turret
 
