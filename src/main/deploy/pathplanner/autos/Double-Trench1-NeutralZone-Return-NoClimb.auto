@@ -54,6 +54,12 @@
           "data": {
             "commands": [
               {
+                "type": "wait",
+                "data": {
+                  "waitTime": 5.0
+                }
+              },
+              {
                 "type": "named",
                 "data": {
                   "name": "SMART_SHOOT"
@@ -76,12 +82,6 @@
                       }
                     }
                   ]
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 5.0
                 }
               }
             ]
@@ -126,7 +126,7 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -152,12 +152,6 @@
                       }
                     }
                   ]
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 5.0
                 }
               }
             ]
