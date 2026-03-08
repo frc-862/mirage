@@ -199,7 +199,7 @@ public class RobotContainer {
 
         new Trigger(copilot::getAButton).whileTrue(indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)).onFalse(new InstantCommand(() -> indexer.stop()));
 
-        new Trigger(() -> copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(indexer.indexCommand(0, copilot.getLeftTriggerAxis()));
+        new Trigger(() -> Math.abs(copilot.getLeftTriggerAxis()) > DriveConstants.JOYSTICK_DEADBAND).whileTrue(indexer.transferCommand(() -> copilot.getLeftTriggerAxis())).onFalse(new InstantCommand(() -> indexer.stopTransfer()));
     }
     
     private void configureNamedCommands() {
