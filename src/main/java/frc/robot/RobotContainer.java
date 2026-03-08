@@ -10,6 +10,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -180,10 +182,10 @@ public class RobotContainer {
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT).deadlineFor(rumble()));
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT).deadlineFor(rumble()));
 
-        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
-        //     shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble(\Shooter", "RPS", 65)))
+        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(
+        //     shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
         //     .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
-        //     .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
+        //     .andThen(indexer.autoIndex(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
         //     () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
         //     .finallyDo(shooter::stop));
 
@@ -194,6 +196,10 @@ public class RobotContainer {
         .whileTrue(new StartEndCommand(() -> copilot.setRumble(GenericHID.RumbleType.kBothRumble, 1d), () -> copilot.setRumble(GenericHID.RumbleType.kBothRumble, 0d)));
 
         // new Trigger(() -> DriverStation.isEnabled()).onTrue(hood.zeroCommand());
+
+        new Trigger(copilot::getAButton).whileTrue(indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)).onFalse(new InstantCommand(() -> indexer.stop()));
+
+        new Trigger(() -> copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(indexer.indexCommand(0, copilot.getLeftTriggerAxis()));
     }
     
     private void configureNamedCommands() {

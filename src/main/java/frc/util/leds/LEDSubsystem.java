@@ -21,6 +21,8 @@ public class LEDSubsystem extends SubsystemBase {
 
     private BooleanArrayLogEntry stateLog;
 
+    private double loop = 0;
+
     /**
      * Creates a new nLEDs. </p>
      * nLEDs is a subsystem for managing complex sets of LED behaviors.
@@ -127,15 +129,11 @@ public class LEDSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        defaultBehavior.apply(leds);
-        for (int i = enabledStates.length - 1; i >= 0; i--) {
-        LEDBehavior behavior = ledBehaviors[i];
-        if (enabledStates[i] && behavior != null) {
-            behavior.apply(leds);
-        }
-        }
+        loop++;
 
-        leds.apply();
+        if (loop % 10 == 0) {
+            applyLEDS();
+        }
 
         if (!DriverStation.isFMSAttached()) {
             LightningShuffleboard.setBoolArray("LEDs", "EnabledStates", enabledStates);
@@ -143,5 +141,15 @@ public class LEDSubsystem extends SubsystemBase {
         stateLog.append(enabledStates);
     }
 
-
+    private void applyLEDS() {
+        defaultBehavior.apply(leds);
+        for (int i = enabledStates.length - 1; i >= 0; i--) {
+        LEDBehavior behavior = ledBehaviors[i];
+        if (enabledStates[i] && behavior != null) {
+            behavior.apply(leds);
+        }
+        }
+        
+        leds.apply();
+    }
 }
