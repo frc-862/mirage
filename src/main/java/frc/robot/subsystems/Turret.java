@@ -24,6 +24,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -80,6 +82,8 @@ public class Turret extends SubsystemBase {
         public static final Distance LENGTH = Meter.of(0.18);
 
         public static final double SIM_FRICTION = 0.2;
+
+        public static final double MANUAL_CONTROL_DEADBAND = 0.1;
     }
 
     private final ThunderBird motor;
@@ -104,7 +108,7 @@ public class Turret extends SubsystemBase {
     private boolean zeroed;
     private boolean lsTriggeredOnLastLoopRun;
 
-    private boolean locked;
+    private boolean manual;
 
     private final Swerve drivetrain;
 
@@ -167,7 +171,7 @@ public class Turret extends SubsystemBase {
             LightningShuffleboard.send("Turret", "mech 2d", mech2d);
         }
 
-        locked = false;
+        manual = false;
 
         initLogging();
     }
@@ -257,7 +261,7 @@ public class Turret extends SubsystemBase {
         Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-300), Degrees.of(60));
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
-        if (zeroed && !locked) { // only allow position control if turret has been zeroed but store to apply when zeroed
+        if (zeroed && !manual) { // only allow position control if turret has been zeroed but store to apply when zeroed
             motor.setControl(positionPID.withPosition(optimizeTurretAngle(targetPosition)));
         }
     }
@@ -281,9 +285,21 @@ public class Turret extends SubsystemBase {
     }
 
     public void setPower(double power) {
-        if (!locked){
+        if (!manual){
             motor.setControl(dutyCycle.withOutput(power));
         }
+    }
+
+    public void setPowerManual(double power) {
+        if (manual) {
+            motor.setControl(dutyCycle.withOutput(power));
+        }
+    }
+
+    public Command setManualPowerCommand(DoubleSupplier power) {
+        return run(() -> {
+            setPowerManual(power.getAsDouble());
+        });
     }
 
     /**
@@ -403,16 +419,16 @@ public class Turret extends SubsystemBase {
         return zeroed;
     }
 
-    public Command lock() {
+    public Command manual() {
         return new StartEndCommand(() -> {
             stop();
-            locked = true;
+            manual = true;
         }, () -> {
-            locked = false;
+            manual = false;
         });
     }
 
-    public boolean getLocked() {
-        return locked;
+    public boolean getManual() {
+        return manual;
     }
 }

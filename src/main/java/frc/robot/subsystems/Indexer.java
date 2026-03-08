@@ -20,6 +20,11 @@ import static edu.wpi.first.units.Units.Amps;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -66,6 +71,9 @@ public class Indexer extends SubsystemBase {
     private LinearSystemSim<N1, N1, N1> spindexerSim;
     private TalonFXSimState motorSim;
 
+    private DoubleLogEntry transferLog;
+    private DoubleLogEntry spindexerLog; 
+
     /** Creates a new Spindexer Subsystem. */
     public Indexer() {
         spindexerMotor = new ThunderBird(RobotMap.SPINDEXER, RobotMap.CAN_BUS,
@@ -83,6 +91,18 @@ public class Indexer extends SubsystemBase {
             motorSim = spindexerMotor.getSimState();
             motorSim.setMotorType(MotorType.KrakenX44);
         }
+
+        DataLog log = DataLogManager.getLog();
+
+
+        transferLog = new DoubleLogEntry(log, "/Indexer/Transfer Power");
+        spindexerLog = new DoubleLogEntry(log, "/Indexer/Spindexer Power");
+    }
+
+    @Override 
+    public void periodic() {
+        transferLog.append(getTransferPower());
+        spindexerLog.append(getSpindexerPower());
     }
 
     @Override
@@ -111,6 +131,14 @@ public class Indexer extends SubsystemBase {
      */
     public AngularVelocity getSpindexerVelocity() {
         return spindexerMotor.getVelocity().getValue();
+    }
+
+    public double getTransferPower() {
+        return transferDutyCycle.Output;
+    }
+
+    public double getSpindexerPower() {
+        return spindexerDutyCycle.Output;
     }
 
     /**

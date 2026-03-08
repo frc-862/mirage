@@ -39,6 +39,7 @@ import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.PhotonVision;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.ShooterConstants;
+import frc.robot.subsystems.Turret.TurretConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
@@ -149,7 +150,7 @@ public class RobotContainer {
                     DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
                     * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
-        new Trigger(driver::getBButton).toggleOnTrue(turret.lock());
+        new Trigger(driver::getBButton).toggleOnTrue(turret.manual());
 
         /* Copilot */
         new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retract());
@@ -169,7 +170,9 @@ public class RobotContainer {
         new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND || copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
             .whileTrue(collector.collectCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()) *  CollectorConstants.COLLECT_MULT));
 
-        new Trigger(copilot::getBackButton).whileTrue(turret.lock()); // disable turret
+        new Trigger(copilot::getBackButton).whileTrue(turret.manual()); // disable turret
+
+        new Trigger(() -> Math.abs(copilot.getRightX()) > TurretConstants.MANUAL_CONTROL_DEADBAND).whileTrue(turret.setManualPowerCommand(() -> copilot.getRightX() * 0.1));
 
         // Temp Cand shots
         //RIGHT_, LEFT_, and MIDDLE_ are all set to 0, so temp shots wont work right now
@@ -225,7 +228,7 @@ public class RobotContainer {
                 () -> turret.getZeroLimitSwitch(),
                 () -> vision.getMacMiniConnection()
         ));
-        leds.setBehavior(LED_STATES.TURRET_LOCKED.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREY));
+        leds.setBehavior(LED_STATES.TURRET_MANUAL.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREY));
         leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripUnderglow, Color.RED));
         leds.setBehavior(LED_STATES.TURRET_BAD.id(), LEDBehaviorFactory.pulse(LEDConstants.stripShooter, 2, Color.ORANGE));
 
@@ -241,7 +244,7 @@ public class RobotContainer {
 
         new Trigger(hood::isStowed).whileTrue(leds.enableState(LED_STATES.HOOD_STOWED.id()));
 
-        new Trigger(turret::getLocked).whileTrue(leds.enableState(LED_STATES.TURRET_LOCKED.id()));
+        new Trigger(turret::getManual).whileTrue(leds.enableState(LED_STATES.TURRET_MANUAL.id()));
 
         new Trigger(() -> !turret.getZeroed() && DriverStation.isDisabled()).whileTrue(leds.enableState(LED_STATES.TURRET_BAD.id()));
 
