@@ -264,8 +264,8 @@ public class Hood extends SubsystemBase {
      * @param position in degrees
      */
     public void setPosition(Angle position) {
-        targetAngle = ThunderUnits.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
-        applyControl();
+        // targetAngle = ThunderUnits.clamp(position, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
+        // applyControl();
     }
 
     /**
@@ -287,9 +287,9 @@ public class Hood extends SubsystemBase {
     }
 
     private void applyControl() {
-        if (!isHoodRetracted) {
-            motor.setControl(request.withPosition(getTargetAngleWithBias()));
-        }
+        // if (!isHoodRetracted) {
+        //     motor.setControl(request.withPosition(getTargetAngleWithBias()));
+        // }
     }
 
 
@@ -410,7 +410,7 @@ public class Hood extends SubsystemBase {
      * @return the command
      */
     public Command setPositionCommand(Angle angle) {
-        return new InstantCommand(() -> setPosition(angle));
+        // return new InstantCommand(() -> setPosition(angle));
     }
 
     public Command zeroCommand() {
