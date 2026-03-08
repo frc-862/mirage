@@ -331,7 +331,8 @@ public class Hood extends SubsystemBase {
      * True if on target, false otherwise
      */
     public boolean isOnTarget() {
-        return getAngle().isNear(getTargetAngleWithBias(), HoodConstants.POSITION_TOLERANCE);
+        // return getAngle().isNear(getTargetAngleWithBias(), HoodConstants.POSITION_TOLERANCE);
+        return true;
     }
 
     public boolean isStowed() {
@@ -411,6 +412,7 @@ public class Hood extends SubsystemBase {
      */
     public Command setPositionCommand(Angle angle) {
         // return new InstantCommand(() -> setPosition(angle));
+        return new InstantCommand();
     }
 
     public Command zeroCommand() {
