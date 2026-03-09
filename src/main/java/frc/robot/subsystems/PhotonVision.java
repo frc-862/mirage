@@ -51,6 +51,9 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     //Shows whether the mac mini is connected or not
     volatile boolean macMiniIsConnected;
 
+    double previousTimeCount = 0;
+    double packetsCount = 0;
+
     /** Creates a new PhotonVision.
      * 
      * @param drivetrain The main drivetrain on the robot
@@ -72,6 +75,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             log("***ERROR CREATING SOCKET -- HOST DOES NOT EXIST***");
         }
 
+        this.previousTimeCount = System.currentTimeMillis();
+
         // Start a separate thread to receive packets
         receiveThread = new Thread(() -> {
             // Run while the thread is still valid
@@ -83,6 +88,13 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     
                     if (socket != null) {
                         socket.receive(receivePacket);
+                        // if (System.currentTimeMillis() - previousTimeCount > 2000) {
+                        //     packetsCount++;
+                        // } else {
+                        //     DataLogManager.log("[PHOTON VISION] Recieved packets 2s: " + packetsCount);
+                        //     packetsCount = 0;
+                        //     previousTimeCount = System.currentTimeMillis();
+                        // }
                     } else {
                         break;
                     }

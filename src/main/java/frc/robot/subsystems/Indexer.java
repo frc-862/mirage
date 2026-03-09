@@ -96,14 +96,14 @@ public class Indexer extends SubsystemBase {
         DataLog log = DataLogManager.getLog();
 
 
-        transferLog = new DoubleLogEntry(log, "/Indexer/Transfer Power");
-        spindexerLog = new DoubleLogEntry(log, "/Indexer/Spindexer Power");
+        transferLog = new DoubleLogEntry(log, "/Indexer/Transfer Velocity");
+        spindexerLog = new DoubleLogEntry(log, "/Indexer/Spindexer Velocity");
     }
 
     @Override 
     public void periodic() {
-        transferLog.append(getTransferPower());
-        spindexerLog.append(getSpindexerPower());
+        transferLog.append(transferMotor.getVelocity().getValueAsDouble());
+        spindexerLog.append(spindexerMotor.getVelocity().getValueAsDouble());
     }
 
     @Override

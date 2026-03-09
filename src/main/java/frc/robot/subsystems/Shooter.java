@@ -55,7 +55,7 @@ public class Shooter extends SubsystemBase {
         public static final boolean INVERTED = false; // temp
         public static final Current STATOR_LIMIT = Amps.of(160.0); // temp
         public static final boolean BRAKE = false; // temp
-        public static final double COAST_DC = 0.05; // Shooter power when coasting
+        public static final double COAST_DC = 0.3; // Shooter power when coasting
 
         public static final double kP = 0.75d;
         public static final double kI = 0d;
@@ -102,6 +102,8 @@ public class Shooter extends SubsystemBase {
     private DoubleLogEntry targetVelocityLog;
     private DoubleLogEntry biasLog;
     private BooleanLogEntry onTargetLog;
+    private DoubleLogEntry leftVelocityLog;
+    private DoubleLogEntry rightVelocityLog;
 
     /** Creates a new Shooter Subsystem. */
     public Shooter() {
@@ -125,6 +127,7 @@ public class Shooter extends SubsystemBase {
         velocityPID = new VelocityVoltage(0d);
         shooterBias = RotationsPerSecond.mutable(0);
         targetVelocity = RotationsPerSecond.zero();
+
 
         //creates a config for the shooter motor
         TalonFXConfiguration config = motorLeft.getConfig();
@@ -159,6 +162,8 @@ public class Shooter extends SubsystemBase {
         targetVelocityLog = new DoubleLogEntry(log, "/Shooter/TargetVelocity");
         biasLog = new DoubleLogEntry(log, "/Shooter/Bias");
         onTargetLog = new BooleanLogEntry(log, "/Shooter/OnTarget");
+        leftVelocityLog = new DoubleLogEntry(log, "/Shooter/VelocityLeft");
+        rightVelocityLog = new DoubleLogEntry(log, "/Shooter/VelocityRight");
     }
 
     @Override
@@ -170,6 +175,8 @@ public class Shooter extends SubsystemBase {
         targetVelocityLog.append(getTargetVelocity().in(RotationsPerSecond));
         biasLog.append(getBias().in(RotationsPerSecond));
         onTargetLog.append(isOnTarget());
+        leftVelocityLog.append(getLeftVelocity().in(RotationsPerSecond));
+        rightVelocityLog.append(getRightVelocity().in(RotationsPerSecond));
 
         if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
             LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
