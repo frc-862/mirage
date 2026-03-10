@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.time.Instant;
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.Amps;
@@ -40,6 +41,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import frc.util.overrunWatching.TimedCommand;
 import frc.util.overrunWatching.TimedSubsystemBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
@@ -52,11 +56,12 @@ public class Collector extends TimedSubsystemBase {
 
     public class CollectorConstants {
         // Collector Rollers
-        public static final boolean INVERTED = false; // temp
+        public static final boolean INVERTED = true; // temp
         public static final Current STATOR_LIMIT = Amps.of(80); // temp
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean BRAKE = true; // temp
-        public static final double COLLECT_POWER = 1d;
+        public static final double COLLECT_POWER = 0.8d;
+        public static final double COLLECT_MULT = 0.8d;
 
         public static final MomentOfInertia COLLECTOR_MOI = KilogramSquareMeters.of(0.001); //temp 
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
@@ -77,6 +82,7 @@ public class Collector extends TimedSubsystemBase {
         public static final double ENCODER_TO_MECHANISM_RATIO = 9d * 24d/10d; // temp
         public static final Angle MIN_ANGLE = Rotations.of(0);
         public static final Angle MAX_ANGLE = Rotations.of(0.35);
+        public static final Angle NEUTRAL_ANGLE = Rotations.of(0.25);
         public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
         public static final Angle STOW_ANGLE = MIN_ANGLE;
         public static final Angle TOLERANCE = Rotations.of(0.05);
@@ -110,11 +116,13 @@ public class Collector extends TimedSubsystemBase {
     private PositionVoltage positionPID;
     private boolean pivotZeroed = true;
     private final Timer zeroingTimer = new Timer();
+    private boolean pivotActive = false;
 
     private DCMotor gearbox;
 
     private DoubleLogEntry pivotTargetAngleLog;
     private BooleanLogEntry pivotOnTargetLog;
+
 
     /**
      * Creates a new Collector Subsystem.
@@ -203,6 +211,9 @@ public class Collector extends TimedSubsystemBase {
                 setPivotAngle(targetPivotPosition);
             }
         }
+        if (DriverStation.isDisabled()) {
+            pivotActive = false;
+        }
         updateLogging();
     }
 
@@ -271,6 +282,10 @@ public class Collector extends TimedSubsystemBase {
         setPivotAngle(CollectorConstants.STOW_ANGLE);
     }
 
+    public void neutralPivot() {
+        setPivotAngle(CollectorConstants.NEUTRAL_ANGLE);
+    }
+
     /**
      * Stops all movement to the collector motor
      */
@@ -296,6 +311,7 @@ public class Collector extends TimedSubsystemBase {
         if (pivotZeroed) {
             pivotMotor.setControl(positionPID.withPosition(targetPivotPosition));
         }
+        pivotActive = !targetPivotPosition.isEquivalent(CollectorConstants.STOW_ANGLE);
     }
 
 
@@ -314,6 +330,7 @@ public class Collector extends TimedSubsystemBase {
     public Angle getPivotAngle(){
         return pivotMotor.getPosition().getValue();
     }
+
 
     /**
      * Checks if the wrist is on target
@@ -340,6 +357,15 @@ public class Collector extends TimedSubsystemBase {
         return TimedCommand.time(runOnce(() -> stowPivot()).withName("Collector Pivot Stow"));
     }
 
+    public Command neutralPivotCommand() {
+        return startEnd(() -> {
+            if (pivotActive) {
+                neutralPivot();
+            }
+        }, 
+        () -> {});
+    }
+
     public Command collectCommand(DoubleSupplier power) {
         return TimedCommand.time(new FunctionalCommand(
             () -> deployPivot(),
@@ -349,4 +375,9 @@ public class Collector extends TimedSubsystemBase {
             this
         ).withName("Collector Command"));
     }
-}
+
+    public Command runCollectorWheels(DoubleSupplier power){
+        return new InstantCommand(() -> setCollectorPower(power.getAsDouble()));
+    }
+    }
+

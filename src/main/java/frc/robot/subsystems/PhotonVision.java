@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 
 import frc.util.overrunWatching.TimedSubsystemBase;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.util.shuffleboard.LightningShuffleboard;
 
@@ -124,8 +125,8 @@ public class PhotonVision extends TimedSubsystemBase implements AutoCloseable {
             }
         });
 
+        reachableThread.setDaemon(true);
         reachableThread.start();
-        setName("Vision");
     }
     
     @Override
@@ -199,6 +200,7 @@ public class PhotonVision extends TimedSubsystemBase implements AutoCloseable {
             socket.close();
         }
 
+        reachableThread.interrupt();
         receiveThread.interrupt();
     }
 }

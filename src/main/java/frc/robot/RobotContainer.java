@@ -121,6 +121,7 @@ public class RobotContainer {
 
 
         shooter.setDefaultCommand(shooter.coast());
+        collector.setDefaultCommand(collector.neutralPivotCommand());
         hood.setDefaultCommand(cannon.hoodAim());
         turret.setDefaultCommand(cannon.turretAim());
     }
@@ -167,7 +168,7 @@ public class RobotContainer {
             IndexerConstants.TRANSFER_POWER));
 
         new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot()
-            .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER)));
+            .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER * CollectorConstants.COLLECT_MULT)));
 
         new Trigger(copilot::getStartButton).whileTrue(collector.stowPivotCommand());
     
@@ -203,13 +204,16 @@ public class RobotContainer {
         NamedCommands.registerCommand("LED_COLLECT", leds.enableStateWithTimeout(LED_STATES.COLLECT.id(), 2));
 
         NamedCommands.registerCommand("MOVE_TO_TOWER", drivetrain.autoAlign(FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
-        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot());
+        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot().alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER)));
         NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER));
+        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot().deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
+        NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER).deadlineFor(leds.enableState(LED_STATES.COLLECT.id())));
         NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.deployPivotCommand());
         NamedCommands.registerCommand("STOW_COLLECTOR", collector.stowPivotCommand());
         NamedCommands.registerCommand("WAIT_UNTIL_DEPLOYED", new WaitUntilCommand(collector::isDeployed));
         NamedCommands.registerCommand("WAIT_UNTIL_STOWED", new WaitUntilCommand(collector::isStowed));
-
+        NamedCommands.registerCommand("COLLECTOR_WHEELS", collector.runCollectorWheels(() -> CollectorConstants.COLLECT_POWER));
+        
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
     }
@@ -221,12 +225,12 @@ public class RobotContainer {
     private void configureLeds() {
         leds.setDefaultBehavior(LEDBehaviorFactory.swirl(LEDConstants.stripAll, 10, 5, Color.ORANGE, Color.BLUE));
 
-        leds.setBehavior(LED_STATES.TEST.id(), LEDBehaviorFactory.testStrip(LEDConstants.stripShooter,
+        leds.setBehavior(LED_STATES.TEST.id(), LEDBehaviorFactory.testStrip(LEDConstants.stripAll,
                 () -> turret.getMaxLimitSwitch(),
                 () -> turret.getZeroLimitSwitch(),
                 () -> vision.getMacMiniConnection()
         ));
-        leds.setBehavior(LED_STATES.TURRET_LOCKED.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 0.3, Color.GREY));
+        leds.setBehavior(LED_STATES.TURRET_LOCKED.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREY));
         leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripUnderglow, Color.RED));
         leds.setBehavior(LED_STATES.TURRET_BAD.id(), LEDBehaviorFactory.pulse(LEDConstants.stripShooter, 0.5, Color.ORANGE));
 
@@ -234,10 +238,11 @@ public class RobotContainer {
 
         leds.setBehavior(LED_STATES.SHOOT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.PURPLE));
         leds.setBehavior(LED_STATES.COLLECT.id(), LEDBehaviorFactory.pulse(LEDConstants.stripAll, 2, Color.YELLOW));
-
-        leds.setBehavior(LED_STATES.NEAR_HUB.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 1, Color.RED));
+        leds.setBehavior(LED_STATES.NEAR_HUB.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 3, Color.RED));
 
         new Trigger(hood::isStowed).whileTrue(leds.enableState(LED_STATES.HOOD_STOWED.id()));
+
+        new Trigger(new LEDBooleanSupplier(turret::getZeroed)).whileFalse(leds.enableState(LED_STATES.TURRET_BAD.id())); // turn off turret bad LED state once turret is zeroed
 
         new Trigger(new LEDBooleanSupplier(turret::getZeroed)).whileFalse(leds.enableState(LED_STATES.TURRET_BAD.id())); // turn off turret bad LED state once turret is zeroed
 

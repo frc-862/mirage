@@ -198,7 +198,7 @@ public class Cannon extends TimedSubsystemBase {
      */
     public Command createTurretCandShotCommand(CannonConstants.CandShot value) {
       return new ParallelCommandGroup(
-            createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity),
+            createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity).andThen(hood.idle(), shooter.idle()),
             indexWhenOnTarget()
         );
     }
