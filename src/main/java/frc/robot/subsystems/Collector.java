@@ -38,7 +38,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-
+import frc.util.overrunWatching.TimedCommand;
 import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
@@ -333,20 +333,20 @@ public class Collector extends TimedSubsystemBase {
     }
 
     public Command deployPivotCommand() {
-        return runOnce(() -> deployPivot());
+        return TimedCommand.time(runOnce(() -> deployPivot()).withName("Collector Pivot Deploy"));
     }
 
     public Command stowPivotCommand() {
-        return runOnce(() -> stowPivot());
+        return TimedCommand.time(runOnce(() -> stowPivot()).withName("Collector Pivot Stow"));
     }
 
     public Command collectCommand(DoubleSupplier power) {
-        return new FunctionalCommand(
+        return TimedCommand.time(new FunctionalCommand(
             () -> deployPivot(),
             () -> setCollectorPower(power.getAsDouble()),
             (interrupted) -> stopCollector(),
             () -> false,
             this
-        );
+        ).withName("Collector Command"));
     }
 }

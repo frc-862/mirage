@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-
+import frc.util.overrunWatching.TimedCommand;
 import frc.util.overrunWatching.TimedSubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Robot;
@@ -168,17 +168,18 @@ public class Indexer extends TimedSubsystemBase {
      * @return the command for running the indexer
      */
     public Command indexCommand(double power) {
-        return new StartEndCommand(() -> setPower(power), () -> stop(), this);
+        return TimedCommand.time(new StartEndCommand(() -> setPower(power), () -> stop(), this).withName("Indexer StartEnd"));
     }
 
     public Command indexCommand(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
-        return new StartEndCommand(() -> setPower(spindexerPower.getAsDouble(), transferPower.getAsDouble()), this::stop, this);
+        return TimedCommand.time(new StartEndCommand(() -> setPower(spindexerPower.getAsDouble(), transferPower.getAsDouble()), () -> stop(), this)
+            .withName("Indexer Supplied StartEnd"));
     }
 
     public Command autoIndex(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
-        return runOnce(() -> setTransferPower(transferPower.getAsDouble()))
+        return TimedCommand.time(runOnce(() -> setTransferPower(transferPower.getAsDouble()))
             .andThen(new WaitCommand(IndexerConstants.SPINDEXER_DELAY))
-            .andThen(indexCommand(spindexerPower, transferPower));
+            .andThen(indexCommand(spindexerPower, transferPower)).withName("Auto Index"));
     }
 
     public Command autoIndex(double spindexerPower, double transferPower) {

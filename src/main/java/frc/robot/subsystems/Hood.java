@@ -44,7 +44,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-
+import frc.util.overrunWatching.TimedCommand;
 import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.FieldConstants;
@@ -361,7 +361,8 @@ public class Hood extends TimedSubsystemBase {
      * @return the command for running the hood
      */
     public Command hoodCommand(Supplier<Angle> hoodAngleSupplier) {
-        return new StartEndCommand(() -> setPosition(hoodAngleSupplier.get()), () -> {}, this).until(this::isOnTarget);
+        return TimedCommand.time(new StartEndCommand(() -> setPosition(hoodAngleSupplier.get()), () -> {}, this).until(this::isOnTarget)
+            .withName("Hood Position Command"));
     }
 
     /**
@@ -369,12 +370,12 @@ public class Hood extends TimedSubsystemBase {
      * @return the command for retracting the hood
      */
     public Command retract() {
-        return startEnd(() -> {
+        return TimedCommand.time(startEnd(() -> {
             motor.setControl(request.withPosition(HoodConstants.MAX_ANGLE));
             isHoodRetracted = true;
         }, () -> {
             isHoodRetracted = false;
-        });
+        }).withName("Hood Retract"));
     }
 
     /**
@@ -383,11 +384,11 @@ public class Hood extends TimedSubsystemBase {
      * @return Command for repositioning the hood.
      */
     public Command hoodAim(Cannon cannon){
-        return run(() -> {
+        return TimedCommand.time(run(() -> {
             Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(cannon.getTarget()));
             Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
             setPosition(targetAngle);
-        });
+        }).withName("Hood Aim Cannon"));
     }
 
     /**
@@ -397,11 +398,11 @@ public class Hood extends TimedSubsystemBase {
      * @return the command
      */
     public Command hoodAim(Cannon cannon, Target target){
-        return run(() -> {
+        return TimedCommand.time(run(() -> {
             Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(FieldConstants.getTargetData(target)));
             Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
             setPosition(targetAngle);
-        });
+        }).withName("Hood Aim Target"));
     }
 
     /**
@@ -410,16 +411,17 @@ public class Hood extends TimedSubsystemBase {
      * @return the command
      */
     public Command setPositionCommand(Angle angle) {
-        return new InstantCommand(() -> setPosition(angle)).withName("Set Hood Position Command");
+        return TimedCommand.time(new InstantCommand(() -> setPosition(angle)).withName("Set Hood Position Command"));
     }
 
     public Command zeroCommand() {
-        return startEnd(() -> {
+        return TimedCommand.time(startEnd(() -> {
             motor.setControl(hoodDutyCycle.withOutput(HoodConstants.HOOD_RETRACT_POWER));
         }, () -> {
             isZeroed = true;
             motor.setPosition(HoodConstants.MIN_ANGLE);
             motor.setControl(hoodDutyCycle.withOutput(0));
-        }).until(() -> (motor.getStatorCurrent().getValueAsDouble() > HoodConstants.CURRENT_THRESHOLD)).withTimeout(3);
+        }).until(() -> (motor.getStatorCurrent().getValueAsDouble() > HoodConstants.CURRENT_THRESHOLD))
+            .withTimeout(3).withName("Hood Zero Command"));
     }
 }

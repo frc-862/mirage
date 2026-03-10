@@ -40,7 +40,11 @@ public class RobotTimerInstance {
         MEAN_EXECUTION_TIME("Mean Execution Time"),
         WEIGHTED_MEAN_EXECUTION_TIME("Weighted Mean Execution Time"),
         MEAN_OVERRUN_EXECUTION_TIME("Mean Overrun Execution Time"),
-        MEDIAN_EXECUTION_TIME("Median Execution Time");
+        MEDIAN_EXECUTION_TIME("Median Execution Time"),
+        MEDIAN_OVERRUN_EXECUTION_TIME("Median Overrun Execution Time"),
+        MAX_EXECUTION_TIME("Max Execution Time"),
+        MAX_OVERRUN_EXECUTION_TIME("Max Overrun Execution Time"),
+        PROPORTION_OVERRUN("Proportion of Loops Overrun");
 
         TimeMeasurementType(String identifier) {
             this.identifier = identifier;
@@ -57,13 +61,17 @@ public class RobotTimerInstance {
 
     private final HashMap<Action, Time> actionExecutionTimes;
 
-    private final HashMap<Action, TimeCRS.Mean> meanActionExecutionTimes;
-    private final HashMap<Action, TimeCRS.WeightedMean> weightedMeanActionExecutionTimes;
-    private final HashMap<Action, TimeCRS.Mean> meanOverrideActionExecutionTimes;
+    private final HashMap<Action, CRS.MeanTime> meanActionExecutionTimes;
+    private final HashMap<Action, CRS.WeightedMeanTime> weightedMeanActionExecutionTimes;
+    private final HashMap<Action, CRS.MeanTime> meanOverrideActionExecutionTimes;
 
-    private final HashMap<Action, TimeCRS.Median> medianActionExecutionTimes;
-    
-    private int loopCount = 0;
+    private final HashMap<Action, CRS.MedianTime> medianActionExecutionTimes;
+    private final HashMap<Action, CRS.MedianTime> medianOverrideActionExecutionTimes;
+
+    private final HashMap<Action, CRS.MaxTime> maxActionExecutionTimes;
+    private final HashMap<Action, CRS.MaxTime> maxOverrideActionExecutionTimes;
+
+    private double loopCount = 0;
     private static final int WARMUP_LOOPS = 50;
     
     private RobotTimerInstance() {
@@ -80,6 +88,11 @@ public class RobotTimerInstance {
         meanOverrideActionExecutionTimes = new HashMap<>();
 
         medianActionExecutionTimes = new HashMap<>();
+        medianOverrideActionExecutionTimes = new HashMap<>();
+
+        maxActionExecutionTimes = new HashMap<>();
+        maxOverrideActionExecutionTimes = new HashMap<>();
+
     }
 
     public void record(Action action, Time executionTime) {
@@ -93,11 +106,16 @@ public class RobotTimerInstance {
 
             actionExecutionTimes.put(action, executionTime);
 
-            meanActionExecutionTimes.put(action, new TimeCRS.Mean());
-            weightedMeanActionExecutionTimes.put(action, new TimeCRS.WeightedMean());
-            meanOverrideActionExecutionTimes.put(action, new TimeCRS.Mean());
+            meanActionExecutionTimes.put(action, new CRS.MeanTime());
+            weightedMeanActionExecutionTimes.put(action, new CRS.WeightedMeanTime());
+            meanOverrideActionExecutionTimes.put(action, new CRS.MeanTime());
 
-            medianActionExecutionTimes.put(action, new TimeCRS.Median());
+            medianActionExecutionTimes.put(action, new CRS.MedianTime());
+            medianOverrideActionExecutionTimes.put(action, new CRS.MedianTime());
+
+            maxActionExecutionTimes.put(action, new CRS.MaxTime());
+            maxOverrideActionExecutionTimes.put(action, new CRS.MaxTime());
+
         }
 
         lastActiveActions.put(action, true);
@@ -105,14 +123,17 @@ public class RobotTimerInstance {
         actionExecutionTimes.put(action, executionTime);
         publish(action, TimeMeasurementType.EXECUTION_TIME, executionTime);
 
-        Time weightedMeanExecutionTime = weightedMeanActionExecutionTimes.get(action).add(executionTime);
+        Time weightedMeanExecutionTime = weightedMeanActionExecutionTimes.get(action).calculate(executionTime);
         publish(action, TimeMeasurementType.WEIGHTED_MEAN_EXECUTION_TIME, weightedMeanExecutionTime);
 
-        Time meanExecutionTime = meanActionExecutionTimes.get(action).add(executionTime);
+        Time meanExecutionTime = meanActionExecutionTimes.get(action).calculate(executionTime);
         publish(action, TimeMeasurementType.MEAN_EXECUTION_TIME, meanExecutionTime);
 
         Time medianExecutionTime = medianActionExecutionTimes.get(action).calculate(executionTime);
         publish(action, TimeMeasurementType.MEDIAN_EXECUTION_TIME, medianExecutionTime);
+
+        Time maxExecutionTime = maxActionExecutionTimes.get(action).calculate(executionTime);
+        publish(action, TimeMeasurementType.MAX_EXECUTION_TIME, maxExecutionTime);
     }
 
     public void recordCycle(double loopStartTime) {
@@ -132,8 +153,16 @@ public class RobotTimerInstance {
             overrunPublisher.accept(true);
             for (Action action : actionsTimed) {
                 if (lastActiveActions.get(action)) {
-                    Time meanOverrideExecutionTime = meanOverrideActionExecutionTimes.get(action).add(actionExecutionTimes.get(action));
+                    Time meanOverrideExecutionTime = meanOverrideActionExecutionTimes.get(action).calculate(actionExecutionTimes.get(action));
                     publish(action, TimeMeasurementType.MEAN_OVERRUN_EXECUTION_TIME, meanOverrideExecutionTime);
+
+                    CRS.MedianTime medianOverrideExecutionTimeCRS = medianOverrideActionExecutionTimes.get(action);
+                    Time medianOverrideExecutionTime = medianOverrideExecutionTimeCRS.calculate(actionExecutionTimes.get(action));
+                    publish(action, TimeMeasurementType.MEDIAN_OVERRUN_EXECUTION_TIME, medianOverrideExecutionTime);
+
+                    Time maxOverrideExecutionTime = maxOverrideActionExecutionTimes.get(action).calculate(actionExecutionTimes.get(action));
+                    publish(action, TimeMeasurementType.MAX_OVERRUN_EXECUTION_TIME, maxOverrideExecutionTime);
+
                 }
             }
         } else {
@@ -143,20 +172,24 @@ public class RobotTimerInstance {
         lastActiveActions.replaceAll((action, active) -> false);
     }
 
-    private DoublePublisher getPublisher(Action action, TimeMeasurementType measurementType) {
-        Tuple<Action, TimeMeasurementType> publisherKey = new Tuple<>(action, measurementType);
+    private DoublePublisher getPublisher(Action action, TimeMeasurementType measurement) {
+        Tuple<Action, TimeMeasurementType> publisherKey = new Tuple<>(action, measurement);
 
         DoublePublisher publisher = actionTimePublishers.get(publisherKey);
 
         if (publisher == null) {
-            publisher = NetworkTableInstance.getDefault().getTable("Timer").getSubTable(action.name).getDoubleTopic(action.name + " " + measurementType.identifier).publish();
+            publisher = NetworkTableInstance.getDefault().getTable("Timer").getSubTable(action.name).getDoubleTopic(measurement.identifier).publish();
             actionTimePublishers.put(publisherKey, publisher);
         }
 
         return publisher;
     }
     
-    private void publish(Action action, TimeMeasurementType measurementType, Time time) {
-        getPublisher(action, measurementType).accept(time.in(Milliseconds));
+    private void publish(Action action, TimeMeasurementType measurement, Time time) {
+        getPublisher(action, measurement).accept(time.in(Milliseconds));
+    }
+
+    private void publish(Action action, TimeMeasurementType measurement, double value) {
+        getPublisher(action, measurement).accept(value);
     }
 }

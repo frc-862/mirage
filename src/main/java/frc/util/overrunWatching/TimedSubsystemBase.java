@@ -18,7 +18,7 @@ public abstract class TimedSubsystemBase extends SubsystemBase {
 
             Time executionTime = RobotController.getMeasureFPGATime().minus(startTime);
 
-            RobotTimer.get().record(new Action(getName() + " Periodic"), executionTime);
+            RobotTimer.get().record(new Action("Subsystems/" + getName() + "/Periodic"), executionTime);
         } else {
             timedPeriodic();
         }

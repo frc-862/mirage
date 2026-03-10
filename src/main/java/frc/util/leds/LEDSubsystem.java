@@ -7,6 +7,7 @@ package frc.util.leds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import frc.util.overrunWatching.TimedCommand;
 import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.util.shuffleboard.LightningShuffleboard;
 
@@ -63,7 +64,7 @@ public class LEDSubsystem extends TimedSubsystemBase {
      * @return A command that enables the specified state.
      */
     public Command enableState(int stateID, boolean inverted) {
-        return new StartEndCommand(
+        return TimedCommand.time(new StartEndCommand(
             () -> {
                 enabledStates[stateID] = !inverted;
             },
@@ -71,7 +72,7 @@ public class LEDSubsystem extends TimedSubsystemBase {
                 enabledStates[stateID] = inverted;
             }
         ).withName("Enable LED State " + stateID)
-        .ignoringDisable(true);
+        .ignoringDisable(true));
     }
 
     /**

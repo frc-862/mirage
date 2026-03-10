@@ -44,6 +44,7 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
 import frc.util.AllianceHelpers;
+import frc.util.overrunWatching.TimedCommand;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -364,16 +365,16 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      * @return command to run
      */
     public Command autoDrive(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier rInput) {
-        return run(() -> setControl(DriveConstants.fieldCentricRequest
+        return TimedCommand.time(run(() -> setControl(DriveConstants.fieldCentricRequest
             .withVelocityX(DriveConstants.MaxSpeed.times(xInput.getAsDouble()))
             .withVelocityY(DriveConstants.MaxSpeed.times(yInput.getAsDouble()))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-            .withDriveRequestType(DriveRequestType.Velocity)));
+            .withDriveRequestType(DriveRequestType.Velocity))).withName("Auto Drive"));
     }
 
     public Command driveCommand(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput) {
-        return run(() -> {
+        return TimedCommand.time(run(() -> {
             var xy = xyInput.get();
             setControl(DriveConstants.fieldCentricRequest
             .withVelocityX(DriveConstants.MaxSpeed.times(xy.get(0)))
@@ -381,26 +382,26 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage));
-        });
+        }).withName("Drive"));
     }
 
     public Command robotCentricDrive(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput){
-        return run(() -> {
+        return TimedCommand.time(run(() -> {
             var xy = xyInput.get();
             setControl(DriveConstants.robotCentricRequest
             .withVelocityX(DriveConstants.MaxSpeed.times(xy.get(0)))
             .withVelocityY(DriveConstants.MaxSpeed.times(xy.get(1)))
             .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage));
-        });
+        }).withName("Robot Centric Drive"));
     }
 
     public Command brakeCommand() {
-        return applyRequest(() -> DriveConstants.brakeRequest);
+        return TimedCommand.time(applyRequest(() -> DriveConstants.brakeRequest).withName("Brake"));
     }
 
     public Command resetFieldCentricCommand() {
-        return new InstantCommand(() -> seedFieldCentric()).withName("Seed Field Centric Command");
+        return TimedCommand.time(new InstantCommand(() -> seedFieldCentric()).withName("Seed Field Centric"));
     }
 
     public Pose2d getPose(){
@@ -464,9 +465,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
          pidY.setTolerance(DriveConstants.DRIVE_TOLERANCE.in(Meters));
         pidR.setTolerance(DriveConstants.ROT_TOLERANCE.in(Degrees));
         
-        return autoDrive(() -> MathUtil.clamp(pidX.calculate(getPose().getX(), targetPose.getX()), -1, 1),
+        return TimedCommand.time(autoDrive(() -> MathUtil.clamp(pidX.calculate(getPose().getX(), targetPose.getX()), -1, 1),
         () -> MathUtil.clamp(pidY.calculate(getPose().getY(), targetPose.getY()), -1, 1), 
-        () -> pidR.calculate(getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees()));
+        () -> pidR.calculate(getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees())).withName("Auto Align"));
     }
 
     @Override

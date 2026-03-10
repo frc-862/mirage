@@ -373,7 +373,7 @@ public class Turret extends TimedSubsystemBase {
             Angle turretAngle = fieldAngle.minus(robotPose.getRotation().getMeasure());
 
             setAngle(turretAngle);
-        }).withName("Turret Aim At Target"));
+        }).withName("Turret Aim Target"));
     }
 
     public Command turretAim(Cannon cannon) {
@@ -390,7 +390,7 @@ public class Turret extends TimedSubsystemBase {
                     = fieldAngle.minus(drivetrain.getPose().getRotation().getMeasure());
 
             setAngle(turretAngle);
-        }).withName("Turret Aim At Cannon Target"));
+        }).withName("Turret Aim Cannon"));
     }
 
     public Command zero() {
@@ -403,7 +403,7 @@ public class Turret extends TimedSubsystemBase {
         .andThen(() -> {
             setPower(TurretConstants.ZEROING_POWER);
         }).onlyIf(() -> !zeroed).until(() -> zeroed).withTimeout(3)
-        .withName("Turret Zeroing Command"));
+        .withName("Turret Zero"));
         
     }
 
@@ -418,7 +418,7 @@ public class Turret extends TimedSubsystemBase {
      * @return The command
      */
     public Command setAngleCommand(Angle angle) {
-        return TimedCommand.time(new InstantCommand(() -> setAngle(angle)).withName("Set Turret Angle Command").withName("Turret Set Angle Command"));
+        return TimedCommand.time(new InstantCommand(() -> setAngle(angle)).withName("Set Turret Angle"));
     }
 
     public boolean getZeroed() {

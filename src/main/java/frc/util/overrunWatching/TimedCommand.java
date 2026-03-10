@@ -14,11 +14,27 @@ public class TimedCommand extends WrapperCommand {
     }
 
     @Override
+    public void initialize() {
+        Time startTime = RobotController.getMeasureFPGATime();
+        super.initialize();
+        Time executionTime = RobotController.getMeasureFPGATime().minus(startTime);
+        RobotTimer.get().record(new Action("Commands/" + getName() + "/Initialize"), executionTime);
+    }
+
+    @Override
     public void execute() {
         Time startTime = RobotController.getMeasureFPGATime();
         super.execute();
         Time executionTime = RobotController.getMeasureFPGATime().minus(startTime);
-        RobotTimer.get().record(new Action(m_command.getName()), executionTime);
+        RobotTimer.get().record(new Action("Commands/" + getName() + "/Execute"), executionTime);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        Time startTime = RobotController.getMeasureFPGATime();
+        super.end(interrupted);
+        Time executionTime = RobotController.getMeasureFPGATime().minus(startTime);
+        RobotTimer.get().record(new Action("Commands/" + getName() + "/End"), executionTime);
     }
 
     public static Command time(Command command) {

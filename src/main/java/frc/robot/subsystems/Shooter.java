@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import frc.util.overrunWatching.TimedCommand;
 import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
@@ -290,7 +291,7 @@ public class Shooter extends TimedSubsystemBase {
      * @return the command for running the shooter
      */
     public Command shootCommand(Supplier<AngularVelocity> velocitySupplier) {
-        return new StartEndCommand(() -> setVelocity(velocitySupplier.get()), () -> {}, this).until(this::isOnTarget);
+        return TimedCommand.time(new StartEndCommand(() -> setVelocity(velocitySupplier.get()), () -> {}, this).until(this::isOnTarget).withName("Shooter StartEnd"));
     }
 
     /**
@@ -299,7 +300,7 @@ public class Shooter extends TimedSubsystemBase {
      * @return command for constantly running the shooter
      */
     public Command runShootCommand(Supplier<AngularVelocity> velocitySupplier) {
-        return run(() -> setVelocity(velocitySupplier.get()));
+        return TimedCommand.time(run(() -> setVelocity(velocitySupplier.get())).withName("Shooter"));
     }
 
     /**
@@ -307,6 +308,6 @@ public class Shooter extends TimedSubsystemBase {
      * @return the command for running the shooter at coast power
      */
     public Command coast() {
-        return new StartEndCommand(() -> setPower(ShooterConstants.COAST_DC), () -> {}, this).withName("Shooter Coast");
+        return TimedCommand.time(new StartEndCommand(() -> setPower(ShooterConstants.COAST_DC), () -> {}, this).withName("Shooter Coast"));
     }
 }
