@@ -127,7 +127,7 @@ public class LEDSubsystem extends TimedSubsystemBase {
         defaultBehavior.apply(leds);
         for (int i = enabledStates.length - 1; i >= 0; i--) {
             LEDBehavior behavior = ledBehaviors[i];
-            if (enabledStates[i] && behavior != null && behavior.shouldUpdate()) {
+            if (enabledStates[i] && behavior != null) {
                 behavior.apply(leds);
             }
         }

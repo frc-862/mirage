@@ -67,8 +67,9 @@ public class Robot extends TimedRobot {
             // LightningShuffleboard.setDouble("PDH", "Total Current", getContainer().pdh.getTotalCurrent());
             // LightningShuffleboard.setDouble("PDH", "Voltage", getContainer().pdh.getVoltage());
         }
-        
-        RobotTimer.get().recordCycle(getLoopStartTime());
+        if (RobotTimer.timing()) {
+            RobotTimer.get().recordCycle(getLoopStartTime());
+        }
     }
 
     @Override

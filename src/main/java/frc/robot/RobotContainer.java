@@ -76,7 +76,8 @@ public class RobotContainer {
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     public RobotContainer() {
-        RobotTimer.startTiming();
+        // RobotTimer.startTiming();
+
         driver = new XboxController(RobotMap.DRIVER_PORT);
         copilot = new XboxController(RobotMap.COPILOT_PORT);
 
@@ -223,7 +224,7 @@ public class RobotContainer {
     }
 
     private void configureLeds() {
-        leds.setDefaultBehavior(LEDBehaviorFactory.swirl(LEDConstants.stripAll, 10, 5, Color.ORANGE, Color.BLUE));
+        leds.setDefaultBehavior(LEDBehaviorFactory.swirl(LEDConstants.stripAll, 2, 5, Color.ORANGE, Color.BLUE));
 
         leds.setBehavior(LED_STATES.TEST.id(), LEDBehaviorFactory.testStrip(LEDConstants.stripAll,
                 () -> turret.getMaxLimitSwitch(),
