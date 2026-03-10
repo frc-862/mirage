@@ -26,14 +26,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import frc.util.overrunWatching.TimedSubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 
-public class Indexer extends SubsystemBase {
+public class Indexer extends TimedSubsystemBase {
 
     public class IndexerConstants {
         // spindexer
@@ -84,6 +85,8 @@ public class Indexer extends SubsystemBase {
             motorSim = spindexerMotor.getSimState();
             motorSim.setMotorType(MotorType.KrakenX44);
         }
+
+        setName("Indexer");
     }
 
     @Override

@@ -44,7 +44,8 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.util.overrunWatching.TimedCommand;
+import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
@@ -53,7 +54,7 @@ import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderUnits;
 
-public class Turret extends SubsystemBase {
+public class Turret extends TimedSubsystemBase {
 
     public class TurretConstants {
         public static final boolean INVERTED = true; // temp
@@ -122,6 +123,7 @@ public class Turret extends SubsystemBase {
      * advantage scope
      */
     public Turret(Swerve drivetrain) {
+        setName("Turret");
         this.drivetrain = drivetrain;
 
         motor = new ThunderBird(RobotMap.TURRET, RobotMap.CAN_BUS, TurretConstants.INVERTED,
@@ -179,7 +181,7 @@ public class Turret extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void timedPeriodic() {
         // Max limit switch will be imprecise, so go the other direction toward zero switch when max is hit
         // if (getMaxLimitSwitch() && !zeroed) {
         //     setPower(-TurretConstants.ZEROING_POWER);
@@ -361,7 +363,7 @@ public class Turret extends SubsystemBase {
     }
 
     public Command turretAim(Target target) {
-        return run(() -> {
+        return TimedCommand.time(run(() -> {
             Pose2d robotPose = drivetrain.getPose();
 
             Translation2d delta = FieldConstants.getTargetData(target).minus(robotPose.getTranslation());
@@ -371,11 +373,11 @@ public class Turret extends SubsystemBase {
             Angle turretAngle = fieldAngle.minus(robotPose.getRotation().getMeasure());
 
             setAngle(turretAngle);
-        });
+        }).withName("Turret Aim At Target"));
     }
 
     public Command turretAim(Cannon cannon) {
-        return run(() -> {
+        return TimedCommand.time(run(() -> {
             Translation2d shooterTranslation = cannon.getShooterTranslation();
 
             Translation2d target = cannon.getTarget();
@@ -388,11 +390,11 @@ public class Turret extends SubsystemBase {
                     = fieldAngle.minus(drivetrain.getPose().getRotation().getMeasure());
 
             setAngle(turretAngle);
-        });
+        }).withName("Turret Aim At Cannon Target"));
     }
 
     public Command zero() {
-        return run(() -> {
+        return TimedCommand.time(run(() -> {
             setPower(TurretConstants.ZEROING_POWER);
         }).onlyIf(() -> !zeroed).until(() -> zeroed).withTimeout(3)
         .andThen(() -> {
@@ -400,7 +402,8 @@ public class Turret extends SubsystemBase {
         }).onlyIf(() -> !zeroed).until(() -> zeroed).withTimeout(3)
         .andThen(() -> {
             setPower(TurretConstants.ZEROING_POWER);
-        }).onlyIf(() -> !zeroed).until(() -> zeroed).withTimeout(3);
+        }).onlyIf(() -> !zeroed).until(() -> zeroed).withTimeout(3)
+        .withName("Turret Zeroing Command"));
         
     }
 
@@ -415,7 +418,7 @@ public class Turret extends SubsystemBase {
      * @return The command
      */
     public Command setAngleCommand(Angle angle) {
-        return new InstantCommand(() -> setAngle(angle));
+        return TimedCommand.time(new InstantCommand(() -> setAngle(angle)).withName("Set Turret Angle Command").withName("Turret Set Angle Command"));
     }
 
     public boolean getZeroed() {

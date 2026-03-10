@@ -44,7 +44,8 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
@@ -54,7 +55,7 @@ import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderMap;
 import frc.util.units.ThunderUnits;
 
-public class Hood extends SubsystemBase {
+public class Hood extends TimedSubsystemBase {
 
     public class HoodConstants {
         public static final boolean INVERTED = false; // temp
@@ -201,6 +202,7 @@ public class Hood extends SubsystemBase {
         }
         
         initLogging();
+        setName("Hood");
     }
 
     private void initLogging() {
@@ -212,7 +214,7 @@ public class Hood extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void timedPeriodic() {
         updateLogging();
     }
 
@@ -408,7 +410,7 @@ public class Hood extends SubsystemBase {
      * @return the command
      */
     public Command setPositionCommand(Angle angle) {
-        return new InstantCommand(() -> setPosition(angle));
+        return new InstantCommand(() -> setPosition(angle)).withName("Set Hood Position Command");
     }
 
     public Command zeroCommand() {

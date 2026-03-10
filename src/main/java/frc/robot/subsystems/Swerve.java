@@ -400,7 +400,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command resetFieldCentricCommand() {
-        return new InstantCommand(() -> seedFieldCentric());
+        return new InstantCommand(() -> seedFieldCentric()).withName("Seed Field Centric Command");
     }
 
     public Pose2d getPose(){
@@ -467,5 +467,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return autoDrive(() -> MathUtil.clamp(pidX.calculate(getPose().getX(), targetPose.getX()), -1, 1),
         () -> MathUtil.clamp(pidY.calculate(getPose().getY(), targetPose.getY()), -1, 1), 
         () -> pidR.calculate(getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees()));
+    }
+
+    @Override
+    public String getName() {
+        return "Drivetrain";
     }
 }

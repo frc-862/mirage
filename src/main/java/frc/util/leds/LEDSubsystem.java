@@ -8,9 +8,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.util.shuffleboard.LightningShuffleboard;
 
-public class LEDSubsystem extends SubsystemBase {
+public class LEDSubsystem extends TimedSubsystemBase {
     private final LEDController leds;
 
     private final boolean[] enabledStates;
@@ -119,13 +120,13 @@ public class LEDSubsystem extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void timedPeriodic() {
         defaultBehavior.apply(leds);
         for (int i = enabledStates.length - 1; i >= 0; i--) {
-        LEDBehavior behavior = ledBehaviors[i];
-        if (enabledStates[i] && behavior != null) {
-            behavior.apply(leds);
-        }
+            LEDBehavior behavior = ledBehaviors[i];
+            if (enabledStates[i] && behavior != null) {
+                behavior.apply(leds);
+            }
         }
 
         leds.apply();

@@ -24,13 +24,14 @@ import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 
-public class Climber extends SubsystemBase {
+public class Climber extends TimedSubsystemBase {
 
     public class ClimberConstants {
         public static final boolean CLIMBER_MOTOR_INVERTED = false; // temp
@@ -72,6 +73,8 @@ public class Climber extends SubsystemBase {
              true, ClimberConstants.START_HEIGHT.in(Meters));
             motorSim = new TalonFXSimState(climberMotor);
         }
+
+        setName("Climber");
     }
 
     public void simulationPeriodic(){

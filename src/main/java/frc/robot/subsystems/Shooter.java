@@ -42,14 +42,14 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderMap;
 
-public class Shooter extends SubsystemBase {
+public class Shooter extends TimedSubsystemBase {
 
     public class ShooterConstants {
         public static final boolean INVERTED = false; // temp
@@ -116,6 +116,8 @@ public class Shooter extends SubsystemBase {
      * @param motorRight the ThunderBird motor that follows for the shooter
      */
     public Shooter(ThunderBird motorLeft, ThunderBird motorRight) {
+        setName("Shooter");
+
         this.motorLeft = motorLeft;
         this.motorRight = motorRight;
 
@@ -161,7 +163,7 @@ public class Shooter extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void timedPeriodic() {
         updateLogging();
     }
 
@@ -305,6 +307,6 @@ public class Shooter extends SubsystemBase {
      * @return the command for running the shooter at coast power
      */
     public Command coast() {
-        return new InstantCommand(() -> setPower(ShooterConstants.COAST_DC), this);
+        return new StartEndCommand(() -> setPower(ShooterConstants.COAST_DC), () -> {}, this).withName("Shooter Coast");
     }
 }

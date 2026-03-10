@@ -38,7 +38,8 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
@@ -47,7 +48,7 @@ import frc.util.units.ThunderUnits;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
-public class Collector extends SubsystemBase {
+public class Collector extends TimedSubsystemBase {
 
     public class CollectorConstants {
         // Collector Rollers
@@ -171,6 +172,7 @@ public class Collector extends SubsystemBase {
         }
 
         initLogging();
+        setName("Collector");
     }
 
     private void initLogging() {
@@ -183,7 +185,7 @@ public class Collector extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void timedPeriodic() {
         if (LightningShuffleboard.getBool("Collector", "Request Zeroing", false)) {
             pivotZeroed = false;
         }

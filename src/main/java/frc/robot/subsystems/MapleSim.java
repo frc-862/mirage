@@ -18,10 +18,11 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.util.shuffleboard.LightningShuffleboard;
 
-public class MapleSim extends SubsystemBase {
+public class MapleSim extends TimedSubsystemBase {
 
     private final Collector collector;
     private final Indexer indexer;
@@ -56,6 +57,7 @@ public class MapleSim extends SubsystemBase {
             .getStructArrayTopic("Fuel", Pose3d.struct).publish();
 
         shootNotifier = new Notifier(this::shootFuel);
+        setName("Simulator");
     }
 
     @Override

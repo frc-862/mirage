@@ -22,11 +22,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.robot.Robot;
 import frc.util.shuffleboard.LightningShuffleboard;
 
-public class PhotonVision extends SubsystemBase implements AutoCloseable {
+public class PhotonVision extends TimedSubsystemBase implements AutoCloseable {
     // Records to store specific groups of data
     private record VisionInfo(double timestamp, double ambiguity, Pose2d pose) {};
 
@@ -124,10 +125,11 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         });
 
         reachableThread.start();
+        setName("Vision");
     }
     
     @Override
-    public void periodic() {
+    public void timedPeriodic() {
         LightningShuffleboard.setDouble("Vision", "robot_time", Utils.getCurrentTimeSeconds());
 
         VisionInfo updatedPose = pose.getAndSet(null);
