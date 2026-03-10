@@ -4,6 +4,8 @@
 
 package frc.util.leds;
 
+import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -16,6 +18,10 @@ public class LEDSubsystem extends SubsystemBase {
     private final boolean[] enabledStates;
     private final LEDBehavior[] ledBehaviors;
     private LEDBehavior defaultBehavior;
+
+    private BooleanArrayLogEntry stateLog;
+
+    private double loop = 0;
 
     /**
      * Creates a new nLEDs. </p>
@@ -32,6 +38,12 @@ public class LEDSubsystem extends SubsystemBase {
         leds = new LEDController(numLEDs, pwmPort);
 
         defaultBehavior = new LEDBehavior() { @Override public void apply(LEDController leds) {} };
+
+        initLogging();
+    }
+
+    private void initLogging() {
+        stateLog = new BooleanArrayLogEntry(DataLogManager.getLog(), "/LEDs/States");
     }
 
     /**
@@ -121,6 +133,24 @@ public class LEDSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        loop++;
+
+        if (loop % 10 == 0) {
+            applyLEDS();
+        }
+
+        if (!DriverStation.isFMSAttached()) {
+            LightningShuffleboard.setBoolArray("LEDs", "EnabledStates", enabledStates);
+        }
+
+        updateLogging();
+    }
+
+    private void updateLogging() {
+        stateLog.append(enabledStates);
+    }
+
+    private void applyLEDS() {
         defaultBehavior.apply(leds);
         for (int i = enabledStates.length - 1; i >= 0; i--) {
         LEDBehavior behavior = ledBehaviors[i];
@@ -128,13 +158,7 @@ public class LEDSubsystem extends SubsystemBase {
             behavior.apply(leds);
         }
         }
-
+        
         leds.apply();
-
-        if (!DriverStation.isFMSAttached()) {
-            LightningShuffleboard.setBoolArray("LEDs", "EnabledStates", enabledStates);
-        }
     }
-
-
 }

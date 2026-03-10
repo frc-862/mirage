@@ -14,12 +14,19 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import static edu.wpi.first.units.Units.Amps;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,7 +45,7 @@ public class Indexer extends SubsystemBase {
     public class IndexerConstants {
         // spindexer
         public static final boolean SPINDEXER_MOTOR_INVERTED = true; // temp
-        public static final Current SPINDEXER_MOTOR_STATOR_LIMIT = Amps.of(80); // temp
+        public static final Current SPINDEXER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean SPINDEXER_MOTOR_BRAKE_MODE = true; // temp
 
         public static final double SPINDEXER_SIM_kV = 0.24;
@@ -67,6 +74,9 @@ public class Indexer extends SubsystemBase {
     private LinearSystemSim<N1, N1, N1> spindexerSim;
     private TalonFXSimState motorSim;
 
+    private DoubleLogEntry transferLog;
+    private DoubleLogEntry spindexerLog; 
+
     /** Creates a new Spindexer Subsystem. */
     public Indexer() {
         spindexerMotor = new ThunderBird(RobotMap.SPINDEXER, RobotMap.CAN_BUS,
@@ -84,6 +94,25 @@ public class Indexer extends SubsystemBase {
             motorSim = spindexerMotor.getSimState();
             motorSim.setMotorType(MotorType.KrakenX44);
         }
+
+        initLogging();
+    }
+
+    private void initLogging() {
+        DataLog log = DataLogManager.getLog();
+
+        transferLog = new DoubleLogEntry(log, "/Indexer/Transfer Velocity");
+        spindexerLog = new DoubleLogEntry(log, "/Indexer/Spindexer Velocity");
+    }
+
+    @Override 
+    public void periodic() {
+        updateLogging();
+    }
+
+    private void updateLogging() {
+        transferLog.append(transferMotor.getVelocity().getValueAsDouble());
+        spindexerLog.append(spindexerMotor.getVelocity().getValueAsDouble());
     }
 
     @Override
@@ -112,6 +141,14 @@ public class Indexer extends SubsystemBase {
      */
     public AngularVelocity getSpindexerVelocity() {
         return spindexerMotor.getVelocity().getValue();
+    }
+
+    public double getTransferPower() {
+        return transferDutyCycle.Output;
+    }
+
+    public double getSpindexerPower() {
+        return spindexerDutyCycle.Output;
     }
 
     /**
@@ -169,11 +206,11 @@ public class Indexer extends SubsystemBase {
     }
 
     public Command indexCommand(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
-        return new StartEndCommand(() -> setPower(spindexerPower.getAsDouble(), transferPower.getAsDouble()), this::stop, this);
+        return new StartEndCommand(() -> setPower(spindexerPower.getAsDouble(), transferPower.getAsDouble()), this::stop);
     }
 
     public Command autoIndex(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
-        return runOnce(() -> setTransferPower(transferPower.getAsDouble()))
+        return new InstantCommand(() -> setTransferPower(transferPower.getAsDouble()))
             .andThen(new WaitCommand(IndexerConstants.SPINDEXER_DELAY))
             .andThen(indexCommand(spindexerPower, transferPower));
     }
@@ -184,5 +221,9 @@ public class Indexer extends SubsystemBase {
 
     public Command indexCommand(double spindexerPower, double transferPower) {
         return indexCommand(() -> spindexerPower, () -> transferPower);
+    }
+
+    public Command transferCommand(DoubleSupplier transferPower) {
+        return new RunCommand(() -> setTransferPower(transferPower.getAsDouble()));
     }
 }

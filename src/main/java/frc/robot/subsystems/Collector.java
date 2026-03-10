@@ -9,7 +9,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.time.Instant;
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.Amps;
@@ -59,7 +58,7 @@ public class Collector extends SubsystemBase {
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 0.8d;
-        public static final double COLLECT_MULT = 0.8d;
+        public static final double COLLECT_MULT = 0.6d;
 
         public static final MomentOfInertia COLLECTOR_MOI = KilogramSquareMeters.of(0.001); //temp 
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
@@ -164,7 +163,7 @@ public class Collector extends SubsystemBase {
             collectorGearbox = DCMotor.getKrakenX60(1);
             collectorSim = new DCMotorSim(
                 LinearSystemId.createDCMotorSystem(collectorGearbox, CollectorConstants.COLLECTOR_MOI.magnitude(), CollectorConstants.COLLECTOR_GEAR_RATIO),
-                collectorGearbox
+                collectorGearbox 
             );
 
             collectorMotorSim = collectorMotor.getSimState();
@@ -223,8 +222,7 @@ public class Collector extends SubsystemBase {
             LightningShuffleboard.setDouble("Collector", "Pivot Target Rotations", getTargetPivotAngle().in(Rotations));
             LightningShuffleboard.setBool("Collector", "Pivot On Target", pivotOnTarget());
             LightningShuffleboard.setDouble("Collector", "Collector Velocity", getCollectorVelocity().in(RotationsPerSecond));
-            LightningShuffleboard.setBool("Collector", "Pivot Zeroed", pivotZeroed);
-            LightningShuffleboard.setDouble("Collector", "Pivot Timer", zeroingTimer.get());
+            // LightningShuffleboard.setBool("Collector", "Pivot Zeroed", pivotZeroed);
         }
     }
 
@@ -347,7 +345,7 @@ public class Collector extends SubsystemBase {
     }
 
     public Command deployPivotCommand() {
-        return runOnce(() -> deployPivot());
+        return new StartEndCommand(() -> deployPivot(), () -> {}, this);
     }
 
     public Command stowPivotCommand() {

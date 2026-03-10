@@ -7,7 +7,7 @@ public class TestSubsytem extends SubsystemBase {
     double counter = 0;
     @Override
     public void periodic() {
-        counter ++;
+        counter++;
         double startTime = System.currentTimeMillis();
 
         // run stuff
