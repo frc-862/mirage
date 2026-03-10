@@ -54,6 +54,9 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     private BooleanLogEntry macConnectedLog;
 
+    private static final String MAC_MINI_IP = "10.8.62.11";
+    private static final String RIO_IP = "10.8.62.2";
+
     /** Creates a new PhotonVision.
      * 
      * @param drivetrain The main drivetrain on the robot
@@ -68,7 +71,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         try {
             // Bind to the port
-            socket = new DatagramSocket(12345,InetAddress.getByName("10.8.62.2")); 
+            socket = new DatagramSocket(12345,InetAddress.getByName(MAC_MINI_IP)); 
         } catch (SocketException e) {
             log("*** ERROR CREATING DATAGRAM SOCKET ***" + e);
         } catch (UnknownHostException e) {
@@ -82,7 +85,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                 try {
                     // Create a new packet to fill with recieved data
                     byte[] receiveData = new byte[40];
-                    var receivePacket = new DatagramPacket(receiveData, receiveData.length, InetAddress.getByName("10.8.62.2"), 12345);
+                    var receivePacket = new DatagramPacket(receiveData, receiveData.length, InetAddress.getByName(RIO_IP), 12345);
                     
                     if (socket != null) {
                         socket.receive(receivePacket);
@@ -110,7 +113,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         reachableThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    InetAddress macMiniAddress = InetAddress.getByName("10.8.62.11");
+                    InetAddress macMiniAddress = InetAddress.getByName(MAC_MINI_IP);
                     macMiniIsConnected = macMiniAddress.isReachable(1000); //timeout in ms
                 } catch (IOException e) {
                     macMiniIsConnected = false;
