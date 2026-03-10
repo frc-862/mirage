@@ -14,17 +14,19 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import static edu.wpi.first.units.Units.Amps;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
-import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -93,8 +95,11 @@ public class Indexer extends SubsystemBase {
             motorSim.setMotorType(MotorType.KrakenX44);
         }
 
-        DataLog log = DataLogManager.getLog();
+        initLogging();
+    }
 
+    private void initLogging() {
+        DataLog log = DataLogManager.getLog();
 
         transferLog = new DoubleLogEntry(log, "/Indexer/Transfer Velocity");
         spindexerLog = new DoubleLogEntry(log, "/Indexer/Spindexer Velocity");
@@ -102,6 +107,10 @@ public class Indexer extends SubsystemBase {
 
     @Override 
     public void periodic() {
+        updateLogging();
+    }
+
+    private void updateLogging() {
         transferLog.append(transferMotor.getVelocity().getValueAsDouble());
         spindexerLog.append(spindexerMotor.getVelocity().getValueAsDouble());
     }

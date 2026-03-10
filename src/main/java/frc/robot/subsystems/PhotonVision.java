@@ -88,13 +88,6 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     
                     if (socket != null) {
                         socket.receive(receivePacket);
-                        // if (System.currentTimeMillis() - previousTimeCount > 2000) {
-                        //     packetsCount++;
-                        // } else {
-                        //     DataLogManager.log("[PHOTON VISION] Recieved packets 2s: " + packetsCount);
-                        //     packetsCount = 0;
-                        //     previousTimeCount = System.currentTimeMillis();
-                        // }
                     } else {
                         break;
                     }

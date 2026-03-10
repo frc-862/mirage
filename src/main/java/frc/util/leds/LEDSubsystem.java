@@ -39,6 +39,10 @@ public class LEDSubsystem extends SubsystemBase {
 
         defaultBehavior = new LEDBehavior() { @Override public void apply(LEDController leds) {} };
 
+        initLogging();
+    }
+
+    private void initLogging() {
         stateLog = new BooleanArrayLogEntry(DataLogManager.getLog(), "/LEDs/States");
     }
 
@@ -138,6 +142,11 @@ public class LEDSubsystem extends SubsystemBase {
         if (!DriverStation.isFMSAttached()) {
             LightningShuffleboard.setBoolArray("LEDs", "EnabledStates", enabledStates);
         }
+
+        updateLogging();
+    }
+
+    private void updateLogging() {
         stateLog.append(enabledStates);
     }
 
