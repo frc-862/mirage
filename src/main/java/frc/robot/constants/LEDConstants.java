@@ -16,13 +16,10 @@ public class LEDConstants {
         TURRET_LOCKED,
         TURRET_BAD,
         VISION_BAD,
-        SEED_FIELD_FORWARD,
         NEAR_HUB,
-        CANNED_SHOT_READY,
         HOOD_STOWED,
         SHOOT,
-        COLLECT,
-        CLIMB;
+        COLLECT;
 
         public int id() {
             return this.ordinal();

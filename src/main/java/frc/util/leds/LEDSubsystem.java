@@ -7,7 +7,6 @@ package frc.util.leds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.util.overrunWatching.TimedSubsystemBase;
 import frc.util.shuffleboard.LightningShuffleboard;
 
@@ -33,6 +32,8 @@ public class LEDSubsystem extends TimedSubsystemBase {
         leds = new LEDController(numLEDs, pwmPort);
 
         defaultBehavior = new LEDBehavior() { @Override public void apply(LEDController leds) {} };
+
+        setName("LEDs");
     }
 
     /**
@@ -69,7 +70,8 @@ public class LEDSubsystem extends TimedSubsystemBase {
             () -> {
                 enabledStates[stateID] = inverted;
             }
-        ).ignoringDisable(true);
+        ).withName("Enable LED State " + stateID)
+        .ignoringDisable(true);
     }
 
     /**
@@ -124,7 +126,7 @@ public class LEDSubsystem extends TimedSubsystemBase {
         defaultBehavior.apply(leds);
         for (int i = enabledStates.length - 1; i >= 0; i--) {
             LEDBehavior behavior = ledBehaviors[i];
-            if (enabledStates[i] && behavior != null) {
+            if (enabledStates[i] && behavior != null && behavior.shouldUpdate()) {
                 behavior.apply(leds);
             }
         }
