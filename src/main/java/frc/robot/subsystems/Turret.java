@@ -62,12 +62,13 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = Degrees.of(-180); // limit range temporarily
-        public static final Angle MAX_ANGLE = Degrees.of(180);
+        public static final Angle MIN_ANGLE = Degrees.of(-290);
+        public static final Angle MAX_ANGLE = Degrees.of(130);
 
         public static final double kP = 150d;
         public static final double kI = 0d;
-        public static final double kD = 9d;
+        
+        public static final double kD = 12d;
         public static final double kS = 0.33d;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
@@ -78,6 +79,8 @@ public class Turret extends SubsystemBase {
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.02);
 
         public static final Distance LENGTH = Meter.of(0.18);
+
+        public static final double SIM_FRICTION = 0.2;
     }
 
     private final ThunderBird motor;
@@ -141,9 +144,9 @@ public class Turret extends SubsystemBase {
         maxLimitSwitch = new DigitalInput(RobotMap.TURRET_MAX_SWITCH);
 
         zeroed = RobotMap.IS_OASIS || Robot.isSimulation(); // only zero when real // TODO: remove isOasis check after limit switches added
-        if (!zeroed) {
-            setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
-        }
+        // if (!zeroed) {
+        //     setPower(TurretConstants.ZEROING_POWER); // go toward max switch to zero
+        // }
 
         if (Robot.isSimulation()) {
             gearbox = DCMotor.getKrakenX44Foc(1);
@@ -215,9 +218,11 @@ public class Turret extends SubsystemBase {
     @Override
     public void simulationPeriodic() {
         double batteryVoltage = RobotController.getBatteryVoltage();
+        double frictionVoltage = TurretConstants.SIM_FRICTION * turretSim.getVelocityRadPerSec();
         motorSim.setSupplyVoltage(batteryVoltage);
 
-        turretSim.setInputVoltage(motorSim.getMotorVoltage());
+        double motorVoltage = motorSim.getMotorVoltage();
+        turretSim.setInputVoltage(motorVoltage - frictionVoltage);
         turretSim.update(Robot.kDefaultPeriod);
 
         Angle simAngle = Radians.of(turretSim.getAngleRads());
@@ -246,7 +251,7 @@ public class Turret extends SubsystemBase {
      * @param angle sets the angle to the motor of the turret
      */
     public void setAngle(Angle angle) {
-        Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-180), Degrees.of(180));
+        Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-300), Degrees.of(60));
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed) { // only allow position control if turret has been zeroed but store to apply when zeroed

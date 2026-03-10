@@ -18,6 +18,7 @@
 
 package frc.util.shuffleboard;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -288,7 +289,7 @@ public class LightningShuffleboard {
         if(!keyList.containsKey(index)) {
             keyList.put(index, value);
             tab.add(key, value);
-        } else if(!keyList.get(index).equals(value)) {
+        } else if(!Arrays.equals((double[]) keyList.get(index), value)) {
             keyList.put(index, value);
             NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).setDoubleArray(value);
         }
@@ -314,7 +315,7 @@ public class LightningShuffleboard {
         if(!keyList.containsKey(index)) {
             keyList.put(index, value);
             tab.add(key, value);
-        } else if(!keyList.get(index).equals(value)) {
+        } else if(!Arrays.equals((boolean[]) keyList.get(index), value)) {
             keyList.put(index, value);
             NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).setBooleanArray(value);
         }
@@ -340,7 +341,7 @@ public class LightningShuffleboard {
         if(!keyList.containsKey(index)) {
             keyList.put(index, value);
             tab.add(key, value);
-        } else if(!keyList.get(index).equals(value)) {
+        } else if(!Arrays.equals((String[]) keyList.get(index), value)) {
             keyList.put(index, value);
             NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).setStringArray(value);
         }

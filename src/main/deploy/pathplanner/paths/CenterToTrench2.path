@@ -3,25 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.375,
-        "y": 6.0
+        "x": 7.705644444444445,
+        "y": 4.014844444444445
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.375,
-        "y": 6.0
+        "x": 7.705644444444445,
+        "y": 3.0533338969336796
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Trench2-Center"
     },
     {
       "anchor": {
-        "x": 3.25,
-        "y": 4.0
+        "x": 7.363,
+        "y": 1.1225222222222226
       },
       "prevControl": {
-        "x": 2.25,
-        "y": 4.0
+        "x": 8.22106680655123,
+        "y": 1.632264879579389
+      },
+      "nextControl": {
+        "x": 6.345144444444444,
+        "y": 0.5178555555555557
+      },
+      "isLocked": false,
+      "linkedName": "Trench2CenterMidpoint"
+    },
+    {
+      "anchor": {
+        "x": 4.009359430604984,
+        "y": 0.6297153024911029
+      },
+      "prevControl": {
+        "x": 5.145888888888888,
+        "y": 0.6488666666666665
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -89.17842232265802
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

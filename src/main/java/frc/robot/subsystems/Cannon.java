@@ -10,11 +10,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -24,15 +24,20 @@ import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Robot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
+import frc.robot.subsystems.Indexer.IndexerConstants;
+import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.AllianceHelpers;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderMap;
@@ -41,16 +46,12 @@ public class Cannon extends SubsystemBase {
     // ======== CANNON CONSTANTS ========
 
     public class CannonConstants { 
-        public static final Distance SMART_SHOOT_MIN_DISTANCE = Meters.of(1.902d);
+        public static final Distance SMART_SHOOT_MIN_DISTANCE = Inches.of(64);
         public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(3.275), Inches.of(-3.275));
         public static final Transform2d SHOOTER_TRANSFORM = new Transform2d(SHOOTER_TRANSLATION, new Rotation2d());
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
-
-        public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
-        public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
-        public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0),Degrees.of(0), RadiansPerSecond.of(0));//Temp
 
         // TODO: Create the actual map
         public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap();
@@ -58,6 +59,9 @@ public class Cannon extends SubsystemBase {
 
         public static final Distance OTF_TOLERANCE = Inches.of(1.5);
 
+        public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(-40.5), Degrees.of(80), RotationsPerSecond.of(67)); //Temp
+        public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(42), Degrees.of(80), RotationsPerSecond.of(67)); //Temp
+        public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0), Degrees.of(80), RotationsPerSecond.of(53)); //Temp
     }
 
     
@@ -89,6 +93,8 @@ public class Cannon extends SubsystemBase {
         this.drivetrain = drivetrain;
 
         this.indexer = indexer;
+        
+        this.storedTarget = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
 
         this.storedTarget = FieldConstants.GOAL_POSITION;
 
@@ -126,6 +132,8 @@ public class Cannon extends SubsystemBase {
 
         if(!DriverStation.isFMSAttached() || Robot.isSimulation()) {
             LightningShuffleboard.setTranslation2d("Cannon", "Target Position", FieldConstants.getTargetData(getTarget()));
+            LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
+            LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTarget(), new Rotation2d()));
             LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
         }
     }
@@ -216,6 +224,7 @@ public class Cannon extends SubsystemBase {
     public Command createCandShotCommand(CannonConstants.CandShot value) {
         return new ParallelCommandGroup(
             createCannonCommand(value.hoodAngle, value.shooterVelocity),
+            
             indexWhenOnTarget()
         );
         
@@ -228,7 +237,7 @@ public class Cannon extends SubsystemBase {
      */
     public Command createTurretCandShotCommand(CannonConstants.CandShot value) {
       return new ParallelCommandGroup(
-            createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity),
+            createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity).andThen(hood.idle(), shooter.idle()),
             indexWhenOnTarget()
         );
     }
@@ -275,11 +284,11 @@ public class Cannon extends SubsystemBase {
         return shooter.runShootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
         .alongWith(new SequentialCommandGroup(
             new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget() && !isNearHub()),
-            indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER))
+            indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)
         ).finallyDo((end) -> {
-            shooter.setPower(Shooter.ShooterConstants.COAST_DC);
+            shooter.setPower(ShooterConstants.COAST_DC);
             indexer.stop();
-        });
+        }));
     }
 
     public Command shootOTF() {
@@ -329,7 +338,7 @@ public class Cannon extends SubsystemBase {
     public Command indexWhenOnTarget(){
         return new SequentialCommandGroup(
             new WaitUntilCommand(() -> isOnTarget()),
-            indexer.indexCommand(Indexer.IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
+            indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
         );
     }
 

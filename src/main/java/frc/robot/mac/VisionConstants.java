@@ -18,15 +18,15 @@ public class VisionConstants {
 
     // Tolerances for result filtering
     public static final double POSE_AMBIGUITY_TOLERANCE = 1;
-    public static final double TAG_DISTANCE_TOLERANCE = 10;
+    public static final double TAG_DISTANCE_TOLERANCE = 6;
 
     // Carmera constants to store camera name and offsets
     public record CameraConstant(String name, Transform3d offset) {};
     public static final CameraConstant[] CAMERA_CONSTANTS = new CameraConstant[] {
         new CameraConstant("rightCam",
             new Transform3d(
-                Inches.of(0.1),   // forward
-                Inches.of(-12.3),   // LEFT
+                Inches.of(0),   // forward
+                Inches.of(-11.8),   // LEFT
                 Inches.of(7.6),    // up
                 new Rotation3d(
                     0,
@@ -37,9 +37,9 @@ public class VisionConstants {
         ),
         new CameraConstant("shooterCam",
             new Transform3d(
-                Inches.of(12.5),   // forward
-                Inches.of(-7.1), 
-                Inches.of(8.2),    // up
+                Inches.of(11.5),   // forward
+                Inches.of(-11.2), 
+                Inches.of(8.75),    // up
                 new Rotation3d(
                     0,
                     Math.toRadians(-20),  // pitch up
@@ -47,6 +47,18 @@ public class VisionConstants {
                 )
             )
         ),
+        new CameraConstant("leftCam",
+            new Transform3d(
+                Inches.of(7.1),   // forward
+                Inches.of(12.3),   // LEFT
+                Inches.of(8.5),    // up
+                new Rotation3d(
+                    0,
+                    Math.toRadians(-25),  // pitch up
+                    Math.toRadians(90)    // yaw outward (left)
+                )
+            )
+        )
     };
 
 }

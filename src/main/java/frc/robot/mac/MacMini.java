@@ -61,8 +61,6 @@ public class MacMini implements AutoCloseable {
                     // Get the path to a custom field from the home directory
                     Path fieldPath = Path.of(
                         System.getProperty("user.home"),
-                        "Users",
-                        "lightning",
                         "field_layout.json"
                     );
 
