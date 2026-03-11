@@ -70,7 +70,7 @@
     "rotation": 91.86432759193058
   },
   "reversed": false,
-  "folder": null,
+  "folder": "DoubleAutonPaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 87.93618027154307

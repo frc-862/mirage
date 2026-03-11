@@ -64,6 +64,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Climb Autons",
   "choreoAuto": false
 }
