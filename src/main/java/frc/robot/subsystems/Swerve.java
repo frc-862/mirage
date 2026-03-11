@@ -481,7 +481,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
                 var configurator = modules[i].getDriveMotor().getConfigurator();
                 configurator.refresh(config);
-                savedConfigs[i] = config;
+                savedConfigs[i] = config.clone();
 
                 configurator.apply(config
                     .withSupplyCurrentLimit(DriveConstants.SUPPLY_CURRENT_LIMIT)
