@@ -8,6 +8,7 @@ import org.photonvision.EstimatedRobotPose;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -38,6 +39,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.DriveConstants;
@@ -467,5 +469,28 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return autoDrive(() -> MathUtil.clamp(pidX.calculate(getPose().getX(), targetPose.getX()), -1, 1),
         () -> MathUtil.clamp(pidY.calculate(getPose().getY(), targetPose.getY()), -1, 1), 
         () -> pidR.calculate(getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees()));
+    }
+
+    public Command changeDrivetrainSupplyLimits() {
+        var modules = getModules();
+        var savedConfigs = new CurrentLimitsConfigs[modules.length];
+
+        return new StartEndCommand(() -> {
+            for (int i = 0; i < modules.length; i++) {
+                var config = new CurrentLimitsConfigs();
+
+                var configurator = modules[i].getDriveMotor().getConfigurator();
+                configurator.refresh(config);
+                savedConfigs[i] = config;
+
+                configurator.apply(config
+                    .withSupplyCurrentLimit(DriveConstants.SUPPLY_CURRENT_LIMIT)
+                    .withSupplyCurrentLimitEnable(DriveConstants.ENABLE_SUPPLY_CURRENT_LIMIT));
+            }
+        }, () -> {
+            for (int i = 0; i < modules.length; i++) {
+                modules[i].getDriveMotor().getConfigurator().apply(savedConfigs[i]);
+            }
+        });
     }
 }
