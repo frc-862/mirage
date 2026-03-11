@@ -9,7 +9,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -63,7 +62,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     private AtomicReference<Time> macMiniPing;
 
     private static final String MAC_MINI_IP = "10.8.62.11";
-    private static final String RIO_IP = "10.8.62.2";
+    private static final int VISION_PORT = 12345;
 
     /** Creates a new PhotonVision.
      * 
@@ -80,11 +79,9 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         try {
             // Bind to the port
-            socket = new DatagramSocket(12345,InetAddress.getByName(MAC_MINI_IP)); 
+            socket = new DatagramSocket(VISION_PORT); 
         } catch (SocketException e) {
             log("*** ERROR CREATING DATAGRAM SOCKET ***" + e);
-        } catch (UnknownHostException e) {
-            log("***ERROR CREATING SOCKET -- HOST DOES NOT EXIST***");
         }
 
         // Start a separate thread to receive packets
@@ -94,7 +91,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                 try {
                     // Create a new packet to fill with recieved data
                     byte[] receiveData = new byte[40];
-                    var receivePacket = new DatagramPacket(receiveData, receiveData.length, InetAddress.getByName(RIO_IP), 12345);
+                    var receivePacket = new DatagramPacket(receiveData, receiveData.length, VISION_PORT);
                     
                     if (socket != null) {
                         socket.receive(receivePacket);
