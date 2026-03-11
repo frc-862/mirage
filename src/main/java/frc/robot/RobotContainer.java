@@ -201,7 +201,7 @@ public class RobotContainer {
 
         new Trigger(driver::getRightBumperButton).whileTrue(drivetrain.changeDrivetrainSupplyLimits());
     }
-    ;
+    
     private void configureNamedCommands() {
         NamedCommands.registerCommand("LED_SHOOT", leds.enableStateWithTimeout(LED_STATES.SHOOT.id(), 2));
         NamedCommands.registerCommand("LED_COLLECT", leds.enableStateWithTimeout(LED_STATES.COLLECT.id(), 2));
