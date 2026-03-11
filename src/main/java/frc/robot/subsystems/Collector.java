@@ -1,17 +1,6 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import java.util.function.DoubleSupplier;
-
-import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -22,6 +11,15 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -36,6 +34,9 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -46,9 +47,6 @@ import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderUnits;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 public class Collector extends SubsystemBase {
 
     public class CollectorConstants {
@@ -74,6 +72,8 @@ public class Collector extends SubsystemBase {
         // pivot
         public static final boolean PIVOT_INVERTED = true; // temp
         public static final Current PIVOT_STATOR_LIMIT = Amps.of(40); // temp
+        public static final Current PIVOT_SUPPLY_LIMIT = Amps.of(3); // temp
+        public static final boolean PIVOT_SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean PIVOT_BRAKE_MODE = true; // temp
         public static final double ROTOR_TO_ENCODER_RATIO = 1d; // temp
         public static final double ENCODER_TO_MECHANISM_RATIO = 9d * 24d/10d; // temp
@@ -144,6 +144,9 @@ public class Collector extends SubsystemBase {
         config.Slot0.kS = CollectorConstants.PIVOT_KS;
 
         config.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
+
+        config.CurrentLimits.StatorCurrentLimitEnable = CollectorConstants.PIVOT_SUPPLY_LIMIT_ENABLE;
+        config.CurrentLimits.SupplyCurrentLimit = CollectorConstants.PIVOT_SUPPLY_LIMIT.in(Amps);
 
         pivotMotor.applyConfig(config);
 
