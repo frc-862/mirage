@@ -51,7 +51,7 @@
     },
     {
       "waypointRelativePos": 1.0558510638297776,
-      "rotationDegrees": 0.0
+      "rotationDegrees": 89.76164972565039
     }
   ],
   "constraintZones": [],
@@ -67,7 +67,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 1.3971810272963174
+    "rotation": 91.86432759193058
   },
   "reversed": false,
   "folder": null,

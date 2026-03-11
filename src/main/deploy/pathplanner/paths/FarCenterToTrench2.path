@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.7258,
-        "y": 6.9374
+        "x": 7.6552555555555575,
+        "y": 7.108722222222223
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.7258,
-        "y": 5.975889452489235
+        "x": 7.6552555555555575,
+        "y": 6.147211674711458
       },
       "isLocked": false,
       "linkedName": "FarCenterTrench2"
