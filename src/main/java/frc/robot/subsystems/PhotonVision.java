@@ -20,12 +20,17 @@ import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.util.shuffleboard.LightningShuffleboard;
+
+import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Seconds;
 
 public class PhotonVision extends SubsystemBase implements AutoCloseable {
     // Records to store specific groups of data
@@ -53,6 +58,9 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     volatile boolean macMiniIsConnected;
 
     private BooleanLogEntry macConnectedLog;
+    private DoubleLogEntry macPingLog;
+
+    private AtomicReference<Time> macMiniPing;
 
     private static final String MAC_MINI_IP = "10.8.62.11";
     private static final String RIO_IP = "10.8.62.2";
@@ -68,6 +76,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         this.drivetrain = drivetrain;
         pose = new AtomicReference<>(null);
+        macMiniPing = new AtomicReference<>(Seconds.of(0));
 
         try {
             // Bind to the port
@@ -114,9 +123,12 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     InetAddress macMiniAddress = InetAddress.getByName(MAC_MINI_IP);
+                    double startTime = Utils.getCurrentTimeSeconds();
                     macMiniIsConnected = macMiniAddress.isReachable(1000); //timeout in ms
+                    macMiniPing.set(Seconds.of(Utils.getCurrentTimeSeconds() - startTime));
                 } catch (IOException e) {
                     macMiniIsConnected = false;
+                    macMiniPing.set(Seconds.of(0));
                 }
 
                 try {
@@ -137,12 +149,14 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         DataLog log = DataLogManager.getLog();
 
         macConnectedLog = new BooleanLogEntry(log, "/Vision/isMacConnected");
+        macPingLog = new DoubleLogEntry(log, "/Vision/macMiniPing");
     }
     
     @Override
     public void periodic() {
         LightningShuffleboard.setDouble("Vision", "robot_time", Utils.getCurrentTimeSeconds());
         LightningShuffleboard.setBool("Vision", "is Mac Connected", macMiniIsConnected);
+        LightningShuffleboard.setDouble("Vision", "Mac Mini Ping", macMiniPing.get().in(Milliseconds));
 
         VisionInfo updatedPose = pose.getAndSet(null);
         if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
@@ -169,6 +183,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     
     private void updateLogging() {
         macConnectedLog.append(macMiniIsConnected);
+        macPingLog.append(macMiniPing.get().in(Milliseconds));
     }
 
     /**
