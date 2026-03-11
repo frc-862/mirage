@@ -84,6 +84,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             log("*** ERROR CREATING DATAGRAM SOCKET ***" + e);
         }
 
+        this.previousTimeCount = System.currentTimeMillis();
+
         // Start a separate thread to receive packets
         receiveThread = new Thread(() -> {
             // Run while the thread is still valid

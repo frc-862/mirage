@@ -58,7 +58,9 @@ public class Hood extends SubsystemBase {
 
     public class HoodConstants {
         public static final boolean INVERTED = false; // temp
-        public static final Current STATOR_LIMIT = Amps.of(40); // temp
+        public static final Current STATOR_LIMIT = Amps.of(10); // temp
+        public static final Current SUPPLY_LIMIT = Amps.of(4); // temp
+        public static final boolean SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean BRAKE = true; // temp
 
         public static final Angle MIN_ANGLE = Degrees.of(50);
@@ -72,6 +74,7 @@ public class Hood extends SubsystemBase {
                 put(Inches.of(64), Degrees.of(80));
                 put(Inches.of(183), Degrees.of(80));
                 put(Feet.of(23), Degrees.of(66));
+                put(Feet.of(18), Degrees.of(80));
             }
         };
 
@@ -163,6 +166,9 @@ public class Hood extends SubsystemBase {
         motorConfig.Feedback.SensorToMechanismRatio = HoodConstants.ENCODER_TO_MECHANISM_RATIO;
         motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
 
+        motorConfig.CurrentLimits.StatorCurrentLimitEnable = HoodConstants.SUPPLY_LIMIT_ENABLE;
+        motorConfig.CurrentLimits.SupplyCurrentLimit = HoodConstants.SUPPLY_LIMIT.in(Amps);
+
         motor.applyConfig(motorConfig);
 
 
@@ -223,13 +229,13 @@ public class Hood extends SubsystemBase {
 
         if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
             LightningShuffleboard.setDouble("Hood", "Angle", getAngle().in(Degrees));
-            LightningShuffleboard.setBool("Hood", "onTarget", isOnTarget());
             if (hasEncoder()) {
                 LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
             }
             LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
             LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
             LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
+            LightningShuffleboard.setBool("Hood", "Zeroed", isZeroed);
         }
     }
 
@@ -286,7 +292,7 @@ public class Hood extends SubsystemBase {
     }
 
     private void applyControl() {
-        if (!isHoodRetracted && isZeroed) {
+        if (!isHoodRetracted) {
             motor.setControl(request.withPosition(getTargetAngleWithBias()));
         }
     }
@@ -334,7 +340,7 @@ public class Hood extends SubsystemBase {
     }
 
     public boolean isStowed() {
-        return getAngle().isNear(HoodConstants.MIN_ANGLE, HoodConstants.POSITION_TOLERANCE);
+        return getAngle().isNear(HoodConstants.MAX_ANGLE, HoodConstants.POSITION_TOLERANCE);
     }
 
     /**

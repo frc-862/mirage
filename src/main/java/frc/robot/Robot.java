@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -59,8 +60,8 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
 
         if (DriverStation.isFMSAttached()) {
-            totalCurrentEntry.append(getContainer().pdh.getTotalCurrent());
-            voltageEntry.append(getContainer().pdh.getVoltage());
+            totalCurrentEntry.append(RobotController.getInputCurrent());
+            voltageEntry.append(RobotController.getBatteryVoltage());
         } else {
             // LightningShuffleboard.setDouble("PDH", "Total Current", getContainer().pdh.getTotalCurrent());
             // LightningShuffleboard.setDouble("PDH", "Voltage", getContainer().pdh.getVoltage());

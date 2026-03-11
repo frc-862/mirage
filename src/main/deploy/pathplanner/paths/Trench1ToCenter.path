@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.2980427046263348,
+        "x": 4.977081850533811,
         "y": 7.440284697508897
       },
       "isLocked": false,
@@ -16,24 +16,40 @@
     },
     {
       "anchor": {
-        "x": 0.7620555555555557,
-        "y": 5.980011111111112
+        "x": 6.909500000000001,
+        "y": 7.197871794871795
       },
       "prevControl": {
-        "x": 4.775234677738237,
-        "y": 5.947733531039938
+        "x": 5.996482638578922,
+        "y": 7.35982755204304
+      },
+      "nextControl": {
+        "x": 7.756033333333337,
+        "y": 7.04770931958512
+      },
+      "isLocked": false,
+      "linkedName": "Trench1CenterMidpoint"
+    },
+    {
+      "anchor": {
+        "x": 7.705644444444445,
+        "y": 4.014844444444445
+      },
+      "prevControl": {
+        "x": 7.705644444444445,
+        "y": 5.294880917545556
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": "Trench1-Center"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.0,
-      "maxWaypointRelativePos": 0.9197819314641785,
+      "minWaypointRelativePos": 1.1216341689879283,
+      "maxWaypointRelativePos": 1.9387186629526516,
       "constraints": {
         "maxVelocity": 1.5,
         "maxAcceleration": 1.5,
@@ -56,7 +72,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 87.93618027154307
   },
   "reversed": false,
   "folder": null,

@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.977081850533809,
-        "y": 7.440284697508897
+        "x": 4.009359430604984,
+        "y": 0.6297153024911029
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.9220759193357067,
-        "y": 7.36497034400949
+        "x": 5.009359430604986,
+        "y": 0.6297153024911029
       },
       "isLocked": false,
-      "linkedName": "Trench1-NoShoot"
+      "linkedName": "Trench2-NoShoot"
     },
     {
       "anchor": {
-        "x": 1.6589777777777779,
-        "y": 4.045077777777778
+        "x": 6.804846153846155,
+        "y": 0.9767820512820515
       },
       "prevControl": {
-        "x": 3.283615974693556,
-        "y": 6.691839343614077
+        "x": 5.978468376068378,
+        "y": 0.513204273504273
+      },
+      "nextControl": {
+        "x": 7.604264185313243,
+        "y": 1.4252360689343204
+      },
+      "isLocked": false,
+      "linkedName": "Trench2CenterMidpoint"
+    },
+    {
+      "anchor": {
+        "x": 7.705644444444445,
+        "y": 4.014844444444445
+      },
+      "prevControl": {
+        "x": 7.705644444444445,
+        "y": 2.7651999999999997
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ClimbRight"
+      "linkedName": "Trench2-Center"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 91.21644110277144
+    "rotation": -90.27273191134147
   },
   "useDefaultConstraints": true
 }

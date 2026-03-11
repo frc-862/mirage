@@ -1,17 +1,6 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import java.util.function.DoubleSupplier;
-
-import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -22,6 +11,15 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -36,26 +34,29 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderUnits;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 public class Collector extends SubsystemBase {
 
     public class CollectorConstants {
         // Collector Rollers
-        public static final boolean INVERTED = false; // temp
+        public static final boolean INVERTED = true; // temp
         public static final Current STATOR_LIMIT = Amps.of(80); // temp
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean BRAKE = true; // temp
-        public static final double COLLECT_POWER = 1d;
+        public static final double COLLECT_POWER = 0.8d;
+        public static final double COLLECT_MULT = 0.6d;
 
         public static final MomentOfInertia COLLECTOR_MOI = KilogramSquareMeters.of(0.001); //temp 
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
@@ -71,12 +72,14 @@ public class Collector extends SubsystemBase {
         // pivot
         public static final boolean PIVOT_INVERTED = true; // temp
         public static final Current PIVOT_STATOR_LIMIT = Amps.of(40); // temp
+        public static final Current PIVOT_SUPPLY_LIMIT = Amps.of(3); // temp
+        public static final boolean PIVOT_SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean PIVOT_BRAKE_MODE = true; // temp
         public static final double ROTOR_TO_ENCODER_RATIO = 1d; // temp
         public static final double ENCODER_TO_MECHANISM_RATIO = 9d * 24d/10d; // temp
         public static final Angle MIN_ANGLE = Rotations.of(0);
         public static final Angle MAX_ANGLE = Rotations.of(0.35);
-        public static final Angle NEUTRAL_ANGLE = Rotations.of(0.22);
+        public static final Angle NEUTRAL_ANGLE = Rotations.of(0.25);
         public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
         public static final Angle STOW_ANGLE = MIN_ANGLE;
         public static final Angle TOLERANCE = Rotations.of(0.05);
@@ -142,6 +145,9 @@ public class Collector extends SubsystemBase {
 
         config.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
 
+        config.CurrentLimits.StatorCurrentLimitEnable = CollectorConstants.PIVOT_SUPPLY_LIMIT_ENABLE;
+        config.CurrentLimits.SupplyCurrentLimit = CollectorConstants.PIVOT_SUPPLY_LIMIT.in(Amps);
+
         pivotMotor.applyConfig(config);
 
         if(Robot.isSimulation()){
@@ -160,7 +166,7 @@ public class Collector extends SubsystemBase {
             collectorGearbox = DCMotor.getKrakenX60(1);
             collectorSim = new DCMotorSim(
                 LinearSystemId.createDCMotorSystem(collectorGearbox, CollectorConstants.COLLECTOR_MOI.magnitude(), CollectorConstants.COLLECTOR_GEAR_RATIO),
-                collectorGearbox
+                collectorGearbox 
             );
 
             collectorMotorSim = collectorMotor.getSimState();
@@ -219,8 +225,7 @@ public class Collector extends SubsystemBase {
             LightningShuffleboard.setDouble("Collector", "Pivot Target Rotations", getTargetPivotAngle().in(Rotations));
             LightningShuffleboard.setBool("Collector", "Pivot On Target", pivotOnTarget());
             LightningShuffleboard.setDouble("Collector", "Collector Velocity", getCollectorVelocity().in(RotationsPerSecond));
-            LightningShuffleboard.setBool("Collector", "Pivot Zeroed", pivotZeroed);
-            LightningShuffleboard.setDouble("Collector", "Pivot Timer", zeroingTimer.get());
+            // LightningShuffleboard.setBool("Collector", "Pivot Zeroed", pivotZeroed);
         }
     }
 
@@ -343,7 +348,7 @@ public class Collector extends SubsystemBase {
     }
 
     public Command deployPivotCommand() {
-        return runOnce(() -> deployPivot());
+        return new StartEndCommand(() -> deployPivot(), () -> {}, this);
     }
 
     public Command stowPivotCommand() {
@@ -368,4 +373,9 @@ public class Collector extends SubsystemBase {
             this
         );
     }
-}
+
+    public Command runCollectorWheels(DoubleSupplier power){
+        return new InstantCommand(() -> setCollectorPower(power.getAsDouble()));
+    }
+    }
+
