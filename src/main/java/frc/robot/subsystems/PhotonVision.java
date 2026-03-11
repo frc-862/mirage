@@ -83,9 +83,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         } catch (SocketException e) {
             log("*** ERROR CREATING DATAGRAM SOCKET ***" + e);
         }
-
-        this.previousTimeCount = System.currentTimeMillis();
-
+        
         // Start a separate thread to receive packets
         receiveThread = new Thread(() -> {
             // Run while the thread is still valid
@@ -93,7 +91,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                 try {
                     // Create a new packet to fill with recieved data
                     byte[] receiveData = new byte[40];
-                    var receivePacket = new DatagramPacket(receiveData, receiveData.length, VISION_PORT);
+                    var receivePacket = new DatagramPacket(receiveData, receiveData.length);
                     
                     if (socket != null) {
                         socket.receive(receivePacket);
@@ -133,7 +131,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    log("Error sleeping: " + e.getMessage());
+                    Thread.currentThread().interrupt();
                 }
             }
         });
