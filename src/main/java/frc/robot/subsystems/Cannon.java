@@ -23,13 +23,10 @@ import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Robot;
@@ -227,10 +224,15 @@ public class Cannon extends SubsystemBase {
      */
     public Command createCandShotCommand(CannonConstants.CandShot value) {
         return new ParallelCommandGroup(
-            createCannonCommand(value.hoodAngle, value.shooterVelocity),
+            createCannonCommand(value.hoodAngle, value.shooterVelocity).andThen(hood.idle(), shooter.idle()),
             
             indexWhenOnTarget()
-        );
+        ).handleInterrupt(() -> {
+            shooter.stop();
+            turret.stop();
+            hood.stop();
+            indexer.stop();
+        });
         
     }
 

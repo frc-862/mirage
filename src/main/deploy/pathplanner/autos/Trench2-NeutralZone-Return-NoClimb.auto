@@ -37,9 +37,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "CenterToTrench2"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "DEPLOY_COLLECTOR"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CenterToTrench2"
+                }
+              }
+            ]
           }
         },
         {
@@ -66,12 +79,6 @@
                       "type": "named",
                       "data": {
                         "name": "STOW_COLLECTOR"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "COLLECTOR_WHEELS"
                       }
                     }
                   ]
