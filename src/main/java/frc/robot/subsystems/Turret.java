@@ -363,14 +363,14 @@ public class Turret extends SubsystemBase {
         setAngle(turretAngle);
     }
 
-    public Command turretAimCommand(Supplier<Pose2d> turretPose, Target target) {
-        return run(() -> turretAim(turretPose.get(), target));
+    public Command turretAimCommand(Supplier<Pose2d> turretPose, Supplier<Target> target) {
+        return run(() -> turretAim(turretPose.get(), target.get()));
     }
 
     public Command turretAimCommand(Cannon cannon) {
         return turretAimCommand(
-            () -> new Pose2d(cannon.getShooterTranslation(), new Rotation2d()),
-            cannon.getTarget()
+            () -> new Pose2d(cannon.getShooterTranslation(), drivetrain.getPose().getRotation()),
+            () -> cannon.getTarget()
         );
     }
 

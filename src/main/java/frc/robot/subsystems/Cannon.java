@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -14,6 +12,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -54,7 +53,12 @@ public class Cannon extends SubsystemBase {
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
         // TODO: Create the actual map
-        public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap();
+        public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap<Distance, Time>() {{
+            put(Inches.of(18.78*12), Seconds.of(35/30));
+            put(Inches.of(64), Seconds.of(27/30));
+            put(Inches.of(142), Seconds.of(0.86));
+        }};
+
         public static final int MAX_OTF_ITERATIONS = 10;
 
         public static final Distance OTF_TOLERANCE = Inches.of(1.5);
@@ -94,7 +98,7 @@ public class Cannon extends SubsystemBase {
 
         this.indexer = indexer;
         
-        this.storedTarget = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
+        this.storedTarget = FieldConstants.GOAL_POSITION;
 
         this.storedTarget = FieldConstants.GOAL_POSITION;
 
@@ -132,8 +136,8 @@ public class Cannon extends SubsystemBase {
 
         if(!DriverStation.isFMSAttached() || Robot.isSimulation()) {
             LightningShuffleboard.setTranslation2d("Cannon", "Target Position", FieldConstants.getTargetData(getTarget()));
-            LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
-            LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTarget(), new Rotation2d()));
+            // LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
+            LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTargetTranslation(), new Rotation2d()));
             LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
         }
     }
@@ -285,12 +289,17 @@ public class Cannon extends SubsystemBase {
         .alongWith(new SequentialCommandGroup(
             new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget() && !isNearHub()),
             indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)
-        ).finallyDo((end) -> {
+        )
+        .finallyDo((end) -> {
             shooter.setPower(ShooterConstants.COAST_DC);
             indexer.stop();
         }));
     }
 
+    /**
+     * YAY
+     * @return DA OTFFF
+     */
     public Command shootOTF() {
         return new RunCommand(() -> {    
             Time tof;
@@ -318,15 +327,15 @@ public class Cannon extends SubsystemBase {
 
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
-            turret.turretAim(futurePose, getTarget());
-      }, turret, shooter, hood);
+            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget());
+      }, turret, shooter, hood).alongWith(indexWhenOnTarget());
     }
 
     /**
      * finds the distance between shooter and hub and calculates if it is nearby.
      * @return if the distance of shooter on the field and the hub is less than 1
      */
-    public boolean isNearHub(){
+    public boolean isNearHub() {
           Distance distance = Meters.of(this.getShooterTranslation().getDistance(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
           return distance.lt(CannonConstants.SMART_SHOOT_MIN_DISTANCE);
     }

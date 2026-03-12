@@ -11,6 +11,8 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Degrees;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -131,7 +133,7 @@ public class RobotContainer {
         // new Trigger(driver::getYButton).whileTrue(turret.zero());
         
         // TODO: Bind OTF to LB and Climb AA to RB
-        new Trigger(copilot::getLeftBumperButton).whileTrue(cannon.shootOTF());
+        new Trigger(driver::getLeftBumperButton).whileTrue(cannon.shootOTF());
 
         // change biases for the driver
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
@@ -180,14 +182,14 @@ public class RobotContainer {
         //RIGHT_, LEFT_, and MIDDLE_ are all set to 0, so temp shots wont work right now
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_RIGHT).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT).deadlineFor(rumble()));
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT).deadlineFor(rumble()));
-        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT).deadlineFor(rumble()));
+        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT).deadlineFor(rumble()));
 
-        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
-        //     shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
-        //     .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
-        //     .andThen(indexer.indexCommand(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
-        //     () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
-        //     .finallyDo(shooter::stop));
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(
+            shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
+            .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
+            .andThen(indexer.autoIndex(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
+            () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
+            .finallyDo(shooter::stop));
 
         // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(hood.hoodCommand(() -> 
         //     Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
@@ -195,7 +197,7 @@ public class RobotContainer {
         new Trigger(() -> (hood.isOnTarget() && shooter.isOnTarget() && !turret.isOnTarget()))
         .whileTrue(new StartEndCommand(() -> copilot.setRumble(GenericHID.RumbleType.kBothRumble, 1d), () -> copilot.setRumble(GenericHID.RumbleType.kBothRumble, 0d)));
 
-        new Trigger(() -> DriverStation.isEnabled()).onTrue(hood.zeroCommand());
+        // new Trigger(() -> DriverStation.isEnabled()).onTrue(hood.zeroCommand());
     }
     
     private void configureNamedCommands() {
@@ -244,7 +246,7 @@ public class RobotContainer {
         leds.setBehavior(LED_STATES.CANNED_SHOT_READY.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREEN));
         leds.setBehavior(LED_STATES.NEAR_HUB.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 3, Color.RED));
 
-        new Trigger(hood::isStowed).whileTrue(leds.enableState(LED_STATES.HOOD_STOWED.id()));
+        // new Trigger(hood::isStowed).whileTrue(leds.enableState(LED_STATES.HOOD_STOWED.id()));
 
         new Trigger(() -> !turret.getZeroed() && DriverStation.isDisabled()).whileTrue(leds.enableState(LED_STATES.TURRET_BAD.id()));
 
