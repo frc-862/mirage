@@ -43,8 +43,8 @@ public class Cannon extends SubsystemBase {
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
-        public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(-40.5), Degrees.of(80), RotationsPerSecond.of(67)); //Temp
-        public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(42), Degrees.of(80), RotationsPerSecond.of(67)); //Temp
+        public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
+        public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
         public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0), Degrees.of(80), RotationsPerSecond.of(53)); //Temp
     }
 
