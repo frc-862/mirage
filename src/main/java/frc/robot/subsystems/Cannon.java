@@ -57,11 +57,10 @@ public class Cannon extends SubsystemBase {
         }};
 
         public static final int MAX_OTF_ITERATIONS = 10;
-
         public static final Distance OTF_TOLERANCE = Inches.of(1.5);
-
-        public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(-40.5), Degrees.of(80), RotationsPerSecond.of(67)); //Temp
-        public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(42), Degrees.of(80), RotationsPerSecond.of(67)); //Temp
+      
+        public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
+        public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
         public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0), Degrees.of(80), RotationsPerSecond.of(53)); //Temp
     }
 
