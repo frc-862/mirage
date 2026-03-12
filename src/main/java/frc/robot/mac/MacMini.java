@@ -91,9 +91,9 @@ public class MacMini implements AutoCloseable {
                     Pose2d poseToPublish = info.pose().estimatedPose.toPose2d();
                     double ambiguity = info.result().getBestTarget().poseAmbiguity;
                     double timestamp = info.result().getTimestampSeconds();
-
+                    double tagCount = info.result().getTargets().size();
                     try {
-                        DatagramPacket packet = getBinaryPacket(poseToPublish, ambiguity, timestamp);
+                        DatagramPacket packet = getBinaryPacket(poseToPublish, ambiguity, timestamp, tagCount);
                         socket.send(packet);
                          
                     } catch (IOException e) {
@@ -242,8 +242,8 @@ public class MacMini implements AutoCloseable {
             System.out.println("[PHOTON VISION]" + message);
         }
 
-        private DatagramPacket getBinaryPacket(Pose2d pose, double ambiguity, double timestamp) throws IllegalArgumentException, UnknownHostException {
-            ByteBuffer buffer = ByteBuffer.allocate(40);
+        private DatagramPacket getBinaryPacket(Pose2d pose, double ambiguity, double timestamp, double tagCount) throws IllegalArgumentException, UnknownHostException {
+            ByteBuffer buffer = ByteBuffer.allocate(48);
 
             // Add our data to the buffer
             buffer.putDouble(pose.getX());
@@ -251,6 +251,7 @@ public class MacMini implements AutoCloseable {
             buffer.putDouble(pose.getRotation().getRadians());
             buffer.putDouble(ambiguity);
             buffer.putDouble(timestamp);
+            buffer.putDouble(tagCount);
 
             byte[] data = buffer.array();
             return new DatagramPacket(data, data.length, InetAddress.getByName("10.8.62.2"), 12345);

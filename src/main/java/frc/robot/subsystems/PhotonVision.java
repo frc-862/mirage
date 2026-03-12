@@ -33,7 +33,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 public class PhotonVision extends SubsystemBase implements AutoCloseable {
     // Records to store specific groups of data
-    private record VisionInfo(double timestamp, double ambiguity, Pose2d pose) {};
+    private record VisionInfo(double timestamp, double ambiguity, double tagCount, Pose2d pose) {};
 
     // The drivetrain to add vision measurments
     Swerve drivetrain;
@@ -206,11 +206,16 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         double rotRadians = buffer.getDouble();
         double ambiguity = buffer.getDouble();
         double timestamp = buffer.getDouble();
+        double tagCount = buffer.getDouble();
 
         // Construct a new pose using the unpacked data
         Pose2d newPose = new Pose2d(x, y, new Rotation2d(rotRadians));
         
-        return new VisionInfo(timestamp, ambiguity, newPose);
+        return new VisionInfo(timestamp, ambiguity, tagCount, newPose);
+    }
+
+    public double getStandardDeviation(double tagCount, double ambiguity) {
+        return Math.min(1, (ambiguity) / Math.pow(tagCount, 3));
     }
 
     public boolean getMacMiniConnection() {
