@@ -55,7 +55,7 @@ public class Cannon extends SubsystemBase {
         // TODO: Create the actual map
         public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap<Distance, Time>() {{
             put(Inches.of(18.78*12), Seconds.of(35/30));
-            put(Inches.of(64), Seconds.of(27/30));
+            put(Inches.of(64), Seconds.of(24/30));
             put(Inches.of(142), Seconds.of(0.86));
         }};
 
@@ -168,7 +168,7 @@ public class Cannon extends SubsystemBase {
     }
 
     /**
-     * Gets the current target's translation according to the alliance
+     * Gets the current target's translati on according to the alliance
      * @return The translation
     */
     public Translation2d getTargetTranslation() {
@@ -328,7 +328,9 @@ public class Cannon extends SubsystemBase {
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
             turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget());
-      }, turret, shooter, hood).alongWith(indexWhenOnTarget());
+      }, turret, shooter, hood)
+      .alongWith(indexWhenOnTarget());
+      //.alongWith(drivetrain.setSlowMode();
     }
 
     /**
