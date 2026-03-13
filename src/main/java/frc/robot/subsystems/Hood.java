@@ -226,6 +226,8 @@ public class Hood extends SubsystemBase {
             } else if (zeroingTimer.hasElapsed(0.2)) {
                 motor.setPosition(HoodConstants.MAX_ANGLE);
                 hoodZeroed = true;
+                motor.stopMotor();
+                setPosition(targetAngle);
                 zeroingTimer.stop();
             }
         }
@@ -384,7 +386,9 @@ public class Hood extends SubsystemBase {
      */
     public Command retract() {
         return startEnd(() -> {
-            motor.setControl(request.withPosition(HoodConstants.MAX_ANGLE));
+            if (hoodZeroed) {
+                motor.setControl(request.withPosition(HoodConstants.MAX_ANGLE));
+            }
             isHoodRetracted = true;
         }, () -> {
             isHoodRetracted = false;
