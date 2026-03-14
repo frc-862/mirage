@@ -20,12 +20,12 @@
         "y": 0.9612777777777775
       },
       "prevControl": {
-        "x": 8.030811373895528,
-        "y": 1.2969604113118947
+        "x": 8.020332649993495,
+        "y": 1.3249688147317544
       },
       "nextControl": {
-        "x": 5.962188888888889,
-        "y": 0.5581666666666651
+        "x": 6.163744444444445,
+        "y": 0.5984777777777767
       },
       "isLocked": false,
       "linkedName": "Trench2CenterMidpoint"
@@ -51,7 +51,7 @@
     },
     {
       "waypointRelativePos": 1.10059171597633,
-      "rotationDegrees": 180.0
+      "rotationDegrees": -89.9442645850051
     }
   ],
   "constraintZones": [
@@ -94,7 +94,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 178.06416208836316
+    "rotation": -89.11283692900918
   },
   "reversed": false,
   "folder": "DoubleAutonPaths",
