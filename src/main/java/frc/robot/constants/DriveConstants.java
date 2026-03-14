@@ -103,4 +103,6 @@ public class DriveConstants {
     public static final int DPAD_RIGHT = 90;
     public static final int DPAD_DOWN = 180;
     public static final int DPAD_LEFT = 270;
+    public static final int SUPPLY_CURRENT_LIMIT = 10;
+    public static final boolean ENABLE_SUPPLY_CURRENT_LIMIT = true;
 }

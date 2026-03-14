@@ -41,13 +41,13 @@ import frc.robot.subsystems.MapleSim;
 import frc.robot.subsystems.PhotonVision;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.ShooterConstants;
-import frc.robot.subsystems.Turret.TurretConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Turret.TurretConstants;
 import frc.util.leds.Color;
-import frc.util.leds.LEDBooleanSupplier;
 import frc.util.leds.LEDBehaviorFactory;
+import frc.util.leds.LEDBooleanSupplier;
 import frc.util.leds.LEDSubsystem;
 import frc.util.shuffleboard.LightningShuffleboard;
 
@@ -199,6 +199,8 @@ public class RobotContainer {
         new Trigger(copilot::getAButton).whileTrue(indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)).onFalse(new InstantCommand(() -> indexer.stop()));
 
         new Trigger(() -> Math.abs(copilot.getLeftTriggerAxis()) > DriveConstants.JOYSTICK_DEADBAND).whileTrue(indexer.transferCommand(() -> copilot.getLeftTriggerAxis())).onFalse(new InstantCommand(() -> indexer.stopTransfer()));
+
+        new Trigger(driver::getRightBumperButton).whileTrue(drivetrain.changeDrivetrainSupplyLimits());
     }
     
     private void configureNamedCommands() {

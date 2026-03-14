@@ -9,7 +9,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -20,11 +19,17 @@ import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.util.shuffleboard.LightningShuffleboard;
+
+import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Seconds;
 
 public class PhotonVision extends SubsystemBase implements AutoCloseable {
     // Records to store specific groups of data
@@ -51,8 +56,13 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     //Shows whether the mac mini is connected or not
     volatile boolean macMiniIsConnected;
 
-    double previousTimeCount = 0;
-    double packetsCount = 0;
+    private BooleanLogEntry macConnectedLog;
+    private DoubleLogEntry macPingLog;
+
+    private AtomicReference<Time> macMiniPing;
+
+    private static final String MAC_MINI_IP = "10.8.62.11";
+    private static final int VISION_PORT = 12345;
 
     /** Creates a new PhotonVision.
      * 
@@ -65,18 +75,15 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         this.drivetrain = drivetrain;
         pose = new AtomicReference<>(null);
+        macMiniPing = new AtomicReference<>(Seconds.of(0));
 
         try {
             // Bind to the port
-            socket = new DatagramSocket(12345,InetAddress.getByName("10.8.62.2")); 
+            socket = new DatagramSocket(VISION_PORT); 
         } catch (SocketException e) {
             log("*** ERROR CREATING DATAGRAM SOCKET ***" + e);
-        } catch (UnknownHostException e) {
-            log("***ERROR CREATING SOCKET -- HOST DOES NOT EXIST***");
         }
-
-        this.previousTimeCount = System.currentTimeMillis();
-
+        
         // Start a separate thread to receive packets
         receiveThread = new Thread(() -> {
             // Run while the thread is still valid
@@ -84,7 +91,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                 try {
                     // Create a new packet to fill with recieved data
                     byte[] receiveData = new byte[40];
-                    var receivePacket = new DatagramPacket(receiveData, receiveData.length, InetAddress.getByName("10.8.62.2"), 12345);
+                    var receivePacket = new DatagramPacket(receiveData, receiveData.length);
                     
                     if (socket != null) {
                         socket.receive(receivePacket);
@@ -111,30 +118,42 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         reachableThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
-                if (DriverStation.isDisabled()) {
-                    try {
-                        InetAddress macMiniAddress = InetAddress.getByName("10.8.62.11");
-                        macMiniIsConnected = macMiniAddress.isReachable(1000); //timeout in ms
-                    } catch (IOException e) {
-                        macMiniIsConnected = false;
-                    }
+                try {
+                    InetAddress macMiniAddress = InetAddress.getByName(MAC_MINI_IP);
+                    double startTime = Utils.getCurrentTimeSeconds();
+                    macMiniIsConnected = macMiniAddress.isReachable(1000); //timeout in ms
+                    macMiniPing.set(Seconds.of(Utils.getCurrentTimeSeconds() - startTime));
+                } catch (IOException e) {
+                    macMiniIsConnected = false;
+                    macMiniPing.set(Seconds.of(0));
                 }
 
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    log("Error sleeping: " + e.getMessage());
+                    Thread.currentThread().interrupt();
                 }
             }
         });
 
         reachableThread.setDaemon(true);
         reachableThread.start();
+
+        initLogging();
+    }
+
+    private void initLogging() {
+        DataLog log = DataLogManager.getLog();
+
+        macConnectedLog = new BooleanLogEntry(log, "/Vision/isMacConnected");
+        macPingLog = new DoubleLogEntry(log, "/Vision/macMiniPing");
     }
     
     @Override
     public void periodic() {
         LightningShuffleboard.setDouble("Vision", "robot_time", Utils.getCurrentTimeSeconds());
+        LightningShuffleboard.setBool("Vision", "is Mac Connected", macMiniIsConnected);
+        LightningShuffleboard.setDouble("Vision", "Mac Mini Ping", macMiniPing.get().in(Milliseconds));
 
         VisionInfo updatedPose = pose.getAndSet(null);
         if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
@@ -156,6 +175,12 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                 VecBuilder.fill(trust, trust, trust)
             );
         }     
+        updateLogging();
+    }
+    
+    private void updateLogging() {
+        macConnectedLog.append(macMiniIsConnected);
+        macPingLog.append(macMiniPing.get().in(Milliseconds));
     }
 
     /**
