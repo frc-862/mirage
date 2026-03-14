@@ -74,10 +74,11 @@ public class Shooter extends SubsystemBase {
         // Input is distance to target in meters, output is shooter speed in rotations per second
         public static final ThunderMap<Distance, AngularVelocity> VELOCITY_MAP = new ThunderMap<>() {
             {
-                put(Inches.of(64), RotationsPerSecond.of(42.5));
-                put(Inches.of(183), RotationsPerSecond.of(65));
-                put(Feet.of(23), RotationsPerSecond.of(79));
-                put(Feet.of(18), RotationsPerSecond.of(70));
+                put(Inches.of(18.78*12), RotationsPerSecond.of(65));
+                put(Inches.of(64), RotationsPerSecond.of(43));
+                put(Inches.of(142), RotationsPerSecond.of(55));
+                // put(Inches.of(183), RotationsPerSecond.of(65));
+                // put(Feet.of(23), RotationsPerSecond.of(79));
             }
         };
 
