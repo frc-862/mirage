@@ -1,0 +1,107 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.705644444444445,
+        "y": 4.014844444444445
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.723474358974359,
+        "y": 5.546666666666668
+      },
+      "isLocked": false,
+      "linkedName": "Trench1-Center"
+    },
+    {
+      "anchor": {
+        "x": 5.339692307692308,
+        "y": 5.37224358974359
+      },
+      "prevControl": {
+        "x": 6.899656823983518,
+        "y": 5.350116433484141
+      },
+      "nextControl": {
+        "x": 3.7001153846153843,
+        "y": 5.395499999999999
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.4675000000000014,
+        "y": 6.290871794871796
+      },
+      "prevControl": {
+        "x": 2.076701836043038,
+        "y": 4.737407112962053
+      },
+      "nextControl": {
+        "x": 1.0023717948717958,
+        "y": 7.476948717948719
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.977081850533809,
+        "y": 7.440284697508897
+      },
+      "prevControl": {
+        "x": 2.977081850533809,
+        "y": 7.440284697508897
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Trench1-NoShoot"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.388704318936865,
+      "maxWaypointRelativePos": 2.897009966777434,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "OTF_SHOOT",
+      "waypointRelativePos": 1.4086378737541352,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 91.21644110277144
+  },
+  "reversed": false,
+  "folder": "OTF Auton Paths",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 89.47973480339594
+  },
+  "useDefaultConstraints": false
+}
