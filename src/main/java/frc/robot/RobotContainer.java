@@ -9,8 +9,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
-
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -166,8 +164,6 @@ public class RobotContainer {
         new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot()
             .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER * CollectorConstants.COLLECT_MULT))
             .deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
-
-        new Trigger(() -> copilot.getYButton()).whileTrue(hood.hoodCommand(Degrees.of(50)));
 
         new Trigger(copilot::getStartButton).whileTrue(collector.stowPivotCommand());
     
