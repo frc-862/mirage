@@ -3,16 +3,48 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.705644444444445,
-        "y": 4.014844444444445
+        "x": 4.009359430604984,
+        "y": 0.6297153024911029
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.682391550697043,
-        "y": 1.805485433072386
+        "x": 8.630474358974359,
+        "y": 0.24420512820512835
       },
       "isLocked": false,
-      "linkedName": "Trench2-Center"
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.705644444444445,
+        "y": 4.014844444444445
+      },
+      "prevControl": {
+        "x": 7.917495758224412,
+        "y": 3.0818280419751414
+      },
+      "nextControl": {
+        "x": 7.479282051282052,
+        "y": 5.011769230769231
+      },
+      "isLocked": false,
+      "linkedName": "Trench1-Center"
+    },
+    {
+      "anchor": {
+        "x": 4.618743589743591,
+        "y": 2.534961538461539
+      },
+      "prevControl": {
+        "x": 6.642051282051283,
+        "y": 2.2675128205128217
+      },
+      "nextControl": {
+        "x": 3.1986040477231725,
+        "y": 2.722681133096421
+      },
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -36,12 +68,12 @@
         "y": 0.6297153024911029
       },
       "prevControl": {
-        "x": 0.40901540485618915,
-        "y": 0.6937945137969044
+        "x": 0.41234610307271335,
+        "y": 0.750996797984139
       },
       "nextControl": {
-        "x": 3.7815128205128214,
-        "y": 0.558166666666666
+        "x": 3.3977820512820527,
+        "y": 0.5232820512820513
       },
       "isLocked": false,
       "linkedName": null
@@ -64,8 +96,8 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.79734219269103,
-      "maxWaypointRelativePos": 2.372093023255789,
+      "minWaypointRelativePos": 2.2,
+      "maxWaypointRelativePos": 4.372093023255789,
       "constraints": {
         "maxVelocity": 1.5,
         "maxAcceleration": 1.5,
@@ -79,8 +111,20 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "COLLECT",
+      "waypointRelativePos": 0.22148394241417751,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
       "name": "OTF_SHOOT",
-      "waypointRelativePos": 0.8172757475083026,
+      "waypointRelativePos": 2.3,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "STOW_COLLECTOR",
+      "waypointRelativePos": 4.053156146179419,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -101,7 +145,7 @@
   "folder": "OTF Auton Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -90.27273191134147
   },
   "useDefaultConstraints": false
 }
