@@ -6,6 +6,8 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 
 public class VisionConstants {
@@ -29,33 +31,33 @@ public class VisionConstants {
                 Inches.of(-11.8),   // LEFT
                 Inches.of(7.6),    // up
                 new Rotation3d(
-                    0,
-                    Math.toRadians(-25),  // pitch up
-                    Math.toRadians(-90)    // yaw outward (left)
+                    Degrees.of(-15),
+                    Degrees.of(90),  // pitch up
+                    Degrees.of(-90)    // yaw outward (left)
                 )
             )
         ),
         new CameraConstant("shooterCam",
             new Transform3d(
-                Inches.of(11.5),   // forward
-                Inches.of(-11.2), 
-                Inches.of(8.75),    // up
+                Inches.of(12),   // forward
+                Inches.of(-10.75), 
+                Inches.of(8.5),    // up
                 new Rotation3d(
-                    0,
-                    Math.toRadians(-20),  // pitch up
-                   0    // yaw outward (left)
+                    Degrees.of(180),
+                    Degrees.of(-15),  // pitch up
+                    Degrees.of(0)    // yaw outward (left)
                 )
             )
         ),
         new CameraConstant("leftCam",
             new Transform3d(
-                Inches.of(7.1),   // forward
-                Inches.of(12.3),   // LEFT
+                Inches.of(7.75),   // forward
+                Inches.of(12.5),   // LEFT
                 Inches.of(8.5),    // up
                 new Rotation3d(
-                    0,
-                    Math.toRadians(-25),  // pitch up
-                    Math.toRadians(90)    // yaw outward (left)
+                    Degrees.of(15),
+                    Degrees.of(0),  // pitch up
+                    Degrees.of(90)    // yaw outward (left)
                 )
             )
         )
