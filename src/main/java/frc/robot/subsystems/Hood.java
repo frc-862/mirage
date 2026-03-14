@@ -99,7 +99,7 @@ public class Hood extends SubsystemBase {
         public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
 
 
-        public static final DutyCycleOut HOOD_ZEROING_DC = new DutyCycleOut(0.1);
+        public static final DutyCycleOut HOOD_ZEROING_DC = new DutyCycleOut(0.2);
     }
 
     private ThunderBird motor;
@@ -223,7 +223,7 @@ public class Hood extends SubsystemBase {
                 motor.setControl(HoodConstants.HOOD_ZEROING_DC);
             } else if (!motor.getVelocity().getValue().isNear(RotationsPerSecond.zero(), RotationsPerSecond.of(0.1))) {
                 zeroingTimer.restart();
-            } else if (zeroingTimer.hasElapsed(0.2)) {
+            } else if (zeroingTimer.hasElapsed(0.5)) {
                 motor.setPosition(HoodConstants.MAX_ANGLE);
                 hoodZeroed = true;
                 motor.stopMotor();
