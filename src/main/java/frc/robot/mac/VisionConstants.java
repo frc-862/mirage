@@ -31,7 +31,7 @@ public class VisionConstants {
                 Inches.of(-11.8),   // LEFT
                 Inches.of(7.6),    // up
                 new Rotation3d(
-                    Degrees.of(-90), // TODO: fix
+                    Degrees.of(90), // TODO: fix
                     Degrees.of(-15),  // pitch up
                     Degrees.of(-90)    // yaw outward (left)
                 )
