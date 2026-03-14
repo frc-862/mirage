@@ -43,7 +43,7 @@ public class VisionConstants {
                 Inches.of(-10.75), 
                 Inches.of(8.5),    // up
                 new Rotation3d(
-                    Degrees.of(180),
+                    Degrees.of(0),
                     Degrees.of(-15),  // pitch up
                     Degrees.of(0)    // yaw outward (left)
                 )
