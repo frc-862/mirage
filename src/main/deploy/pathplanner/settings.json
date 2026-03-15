@@ -3,13 +3,12 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
+    "DoubleAutonPaths",
     "OTF Auton Paths"
   ],
-  "autoFolders": [],
-    "DoubleAutonPaths"
-  ],
   "autoFolders": [
-    "DoubleAutons"
+    "DoubleAutons",
+    "OTF Autons"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

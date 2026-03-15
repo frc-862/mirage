@@ -123,6 +123,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "OTF Autons",
   "choreoAuto": false
 }

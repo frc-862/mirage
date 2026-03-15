@@ -24,7 +24,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Copy of Trench2ToCenter"
+                  "pathName": "Trench2ToFarCenter"
                 }
               },
               {
@@ -52,7 +52,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Copy of CenterToTrench2"
+            "pathName": "FarCenterToTrench2"
           }
         },
         {
@@ -91,6 +91,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "OTF Autons",
   "choreoAuto": false
 }
