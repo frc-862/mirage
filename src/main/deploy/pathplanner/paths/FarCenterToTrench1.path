@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.758358974358975,
-        "y": 0.5697948717948724
+        "x": 7.715722222222222,
+        "y": 0.6790999999999996
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.752405554034734,
-        "y": 1.6844114396082375
+        "x": 7.709768801897981,
+        "y": 1.7937165678133646
       },
       "isLocked": false,
       "linkedName": "FarCenterTrench1"
     },
     {
       "anchor": {
-        "x": 6.909500000000001,
-        "y": 7.197871794871795
+        "x": 7.010277777777777,
+        "y": 7.088566666666667
       },
       "prevControl": {
-        "x": 7.572669824985668,
-        "y": 7.011588136167957
+        "x": 7.807251467516865,
+        "y": 6.810012755689898
       },
       "nextControl": {
-        "x": 5.115655555555557,
-        "y": 7.701760683760685
+        "x": 5.972266666666667,
+        "y": 7.451366666666667
       },
       "isLocked": false,
       "linkedName": "Trench1CenterMidpoint"
@@ -51,7 +51,7 @@
     },
     {
       "waypointRelativePos": 1.0558510638297776,
-      "rotationDegrees": 0.0
+      "rotationDegrees": 90.50610299618924
     }
   ],
   "constraintZones": [],
@@ -67,13 +67,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 1.3971810272963174
+    "rotation": 91.02389913354847
   },
   "reversed": false,
-  "folder": null,
+  "folder": "DoubleAutonPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 86.9059419410829
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 6.909500000000001,
-        "y": 7.197871794871795
+        "x": 7.010277777777777,
+        "y": 7.088566666666667
       },
       "prevControl": {
-        "x": 5.996482638578922,
-        "y": 7.35982755204304
+        "x": 6.121212681304943,
+        "y": 7.351993361917877
       },
       "nextControl": {
-        "x": 7.756033333333337,
-        "y": 7.04770931958512
+        "x": 7.826577777777777,
+        "y": 6.8467
       },
       "isLocked": false,
       "linkedName": "Trench1CenterMidpoint"
@@ -48,10 +48,10 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.1216341689879283,
-      "maxWaypointRelativePos": 1.9387186629526516,
+      "minWaypointRelativePos": 1.7344475394614756,
+      "maxWaypointRelativePos": 2.0,
       "constraints": {
-        "maxVelocity": 1.5,
+        "maxVelocity": 2.0,
         "maxAcceleration": 1.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -75,10 +75,10 @@
     "rotation": 87.93618027154307
   },
   "reversed": false,
-  "folder": null,
+  "folder": "DoubleAutonPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 91.21644110277144
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }
