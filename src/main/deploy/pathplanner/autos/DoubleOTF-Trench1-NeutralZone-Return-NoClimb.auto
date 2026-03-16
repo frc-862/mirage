@@ -5,13 +5,13 @@
     "data": {
       "commands": [
         {
-          "type": "race",
+          "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Trench1ToCenter"
+                  "pathName": "CenterBumper1ReturnLoop"
                 }
               },
               {
@@ -25,25 +25,25 @@
                       }
                     },
                     {
-                      "type": "named",
+                      "type": "race",
                       "data": {
-                        "name": "COLLECT"
+                        "commands": [
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "COLLECT"
+                            }
+                          },
+                          {
+                            "type": "wait",
+                            "data": {
+                              "waitTime": 2.5
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "CenterBumper1ReturnLoop"
                 }
               }
             ]

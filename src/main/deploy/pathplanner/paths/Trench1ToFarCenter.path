@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.977081850533809,
-        "y": 7.440284697508897
+        "y": 7.515599051000848
       },
       "prevControl": null,
       "nextControl": {
         "x": 4.977081850533811,
-        "y": 7.440284697508897
+        "y": 7.515599051000848
       },
       "isLocked": false,
       "linkedName": "Trench1-NoShoot"
@@ -78,7 +78,7 @@
   "folder": "DoubleAutonPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 91.21644110277144
   },
   "useDefaultConstraints": true
 }
