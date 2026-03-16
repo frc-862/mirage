@@ -76,7 +76,7 @@ public class RobotContainer {
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     public RobotContainer() {
-        // RobotTimer.startTiming();
+        RobotTimer.startTiming();
 
         driver = new XboxController(RobotMap.DRIVER_PORT);
         copilot = new XboxController(RobotMap.COPILOT_PORT);

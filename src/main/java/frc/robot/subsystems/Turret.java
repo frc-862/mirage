@@ -169,6 +169,9 @@ public class Turret extends TimedSubsystemBase {
         }
 
         initLogging();
+
+        
+        lastAngle = Degrees.zero();
     }
 
     private void initLogging() {
