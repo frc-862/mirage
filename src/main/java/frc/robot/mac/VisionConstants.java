@@ -27,13 +27,13 @@ public class VisionConstants {
     public static final CameraConstant[] CAMERA_CONSTANTS = new CameraConstant[] {
         new CameraConstant("rightCam",
             new Transform3d(
-                Inches.of(0),   // forward
+                Inches.of(0.25),   // forward
                 Inches.of(-11.8),   // LEFT
                 Inches.of(7.6),    // up
                 new Rotation3d(
-                    Degrees.of(0), // TODO: fix
-                    Degrees.of(-15),  // pitch up
-                    Degrees.of(-90)    // yaw outward (left)
+                    Degrees.of(345), // TODO: fix
+                    Degrees.of(0),  // pitch up
+                    Degrees.of(270)    // yaw outward (left)
                 )
             )
         ),
