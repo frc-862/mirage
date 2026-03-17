@@ -159,7 +159,7 @@ public class RobotContainer {
             .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER * CollectorConstants.COLLECT_MULT))
             .deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
 
-        new Trigger(copilot::getStartButton).whileTrue(collector.stowPivotCommand());
+        new Trigger(copilot::getStartButton).onTrue(collector.stowPivotCommand());
     
         new Trigger(() -> (copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND || copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)  && !(driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND))
             .whileTrue(collector.collectCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()) *  CollectorConstants.COLLECT_MULT));
