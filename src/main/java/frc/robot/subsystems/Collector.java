@@ -355,8 +355,9 @@ public class Collector extends SubsystemBase {
         return startEnd(() -> stowPivot(), () -> {});
     }
 
+    // This command must not require the collector subsystem so it doesn't interrupt smart shoot
     public Command driverStowPivotCommand() {
-        return startEnd(() -> stowPivot(), () -> deployPivot());
+        return new StartEndCommand(() -> stowPivot(), () -> deployPivot());
     }    
 
     public Command neutralPivotCommand() {
@@ -381,5 +382,5 @@ public class Collector extends SubsystemBase {
     public Command runCollectorWheels(DoubleSupplier power){
         return new InstantCommand(() -> setCollectorPower(power.getAsDouble()));
     }
-    }
+}
 
