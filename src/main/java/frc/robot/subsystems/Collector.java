@@ -80,7 +80,6 @@ public class Collector extends SubsystemBase {
         public static final Angle MIN_ANGLE = Rotations.of(0);
         public static final Angle MAX_ANGLE = Rotations.of(0.35);
         public static final Angle NEUTRAL_ANGLE = Rotations.of(0.25);
-        public static final Angle GUARD_ANGLE = Rotations.of(0.1);
         public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
         public static final Angle STOW_ANGLE = MIN_ANGLE;
         public static final Angle TOLERANCE = Rotations.of(0.05);
@@ -285,10 +284,6 @@ public class Collector extends SubsystemBase {
         setPivotAngle(CollectorConstants.NEUTRAL_ANGLE);
     }
 
-    public void guardPivot() {
-        setPivotAngle(CollectorConstants.GUARD_ANGLE);
-    }
-
     /**
      * Stops all movement to the collector motor
      */
@@ -353,16 +348,16 @@ public class Collector extends SubsystemBase {
     }
 
     public Command deployPivotCommand() {
-        return startRun(() -> deployPivot(), () -> {});
+        return startEnd(() -> deployPivot(), () -> {});
     }
 
     public Command stowPivotCommand() {
         return startEnd(() -> stowPivot(), () -> {});
     }
 
-    public Command guardPivotCommand() {
-        return startEnd(() -> guardPivot(), () -> {});
-    }
+    public Command driverStowPivotCommand() {
+        return startEnd(() -> stowPivot(), () -> deployPivot());
+    }    
 
     public Command neutralPivotCommand() {
         return startEnd(() -> {
