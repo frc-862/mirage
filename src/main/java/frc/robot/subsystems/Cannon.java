@@ -34,7 +34,6 @@ import frc.util.AllianceHelpers;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Cannon extends SubsystemBase {
-    // ======== CANNON CONSTANTS ========
 
     public class CannonConstants { 
         public static final Distance SMART_SHOOT_MIN_DISTANCE = Inches.of(64);
@@ -43,9 +42,15 @@ public class Cannon extends SubsystemBase {
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
-        public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
-        public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
-        public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0), Degrees.of(80), RotationsPerSecond.of(53)); //Temp
+        /* Cand shots meant for when smartshoot fails and turret isn't moving */
+        // left side by gate
+        public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55));
+
+        // right side by gate
+        public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55));
+
+        // middle between hub and tower
+        public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0), Degrees.of(80), RotationsPerSecond.of(53));
     }
 
     
