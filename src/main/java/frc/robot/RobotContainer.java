@@ -142,9 +142,7 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        new Trigger(() -> driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(
-            collector.guardPivotCommand()
-        );
+        new Trigger(() -> driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(collector.guardPivotCommand());
 
         new Trigger(driver::getBButton).toggleOnTrue(turret.manual());
 

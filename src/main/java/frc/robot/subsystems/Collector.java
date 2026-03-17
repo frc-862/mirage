@@ -353,15 +353,15 @@ public class Collector extends SubsystemBase {
     }
 
     public Command deployPivotCommand() {
-        return new StartEndCommand(() -> deployPivot(), () -> {}, this);
+        return startRun(() -> deployPivot(), () -> {});
     }
 
     public Command stowPivotCommand() {
-        return runOnce(() -> stowPivot());
+        return startEnd(() -> stowPivot(), () -> {});
     }
 
     public Command guardPivotCommand() {
-        return runOnce(() -> guardPivot());
+        return startEnd(() -> guardPivot(), () -> {});
     }
 
     public Command neutralPivotCommand() {
