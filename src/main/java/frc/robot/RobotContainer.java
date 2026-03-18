@@ -142,13 +142,7 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        new Trigger(() -> driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(drivetrain.robotCentricDrive(
-            () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
-                    VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND), 
-                    DriveConstants.CONTROLLER_POW).times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? 
-                    DriveConstants.SLOW_MODE_MULT : 1.0), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                    DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
-                    * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
+        new Trigger(() -> driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(collector.driverStowPivotCommand());
 
         new Trigger(driver::getBButton).toggleOnTrue(turret.manual());
 
@@ -165,9 +159,9 @@ public class RobotContainer {
             .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER * CollectorConstants.COLLECT_MULT))
             .deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
 
-        new Trigger(copilot::getStartButton).whileTrue(collector.stowPivotCommand());
+        new Trigger(copilot::getStartButton).onTrue(collector.stowPivotCommand());
     
-        new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND || copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
+        new Trigger(() -> (copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND || copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)  && !(driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND))
             .whileTrue(collector.collectCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()) *  CollectorConstants.COLLECT_MULT));
 
         new Trigger(copilot::getBackButton).whileTrue(turret.manual()); // disable turret

@@ -40,7 +40,6 @@ public class MacMini implements AutoCloseable {
 
         // Socket to send data
         DatagramSocket socket;
-
         public MacMini() {
             try {
                 // Create a new socket to send data to the rio

@@ -40,7 +40,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
@@ -348,12 +348,17 @@ public class Collector extends SubsystemBase {
     }
 
     public Command deployPivotCommand() {
-        return new StartEndCommand(() -> deployPivot(), () -> {}, this);
+        return runOnce(() -> deployPivot());
     }
 
     public Command stowPivotCommand() {
         return runOnce(() -> stowPivot());
     }
+
+    // This command must not require the collector subsystem so it doesn't interrupt smart shoot
+    public Command driverStowPivotCommand() {
+        return new RunCommand(() -> stowPivot()).finallyDo( () -> deployPivot());
+    }    
 
     public Command neutralPivotCommand() {
         return startEnd(() -> {
@@ -377,5 +382,5 @@ public class Collector extends SubsystemBase {
     public Command runCollectorWheels(DoubleSupplier power){
         return new InstantCommand(() -> setCollectorPower(power.getAsDouble()));
     }
-    }
+}
 
