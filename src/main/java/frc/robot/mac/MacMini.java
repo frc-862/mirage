@@ -198,10 +198,20 @@ public class MacMini implements AutoCloseable {
                 );
             }
 
-            // If pose ambiguity is to high well scrap the result
-            boolean highPoseAmbiguity = latestResult.getBestTarget().getPoseAmbiguity() > VisionConstants.POSE_AMBIGUITY_TOLERANCE;
+            // Check pose ambiguity and distance on the FILTERED result, not
+            // the raw one. Why? If we check latestResult (before filtering),
+            // the "best target" might be a tag we're ignoring. That ignored
+            // tag could have high ambiguity, causing us to reject the entire
+            // result — even though the REMAINING tags (after filtering) have
+            // perfectly good ambiguity.
+            //
+            // Example: Tag 7 (ignored) has ambiguity 0.8, Tag 3 has ambiguity 0.1.
+            //   Old code: checks Tag 7's 0.8 > 1.0? No, but if it were 1.1, we'd
+            //             reject the result even though Tag 3 is excellent.
+            //   New code: checks useableResult's best target (Tag 3, ambiguity 0.1).
+            boolean highPoseAmbiguity = useableResult.getBestTarget().getPoseAmbiguity() > VisionConstants.POSE_AMBIGUITY_TOLERANCE;
 
-            // If the best tag's distance is too far than scrap the result
+            // Check distance on the filtered result too, for the same reason.
             double bestDistance = useableResult.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
             boolean highDistance = bestDistance > VisionConstants.TAG_DISTANCE_TOLERANCE;
 
