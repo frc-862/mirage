@@ -90,6 +90,21 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     //Shows whether the mac mini is connected or not
     volatile boolean macMiniIsConnected;
 
+    // Tracks the RIO time when we last received a valid vision packet.
+    // This lets periodic() detect "staleness" — when the vision processor
+    // is running but we haven't gotten data in a while. This is MORE useful
+    // than the ICMP ping (reachableThread), which only tells you the Mac
+    // Mini's OS is up, NOT that the vision application is actually running
+    // and sending packets.
+    private volatile double lastReceiveTimeRio = 0;
+
+    // How long (in seconds) we can go without a vision packet before we
+    // consider the data "stale" and warn the driver. 0.5s = 25 missed
+    // cycles at 50Hz, which is long enough to avoid false alarms from
+    // normal camera gaps but short enough to alert quickly if something
+    // is actually broken.
+    private static final double VISION_STALE_THRESHOLD_SECS = 0.5;
+
     private BooleanLogEntry macConnectedLog;
     private DoubleLogEntry macPingLog;
 
@@ -165,6 +180,10 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     // Fresh vision data :)
                     VisionInfo data = parseBinaryPacket(receivePacket, receiveTimeRio);
 
+                    // Record when we last got a valid packet, so periodic()
+                    // can detect if vision data goes stale.
+                    lastReceiveTimeRio = receiveTimeRio;
+
                     // Store data atomically
                     pose.set(data);
                     
@@ -222,9 +241,23 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     
     @Override
     public void periodic() {
-        LightningShuffleboard.setDouble("Vision", "robot_time", Utils.getCurrentTimeSeconds());
+        double now = Utils.getCurrentTimeSeconds();
+
+        LightningShuffleboard.setDouble("Vision", "robot_time", now);
         LightningShuffleboard.setBool("Vision", "is Mac Connected", macMiniIsConnected);
         LightningShuffleboard.setDouble("Vision", "Mac Mini Ping", macMiniPing.get().in(Milliseconds));
+
+        // Staleness detection: check if we've received a valid packet recently.
+        // This is MORE informative than the ICMP ping because:
+        //   - ICMP only tells you the Mac Mini's OS is responding to pings
+        //   - This tells you the VISION APPLICATION is running and sending data
+        //
+        // Example: Mac Mini is on, but the vision JAR crashed → ICMP says
+        // "connected" but vision data is stale. Without this check, the
+        // driver has no idea vision is dead.
+        boolean visionStale = lastReceiveTimeRio > 0
+            && (now - lastReceiveTimeRio) > VISION_STALE_THRESHOLD_SECS;
+        LightningShuffleboard.setBool("Vision", "vision data stale", visionStale);
 
         VisionInfo updatedPose = pose.getAndSet(null);
         if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
