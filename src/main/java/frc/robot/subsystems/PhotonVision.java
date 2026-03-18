@@ -32,8 +32,12 @@ import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Seconds;
 
 public class PhotonVision extends SubsystemBase implements AutoCloseable {
-    // Records to store specific groups of data
-    private record VisionInfo(double timestamp, double ambiguity, Pose2d pose) {};
+    // Records to store specific groups of data.
+    // receiveTimeRio: the RIO's clock time at the moment the UDP packet arrived.
+    // We capture this in the receive thread (not in periodic()) so that the
+    // scheduling delay between packet arrival and periodic() execution doesn't
+    // get baked into our time offset calculation. See fix #4 in NETWORK_FINDINGS.md.
+    private record VisionInfo(double timestamp, double ambiguity, Pose2d pose, double receiveTimeRio) {};
 
     // ===== PACKET PROTOCOL CONSTANTS =====
     // These MUST match the values in MacMini.java. If you change the packet
@@ -135,9 +139,16 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     } else {
                         break;
                     }
-                    
+
+                    // Capture the RIO's clock time RIGHT NOW, at the moment
+                    // the packet arrived. This is important for the time offset
+                    // calculation in periodic(). If we waited until periodic()
+                    // to read the clock, up to 20ms of scheduling delay would
+                    // be incorrectly included in the offset.
+                    double receiveTimeRio = Utils.getCurrentTimeSeconds();
+
                     // Fresh vision data :)
-                    VisionInfo data = parseBinaryPacket(receivePacket);
+                    VisionInfo data = parseBinaryPacket(receivePacket, receiveTimeRio);
 
                     // Store data atomically
                     pose.set(data);
@@ -195,9 +206,16 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         VisionInfo updatedPose = pose.getAndSet(null);
         if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
             // Compute the instantaneous time offset for THIS packet.
-            // instantOffset = how far apart the two clocks are RIGHT NOW,
-            // including any UDP latency on this specific packet.
-            double instantOffset = Utils.getCurrentTimeSeconds() - updatedPose.timestamp;
+            // instantOffset = how far apart the two clocks were when the
+            // packet arrived, including any UDP latency on this specific packet.
+            //
+            // We use receiveTimeRio (captured in the receive thread the
+            // instant the packet arrived) instead of "now" (Utils.getCurrentTimeSeconds()).
+            // Why? periodic() runs at 50Hz, so there can be up to 20ms between
+            // when the packet arrived and when this line runs. That 20ms would
+            // be incorrectly added to every offset measurement, making all
+            // vision timestamps systematically late.
+            double instantOffset = updatedPose.receiveTimeRio - updatedPose.timestamp;
 
             if (macTimeOffset == 0) {
                 // First packet: use it directly as our initial estimate.
@@ -273,7 +291,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
      * @return VisionInfo with pose, ambiguity, and timestamp
      * @throws IllegalArgumentException if the packet is malformed or from an unknown source
      */
-    private VisionInfo parseBinaryPacket(DatagramPacket packet) {
+    private VisionInfo parseBinaryPacket(DatagramPacket packet, double receiveTimeRio) {
         byte[] data = packet.getData();
 
         // Safety check: make sure we got a full packet. If someone sends
@@ -324,7 +342,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         Pose2d newPose = new Pose2d(x, y, new Rotation2d(rotRadians));
 
-        return new VisionInfo(timestamp, ambiguity, newPose);
+        return new VisionInfo(timestamp, ambiguity, newPose, receiveTimeRio);
     }
 
     public boolean getMacMiniConnection() {
