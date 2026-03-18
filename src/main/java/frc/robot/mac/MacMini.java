@@ -25,8 +25,30 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class MacMini implements AutoCloseable {
         // Camera info
-        private record CameraInfo(PhotonCamera camera, PhotonPoseEstimator poseEstimator) {}; 
+        private record CameraInfo(PhotonCamera camera, PhotonPoseEstimator poseEstimator) {};
         private record VisionInfo(PhotonPipelineResult result, EstimatedRobotPose pose) {};
+
+        // ===== PACKET PROTOCOL CONSTANTS =====
+        // These must match EXACTLY between the sender (here) and the receiver
+        // (PhotonVision.java on the RoboRIO). If you change one, change both!
+        //
+        // MAGIC_NUMBER: A unique identifier at the start of every packet.
+        // Think of it like a secret handshake — if a random UDP packet arrives
+        // on our port (from another team's code, a network tool, etc.), it
+        // almost certainly won't start with 0x00000862. The receiver checks
+        // this first and throws away anything that doesn't match.
+        // We use 0x862 = team 862 in hex, padded to 4 bytes.
+        static final int MAGIC_NUMBER = 0x00000862;
+
+        // PROTOCOL_VERSION: Incremented whenever the packet format changes.
+        // If someone deploys new Mac code but forgets to deploy new RIO code
+        // (or vice versa), the version mismatch will cause packets to be
+        // rejected instead of silently misinterpreting the data.
+        static final byte PROTOCOL_VERSION = 1;
+
+        // PACKET_SIZE: Total bytes in one packet.
+        //   4 (magic) + 1 (version) + 4 (sequence) + 5×8 (doubles) = 49
+        static final int PACKET_SIZE = 49;
 
         // The network tables instance that will connect to the local photonvision server
         NetworkTableInstance photonNT = NetworkTableInstance.create();
@@ -36,6 +58,11 @@ public class MacMini implements AutoCloseable {
 
         // Socket to send data
         DatagramSocket socket;
+
+        // Sequence counter — incremented for every packet we send.
+        // The receiver can use this to detect if packets were dropped or
+        // arrived out of order. Starts at 0 and wraps around at Integer.MAX_VALUE.
+        private int sequenceNumber = 0;
 
         // Why does the constructor throw SocketException now?
         // Previously, if the socket failed to create, we caught the exception,
@@ -265,9 +292,16 @@ public class MacMini implements AutoCloseable {
         }
 
         private DatagramPacket getBinaryPacket(Pose2d pose, double ambiguity, double timestamp) throws IllegalArgumentException, UnknownHostException {
-            ByteBuffer buffer = ByteBuffer.allocate(40);
+            ByteBuffer buffer = ByteBuffer.allocate(PACKET_SIZE);
 
-            // Add our data to the buffer
+            // --- Header (9 bytes) ---
+            // These fields let the receiver verify that this packet is really
+            // from our vision code and not random network noise.
+            buffer.putInt(MAGIC_NUMBER);        // 4 bytes: identifies this as our packet
+            buffer.put(PROTOCOL_VERSION);       // 1 byte:  catches version mismatches
+            buffer.putInt(sequenceNumber++);    // 4 bytes: lets receiver detect dropped packets
+
+            // --- Payload (40 bytes) ---
             buffer.putDouble(pose.getX());
             buffer.putDouble(pose.getY());
             buffer.putDouble(pose.getRotation().getRadians());

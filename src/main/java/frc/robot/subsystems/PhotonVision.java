@@ -35,6 +35,13 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     // Records to store specific groups of data
     private record VisionInfo(double timestamp, double ambiguity, Pose2d pose) {};
 
+    // ===== PACKET PROTOCOL CONSTANTS =====
+    // These MUST match the values in MacMini.java. If you change the packet
+    // format, update both files and bump PROTOCOL_VERSION.
+    private static final int MAGIC_NUMBER = 0x00000862;
+    private static final byte PROTOCOL_VERSION = 1;
+    private static final int PACKET_SIZE = 49;
+
     // The drivetrain to add vision measurments
     Swerve drivetrain;
 
@@ -118,8 +125,9 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             // Run while the thread is still valid
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    // Create a new packet to fill with recieved data
-                    byte[] receiveData = new byte[40];
+                    // Create a buffer large enough for our packet (49 bytes).
+                    // Must match PACKET_SIZE from the sender.
+                    byte[] receiveData = new byte[PACKET_SIZE];
                     var receivePacket = new DatagramPacket(receiveData, receiveData.length);
                     
                     if (socket != null) {
@@ -255,32 +263,67 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     }
 
     /**
-     * Unpacks a datagram packet into the Unpacked Data object
-     * 
+     * Unpacks a datagram packet into a VisionInfo object.
+     *
+     * Validates the magic number and protocol version before parsing.
+     * This prevents random network traffic from being misinterpreted as
+     * vision data and corrupting the Kalman filter.
+     *
      * @param packet The packet to unpack
-     * @return Unpacked Data, Pose, ambiguity, timestamp, and a counter
+     * @return VisionInfo with pose, ambiguity, and timestamp
+     * @throws IllegalArgumentException if the packet is malformed or from an unknown source
      */
     private VisionInfo parseBinaryPacket(DatagramPacket packet) {
         byte[] data = packet.getData();
-        
-        // Safety check for length
-        if (packet.getLength() < 40) {
-            throw new IllegalArgumentException("Packet too small");
+
+        // Safety check: make sure we got a full packet. If someone sends
+        // a tiny packet (e.g., a network probe), we reject it here instead
+        // of getting a confusing BufferUnderflowException later.
+        if (packet.getLength() < PACKET_SIZE) {
+            throw new IllegalArgumentException(
+                "Packet too small: expected " + PACKET_SIZE + " bytes, got " + packet.getLength());
         }
 
-        // Wrap the data in a ByteBuffer
-        ByteBuffer buffer = ByteBuffer.wrap(data, 0, 40);
+        ByteBuffer buffer = ByteBuffer.wrap(data, 0, PACKET_SIZE);
 
-        // Read doubles in the same order they were packed
+        // --- Validate header ---
+        // Read the magic number and check it matches. This is our first
+        // line of defense against stray packets. Any UDP traffic that
+        // doesn't start with 0x00000862 is immediately rejected.
+        int magic = buffer.getInt();
+        if (magic != MAGIC_NUMBER) {
+            throw new IllegalArgumentException(
+                "Bad magic number: expected 0x" + Integer.toHexString(MAGIC_NUMBER)
+                + ", got 0x" + Integer.toHexString(magic)
+                + ". This packet is not from our vision processor.");
+        }
+
+        // Check protocol version. If someone deploys new Mac code but old
+        // RIO code (or vice versa), this catches it immediately instead of
+        // silently misinterpreting the packet fields.
+        byte version = buffer.get();
+        if (version != PROTOCOL_VERSION) {
+            throw new IllegalArgumentException(
+                "Protocol version mismatch: expected " + PROTOCOL_VERSION
+                + ", got " + version
+                + ". Make sure Mac and RIO code are both up to date.");
+        }
+
+        // Read the sequence number. We log it but don't reject out-of-order
+        // packets — with UDP, occasional reordering is normal and the data
+        // is still valid. The sequence number is useful for debugging: if
+        // you see big jumps, packets are being dropped on the network.
+        int seq = buffer.getInt();
+
+        // --- Parse payload (same order as MacMini.getBinaryPacket) ---
         double x = buffer.getDouble();
         double y = buffer.getDouble();
         double rotRadians = buffer.getDouble();
         double ambiguity = buffer.getDouble();
         double timestamp = buffer.getDouble();
 
-        // Construct a new pose using the unpacked data
         Pose2d newPose = new Pose2d(x, y, new Rotation2d(rotRadians));
-        
+
         return new VisionInfo(timestamp, ambiguity, newPose);
     }
 
