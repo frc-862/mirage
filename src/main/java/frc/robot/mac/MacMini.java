@@ -59,6 +59,13 @@ public class MacMini implements AutoCloseable {
         // Socket to send data
         DatagramSocket socket;
 
+        // The resolved IP address of the RoboRIO. We resolve this ONCE in
+        // the constructor instead of calling InetAddress.getByName("10.8.62.2")
+        // on every packet send. Even though Java may cache DNS lookups,
+        // there's no reason to do string parsing and lookup ~1000 times/sec
+        // when the address never changes.
+        InetAddress rioAddress;
+
         // Sequence counter — incremented for every packet we send.
         // The receiver can use this to detect if packets were dropped or
         // arrived out of order. Starts at 0 and wraps around at Integer.MAX_VALUE.
@@ -74,11 +81,18 @@ public class MacMini implements AutoCloseable {
         // force the program to stop immediately with a clear error message.
         // This is called "fail fast" — it's better to crash with a helpful
         // error than to limp along in a broken state.
-        public MacMini() throws SocketException {
+        public MacMini() throws IOException {
             // Create a new socket to send data to the rio.
             // If this fails, the exception propagates up and stops the program
             // immediately — there's no point continuing without a socket.
             socket = new DatagramSocket();
+
+            // Resolve the RoboRIO's IP address once, up front.
+            // Previously, InetAddress.getByName("10.8.62.2") was called inside
+            // getBinaryPacket() on every single packet send (~1000/sec). Even
+            // though Java caches DNS results, parsing the string and doing the
+            // lookup every time is wasteful. Resolving once here is cleaner.
+            rioAddress = InetAddress.getByName("10.8.62.2");
 
             // Connect to our local network tables server
             photonNT.setServer("localhost", 5810);
@@ -291,7 +305,7 @@ public class MacMini implements AutoCloseable {
             System.out.println("[PHOTON VISION]" + message);
         }
 
-        private DatagramPacket getBinaryPacket(Pose2d pose, double ambiguity, double timestamp) throws IllegalArgumentException, UnknownHostException {
+        private DatagramPacket getBinaryPacket(Pose2d pose, double ambiguity, double timestamp) {
             ByteBuffer buffer = ByteBuffer.allocate(PACKET_SIZE);
 
             // --- Header (9 bytes) ---
@@ -309,7 +323,9 @@ public class MacMini implements AutoCloseable {
             buffer.putDouble(timestamp);
 
             byte[] data = buffer.array();
-            return new DatagramPacket(data, data.length, InetAddress.getByName("10.8.62.2"), 12345);
+            // Use the pre-resolved rioAddress instead of calling
+            // InetAddress.getByName() every time. See constructor.
+            return new DatagramPacket(data, data.length, rioAddress, 12345);
         }
 
         @Override
