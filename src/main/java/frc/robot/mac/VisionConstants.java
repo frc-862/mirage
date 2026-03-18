@@ -31,7 +31,7 @@ public class VisionConstants {
                 new Rotation3d(
                     0,
                     Math.toRadians(-25),  // pitch up
-                    Math.toRadians(-90)    // yaw outward (left)
+                    Math.toRadians(-90)    // yaw outward (right)
                 )
             )
         ),
@@ -61,4 +61,26 @@ public class VisionConstants {
         )
     };
 
+    public static final CameraConstant[] OASIS_CAMERA_CONSTANTS = new CameraConstant[] {
+        new CameraConstant("rightCam",
+            new Transform3d(
+                Inches.of(0),   // forward
+                Inches.of(-11.8),   // LEFT
+                Inches.of(7.6),    // up
+                new Rotation3d(
+                    0,
+                    Math.toRadians(-25),  // pitch up
+                    Math.toRadians(-90)    // yaw outward (right)
+                )
+            )
+        ),
+        new CameraConstant("leftCam", 
+            new Transform3d(
+                Inches.of(11.25),
+                Inches.of(11.25),   // RIGHT side
+                Inches.of(10.5),
+                new Rotation3d(0, -15, -45)
+            )
+        ),
+    };
 }

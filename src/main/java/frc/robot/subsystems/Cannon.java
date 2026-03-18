@@ -51,8 +51,8 @@ public class Cannon extends SubsystemBase {
 
         // TODO: Create the actual map
         public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap<Distance, Time>() {{
-            put(Inches.of(18.78*12), Seconds.of(35/30));
-            put(Inches.of(64), Seconds.of(24/30));
+            put(Inches.of(18.78*12), Seconds.of(35.0/30.0));
+            put(Inches.of(64), Seconds.of(24.0/30.0));
             put(Inches.of(142), Seconds.of(0.86));
         }};
 
@@ -93,8 +93,6 @@ public class Cannon extends SubsystemBase {
         this.drivetrain = drivetrain;
 
         this.indexer = indexer;
-        
-        this.storedTarget = FieldConstants.GOAL_POSITION;
 
         this.storedTarget = FieldConstants.GOAL_POSITION;
 
@@ -273,15 +271,6 @@ public class Cannon extends SubsystemBase {
     }
 
     /**
-     * Aims the turret at a passed in target
-     * @param target The target to aim at
-     * @return The command
-     */
-    public Command turretAim(Target target) {
-        return turret.turretAimCommand(this);
-    }
-
-    /**
      * Remodel of shooter aim-- automatically decides when to shoot
      * @return The command to run
      */
@@ -331,7 +320,9 @@ public class Cannon extends SubsystemBase {
             turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget());
       }, turret, shooter, hood)
       .alongWith(indexWhenOnTarget())
-      .alongWith(drivetrain.changeDrivetrainSupplyLimits());
+      .alongWith(drivetrain.increaseRampRates())
+      .alongWith(drivetrain.lowerSupplyLimits());
+      
     }
 
     /**

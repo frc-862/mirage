@@ -9,6 +9,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -489,7 +490,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         () -> pidR.calculate(getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees()));
     }
 
-    public Command changeDrivetrainSupplyLimits() {
+    public Command lowerSupplyLimits() {
         var modules = getModules();
         var savedConfigs = new CurrentLimitsConfigs[modules.length];
 
@@ -504,6 +505,30 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 configurator.apply(config
                     .withSupplyCurrentLimit(DriveConstants.SUPPLY_CURRENT_LIMIT)
                     .withSupplyCurrentLimitEnable(DriveConstants.ENABLE_SUPPLY_CURRENT_LIMIT));
+            }
+        }, () -> {
+            for (int i = 0; i < modules.length; i++) {
+                modules[i].getDriveMotor().getConfigurator().apply(savedConfigs[i]);
+            }
+        });
+    }
+
+    public Command increaseRampRates() {
+        var modules = getModules();
+        var savedConfigs = new OpenLoopRampsConfigs[modules.length];
+
+        return new StartEndCommand(() -> {
+            for (int i = 0; i < modules.length; i++) {
+                var config = new OpenLoopRampsConfigs();
+
+                var configurator = modules[i].getDriveMotor().getConfigurator();
+                configurator.refresh(config);
+                savedConfigs[i] = config.clone();
+
+                configurator.apply(config
+                        .withVoltageOpenLoopRampPeriod(0.5)
+                        .withDutyCycleOpenLoopRampPeriod(0.5)
+                        .withTorqueOpenLoopRampPeriod(0.5));
             }
         }, () -> {
             for (int i = 0; i < modules.length; i++) {

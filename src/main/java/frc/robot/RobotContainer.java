@@ -131,7 +131,7 @@ public class RobotContainer {
         // new Trigger(driver::getYButton).whileTrue(turret.zero());
         
         // TODO: Bind OTF to LB and Climb AA to RB
-        new Trigger(driver::getLeftBumperButton).whileTrue(cannon.shootOTF());
+        new Trigger(copilot::getYButton).whileTrue(cannon.shootOTF());
 
         // change biases for the driver
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
@@ -198,7 +198,7 @@ public class RobotContainer {
 
         new Trigger(() -> Math.abs(copilot.getLeftTriggerAxis()) > DriveConstants.JOYSTICK_DEADBAND).whileTrue(indexer.transferCommand(() -> copilot.getLeftTriggerAxis())).onFalse(new InstantCommand(() -> indexer.stopTransfer()));
 
-        new Trigger(driver::getRightBumperButton).whileTrue(drivetrain.changeDrivetrainSupplyLimits());
+        new Trigger(driver::getRightBumperButton).whileTrue(drivetrain.lowerSupplyLimits());
     }
     
     private void configureNamedCommands() {
