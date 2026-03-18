@@ -449,12 +449,31 @@ public class Turret extends SubsystemBase {
     }
 
     public Command turretAimCommand(Cannon cannon) {
-        // Default aim command uses zero feedforward — the chassis is assumed
-        // to be mostly stationary (or OTF is not active).
+        // The default turret aim command now includes chassis angular velocity
+        // feedforward, just like the OTF path does.
+        //
+        // WHY THIS MATTERS:
+        //   Previously this passed () -> 0 for the chassis omega, meaning the
+        //   turret had NO feedforward during smartShoot() or any time the
+        //   default command was active. If the driver turned the robot while
+        //   the copilot was shooting, the turret had to rely entirely on PID
+        //   to track the target — which always lags behind.
+        //
+        //   Think of it like trying to point at something while spinning in a
+        //   desk chair. Without knowing your spin rate, you can only react
+        //   AFTER you've drifted off-target. But if you know you're spinning
+        //   at X degrees/sec, you can pre-rotate your arm the opposite way.
+        //
+        //   The feedforward tells the turret motor: "the chassis is spinning
+        //   at X rad/s, so apply this much voltage to counter-rotate BEFORE
+        //   any error builds up." The PID then only cleans up small residuals.
+        //
+        //   This is especially important during smartShoot() + collect, where
+        //   the robot may still be moving/turning slightly.
         return turretAimCommand(
             () -> new Pose2d(cannon.getShooterTranslation(), drivetrain.getPose().getRotation()),
             () -> cannon.getTarget(),
-            () -> 0
+            () -> drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond
         );
     }
 
