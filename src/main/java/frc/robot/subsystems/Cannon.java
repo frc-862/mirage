@@ -50,9 +50,17 @@ public class Cannon extends SubsystemBase {
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
         // TODO: Create the actual map
+        //
+        // IMPORTANT: In Java, dividing two integers gives an integer result!
+        //   35/30  = 1   (not 1.167)
+        //   24/30  = 0   (not 0.800)
+        // By writing 35d/30d we force floating-point (double) division so
+        // we get the correct fractional values. A TOF of 0 meant the OTF
+        // loop predicted zero future movement — completely disabling lead
+        // compensation at close range.
         public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap<Distance, Time>() {{
-            put(Inches.of(18.78*12), Seconds.of(35/30));
-            put(Inches.of(64), Seconds.of(24/30));
+            put(Inches.of(18.78*12), Seconds.of(35d/30d));
+            put(Inches.of(64), Seconds.of(24d/30d));
             put(Inches.of(142), Seconds.of(0.86));
         }};
 
