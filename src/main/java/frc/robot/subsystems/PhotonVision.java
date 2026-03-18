@@ -153,45 +153,42 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         pose = new AtomicReference<>(null);
         macMiniPing = new AtomicReference<>(Seconds.of(0));
 
-        try {
-            // Bind to the vision port on ALL network interfaces (0.0.0.0).
-            // The single-argument DatagramSocket(port) constructor binds to
-            // the wildcard address by default, which means we'll receive
-            // packets no matter which network interface they arrive on.
-            // This is important because the Mac Mini might reach the RIO
-            // through different interfaces depending on network topology.
-            //
-            // If you ever needed to bind to a SPECIFIC interface, you'd use:
-            //   new DatagramSocket(new InetSocketAddress("10.8.62.2", VISION_PORT))
-            // But we intentionally do NOT do that — wildcard is more robust.
-            socket = new DatagramSocket(VISION_PORT);
-            log("Socket bound to " + socket.getLocalAddress() + ":" + socket.getLocalPort());
+        // Create the initial socket (may be null if it fails — the receive
+        // thread will retry). See createSocket() for details.
+        socket = createSocket();
 
-            // Set a receive timeout so the thread doesn't block forever.
-            // If no packet arrives within SOCKET_TIMEOUT_MS, socket.receive()
-            // throws a SocketTimeoutException. The receive thread catches it,
-            // logs a warning, and loops back to try again. This prevents the
-            // thread from silently hanging if the Mac Mini goes offline.
-            socket.setSoTimeout(SOCKET_TIMEOUT_MS);
-        } catch (SocketException e) {
-            log("*** ERROR CREATING DATAGRAM SOCKET ***" + e);
-        }
-        
-        // Start a separate thread to receive packets
+        // Start a separate thread to receive packets.
+        //
+        // ERROR RECOVERY: The receive thread has an outer retry loop.
+        // If the socket dies (IOException that isn't a timeout), it:
+        //   1. Closes the dead socket
+        //   2. Waits 250ms
+        //   3. Creates a fresh socket and resumes receiving
+        //
+        // This means the RIO self-heals from network glitches, cable
+        // unplugs/replugs, or any transient socket error — without
+        // needing a full robot code restart.
         receiveThread = new Thread(() -> {
-            // Run while the thread is still valid
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    // Create a buffer large enough for our packet (49 bytes).
-                    // Must match PACKET_SIZE from the sender.
+                    // Make sure we have a working socket before trying to receive
+                    if (socket == null || socket.isClosed()) {
+                        log("Socket is null or closed, attempting to recreate...");
+                        socket = createSocket();
+                        if (socket == null) {
+                            // Socket creation failed — wait and try again.
+                            // Don't spin in a tight loop.
+                            Thread.sleep(250);
+                            continue;
+                        }
+                        log("Socket recreated successfully");
+                    }
+
+                    // Create a buffer large enough for our packet (50 bytes).
                     byte[] receiveData = new byte[PACKET_SIZE];
                     var receivePacket = new DatagramPacket(receiveData, receiveData.length);
-                    
-                    if (socket != null) {
-                        socket.receive(receivePacket);
-                    } else {
-                        break;
-                    }
+
+                    socket.receive(receivePacket);
 
                     // Capture the RIO's clock time RIGHT NOW, at the moment
                     // the packet arrived. This is important for the time offset
@@ -215,7 +212,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     if (data != null) {
                         pose.set(data);
                     }
-                    
+
                 } catch (SocketTimeoutException e) {
                     // This is EXPECTED and not an error. It means no packet
                     // arrived within SOCKET_TIMEOUT_MS. We just loop back and
@@ -226,8 +223,24 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     // version, too small). Log it so we can debug, but don't
                     // crash — just wait for the next valid packet.
                     log("Bad packet rejected: " + e.getMessage());
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 } catch (IOException e) {
-                    log("Error receiving packet: " + e.getMessage());
+                    // The socket is broken (not just a timeout). This can
+                    // happen if the network interface goes down, the socket
+                    // gets closed externally, etc.
+                    //
+                    // Recovery: close the dead socket and let the top of the
+                    // loop recreate it. The 250ms sleep prevents spinning.
+                    log("Socket error, will recreate: " + e.getMessage());
+                    try {
+                        if (socket != null && !socket.isClosed()) {
+                            socket.close();
+                        }
+                    } catch (Exception closeEx) {
+                        // Ignore close errors — we're about to create a new one anyway
+                    }
+                    socket = null;
                 }
             }
         });
@@ -259,6 +272,27 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         reachableThread.start();
 
         initLogging();
+    }
+
+    /**
+     * Creates and configures a DatagramSocket bound to VISION_PORT on all
+     * interfaces (0.0.0.0). Returns null if creation fails.
+     *
+     * This is a separate method so the receive thread can recreate the socket
+     * after a fatal error without needing to restart the entire subsystem.
+     * The socket binds to the wildcard address so we receive packets
+     * regardless of which network interface they arrive on.
+     */
+    private DatagramSocket createSocket() {
+        try {
+            DatagramSocket newSocket = new DatagramSocket(VISION_PORT);
+            newSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
+            log("Socket bound to " + newSocket.getLocalAddress() + ":" + newSocket.getLocalPort());
+            return newSocket;
+        } catch (SocketException e) {
+            log("Failed to create socket: " + e.getMessage());
+            return null;
+        }
     }
 
     private void initLogging() {
@@ -486,11 +520,17 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        if (socket != null) {
-            socket.close();
+        // Interrupt threads first so they stop using the socket
+        if (receiveThread != null) {
+            receiveThread.interrupt();
+        }
+        if (reachableThread != null) {
+            reachableThread.interrupt();
         }
 
-        reachableThread.interrupt();
-        receiveThread.interrupt();
+        // Then close the socket
+        if (socket != null && !socket.isClosed()) {
+            socket.close();
+        }
     }
 }
