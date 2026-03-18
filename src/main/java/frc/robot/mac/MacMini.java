@@ -156,7 +156,20 @@ public class MacMini implements AutoCloseable {
                 }
                 
                 try {
-                    Thread.sleep(1);
+                    // Sleep between vision processing cycles.
+                    //
+                    // WHY 15ms instead of 1ms:
+                    // The RIO's periodic() runs at 50Hz (every 20ms). With a 1ms
+                    // sleep, the Mac was running at ~1000Hz — producing ~20 packets
+                    // per RIO cycle. But the RIO uses AtomicReference.getAndSet(),
+                    // which only reads the LATEST packet, so ~19 out of every 20
+                    // packets (95%) were computed and then thrown away.
+                    //
+                    // At 15ms (~66Hz), the Mac still produces more than one reading
+                    // per RIO cycle (good — the RIO always has fresh data), but
+                    // wastes far less CPU on pose estimation that nobody will ever
+                    // use. That saved CPU helps the PhotonVision pipeline run faster.
+                    Thread.sleep(15);
                 } catch (InterruptedException e) {
                     log("Error sleeping: " + e.getMessage());
                 }
