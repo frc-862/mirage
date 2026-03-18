@@ -142,8 +142,18 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         macMiniPing = new AtomicReference<>(Seconds.of(0));
 
         try {
-            // Bind to the port
+            // Bind to the vision port on ALL network interfaces (0.0.0.0).
+            // The single-argument DatagramSocket(port) constructor binds to
+            // the wildcard address by default, which means we'll receive
+            // packets no matter which network interface they arrive on.
+            // This is important because the Mac Mini might reach the RIO
+            // through different interfaces depending on network topology.
+            //
+            // If you ever needed to bind to a SPECIFIC interface, you'd use:
+            //   new DatagramSocket(new InetSocketAddress("10.8.62.2", VISION_PORT))
+            // But we intentionally do NOT do that — wildcard is more robust.
             socket = new DatagramSocket(VISION_PORT);
+            log("Socket bound to " + socket.getLocalAddress() + ":" + socket.getLocalPort());
 
             // Set a receive timeout so the thread doesn't block forever.
             // If no packet arrives within SOCKET_TIMEOUT_MS, socket.receive()
