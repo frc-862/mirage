@@ -30,7 +30,7 @@ public class MacMini implements AutoCloseable {
         private record CameraInfo(PhotonCamera camera, PhotonPoseEstimator poseEstimator) {}; 
         private record VisionInfo(PhotonPipelineResult result, EstimatedRobotPose pose) {};
 
-        CameraConstant[] caneraConstants;
+        CameraConstant[] cameraConstants;
 
         // The network tables instance that will connect to the local photonvision server
         NetworkTableInstance photonNT = NetworkTableInstance.create();
@@ -53,14 +53,14 @@ public class MacMini implements AutoCloseable {
             photonNT.setServer("localhost", 5810);
             photonNT.startClient4("mac-photon-client");
 
-            caneraConstants = RobotMap.IS_OASIS ? VisionConstants.OASIS_CAMERA_CONSTANTS : VisionConstants.CAMERA_CONSTANTS;
+            cameraConstants = RobotMap.IS_OASIS ? VisionConstants.OASIS_CAMERA_CONSTANTS : VisionConstants.CAMERA_CONSTANTS;
 
             // Create an empty array of cameras
-            cameras = new CameraInfo[caneraConstants.length];
+            cameras = new CameraInfo[cameraConstants.length];
             
             // Create the cameras
-            for (int i = 0; i < caneraConstants.length; i++) {
-                log("Creating " + caneraConstants[i].name() + " info");
+            for (int i = 0; i < cameraConstants.length; i++) {
+                log("Creating " + cameraConstants[i].name() + " info");
                 AprilTagFieldLayout fieldLayout;
 
                 try {
@@ -79,10 +79,10 @@ public class MacMini implements AutoCloseable {
 
                 // Get the pose estimator
                 PhotonPoseEstimator poseEstimator =
-                        new PhotonPoseEstimator(fieldLayout,caneraConstants[i].offset());
+                        new PhotonPoseEstimator(fieldLayout,cameraConstants[i].offset());
                     
                 // Create the camera using the name from our constant
-                PhotonCamera camera = new PhotonCamera(photonNT, caneraConstants[i].name());
+                PhotonCamera camera = new PhotonCamera(photonNT, cameraConstants[i].name());
 
                 // Create the camera
                 cameras[i] = new CameraInfo(camera, poseEstimator);
@@ -122,9 +122,9 @@ public class MacMini implements AutoCloseable {
             }
 
             try {
-                VisionInfo[] poses = new VisionInfo[caneraConstants.length];
+                VisionInfo[] poses = new VisionInfo[cameraConstants.length];
                 
-                for (int i = 0; i < caneraConstants.length; i++) {
+                for (int i = 0; i < cameraConstants.length; i++) {
                     poses[i] = getVisionPose(cameras[i]);
                 }
 
