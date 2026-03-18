@@ -261,7 +261,11 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         LightningShuffleboard.setBool("Vision", "vision data stale", visionStale);
 
         VisionInfo updatedPose = pose.getAndSet(null);
-        if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
+        // Use <= to match the Mac side, which uses "> POSE_AMBIGUITY_TOLERANCE"
+        // (where tolerance = 1.0). Previously, the Mac accepted ambiguity == 1.0
+        // but the RIO rejected it with "< 1", creating an off-by-one gap where
+        // a valid pose was computed, sent, received, and then thrown away.
+        if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity <= 1 && updatedPose.timestamp > 0) {
             // Compute the instantaneous time offset for THIS packet.
             // instantOffset = how far apart the two clocks were when the
             // packet arrived, including any UDP latency on this specific packet.
