@@ -286,7 +286,14 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command turretAim(Target target) {
-        return turret.turretAimCommand(this);
+        // Previously this ignored the 'target' parameter and used
+        // cannon.getTarget() via turretAimCommand(this). Now we pass
+        // the target through so callers can override which target to aim at.
+        return turret.turretAimCommand(
+            () -> new Pose2d(getShooterTranslation(), drivetrain.getPose().getRotation()),
+            () -> target,
+            () -> 0
+        );
     }
 
     /**
