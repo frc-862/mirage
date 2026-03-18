@@ -364,14 +364,27 @@ public class Cannon extends SubsystemBase {
     }
     
     /**
-     * starts the indexer when the hood, turret, and shooter is on target.
+     * Runs the indexer only while the cannon is on target.
+     *
+     * Old behavior: wait once for on-target, then feed balls forever (even if
+     * the system drifts off-target afterward). This meant balls could fire
+     * while the turret/hood were no longer aimed correctly.
+     *
+     * New behavior: continuously check isOnTarget() every cycle. The indexer
+     * only runs while all subsystems are aimed correctly. If the robot hits
+     * a bump or vision causes a pose jump, the indexer pauses until aim is
+     * re-acquired.
+     *
      * @return The command
      */
     public Command indexWhenOnTarget(){
-        return new SequentialCommandGroup(
-            new WaitUntilCommand(() -> isOnTarget()),
-            indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
-        );
+        return new RunCommand(() -> {
+            if (isOnTarget()) {
+                indexer.setPower(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER);
+            } else {
+                indexer.stop();
+            }
+        });
     }
 
     /**
