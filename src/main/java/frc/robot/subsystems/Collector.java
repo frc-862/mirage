@@ -70,16 +70,16 @@ public class Collector extends SubsystemBase {
 
 
         // pivot
-        public static final boolean PIVOT_INVERTED = true; // temp
+        public static final boolean PIVOT_INVERTED = !RobotMap.IS_OASIS; // temp
         public static final Current PIVOT_STATOR_LIMIT = Amps.of(40); // temp
-        public static final Current PIVOT_SUPPLY_LIMIT = Amps.of(3); // temp
+        public static final Current PIVOT_SUPPLY_LIMIT = RobotMap.IS_OASIS ? Amps.of(6) : Amps.of(3); // temp
         public static final boolean PIVOT_SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean PIVOT_BRAKE_MODE = true; // temp
         public static final double ROTOR_TO_ENCODER_RATIO = 1d; // temp
         public static final double ENCODER_TO_MECHANISM_RATIO = 9d * 24d/10d; // temp
-        public static final Angle MIN_ANGLE = Rotations.of(0);
-        public static final Angle MAX_ANGLE = Rotations.of(0.35);
-        public static final Angle NEUTRAL_ANGLE = Rotations.of(0.25);
+        public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Rotations.of(-0.288818) : Rotations.of(0);
+        public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Rotations.of(0.015869) : Rotations.of(0.35);
+        public static final Angle NEUTRAL_ANGLE = RobotMap.IS_OASIS ? Rotations.of(-0.25) : Rotations.of(0.25);
         public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
         public static final Angle STOW_ANGLE = MIN_ANGLE;
         public static final Angle TOLERANCE = Rotations.of(0.05);
