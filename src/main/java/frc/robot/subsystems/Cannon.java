@@ -310,13 +310,13 @@ public class Cannon extends SubsystemBase {
      * @return DA OTFFF
      */
     public Command shootOTF() {
-        return new RunCommand(() -> {    
+        return new RunCommand(() -> {
             Time tof;
 
             Pose2d previousPose;
-            Pose2d futurePose = drivetrain.getPose();  
+            Pose2d futurePose = drivetrain.getPose();
 
-            Distance futureDist = getTargetDistance(); 
+            Distance futureDist = getTargetDistance();
 
             for (int i = 0; i < CannonConstants.MAX_OTF_ITERATIONS; i++) {
                 tof = CannonConstants.TIME_OF_FLIGHT_MAP.get(futureDist);
@@ -330,13 +330,18 @@ public class Cannon extends SubsystemBase {
                     break;
                 }
             }
-           
+
             Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(futureDist);
             AngularVelocity shooterVelocity = Shooter.ShooterConstants.VELOCITY_MAP.get(futureDist);
 
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
-            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget());
+
+            // Pass the chassis angular velocity so the turret can apply
+            // feedforward to counter-rotate against the chassis spin.
+            // Without this, the turret PID lags behind during turns.
+            double chassisOmega = drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond;
+            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), chassisOmega);
       }, turret, shooter, hood)
       .alongWith(indexWhenOnTarget())
       .alongWith(drivetrain.changeDrivetrainSupplyLimits());

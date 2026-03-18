@@ -70,9 +70,21 @@ public class Turret extends SubsystemBase {
 
         public static final double kP = 150d;
         public static final double kI = 0d;
-        
+
         public static final double kD = 12d;
         public static final double kS = 0.33d;
+
+        // kV_FEEDFORWARD converts chassis angular velocity (rad/s) into a
+        // feedforward voltage for the turret motor. When the chassis spins,
+        // the turret must counter-rotate at the same rate to keep its
+        // field-relative aim steady. Without this, the PID has to wait for
+        // position error to build up before it reacts — by which time the
+        // turret is already behind.
+        //
+        // This value will need tuning on the real robot. A good starting
+        // point is (12V / turret_free_speed_rad_per_sec). Too high = overshoot,
+        // too low = still lags.
+        public static final double kV_FEEDFORWARD = 0.15d;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
 
@@ -255,17 +267,38 @@ public class Turret extends SubsystemBase {
     }
 
     /**
-     * sets angle of the turret
+     * Sets the turret angle with optional angular velocity feedforward.
      *
-     * @param angle sets the angle to the motor of the turret
+     * @param angle                  the desired turret angle
+     * @param chassisOmegaRadPerSec  chassis angular velocity in rad/s.
+     *                               The motor receives a feedforward voltage
+     *                               that cancels this rotation so the PID
+     *                               doesn't have to fight it reactively.
      */
-    public void setAngle(Angle angle) {
+    public void setAngle(Angle angle, double chassisOmegaRadPerSec) {
         Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-300), Degrees.of(60));
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed && !manual) { // only allow position control if turret has been zeroed but store to apply when zeroed
-            motor.setControl(positionPID.withPosition(optimizeTurretAngle(targetPosition)));
+            // Feedforward: negate the chassis omega so the turret counter-rotates.
+            // The negative sign is because if the chassis rotates CCW (+omega),
+            // the turret must rotate CW (negative direction) relative to the
+            // chassis to stay aimed at the same field point.
+            double feedforwardVolts = -chassisOmegaRadPerSec * TurretConstants.kV_FEEDFORWARD;
+
+            motor.setControl(positionPID
+                .withPosition(optimizeTurretAngle(targetPosition))
+                .withFeedForward(feedforwardVolts));
         }
+    }
+
+    /**
+     * Sets the turret angle with no feedforward (static aiming).
+     *
+     * @param angle sets the angle to the motor of the turret
+     */
+    public void setAngle(Angle angle) {
+        setAngle(angle, 0);
     }
 
     /**
@@ -376,24 +409,52 @@ public class Turret extends SubsystemBase {
         return desired;
     }
 
-    public void turretAim(Pose2d turretPose, Target target) {
+    /**
+     * Aims the turret at a target, with optional chassis angular velocity
+     * feedforward.
+     *
+     * Why feedforward matters:
+     *   Imagine you're on a merry-go-round trying to point at a fixed sign.
+     *   If you only react AFTER you've drifted off-target, you'll always lag.
+     *   But if you know the merry-go-round's spin rate, you can pre-rotate
+     *   in the opposite direction at exactly that rate and stay locked on.
+     *
+     *   That's what the feedforward does: it tells the turret motor "the
+     *   chassis is spinning at X rad/s, so apply voltage to counter that
+     *   BEFORE any error builds up." The PID then only has to clean up small
+     *   residual errors instead of doing all the work.
+     *
+     * @param turretPose the pose of the turret/shooter on the field
+     * @param target     the field target to aim at
+     * @param chassisOmegaRadPerSec the chassis angular velocity in rad/s
+     *                              (positive = CCW). Pass 0 for static aiming.
+     */
+    public void turretAim(Pose2d turretPose, Target target, double chassisOmegaRadPerSec) {
         Translation2d delta = FieldConstants.getTargetData(target).minus(turretPose.getTranslation());
 
         Angle fieldAngle = delta.getAngle().getMeasure();
 
         Angle turretAngle = fieldAngle.minus(turretPose.getRotation().getMeasure());
 
-        setAngle(turretAngle);
+        setAngle(turretAngle, chassisOmegaRadPerSec);
     }
 
-    public Command turretAimCommand(Supplier<Pose2d> turretPose, Supplier<Target> target) {
-        return run(() -> turretAim(turretPose.get(), target.get()));
+    /** Convenience overload for static aiming (no feedforward). */
+    public void turretAim(Pose2d turretPose, Target target) {
+        turretAim(turretPose, target, 0);
+    }
+
+    public Command turretAimCommand(Supplier<Pose2d> turretPose, Supplier<Target> target, DoubleSupplier chassisOmega) {
+        return run(() -> turretAim(turretPose.get(), target.get(), chassisOmega.getAsDouble()));
     }
 
     public Command turretAimCommand(Cannon cannon) {
+        // Default aim command uses zero feedforward — the chassis is assumed
+        // to be mostly stationary (or OTF is not active).
         return turretAimCommand(
             () -> new Pose2d(cannon.getShooterTranslation(), drivetrain.getPose().getRotation()),
-            () -> cannon.getTarget()
+            () -> cannon.getTarget(),
+            () -> 0
         );
     }
 
