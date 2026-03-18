@@ -9,6 +9,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -97,6 +98,13 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     private static final String MAC_MINI_IP = "10.8.62.11";
     private static final int VISION_PORT = 12345;
 
+    // How long socket.receive() will block before giving up (milliseconds).
+    // Without a timeout, if the Mac Mini stops sending (crash, unplug, etc.),
+    // the receive thread blocks FOREVER with no exception and no log.
+    // With a timeout, we get a SocketTimeoutException every 500ms, which
+    // lets us log a warning and loop back to try again.
+    private static final int SOCKET_TIMEOUT_MS = 500;
+
     // Minimum standard deviation (meters) for vision measurements.
     // Prevents the Kalman filter from placing infinite confidence in a
     // single vision reading when ambiguity is near zero. A value of 0.3
@@ -119,7 +127,14 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         try {
             // Bind to the port
-            socket = new DatagramSocket(VISION_PORT); 
+            socket = new DatagramSocket(VISION_PORT);
+
+            // Set a receive timeout so the thread doesn't block forever.
+            // If no packet arrives within SOCKET_TIMEOUT_MS, socket.receive()
+            // throws a SocketTimeoutException. The receive thread catches it,
+            // logs a warning, and loops back to try again. This prevents the
+            // thread from silently hanging if the Mac Mini goes offline.
+            socket.setSoTimeout(SOCKET_TIMEOUT_MS);
         } catch (SocketException e) {
             log("*** ERROR CREATING DATAGRAM SOCKET ***" + e);
         }
@@ -153,10 +168,18 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     // Store data atomically
                     pose.set(data);
                     
+                } catch (SocketTimeoutException e) {
+                    // This is EXPECTED and not an error. It means no packet
+                    // arrived within SOCKET_TIMEOUT_MS. We just loop back and
+                    // try again. The staleness detection in periodic() will
+                    // handle alerting if we go too long without data.
                 } catch (IllegalArgumentException e) {
-                    log("Thread Error: " + e.getMessage());
+                    // Packet arrived but failed validation (bad magic, wrong
+                    // version, too small). Log it so we can debug, but don't
+                    // crash — just wait for the next valid packet.
+                    log("Bad packet rejected: " + e.getMessage());
                 } catch (IOException e) {
-                    log("Error recieving packet");
+                    log("Error receiving packet: " + e.getMessage());
                 }
             }
         });
