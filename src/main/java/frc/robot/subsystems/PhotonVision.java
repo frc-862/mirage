@@ -207,8 +207,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                               + instantOffset * TIME_OFFSET_ALPHA;
             }
 
-            // The "trust" value is the standard deviation (in meters) we tell
-            // the Kalman filter. A SMALLER number = MORE confidence in vision.
+            // The "trust" value is the standard deviation (in meters or radians)
+            // we tell the Kalman filter. A SMALLER number = MORE confidence in vision.
             //
             // Problem: when ambiguity is near 0 (e.g. a clean multi-tag solve),
             // trust was also near 0, which tells the Kalman filter "this
@@ -218,16 +218,32 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             //
             // The fix: clamp trust to a minimum of MIN_VISION_STD_DEV so we
             // always blend vision with odometry rather than blindly trusting it.
-            double trust = Math.max(updatedPose.ambiguity() * 1.2, MIN_VISION_STD_DEV);
+            double xyTrust = Math.max(updatedPose.ambiguity() * 1.2, MIN_VISION_STD_DEV);
+
+            // WHY rotation trust is tighter (smaller = more confident):
+            //   AprilTag detection constrains rotation very well — the tag's
+            //   corners give strong angular information even at distance.
+            //   Translation, on the other hand, depends on accurately knowing
+            //   the tag's range, which gets noisier with distance.
+            //
+            //   By trusting the rotation more, the Kalman filter lets vision
+            //   correct our heading quickly (important for turret aiming) while
+            //   being more conservative about x/y jumps (which cause the turret
+            //   to chase phantom lateral movements).
+            //
+            //   The 0.5 multiplier means rotation trust is twice as tight as
+            //   translation trust. Tune this if the heading seems jumpy.
+            double rotTrust = xyTrust * 0.5;
 
             LightningShuffleboard.setPose2d("Vision", "updated pose", updatedPose.pose);
             LightningShuffleboard.setDouble("Vision", "mac time offset", macTimeOffset);
-            
-            // Adds our estimated pose from vision to our drivetrain's pose, fuses with odometry
+
+            // Adds our estimated pose from vision to our drivetrain's pose, fuses with odometry.
+            // The std dev vector is [x, y, theta] — x and y in meters, theta in radians.
             drivetrain.addVisionMeasurement(
-                updatedPose.pose(), 
-                updatedPose.timestamp + macTimeOffset, 
-                VecBuilder.fill(trust, trust, trust)
+                updatedPose.pose(),
+                updatedPose.timestamp + macTimeOffset,
+                VecBuilder.fill(xyTrust, xyTrust, rotTrust)
             );
         }     
         updateLogging();
