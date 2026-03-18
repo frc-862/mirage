@@ -25,6 +25,8 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.constants.RobotMap;
+import frc.robot.mac.VisionConstants.CameraConstant;
 
 public class MacMini implements AutoCloseable {
         // Camera info
@@ -59,6 +61,10 @@ public class MacMini implements AutoCloseable {
         // least 1-2 fresh packets per RIO cycle, while the heartbeat
         // lets the RIO know we're alive even when no tags are visible.
         private static final long SEND_INTERVAL_MS = 10;
+
+        // Which camera constants to use — picked at startup based on which
+        // robot this is (main robot vs Oasis have different camera positions).
+        CameraConstant[] cameraConstants;
 
         // The network tables instance that will connect to the local photonvision server
         NetworkTableInstance photonNT = NetworkTableInstance.create();
@@ -126,12 +132,15 @@ public class MacMini implements AutoCloseable {
             photonNT.setServer("localhost", 5810);
             photonNT.startClient4("mac-photon-client");
 
+            cameraConstants = RobotMap.IS_OASIS ? VisionConstants.OASIS_CAMERA_CONSTANTS : VisionConstants.CAMERA_CONSTANTS;
+
             // Create an empty array of cameras
-            cameras = new CameraInfo[VisionConstants.CAMERA_CONSTANTS.length];
+            cameras = new CameraInfo[cameraConstants.length];
+
 
             // Create the cameras
-            for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
-                log("Creating " + VisionConstants.CAMERA_CONSTANTS[i].name() + " info");
+            for (int i = 0; i < cameraConstants.length; i++) {
+                log("Creating " + cameraConstants[i].name() + " info");
                 AprilTagFieldLayout fieldLayout;
 
                 try {
@@ -150,10 +159,11 @@ public class MacMini implements AutoCloseable {
 
                 // Get the pose estimator
                 PhotonPoseEstimator poseEstimator =
-                        new PhotonPoseEstimator(fieldLayout, VisionConstants.CAMERA_CONSTANTS[i].offset());
+                        new PhotonPoseEstimator(fieldLayout, cameraConstants[i].offset());
+
 
                 // Create the camera using the name from our constant
-                PhotonCamera camera = new PhotonCamera(photonNT, VisionConstants.CAMERA_CONSTANTS[i].name());
+                PhotonCamera camera = new PhotonCamera(photonNT, cameraConstants[i].name());
 
                 // Create the camera
                 cameras[i] = new CameraInfo(camera, poseEstimator);
@@ -308,9 +318,9 @@ public class MacMini implements AutoCloseable {
             }
 
             try {
-                VisionInfo[] poses = new VisionInfo[VisionConstants.CAMERA_CONSTANTS.length];
+                VisionInfo[] poses = new VisionInfo[cameraConstants.length];
 
-                for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
+                for (int i = 0; i < cameraConstants.length; i++) {
                     poses[i] = getVisionPose(cameras[i]);
                 }
 
