@@ -101,8 +101,6 @@ public class Cannon extends SubsystemBase {
         this.drivetrain = drivetrain;
 
         this.indexer = indexer;
-        
-        this.storedTarget = FieldConstants.GOAL_POSITION;
 
         this.storedTarget = FieldConstants.GOAL_POSITION;
 
