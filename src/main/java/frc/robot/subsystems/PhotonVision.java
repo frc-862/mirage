@@ -41,8 +41,30 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     // An atomic refrence to store our newley recieved pose, thread safe
     AtomicReference<VisionInfo> pose;
 
-    // Stores the time offset for the difference in time between mac and rio
+    // Stores the time offset for the difference in time between mac and rio.
+    //
+    // WHY THIS EXISTS:
+    // The Mac Mini and the RoboRIO have different system clocks. When the Mac
+    // sends a vision timestamp, we need to convert it to the RIO's time domain
+    // so the Kalman filter can properly account for how much the robot moved
+    // between when the image was captured and when we process it.
+    //
+    // macTimeOffset = (RIO time) - (Mac time) for the same real-world moment.
+    // To convert any Mac timestamp to RIO time: rioTime = macTime + macTimeOffset
+    //
+    // OLD BEHAVIOR: computed once on the first packet. Whatever UDP latency
+    // that packet had was permanently baked in.
+    //
+    // NEW BEHAVIOR: uses an Exponential Moving Average (EMA) to continuously
+    // refine the offset. This averages out random UDP jitter while still
+    // tracking any slow clock drift between the two computers.
     double macTimeOffset = 0;
+
+    // EMA smoothing factor for macTimeOffset.
+    //   Lower  (e.g., 0.01) = more stable, slower to adapt to clock drift
+    //   Higher (e.g., 0.10) = noisier, faster to adapt
+    // 0.02 means each new sample contributes 2% and the history contributes 98%.
+    private static final double TIME_OFFSET_ALPHA = 0.02;
 
     // A datagram socket which we connect to to recieve packets from the mac
     DatagramSocket socket;
@@ -164,9 +186,25 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         VisionInfo updatedPose = pose.getAndSet(null);
         if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
-            // If the time offset has not been set yet, calculate it
+            // Compute the instantaneous time offset for THIS packet.
+            // instantOffset = how far apart the two clocks are RIGHT NOW,
+            // including any UDP latency on this specific packet.
+            double instantOffset = Utils.getCurrentTimeSeconds() - updatedPose.timestamp;
+
             if (macTimeOffset == 0) {
-                macTimeOffset = Utils.getCurrentTimeSeconds() - updatedPose.timestamp;
+                // First packet: use it directly as our initial estimate.
+                macTimeOffset = instantOffset;
+            } else {
+                // Subsequent packets: blend the new measurement into our
+                // running estimate using an Exponential Moving Average.
+                //
+                // EMA formula: new_avg = old_avg * (1 - alpha) + new_sample * alpha
+                //
+                // This smooths out random UDP jitter (some packets arrive
+                // fast, some slow) while still adapting if the two clocks
+                // slowly drift apart over the course of a match.
+                macTimeOffset = macTimeOffset * (1.0 - TIME_OFFSET_ALPHA)
+                              + instantOffset * TIME_OFFSET_ALPHA;
             }
 
             // The "trust" value is the standard deviation (in meters) we tell
