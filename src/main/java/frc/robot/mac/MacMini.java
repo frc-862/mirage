@@ -37,13 +37,21 @@ public class MacMini implements AutoCloseable {
         // Socket to send data
         DatagramSocket socket;
 
-        public MacMini() {
-            try {
-                // Create a new socket to send data to the rio
-                socket = new DatagramSocket();
-            } catch (SocketException e) {
-                log("*** ERROR CREATING SOCKET ***");
-            }
+        // Why does the constructor throw SocketException now?
+        // Previously, if the socket failed to create, we caught the exception,
+        // logged it, and continued running with socket = null. Then run() would
+        // call socket.send() on a null socket, throwing an NPE every iteration
+        // forever — filling the log with useless errors and burning CPU.
+        //
+        // By letting the exception propagate ("throws SocketException"), we
+        // force the program to stop immediately with a clear error message.
+        // This is called "fail fast" — it's better to crash with a helpful
+        // error than to limp along in a broken state.
+        public MacMini() throws SocketException {
+            // Create a new socket to send data to the rio.
+            // If this fails, the exception propagates up and stops the program
+            // immediately — there's no point continuing without a socket.
+            socket = new DatagramSocket();
 
             // Connect to our local network tables server
             photonNT.setServer("localhost", 5810);
