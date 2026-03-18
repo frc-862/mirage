@@ -235,6 +235,12 @@ public class RobotContainer {
         ));
         leds.setBehavior(LED_STATES.TURRET_MANUAL.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREY));
         leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripUnderglow, Color.RED));
+
+        // Blinking yellow = "Mac Mini is alive and sending heartbeats, but
+        // no AprilTags are visible." This tells the drive team: comms are
+        // good, you just need to point the robot at some tags.
+        // Contrast with VISION_BAD (solid red) = "Mac Mini is dead."
+        leds.setBehavior(LED_STATES.VISION_COMMS_NO_POSE.id(), LEDBehaviorFactory.blink(LEDConstants.stripUnderglow, 2, Color.YELLOW));
         leds.setBehavior(LED_STATES.TURRET_BAD.id(), LEDBehaviorFactory.pulse(LEDConstants.stripShooter, 2, Color.ORANGE));
 
         leds.setBehavior(LED_STATES.SEED_FIELD_FORWARD.id(), LEDBehaviorFactory.rainbow(LEDConstants.stripAll, 2));
@@ -257,6 +263,17 @@ public class RobotContainer {
 
         // Turn off the "vision bad" LED state once the drivetrain has moved away from the origin, indicating we likely have a valid pose estimate.
         new Trigger(new LEDBooleanSupplier(() -> (DriverStation.isDisabled() && drivetrain.getPose().getTranslation().getDistance(new Translation2d()) < 0.1))).whileTrue(leds.enableState(LED_STATES.VISION_BAD.id()));
+
+        // Show blinking yellow while disabled when the Mac Mini is sending
+        // heartbeats (comms alive) but no pose data is available (no tags
+        // visible). This helps the drive team distinguish:
+        //   Solid RED (VISION_BAD)         = Mac is dead or comms down
+        //   Blinking YELLOW (this trigger) = Mac is alive, just no tags
+        //   Default pattern                = Everything working fine
+        new Trigger(new LEDBooleanSupplier(() -> DriverStation.isDisabled()
+            && vision.isCommsAlive()
+            && drivetrain.getPose().getTranslation().getDistance(new Translation2d()) < 0.1))
+            .whileTrue(leds.enableState(LED_STATES.VISION_COMMS_NO_POSE.id()));
 
         new Trigger(new LEDBooleanSupplier(DriverStation::isDisabled)).whileTrue(leds.enableState(LED_STATES.TEST.id()));
         

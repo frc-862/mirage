@@ -45,8 +45,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     // These MUST match the values in MacMini.java. If you change the packet
     // format, update both files and bump PROTOCOL_VERSION.
     private static final int MAGIC_NUMBER = 0x00000862;
-    private static final byte PROTOCOL_VERSION = 1;
-    private static final int PACKET_SIZE = 49;
+    private static final byte PROTOCOL_VERSION = 2;  // v2: added has_pose flag byte
+    private static final int PACKET_SIZE = 50;        // v2: 49 + 1 byte for has_pose
 
     // The drivetrain to add vision measurments
     Swerve drivetrain;
@@ -90,6 +90,18 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     //Shows whether the mac mini is connected or not
     volatile boolean macMiniIsConnected;
+
+    // Tracks whether the Mac Mini's VISION APPLICATION is actively sending
+    // packets (pose or heartbeat). This is more useful than macMiniIsConnected
+    // (which only checks if the OS responds to ICMP pings).
+    //
+    // Three states the driver cares about:
+    //   1. commsAlive=false                  → Mac is dead / network down
+    //   2. commsAlive=true, visionStale=true → Mac is alive, but no tags visible
+    //   3. commsAlive=true, visionStale=false→ Everything working, getting poses
+    //
+    // The LED system uses these to show different colors while disabled.
+    private volatile boolean commsAlive = false;
 
     // Tracks the RIO time when we last received a valid vision packet.
     // This lets periodic() detect "staleness" — when the vision processor
@@ -188,15 +200,21 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     // be incorrectly included in the offset.
                     double receiveTimeRio = Utils.getCurrentTimeSeconds();
 
-                    // Fresh vision data :)
+                    // Parse the packet. Returns null for heartbeat-only packets
+                    // (has_pose == 0), or a VisionInfo for pose packets.
                     VisionInfo data = parseBinaryPacket(receivePacket, receiveTimeRio);
 
-                    // Record when we last got a valid packet, so periodic()
-                    // can detect if vision data goes stale.
+                    // ANY valid packet (heartbeat or pose) means the Mac Mini's
+                    // vision application is alive and communicating. Update the
+                    // comms-alive timestamp so periodic() can track staleness.
                     lastReceiveTimeRio = receiveTimeRio;
+                    commsAlive = true;
 
-                    // Store data atomically
-                    pose.set(data);
+                    // Only store actual pose data, not heartbeats.
+                    // Heartbeats return null from parseBinaryPacket.
+                    if (data != null) {
+                        pose.set(data);
+                    }
                     
                 } catch (SocketTimeoutException e) {
                     // This is EXPECTED and not an error. It means no packet
@@ -258,17 +276,26 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         LightningShuffleboard.setBool("Vision", "is Mac Connected", macMiniIsConnected);
         LightningShuffleboard.setDouble("Vision", "Mac Mini Ping", macMiniPing.get().in(Milliseconds));
 
-        // Staleness detection: check if we've received a valid packet recently.
+        // Staleness detection: check if we've received ANY packet recently.
+        // With heartbeats (protocol v2), the Mac sends a packet every 10ms
+        // even when no tags are visible. So if we haven't received anything
+        // in 0.5s, the Mac application is truly dead (not just "no tags").
+        //
         // This is MORE informative than the ICMP ping because:
         //   - ICMP only tells you the Mac Mini's OS is responding to pings
         //   - This tells you the VISION APPLICATION is running and sending data
         //
-        // Example: Mac Mini is on, but the vision JAR crashed → ICMP says
-        // "connected" but vision data is stale. Without this check, the
-        // driver has no idea vision is dead.
-        boolean visionStale = lastReceiveTimeRio > 0
-            && (now - lastReceiveTimeRio) > VISION_STALE_THRESHOLD_SECS;
-        LightningShuffleboard.setBool("Vision", "vision data stale", visionStale);
+        // When comms go stale, we mark commsAlive = false so the LED system
+        // and other code can distinguish all three states:
+        //   commsAlive=false → Mac dead or network down (solid RED)
+        //   commsAlive=true, no pose → Mac alive, no tags visible (blinking YELLOW)
+        //   commsAlive=true, has pose → Everything working normally
+        if (lastReceiveTimeRio > 0
+            && (now - lastReceiveTimeRio) > VISION_STALE_THRESHOLD_SECS) {
+            commsAlive = false;
+        }
+        LightningShuffleboard.setBool("Vision", "vision comms alive", commsAlive);
+        LightningShuffleboard.setBool("Vision", "vision data stale", !commsAlive);
 
         VisionInfo updatedPose = pose.getAndSet(null);
         // Use <= to match the Mac side, which uses "> POSE_AMBIGUITY_TOLERANCE"
@@ -409,7 +436,21 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         // you see big jumps, packets are being dropped on the network.
         int seq = buffer.getInt();
 
-        // --- Parse payload (same order as MacMini.getBinaryPacket) ---
+        // Read the has_pose flag (added in protocol v2).
+        // 1 = this packet contains a valid pose in the payload.
+        // 0 = heartbeat only — the Mac is alive but has no tags visible.
+        //
+        // For heartbeats, we return null. The receive thread still updates
+        // lastReceiveTimeRio and commsAlive, but does NOT store a pose.
+        byte hasPose = buffer.get();
+        if (hasPose == 0) {
+            // Heartbeat packet — no pose data to parse.
+            // Returning null tells the receive thread "comms are good,
+            // but there's no pose to feed into the Kalman filter."
+            return null;
+        }
+
+        // --- Parse payload (same order as MacMini.buildPacket) ---
         double x = buffer.getDouble();
         double y = buffer.getDouble();
         double rotRadians = buffer.getDouble();
@@ -423,6 +464,19 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     public boolean getMacMiniConnection() {
         return macMiniIsConnected;
+    }
+
+    /**
+     * Returns true if the Mac Mini's vision application is actively
+     * sending packets (either poses or heartbeats). This is more useful
+     * than getMacMiniConnection() which only checks ICMP ping.
+     *
+     * Used by the LED system to distinguish:
+     *   - commsAlive=true  → Mac app is running (may or may not have tags)
+     *   - commsAlive=false → Mac app is dead or network is down
+     */
+    public boolean isCommsAlive() {
+        return commsAlive;
     }
 
     // Logs a message with the [PHOTON VISION] tag in front 
