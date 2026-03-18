@@ -295,14 +295,35 @@ public class Cannon extends SubsystemBase {
     }
 
     /**
-     * Remodel of shooter aim-- automatically decides when to shoot
+     * Remodel of shooter aim -- automatically decides when to shoot.
+     *
+     * OLD BEHAVIOR (one-shot gate):
+     *   WaitUntilCommand(all on target) → autoIndex(forever)
+     *   Problem: once the gate opens, balls fire even if the turret/hood
+     *   drift off-target (e.g., from collector vibration or vision noise).
+     *
+     * NEW BEHAVIOR (two-stage continuous gate):
+     *   Stage 1: Wait for ALL systems (turret + hood + shooter + not near
+     *            hub) to be ready. This ensures the flywheel is spun up
+     *            before the first ball fires.
+     *   Stage 2: Continuously gate the indexer on turret + hood aim ONLY
+     *            (via isAimed()). We don't re-check the shooter here
+     *            because each ball momentarily slows the flywheel, which
+     *            would stutter the indexer between every shot.
+     *
+     * This way, if collecting a ball causes the turret to drift off-target,
+     * the indexer pauses until aim is re-acquired — preventing inaccurate
+     * shots.
+     *
      * @return The command to run
      */
     public Command smartShoot() {
         return shooter.runShootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
         .alongWith(new SequentialCommandGroup(
+            // Stage 1: Wait for everything to be ready (including flywheel spin-up)
             new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget() && !isNearHub()),
-            indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)
+            // Stage 2: Continuously check aim — indexer only runs while aimed
+            indexWhenAimed()
         )
         .finallyDo((end) -> {
             shooter.setPower(ShooterConstants.COAST_DC);
@@ -362,16 +383,14 @@ public class Cannon extends SubsystemBase {
     }
     
     /**
-     * Runs the indexer only while the cannon is on target.
+     * Runs the indexer only while ALL cannon subsystems are on target
+     * (turret + hood + shooter). Used by shootOTF() where we want the
+     * full readiness check every cycle.
      *
-     * Old behavior: wait once for on-target, then feed balls forever (even if
-     * the system drifts off-target afterward). This meant balls could fire
-     * while the turret/hood were no longer aimed correctly.
-     *
-     * New behavior: continuously check isOnTarget() every cycle. The indexer
-     * only runs while all subsystems are aimed correctly. If the robot hits
-     * a bump or vision causes a pose jump, the indexer pauses until aim is
-     * re-acquired.
+     * NOTE: Because each ball slows the flywheel momentarily, this will
+     * pause the indexer briefly between shots. For OTF this is acceptable
+     * since we're already in motion and want maximum accuracy. For rapid
+     * stationary fire, use indexWhenAimed() instead (see smartShoot).
      *
      * @return The command
      */
@@ -382,7 +401,34 @@ public class Cannon extends SubsystemBase {
             } else {
                 indexer.stop();
             }
-        });
+        }, indexer)  // IMPORTANT: require the indexer so no other command can fight us
+        .finallyDo((interrupted) -> indexer.stop()); // always stop on interrupt
+    }
+
+    /**
+     * Runs the indexer only while the turret and hood are aimed correctly,
+     * WITHOUT checking the shooter flywheel speed.
+     *
+     * Why not check the shooter? Each ball that fires slows the flywheel
+     * by a few RPS. If we checked shooter.isOnTarget() here, the indexer
+     * would pause after every single ball, waiting for the flywheel to
+     * recover. That stuttering kills our fire rate.
+     *
+     * Instead, smartShoot() uses a two-stage approach:
+     *   1. Wait for the shooter to spin up (one-time check)
+     *   2. Then use THIS method to continuously gate on aim only
+     *
+     * @return The command
+     */
+    public Command indexWhenAimed(){
+        return new RunCommand(() -> {
+            if (isAimed()) {
+                indexer.setPower(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER);
+            } else {
+                indexer.stop();
+            }
+        }, indexer)  // IMPORTANT: require the indexer so no other command can fight us
+        .finallyDo((interrupted) -> indexer.stop()); // always stop on interrupt
     }
 
     /**
@@ -391,5 +437,27 @@ public class Cannon extends SubsystemBase {
      */
     public boolean isOnTarget(){
         return (hood.isOnTarget() && turret.isOnTarget() && shooter.isOnTarget());
+    }
+
+    /**
+     * Checks if the turret and hood are aimed at the target, ignoring the
+     * shooter flywheel. We use this for CONTINUOUS indexer gating because:
+     *
+     *   - Each ball that fires momentarily slows the flywheel below its
+     *     tolerance (±2 RPS), so shooter.isOnTarget() briefly returns false
+     *     after every shot.
+     *   - If we gated on the shooter too, the indexer would stutter between
+     *     every ball — dramatically reducing our fire rate.
+     *   - The turret and hood are what determine shot ACCURACY. The flywheel
+     *     recovers speed between shots on its own.
+     *
+     * We still check the shooter for the INITIAL readiness gate (in
+     * smartShoot and shootOTF) to make sure the flywheel is spun up before
+     * the first ball fires.
+     *
+     * @return true if hood and turret are aimed correctly
+     */
+    public boolean isAimed(){
+        return (hood.isOnTarget() && turret.isOnTarget());
     }
 }
