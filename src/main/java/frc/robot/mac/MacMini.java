@@ -87,7 +87,11 @@ public class MacMini implements AutoCloseable {
             while (true) {
                 VisionInfo info = getEstimatedPose();
 
-                if (info.pose != null && info.result != null) {
+                // IMPORTANT: getEstimatedPose() can return null (not just a
+                // VisionInfo with null fields). We must check for null FIRST,
+                // otherwise calling info.pose() on a null reference throws a
+                // NullPointerException and crashes the entire vision processor.
+                if (info != null && info.pose != null && info.result != null) {
                     Pose2d poseToPublish = info.pose().estimatedPose.toPose2d();
                     double ambiguity = info.result().getBestTarget().poseAmbiguity;
                     double timestamp = info.result().getTimestampSeconds();
