@@ -64,6 +64,13 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     private static final String MAC_MINI_IP = "10.8.62.11";
     private static final int VISION_PORT = 12345;
 
+    // Minimum standard deviation (meters) for vision measurements.
+    // Prevents the Kalman filter from placing infinite confidence in a
+    // single vision reading when ambiguity is near zero. A value of 0.3
+    // means "even a perfect multi-tag solve can be off by ~30 cm."
+    // Tune this: lower = trust vision more, higher = trust odometry more.
+    private static final double MIN_VISION_STD_DEV = 0.3;
+
     /** Creates a new PhotonVision.
      * 
      * @param drivetrain The main drivetrain on the robot
@@ -162,8 +169,18 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                 macTimeOffset = Utils.getCurrentTimeSeconds() - updatedPose.timestamp;
             }
 
-            // Calculate the standard deviation to use-- small multiplier so not too low
-            double trust = updatedPose.ambiguity() * 1.2;
+            // The "trust" value is the standard deviation (in meters) we tell
+            // the Kalman filter. A SMALLER number = MORE confidence in vision.
+            //
+            // Problem: when ambiguity is near 0 (e.g. a clean multi-tag solve),
+            // trust was also near 0, which tells the Kalman filter "this
+            // measurement is perfect — ignore odometry entirely." Even tiny
+            // vision errors then cause the pose estimate to jump, which makes
+            // the turret chase phantom movements.
+            //
+            // The fix: clamp trust to a minimum of MIN_VISION_STD_DEV so we
+            // always blend vision with odometry rather than blindly trusting it.
+            double trust = Math.max(updatedPose.ambiguity() * 1.2, MIN_VISION_STD_DEV);
 
             LightningShuffleboard.setPose2d("Vision", "updated pose", updatedPose.pose);
             LightningShuffleboard.setDouble("Vision", "mac time offset", macTimeOffset);
