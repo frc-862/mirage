@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -307,6 +308,14 @@ public class MacMini implements AutoCloseable {
 
         private DatagramPacket getBinaryPacket(Pose2d pose, double ambiguity, double timestamp) {
             ByteBuffer buffer = ByteBuffer.allocate(PACKET_SIZE);
+
+            // Explicitly set byte order so the sender and receiver agree on
+            // how multi-byte values (ints, doubles) are laid out in memory.
+            // BIG_ENDIAN = most significant byte first (Java's default).
+            // We set it explicitly so this contract is visible in the code —
+            // if either side were ever ported to a non-Java language, you'd
+            // immediately see which byte order to use.
+            buffer.order(ByteOrder.BIG_ENDIAN);
 
             // --- Header (9 bytes) ---
             // These fields let the receiver verify that this packet is really

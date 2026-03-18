@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.photonvision.PhotonCamera;
@@ -359,6 +360,11 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         }
 
         ByteBuffer buffer = ByteBuffer.wrap(data, 0, PACKET_SIZE);
+
+        // Explicitly set byte order to match the sender (MacMini.java).
+        // Both sides must agree, otherwise multi-byte values (ints, doubles)
+        // will be read with their bytes reversed, producing garbage numbers.
+        buffer.order(ByteOrder.BIG_ENDIAN);
 
         // --- Validate header ---
         // Read the magic number and check it matches. This is our first
