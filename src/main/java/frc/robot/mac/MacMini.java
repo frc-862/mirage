@@ -193,7 +193,9 @@ public class MacMini implements AutoCloseable {
                             // This means the sender always gets the BEST pose from the
                             // entire 10ms window, not just whichever happened to be last.
                             bestPose.accumulateAndGet(info, (current, candidate) -> {
-                                if (current == null) return candidate;
+                                if (current == null) {
+                                    return candidate;
+                                }
                                 double currentAmb = current.result().getBestTarget().poseAmbiguity;
                                 double candidateAmb = candidate.result().getBestTarget().poseAmbiguity;
                                 return candidateAmb < currentAmb ? candidate : current;

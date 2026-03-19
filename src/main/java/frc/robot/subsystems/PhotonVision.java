@@ -282,6 +282,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
      * after a fatal error without needing to restart the entire subsystem.
      * The socket binds to the wildcard address so we receive packets
      * regardless of which network interface they arrive on.
+     *
+     * @return the new socket, or null if creation failed
      */
     private DatagramSocket createSocket() {
         try {
@@ -420,7 +422,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
      * vision data and corrupting the Kalman filter.
      *
      * @param packet The packet to unpack
-     * @return VisionInfo with pose, ambiguity, and timestamp
+     * @param receiveTimeRio the RIO clock time when the packet was received
+     * @return VisionInfo with pose, ambiguity, and timestamp, or null for heartbeat packets
      * @throws IllegalArgumentException if the packet is malformed or from an unknown source
      */
     private VisionInfo parseBinaryPacket(DatagramPacket packet, double receiveTimeRio) {
@@ -508,6 +511,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
      * Used by the LED system to distinguish:
      *   - commsAlive=true  → Mac app is running (may or may not have tags)
      *   - commsAlive=false → Mac app is dead or network is down
+     *
+     * @return true if vision comms are active
      */
     public boolean isCommsAlive() {
         return commsAlive;
