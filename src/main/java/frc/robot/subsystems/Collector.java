@@ -75,6 +75,8 @@ public class Collector extends SubsystemBase {
         public static final Current PIVOT_SUPPLY_LIMIT = RobotMap.IS_OASIS ? Amps.of(6) : Amps.of(3); // temp
         public static final boolean PIVOT_SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean PIVOT_BRAKE_MODE = true; // temp
+        public static final Current COLLECTOR_SUPPLY_LIMIT = Amps.of(40); // temp
+        public static final boolean COLLECTOR_SUPPLY_LIMIT_ENABLE = true; // temp
         public static final double ROTOR_TO_ENCODER_RATIO = 1d; // temp
         public static final double ENCODER_TO_MECHANISM_RATIO = 9d * 24d/10d; // temp
         public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Rotations.of(-0.288818) : Rotations.of(0);
@@ -135,20 +137,24 @@ public class Collector extends SubsystemBase {
 
         collectorDutyCycle = new DutyCycleOut(0.0);
 
-        TalonFXConfiguration config = pivotMotor.getConfig();
+        TalonFXConfiguration pivotConfig = pivotMotor.getConfig();
+        TalonFXConfiguration collectorConfig = collectorMotor.getConfig();
         positionPID = new PositionVoltage(0);
+        
+        pivotConfig.Slot0.kP = CollectorConstants.PIVOT_KP;
+        pivotConfig.Slot0.kI = CollectorConstants.PIVOT_KI;
+        pivotConfig.Slot0.kD = CollectorConstants.PIVOT_KD;
+        pivotConfig.Slot0.kS = CollectorConstants.PIVOT_KS;
+        pivotConfig.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
 
-        config.Slot0.kP = CollectorConstants.PIVOT_KP;
-        config.Slot0.kI = CollectorConstants.PIVOT_KI;
-        config.Slot0.kD = CollectorConstants.PIVOT_KD;
-        config.Slot0.kS = CollectorConstants.PIVOT_KS;
+        pivotConfig.CurrentLimits.StatorCurrentLimitEnable = CollectorConstants.PIVOT_SUPPLY_LIMIT_ENABLE;
+        pivotConfig.CurrentLimits.SupplyCurrentLimit = CollectorConstants.PIVOT_SUPPLY_LIMIT.in(Amps);
 
-        config.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
+        collectorConfig.CurrentLimits.StatorCurrentLimitEnable = CollectorConstants.COLLECTOR_SUPPLY_LIMIT_ENABLE;
+        collectorConfig.CurrentLimits.SupplyCurrentLimit = CollectorConstants.COLLECTOR_SUPPLY_LIMIT.in(Amps);
 
-        config.CurrentLimits.StatorCurrentLimitEnable = CollectorConstants.PIVOT_SUPPLY_LIMIT_ENABLE;
-        config.CurrentLimits.SupplyCurrentLimit = CollectorConstants.PIVOT_SUPPLY_LIMIT.in(Amps);
-
-        pivotMotor.applyConfig(config);
+        pivotMotor.applyConfig(pivotConfig);
+        collectorMotor.applyConfig(collectorConfig);
 
         if(Robot.isSimulation()){
             // pivot sim stuff
