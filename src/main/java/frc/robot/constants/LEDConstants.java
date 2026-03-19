@@ -16,6 +16,11 @@ public class LEDConstants {
         TURRET_MANUAL,
         TURRET_BAD,
         VISION_BAD,
+        // VISION_COMMS_NO_POSE: Mac Mini is alive and sending heartbeats,
+        // but no AprilTags are visible. Shows blinking yellow on the
+        // underglow while disabled so the driver knows "comms good, just
+        // no tags" vs "everything is broken" (VISION_BAD = solid red).
+        VISION_COMMS_NO_POSE,
         SEED_FIELD_FORWARD,
         NEAR_HUB,
         AUTO,

@@ -116,6 +116,7 @@ public class RobotContainer {
 
 
         shooter.setDefaultCommand(shooter.coast());
+//         collector.setDefaultCommand(collector.neutralPivotCommand());
         hood.setDefaultCommand(cannon.hoodAim());
         turret.setDefaultCommand(cannon.turretAim());
     }
@@ -172,16 +173,9 @@ public class RobotContainer {
         //RIGHT_, LEFT_, and MIDDLE_ are all set to 0, so temp shots wont work right now
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_RIGHT).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT).deadlineFor(rumble()));
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT).deadlineFor(rumble()));
-        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT).deadlineFor(rumble()));
+        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT).deadlineFor(rumble()));
 
-        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(
-        //     shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
-        //     .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
-        //     .andThen(indexer.autoIndex(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
-        //     () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
-        //     .finallyDo(shooter::stop));
-
-        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(hood.hoodCommand(() -> 
+        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(hood.hoodCommand(() ->
         //     Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
 
         new Trigger(() -> (hood.isOnTarget() && shooter.isOnTarget() && turret.isOnTarget()))
@@ -230,6 +224,12 @@ public class RobotContainer {
         ));
         leds.setBehavior(LED_STATES.TURRET_MANUAL.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREY));
         leds.setBehavior(LED_STATES.VISION_BAD.id(), LEDBehaviorFactory.solid(LEDConstants.stripUnderglow, Color.RED));
+
+        // Blinking yellow = "Mac Mini is alive and sending heartbeats, but
+        // no AprilTags are visible." This tells the drive team: comms are
+        // good, you just need to point the robot at some tags.
+        // Contrast with VISION_BAD (solid red) = "Mac Mini is dead."
+        leds.setBehavior(LED_STATES.VISION_COMMS_NO_POSE.id(), LEDBehaviorFactory.blink(LEDConstants.stripUnderglow, 2, Color.YELLOW));
         leds.setBehavior(LED_STATES.TURRET_BAD.id(), LEDBehaviorFactory.pulse(LEDConstants.stripShooter, 2, Color.ORANGE));
 
         leds.setBehavior(LED_STATES.SEED_FIELD_FORWARD.id(), LEDBehaviorFactory.rainbow(LEDConstants.stripAll, 2));
@@ -242,7 +242,7 @@ public class RobotContainer {
         leds.setBehavior(LED_STATES.CANNED_SHOT_READY.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREEN));
         leds.setBehavior(LED_STATES.NEAR_HUB.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 3, Color.RED));
 
-        new Trigger(hood::isStowed).whileTrue(leds.enableState(LED_STATES.HOOD_STOWED.id()));
+        // new Trigger(hood::isStowed).whileTrue(leds.enableState(LED_STATES.HOOD_STOWED.id()));
 
         new Trigger(turret::getManual).whileTrue(leds.enableState(LED_STATES.TURRET_MANUAL.id()));
 
@@ -252,6 +252,17 @@ public class RobotContainer {
 
         // Turn off the "vision bad" LED state once the drivetrain has moved away from the origin, indicating we likely have a valid pose estimate.
         new Trigger(new LEDBooleanSupplier(() -> (DriverStation.isDisabled() && drivetrain.getPose().getTranslation().getDistance(new Translation2d()) < 0.1))).whileTrue(leds.enableState(LED_STATES.VISION_BAD.id()));
+
+        // Show blinking yellow while disabled when the Mac Mini is sending
+        // heartbeats (comms alive) but no pose data is available (no tags
+        // visible). This helps the drive team distinguish:
+        //   Solid RED (VISION_BAD)         = Mac is dead or comms down
+        //   Blinking YELLOW (this trigger) = Mac is alive, just no tags
+        //   Default pattern                = Everything working fine
+        new Trigger(new LEDBooleanSupplier(() -> DriverStation.isDisabled()
+            && vision.isCommsAlive()
+            && drivetrain.getPose().getTranslation().getDistance(new Translation2d()) < 0.1))
+            .whileTrue(leds.enableState(LED_STATES.VISION_COMMS_NO_POSE.id()));
 
         new Trigger(new LEDBooleanSupplier(DriverStation::isDisabled)).whileTrue(leds.enableState(LED_STATES.TEST.id()));
         
