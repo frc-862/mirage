@@ -120,6 +120,7 @@ public class Hood extends SubsystemBase {
     private Mechanism2d mech2d;
     private CANcoderSimState encoderSim;
     public boolean isHoodRetracted = false;
+    public boolean ignoreHoodRetract = false;
 
     private DoubleLogEntry angleLog;
     private DoubleLogEntry biasLog;
@@ -385,14 +386,25 @@ public class Hood extends SubsystemBase {
      * @return the command for retracting the hood
      */
     public Command retract() {
-        return startEnd(() -> {
-            if (hoodZeroed) {
+        return run(() -> {
+            if (ignoreHoodRetract) {
+                isHoodRetracted = false;
+            } else if (hoodZeroed) {
                 motor.setControl(request.withPosition(HoodConstants.MAX_ANGLE));
+                isHoodRetracted = true;
             }
-            isHoodRetracted = true;
-        }, () -> {
+        }).finallyDo(() -> {
             isHoodRetracted = false;
         });
+    }
+
+    /**
+     * While this command is running, the hood will not be forced to retract, used for smart shoot in auton
+     * @return the command
+     */
+    public Command ignoreRetractCommand() {
+        // do not require hood because it should run while allowing the hood to do something else (smart shoot)
+        return new StartEndCommand(() -> ignoreHoodRetract = true, () -> ignoreHoodRetract = false);
     }
 
     /**
