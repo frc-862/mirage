@@ -232,6 +232,9 @@ public class Hood extends SubsystemBase {
                 zeroingTimer.stop();
             }
         }
+        if (isHoodRetracted && !ignoreHoodRetract && hoodZeroed) {
+            motor.setControl(request.withPosition(HoodConstants.MAX_ANGLE));
+        }
         updateLogging();
     }
 
@@ -305,7 +308,7 @@ public class Hood extends SubsystemBase {
     }
 
     private void applyControl() {
-        if (!isHoodRetracted && hoodZeroed) {
+        if ((!isHoodRetracted || ignoreHoodRetract) && hoodZeroed) {
             motor.setControl(request.withPosition(getTargetAngleWithBias()));
         }
     }
@@ -385,18 +388,11 @@ public class Hood extends SubsystemBase {
      * Retracts the hood to its maximum angle ignoring the bias.
      * @return the command for retracting the hood
      */
-    public Command retract() {
-        return run(() -> {
-            if (ignoreHoodRetract) {
-                isHoodRetracted = false;
-            } else if (hoodZeroed) {
-                motor.setControl(request.withPosition(HoodConstants.MAX_ANGLE));
-                isHoodRetracted = true;
-            }
-        }).finallyDo(() -> {
-            isHoodRetracted = false;
-        });
+    public Command retractCommand() {
+        // do not require hood because it should run while allowing the hood to do something else (smart shoot)
+        return new StartEndCommand(() -> isHoodRetracted = true, () -> isHoodRetracted = false);
     }
+
 
     /**
      * While this command is running, the hood will not be forced to retract, used for smart shoot in auton

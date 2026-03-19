@@ -147,8 +147,8 @@ public class RobotContainer {
         new Trigger(driver::getBButton).toggleOnTrue(turret.manual());
 
         /* Copilot */
-        new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retract());
-        new Trigger(copilot::getXButton).whileTrue(hood.retract().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+        new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retractCommand());
+        new Trigger(copilot::getXButton).whileTrue(hood.retractCommand().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
         new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER,
             -IndexerConstants.TRANSFER_POWER));
