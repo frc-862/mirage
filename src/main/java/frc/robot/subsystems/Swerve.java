@@ -310,27 +310,30 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds));
     }
 
-    // /**
-    //  * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
-    //  * while still accounting for measurement noise.
-    //  * <p>
-    //  * Note that the vision measurement standard deviations passed into this method
-    //  * will continue to apply to future measurements until a subsequent call to
-    //  * {@link #setVisionMeasurementStdDevs(Matrix)} or this method.
-    //  *
-    //  * @param visionRobotPoseMeters The pose of the robot as measured by the vision camera.
-    //  * @param timestampSeconds The timestamp of the vision measurement in seconds.
-    //  * @param visionMeasurementStdDevs Standard deviations of the vision pose measurement
-    //  *     in the form [x, y, theta]ᵀ, with units in meters and radians.
-    //  */
-    // @Override
-    // public void addVisionMeasurement(
-    //     Pose2d visionRobotPoseMeters,
-    //     double timestampSeconds,
-    //     Matrix<N3, N1> visionMeasurementStdDevs
-    // ) {
-    //     super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
-    // }
+    // =====================================================================
+    // IMPORTANT: The 3-argument addVisionMeasurement override is
+    // intentionally NOT overridden here. DO NOT uncomment this!
+    //
+    // TIME DOMAIN EXPLANATION:
+    //   CTRE's parent class (TunerSwerveDrivetrain) expects timestamps in
+    //   CTRE's time domain: Utils.getCurrentTimeSeconds().
+    //
+    //   The 2-argument override above converts from FPGA time → CTRE time
+    //   (via fpgaToCurrentTime) because WPILib code typically uses FPGA time.
+    //
+    //   But our PhotonVision class calls the 3-argument version with
+    //   timestamps that are ALREADY in CTRE's time domain (converted from
+    //   Mac time using macTimeOffset). If we added fpgaToCurrentTime() here
+    //   too, we'd DOUBLE-CONVERT and all vision timestamps would be wrong.
+    //
+    //   In short:
+    //     2-arg: caller passes FPGA time    → we convert to CTRE time
+    //     3-arg: caller passes CTRE time    → parent handles it directly
+    //     EstimatedRobotPose: passes FPGA time → caller converts before calling 3-arg
+    //
+    //   If you need to add a 3-arg override in the future, check what time
+    //   domain your caller is using FIRST.
+    // =====================================================================
 
     public void addVisionMeasurement(EstimatedRobotPose pose, double distance) {
         if (DriverStation.isDisabled()) {
