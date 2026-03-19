@@ -270,6 +270,16 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        // Clamp pose to field boundaries if odometry drifts off-field
+        Pose2d currentPose = getPose();
+        if (!isInsideField(currentPose)) {
+            resetPose(new Pose2d(
+                MathUtil.clamp(currentPose.getX(), 0, FieldConstants.FIELD_LENGTH),
+                MathUtil.clamp(currentPose.getY(), 0, FieldConstants.FIELD_WIDTH),
+                currentPose.getRotation()
+            ));
+        }
     }
 
     @Override
@@ -299,6 +309,16 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     /**
+     * Checks if a pose is within the field boundaries.
+     */
+    private static boolean isInsideField(Pose2d pose) {
+        double x = pose.getX();
+        double y = pose.getY();
+        return x >= 0 && x <= FieldConstants.FIELD_LENGTH
+            && y >= 0 && y <= FieldConstants.FIELD_WIDTH;
+    }
+
+    /**
      * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
      * while still accounting for measurement noise.
      *
@@ -307,30 +327,32 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      */
     @Override
     public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
+        if (!isInsideField(visionRobotPoseMeters)) return;
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds));
     }
 
-    // /**
-    //  * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
-    //  * while still accounting for measurement noise.
-    //  * <p>
-    //  * Note that the vision measurement standard deviations passed into this method
-    //  * will continue to apply to future measurements until a subsequent call to
-    //  * {@link #setVisionMeasurementStdDevs(Matrix)} or this method.
-    //  *
-    //  * @param visionRobotPoseMeters The pose of the robot as measured by the vision camera.
-    //  * @param timestampSeconds The timestamp of the vision measurement in seconds.
-    //  * @param visionMeasurementStdDevs Standard deviations of the vision pose measurement
-    //  *     in the form [x, y, theta]ᵀ, with units in meters and radians.
-    //  */
-    // @Override
-    // public void addVisionMeasurement(
-    //     Pose2d visionRobotPoseMeters,
-    //     double timestampSeconds,
-    //     Matrix<N3, N1> visionMeasurementStdDevs
-    // ) {
-    //     super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
-    // }
+    /**
+     * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
+     * while still accounting for measurement noise.
+     * <p>
+     * Note that the vision measurement standard deviations passed into this method
+     * will continue to apply to future measurements until a subsequent call to
+     * {@link #setVisionMeasurementStdDevs(Matrix)} or this method.
+     *
+     * @param visionRobotPoseMeters The pose of the robot as measured by the vision camera.
+     * @param timestampSeconds The timestamp of the vision measurement in seconds.
+     * @param visionMeasurementStdDevs Standard deviations of the vision pose measurement
+     *     in the form [x, y, theta]ᵀ, with units in meters and radians.
+     */
+    @Override
+    public void addVisionMeasurement(
+        Pose2d visionRobotPoseMeters,
+        double timestampSeconds,
+        Matrix<N3, N1> visionMeasurementStdDevs
+    ) {
+        if (!isInsideField(visionRobotPoseMeters)) return;
+        super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
+    }
 
     public void addVisionMeasurement(EstimatedRobotPose pose, double distance) {
         if (DriverStation.isDisabled()) {

@@ -43,4 +43,7 @@ public class FieldConstants {
         public static final Rectangle2d RIGHT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 8), new Translation2d(12.4, 7)); // temp, values found with sim
 
         public static final double FIELD_MIDDLE_Y = 4.034663;
+
+        public static final double FIELD_LENGTH = 16.540988; // meters (x-axis)
+        public static final double FIELD_WIDTH = 8.069326; // meters (y-axis)
     }
