@@ -128,6 +128,7 @@ public class RobotContainer {
         // new Trigger(driver::getYButton).whileTrue(turret.zero());
         
         // TODO: Bind OTF to LB and Climb AA to RB
+        new Trigger(driver::getLeftBumperButton).whileTrue(cannon.shootOTF());
 
         // change biases for the driver
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));

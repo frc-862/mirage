@@ -1,4 +1,4 @@
-// Copyright (c) FIRST and other WPILib contributors.
+// Copyright (c) FIRST and other WPILib contributors
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
@@ -6,15 +6,18 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
@@ -22,6 +25,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -32,6 +36,7 @@ import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.AllianceHelpers;
 import frc.util.shuffleboard.LightningShuffleboard;
+import frc.util.units.ThunderMap;
 
 public class Cannon extends SubsystemBase {
     // ======== CANNON CONSTANTS ========
@@ -39,10 +44,29 @@ public class Cannon extends SubsystemBase {
     public class CannonConstants { 
         public static final Distance SMART_SHOOT_MIN_DISTANCE = Inches.of(64);
         public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(3.275), Inches.of(-3.275));
+        public static final Transform2d SHOOTER_TRANSFORM = new Transform2d(SHOOTER_TRANSLATION, new Rotation2d());
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
+        // TODO: Create the actual map
+        //
+        // IMPORTANT: In Java, dividing two integers gives an integer result!
+        //   35/30  = 1   (not 1.167)
+        //   24/30  = 0   (not 0.800)
+        // By writing 35d/30d we force floating-point (double) division so
+        // we get the correct fractional values. A TOF of 0 meant the OTF
+        // loop predicted zero future movement — completely disabling lead
+        // compensation at close range.
+        public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap<Distance, Time>() {{
+            put(Inches.of(18.78*12), Seconds.of(35d/30d));
+            put(Inches.of(64), Seconds.of(24d/30d));
+            put(Inches.of(142), Seconds.of(0.86));
+        }};
+
+        public static final int MAX_OTF_ITERATIONS = 10;
+        public static final Distance OTF_TOLERANCE = Inches.of(1.5);
+      
         public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
         public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
         public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0), Degrees.of(80), RotationsPerSecond.of(53)); //Temp
@@ -57,7 +81,7 @@ public class Cannon extends SubsystemBase {
     private Indexer indexer;
 
     // Target storage
-    private Translation2d storedTarget;
+    private Target storedTarget;
 
     private DoubleArrayLogEntry targetPositionLog;
     private DoubleLogEntry distToTargetLog;
@@ -77,8 +101,8 @@ public class Cannon extends SubsystemBase {
         this.drivetrain = drivetrain;
 
         this.indexer = indexer;
-        
-        this.storedTarget = FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
+
+        this.storedTarget = FieldConstants.GOAL_POSITION;
 
         initLogging();
     }
@@ -98,25 +122,35 @@ public class Cannon extends SubsystemBase {
         boolean isTop = robotPose.getY() > FieldConstants.FIELD_MIDDLE_Y;
 
         if (drivetrain.isInZone()) {
-            storedTarget =  FieldConstants.getTargetData(FieldConstants.GOAL_POSITION);
-        } else if (AllianceHelpers.isBlueAlliance()) {
-            storedTarget =  isTop ? FieldConstants.ZONE_POSITION_BLUE_TOP : FieldConstants.ZONE_POSITION_BLUE_BOTTOM;
+            storedTarget =  FieldConstants.GOAL_POSITION;
+        } else if (isTop) {
+            storedTarget =  new Target(FieldConstants.ZONE_POSITION_BLUE_TOP, FieldConstants.ZONE_POSITION_RED_TOP);
         } else {
-            storedTarget =  isTop ? FieldConstants.ZONE_POSITION_RED_TOP : FieldConstants.ZONE_POSITION_RED_BOTTOM;
+            storedTarget =  new Target(FieldConstants.ZONE_POSITION_BLUE_BOTTOM, FieldConstants.ZONE_POSITION_RED_BOTTOM);
         }
 
         updateLogging();
     }
 
     private void updateLogging() {
-        targetPositionLog.append(new double[]{getTarget().getX(), getTarget().getY()});
+        targetPositionLog.append(new double[]{getTargetTranslation().getX(), getTargetTranslation().getY()});
         distToTargetLog.append(getTargetDistance().in(Meters));
 
         if(!DriverStation.isFMSAttached() || Robot.isSimulation()) {
-            LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
-            LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTarget(), new Rotation2d()));
+            LightningShuffleboard.setTranslation2d("Cannon", "Target Position", FieldConstants.getTargetData(getTarget()));
+            // LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
+            LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTargetTranslation(), new Rotation2d()));
             LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
         }
+    }
+
+    /**
+     * Gets the translation of the shooter relative to the field
+     * @param pose custom pose for the robot
+     * @return Returns its position
+     */
+    public Translation2d getShooterTranslation(Pose2d pose) {
+        return pose.transformBy(CannonConstants.SHOOTER_TRANSFORM).getTranslation();
     }
 
     /**
@@ -124,15 +158,23 @@ public class Cannon extends SubsystemBase {
      * @return Returns its position
      */
     public Translation2d getShooterTranslation() {
-        return drivetrain.getPose().getTranslation().plus(CannonConstants.SHOOTER_TRANSLATION.rotateBy(drivetrain.getPose().getRotation()));
+        return getShooterTranslation(drivetrain.getPose());
     }
 
     /**
      * Gets the translation of the target that we want to aim at (all components)
      * @return The transltion
      */
-    public Translation2d getTarget() {
+    public Target getTarget() {
         return storedTarget;
+    }
+
+    /**
+     * Gets the current target's translati on according to the alliance
+     * @return The translation
+    */
+    public Translation2d getTargetTranslation() {
+        return FieldConstants.getTargetData(getTarget());
     }
 
     /**
@@ -140,7 +182,16 @@ public class Cannon extends SubsystemBase {
      * @return The distance
      */
     public Distance getTargetDistance() {
-        return Meters.of(getTarget().minus(getShooterTranslation()).getNorm());
+        return Meters.of(getTargetTranslation().minus(getShooterTranslation()).getNorm());
+    }
+
+    /**
+     * Gets the distance from the robot to the target
+     * @param pose custom pose to pass in
+     * @return The distance
+     */
+    public Distance getTargetDistance(Pose2d pose) {
+        return Meters.of(getTargetTranslation().minus(getShooterTranslation(pose)).getNorm());
     }
 
     /**
@@ -224,7 +275,7 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command turretAim() {
-        return turret.turretAim(this);
+        return turret.turretAimCommand(this);
     }
 
     /**
@@ -233,49 +284,180 @@ public class Cannon extends SubsystemBase {
      * @return The command
      */
     public Command turretAim(Target target) {
-        return turret.turretAim(target);
+        // Previously this ignored the 'target' parameter and used
+        // cannon.getTarget() via turretAimCommand(this). Now we pass
+        // the target through so callers can override which target to aim at.
+        return turret.turretAimCommand(
+            () -> new Pose2d(getShooterTranslation(), drivetrain.getPose().getRotation()),
+            () -> target,
+            () -> 0
+        );
     }
 
     /**
-     * Remodel of shooter aim-- automatically decides when to shoot
+     * Remodel of shooter aim -- automatically decides when to shoot.
+     *
+     * OLD BEHAVIOR (one-shot gate):
+     *   WaitUntilCommand(all on target) → autoIndex(forever)
+     *   Problem: once the gate opens, balls fire even if the turret/hood
+     *   drift off-target (e.g., from collector vibration or vision noise).
+     *
+     * NEW BEHAVIOR (two-stage continuous gate):
+     *   Stage 1: Wait for ALL systems (turret + hood + shooter + not near
+     *            hub) to be ready. This ensures the flywheel is spun up
+     *            before the first ball fires.
+     *   Stage 2: Continuously gate the indexer on turret + hood aim ONLY
+     *            (via isAimed()). We don't re-check the shooter here
+     *            because each ball momentarily slows the flywheel, which
+     *            would stutter the indexer between every shot.
+     *
+     * This way, if collecting a ball causes the turret to drift off-target,
+     * the indexer pauses until aim is re-acquired — preventing inaccurate
+     * shots.
+     *
      * @return The command to run
      */
     public Command smartShoot() {
         return shooter.runShootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
         .alongWith(new SequentialCommandGroup(
+            // Stage 1: Wait for everything to be ready (including flywheel spin-up)
             new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget() && !isNearHub()),
-            indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)
-        ).finallyDo((end) -> {
+            // Stage 2: Continuously check aim — indexer only runs while aimed
+            indexWhenAimed()
+        )
+        .finallyDo((end) -> {
             shooter.setPower(ShooterConstants.COAST_DC);
             indexer.stop();
         }));
     }
 
     /**
+     * YAY
+     * @return DA OTFFF
+     */
+    public Command shootOTF() {
+        return new RunCommand(() -> {
+            Time tof;
+
+            Pose2d previousPose;
+            Pose2d futurePose = drivetrain.getPose();
+
+            Distance futureDist = getTargetDistance();
+
+            for (int i = 0; i < CannonConstants.MAX_OTF_ITERATIONS; i++) {
+                tof = CannonConstants.TIME_OF_FLIGHT_MAP.get(futureDist);
+
+                previousPose = futurePose;
+                futurePose = drivetrain.getFuturePoseFromTime(tof);
+
+                futureDist = getTargetDistance(futurePose);
+
+                if (Math.abs(futurePose.minus(previousPose).getTranslation().getNorm()) < CannonConstants.OTF_TOLERANCE.in(Meters)) {
+                    break;
+                }
+            }
+
+            Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(futureDist);
+            AngularVelocity shooterVelocity = Shooter.ShooterConstants.VELOCITY_MAP.get(futureDist);
+
+            hood.setPosition(hoodAngle);
+            shooter.setVelocity(shooterVelocity);
+
+            // Pass the chassis angular velocity so the turret can apply
+            // feedforward to counter-rotate against the chassis spin.
+            // Without this, the turret PID lags behind during turns.
+            double chassisOmega = drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond;
+            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), chassisOmega);
+      }, turret, shooter, hood)
+      .alongWith(indexWhenOnTarget())
+      .alongWith(drivetrain.changeDrivetrainSupplyLimits());
+    }
+
+    /**
      * finds the distance between shooter and hub and calculates if it is nearby.
      * @return if the distance of shooter on the field and the hub is less than 1
      */
-    public boolean isNearHub(){
+    public boolean isNearHub() {
           Distance distance = Meters.of(this.getShooterTranslation().getDistance(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION)));
           return distance.lt(CannonConstants.SMART_SHOOT_MIN_DISTANCE);
     }
     
     /**
-     * starts the indexer when the hood, turret, and shooter is on target.
+     * Runs the indexer only while ALL cannon subsystems are on target
+     * (turret + hood + shooter). Used by shootOTF() where we want the
+     * full readiness check every cycle.
+     *
+     * NOTE: Because each ball slows the flywheel momentarily, this will
+     * pause the indexer briefly between shots. For OTF this is acceptable
+     * since we're already in motion and want maximum accuracy. For rapid
+     * stationary fire, use indexWhenAimed() instead (see smartShoot).
+     *
      * @return The command
      */
     public Command indexWhenOnTarget(){
-        return new SequentialCommandGroup(
-            new WaitUntilCommand(() -> isOnTarget()),
-            indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
-        );
+        return new RunCommand(() -> {
+            if (isOnTarget()) {
+                indexer.setPower(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER);
+            } else {
+                indexer.stop();
+            }
+        }, indexer)  // IMPORTANT: require the indexer so no other command can fight us
+        .finallyDo((interrupted) -> indexer.stop()); // always stop on interrupt
     }
 
     /**
-     *  checks if the hood, turret, and shooter is on target.
+     * Runs the indexer only while the turret and hood are aimed correctly,
+     * WITHOUT checking the shooter flywheel speed.
+     *
+     * Why not check the shooter? Each ball that fires slows the flywheel
+     * by a few RPS. If we checked shooter.isOnTarget() here, the indexer
+     * would pause after every single ball, waiting for the flywheel to
+     * recover. That stuttering kills our fire rate.
+     *
+     * Instead, smartShoot() uses a two-stage approach:
+     *   1. Wait for the shooter to spin up (one-time check)
+     *   2. Then use THIS method to continuously gate on aim only
+     *
+     * @return The command
+     */
+    public Command indexWhenAimed(){
+        return new RunCommand(() -> {
+            if (isAimed()) {
+                indexer.setPower(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER);
+            } else {
+                indexer.stop();
+            }
+        }, indexer)  // IMPORTANT: require the indexer so no other command can fight us
+        .finallyDo((interrupted) -> indexer.stop()); // always stop on interrupt
+    }
+
+    /**
+     *  Checks if the hood, turret, and shooter is on target.
      * @return if they are on target.
      */
     public boolean isOnTarget(){
         return (hood.isOnTarget() && turret.isOnTarget() && shooter.isOnTarget());
+    }
+
+    /**
+     * Checks if the turret and hood are aimed at the target, ignoring the
+     * shooter flywheel. We use this for CONTINUOUS indexer gating because:
+     *
+     *   - Each ball that fires momentarily slows the flywheel below its
+     *     tolerance (±2 RPS), so shooter.isOnTarget() briefly returns false
+     *     after every shot.
+     *   - If we gated on the shooter too, the indexer would stutter between
+     *     every ball — dramatically reducing our fire rate.
+     *   - The turret and hood are what determine shot ACCURACY. The flywheel
+     *     recovers speed between shots on its own.
+     *
+     * We still check the shooter for the INITIAL readiness gate (in
+     * smartShoot and shootOTF) to make sure the flywheel is spun up before
+     * the first ball fires.
+     *
+     * @return true if hood and turret are aimed correctly
+     */
+    public boolean isAimed(){
+        return (hood.isOnTarget() && turret.isOnTarget());
     }
 }
