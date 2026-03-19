@@ -3,6 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -23,9 +25,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -59,6 +58,8 @@ public class Turret extends SubsystemBase {
     public class TurretConstants {
         public static final boolean INVERTED = true; // temp
         public static final Current STATOR_LIMIT = Amps.of(40); // temp
+        public static final Current SUPPLY_LIMIT = Amps.of(40); // temp
+        public static final boolean SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean BRAKE = false; // temp
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
@@ -142,6 +143,9 @@ public class Turret extends SubsystemBase {
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = TurretConstants.MIN_ANGLE.in(Rotations);
 
         config.Feedback.SensorToMechanismRatio = TurretConstants.ENCODER_TO_MECHANISM_RATIO;
+
+        config.CurrentLimits.SupplyCurrentLimitEnable = TurretConstants.SUPPLY_LIMIT_ENABLE;
+        config.CurrentLimits.SupplyCurrentLimit = TurretConstants.SUPPLY_LIMIT.in(Amps);
 
         motor.applyConfig(config);
 
