@@ -6,6 +6,8 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import java.nio.file.Paths;
+
 import static edu.wpi.first.units.Units.Inches;
 
 public class VisionConstants {
@@ -20,6 +22,8 @@ public class VisionConstants {
     public static final double POSE_AMBIGUITY_TOLERANCE = 1;
     public static final double TAG_DISTANCE_TOLERANCE = 6;
 
+    public static final boolean IS_OASIS = Paths.get(System.getProperty("user.home"), "Oasis").toFile().exists();
+
     // Carmera constants to store camera name and offsets
     public record CameraConstant(String name, Transform3d offset) {};
     public static final CameraConstant[] CAMERA_CONSTANTS = new CameraConstant[] {
@@ -29,9 +33,9 @@ public class VisionConstants {
                 Inches.of(-11.8),   // LEFT
                 Inches.of(7.6),    // up
                 new Rotation3d(
-                    0,
-                    Math.toRadians(-25),  // pitch up
-                    Math.toRadians(-90)    // yaw outward (left)
+                    Math.toRadians(-15), 
+                    0, // pitch up
+                    Math.toRadians(270)    // yaw outward (left)
                 )
             )
         ),
@@ -53,8 +57,8 @@ public class VisionConstants {
                 Inches.of(12.3),   // LEFT
                 Inches.of(8.5),    // up
                 new Rotation3d(
-                    0,
-                    Math.toRadians(-25),  // pitch up
+                    Math.toRadians(20),
+                    0,  // pitch up
                     Math.toRadians(90)    // yaw outward (left)
                 )
             )
