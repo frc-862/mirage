@@ -147,8 +147,8 @@ public class RobotContainer {
         new Trigger(driver::getBButton).toggleOnTrue(turret.manual());
 
         /* Copilot */
-        new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retract());
-        new Trigger(copilot::getXButton).whileTrue(hood.retract().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+        new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retractCommand());
+        new Trigger(copilot::getXButton).whileTrue(hood.retractCommand().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
         new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER,
             -IndexerConstants.TRANSFER_POWER));
@@ -202,9 +202,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
 
         NamedCommands.registerCommand("MOVE_TO_TOWER", drivetrain.autoAlign(FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
-        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot().alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER)));
-        NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER));
-        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot().deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
+        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot().alongWith(hood.ignoreRetractCommand()).deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
         NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER).deadlineFor(leds.enableState(LED_STATES.COLLECT.id())));
         NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.deployPivotCommand());
         NamedCommands.registerCommand("STOW_COLLECTOR", collector.stowPivotCommand());
