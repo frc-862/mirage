@@ -3,32 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.9675641025641033,
-        "y": 7.418807692307692
+        "x": 4.067566666666667,
+        "y": 7.481599999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.967564102564106,
-        "y": 7.418807692307692
+        "x": 5.06756666666667,
+        "y": 7.481599999999999
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Trench1-NoShoot"
     },
     {
       "anchor": {
-        "x": 6.397858974358975,
-        "y": 6.8025128205128205
+        "x": 7.705644444444445,
+        "y": 7.380822222222222
       },
       "prevControl": {
-        "x": 5.508793877886141,
-        "y": 7.065939515764031
+        "x": 7.231988888888892,
+        "y": 7.574625641025641
       },
       "nextControl": {
-        "x": 7.2141589743589725,
-        "y": 6.560646153846154
+        "x": 8.49361458359055,
+        "y": 7.058412181655076
       },
       "isLocked": false,
-      "linkedName": "Trench1CenterMidpoint"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -44,15 +44,20 @@
       "linkedName": "Trench1-Center"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.9710806697107932,
+      "rotationDegrees": 69.08457762476924
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.7344475394614756,
+      "minWaypointRelativePos": 1.5078922934076127,
       "maxWaypointRelativePos": 2.0,
       "constraints": {
-        "maxVelocity": 2.0,
-        "maxAcceleration": 1.5,
+        "maxVelocity": 2.5,
+        "maxAcceleration": 2.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -78,7 +83,7 @@
   "folder": "DoubleAutonPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 89.37102968301032
   },
   "useDefaultConstraints": true
 }

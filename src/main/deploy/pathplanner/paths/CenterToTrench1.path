@@ -16,45 +16,63 @@
     },
     {
       "anchor": {
-        "x": 6.397858974358975,
-        "y": 6.8025128205128205
+        "x": 6.587011111111111,
+        "y": 6.635066666666667
       },
       "prevControl": {
-        "x": 6.886243589743589,
-        "y": 6.418782051282051
+        "x": 7.075395726495725,
+        "y": 6.251335897435897
       },
       "nextControl": {
-        "x": 5.310093319491591,
-        "y": 7.657185835051483
+        "x": 5.4992454562437265,
+        "y": 7.4897396812053305
       },
       "isLocked": false,
       "linkedName": "Trench1CenterMidpoint"
     },
     {
       "anchor": {
-        "x": 3.897794871794873,
-        "y": 7.430435897435898
+        "x": 4.067566666666667,
+        "y": 7.481599999999999
       },
       "prevControl": {
-        "x": 5.026290799038843,
-        "y": 7.43144008881589
+        "x": 5.196062593910637,
+        "y": 7.482604191379991
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Trench1-NoShoot"
     }
   ],
-  "rotationTargets": [
+  "rotationTargets": [],
+  "constraintZones": [
     {
-      "waypointRelativePos": 0.40425531914893814,
-      "rotationDegrees": 90.0
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.4113277623027012,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 2.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
     },
     {
-      "waypointRelativePos": 1.0558510638297776,
-      "rotationDegrees": 89.76164972565039
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 5.0,
+        "maxAcceleration": 5.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
     }
   ],
-  "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -67,7 +85,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 92.63243486898652
+    "rotation": 89.37102968301032
   },
   "reversed": false,
   "folder": "DoubleAutonPaths",
