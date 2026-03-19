@@ -439,11 +439,24 @@ public class Turret extends SubsystemBase {
         setAngle(turretAngle, chassisOmegaRadPerSec);
     }
 
-    /** Convenience overload for static aiming (no feedforward). */
+    /**
+     * Convenience overload for static aiming (no feedforward).
+     *
+     * @param turretPose the pose of the turret/shooter on the field
+     * @param target     the field target to aim at
+     */
     public void turretAim(Pose2d turretPose, Target target) {
         turretAim(turretPose, target, 0);
     }
 
+    /**
+     * Creates a command that continuously aims the turret using suppliers.
+     *
+     * @param turretPose   supplier for the turret's field pose
+     * @param target       supplier for the target to aim at
+     * @param chassisOmega supplier for the chassis angular velocity in rad/s
+     * @return the aiming command
+     */
     public Command turretAimCommand(Supplier<Pose2d> turretPose, Supplier<Target> target, DoubleSupplier chassisOmega) {
         return run(() -> turretAim(turretPose.get(), target.get(), chassisOmega.getAsDouble()));
     }
