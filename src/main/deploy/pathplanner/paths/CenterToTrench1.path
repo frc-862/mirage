@@ -9,39 +9,39 @@
       "prevControl": null,
       "nextControl": {
         "x": 7.699691024120205,
-        "y": 5.12946101225781
+        "y": 5.129461012257809
       },
       "isLocked": false,
       "linkedName": "Trench1-Center"
     },
     {
       "anchor": {
-        "x": 7.010277777777777,
-        "y": 7.088566666666667
+        "x": 6.397858974358975,
+        "y": 6.8025128205128205
       },
       "prevControl": {
-        "x": 7.685737605678233,
-        "y": 6.953474701086576
+        "x": 6.886243589743589,
+        "y": 6.418782051282051
       },
       "nextControl": {
-        "x": 5.851333333333333,
-        "y": 7.320355555555555
+        "x": 5.310093319491591,
+        "y": 7.657185835051483
       },
       "isLocked": false,
       "linkedName": "Trench1CenterMidpoint"
     },
     {
       "anchor": {
-        "x": 3.977081850533809,
-        "y": 7.440284697508897
+        "x": 3.897794871794873,
+        "y": 7.430435897435898
       },
       "prevControl": {
-        "x": 5.105577777777778,
-        "y": 7.441288888888889
+        "x": 5.026290799038843,
+        "y": 7.43144008881589
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Trench1-NoShoot"
     }
   ],
   "rotationTargets": [
@@ -67,13 +67,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.026538108113
+    "rotation": 92.63243486898652
   },
   "reversed": false,
   "folder": "DoubleAutonPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 87.93618027154307
+    "rotation": 90.59769881961469
   },
   "useDefaultConstraints": true
 }

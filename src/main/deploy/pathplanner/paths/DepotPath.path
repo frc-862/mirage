@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.977081850533809,
-        "y": 7.440284697508897
+        "x": 3.897794871794873,
+        "y": 7.430435897435898
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.2980427046263348,
-        "y": 7.440284697508897
+        "x": 1.2187557258873989,
+        "y": 7.430435897435898
       },
       "isLocked": false,
       "linkedName": "Trench1-NoShoot"
@@ -62,7 +62,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 92.63243486898652
   },
   "useDefaultConstraints": true
 }

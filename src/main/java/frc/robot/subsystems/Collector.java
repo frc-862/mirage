@@ -55,8 +55,8 @@ public class Collector extends SubsystemBase {
         public static final Current STATOR_LIMIT = Amps.of(80); // temp
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final boolean BRAKE = true; // temp
-        public static final double COLLECT_POWER = 1d;
-        public static final double COLLECT_MULT = 1d;
+        public static final double COLLECT_POWER = 0.8d;
+        public static final double COLLECT_MULT = 0.8d;
 
         public static final MomentOfInertia COLLECTOR_MOI = KilogramSquareMeters.of(0.001); //temp 
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
@@ -83,7 +83,7 @@ public class Collector extends SubsystemBase {
         public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
         public static final Angle STOW_ANGLE = MIN_ANGLE;
         public static final Angle TOLERANCE = Rotations.of(0.05);
-        public static final DutyCycleOut PIVOT_ZEROING_DC = new DutyCycleOut(-0.1);
+        public static final DutyCycleOut PIVOT_ZEROING_DC = new DutyCycleOut(-0.2);
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.01); // temp
         public static final Distance LENGTH = Inches.of(6);

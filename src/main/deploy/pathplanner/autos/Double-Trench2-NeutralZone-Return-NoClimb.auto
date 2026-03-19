@@ -21,7 +21,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.5
+                        "waitTime": 0.75
                       }
                     },
                     {
@@ -56,7 +56,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 4.0
                 }
               },
               {
@@ -94,7 +94,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Trench2ToFarCenter"
+                  "pathName": "Trench2ToInnerCenter"
                 }
               },
               {
@@ -117,12 +117,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "FarCenterToTrench2"
           }
         },
         {

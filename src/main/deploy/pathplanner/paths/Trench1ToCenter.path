@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.977081850533809,
-        "y": 7.440284697508897
+        "x": 3.9675641025641033,
+        "y": 7.418807692307692
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.977081850533811,
-        "y": 7.440284697508897
+        "x": 4.967564102564106,
+        "y": 7.418807692307692
       },
       "isLocked": false,
-      "linkedName": "Trench1-NoShoot"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.010277777777777,
-        "y": 7.088566666666667
+        "x": 6.397858974358975,
+        "y": 6.8025128205128205
       },
       "prevControl": {
-        "x": 6.121212681304943,
-        "y": 7.351993361917877
+        "x": 5.508793877886141,
+        "y": 7.065939515764031
       },
       "nextControl": {
-        "x": 7.826577777777777,
-        "y": 6.8467
+        "x": 7.2141589743589725,
+        "y": 6.560646153846154
       },
       "isLocked": false,
       "linkedName": "Trench1CenterMidpoint"
@@ -72,7 +72,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 87.93618027154307
+    "rotation": 90.59769881961469
   },
   "reversed": false,
   "folder": "DoubleAutonPaths",
