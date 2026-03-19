@@ -253,16 +253,17 @@ public class RobotContainer {
         // Turn off the "vision bad" LED state once the drivetrain has moved away from the origin, indicating we likely have a valid pose estimate.
         new Trigger(new LEDBooleanSupplier(() -> (DriverStation.isDisabled() && drivetrain.getPose().getTranslation().getDistance(new Translation2d()) < 0.1))).whileTrue(leds.enableState(LED_STATES.VISION_BAD.id()));
 
+        // TODO: Uncomment after #453 (networking-vision) is merged — requires vision.isCommsAlive()
         // Show blinking yellow while disabled when the Mac Mini is sending
         // heartbeats (comms alive) but no pose data is available (no tags
         // visible). This helps the drive team distinguish:
         //   Solid RED (VISION_BAD)         = Mac is dead or comms down
         //   Blinking YELLOW (this trigger) = Mac is alive, just no tags
         //   Default pattern                = Everything working fine
-        new Trigger(new LEDBooleanSupplier(() -> DriverStation.isDisabled()
-            && vision.isCommsAlive()
-            && drivetrain.getPose().getTranslation().getDistance(new Translation2d()) < 0.1))
-            .whileTrue(leds.enableState(LED_STATES.VISION_COMMS_NO_POSE.id()));
+        // new Trigger(new LEDBooleanSupplier(() -> DriverStation.isDisabled()
+        //     && vision.isCommsAlive()
+        //     && drivetrain.getPose().getTranslation().getDistance(new Translation2d()) < 0.1))
+        //     .whileTrue(leds.enableState(LED_STATES.VISION_COMMS_NO_POSE.id()));
 
         new Trigger(new LEDBooleanSupplier(DriverStation::isDisabled)).whileTrue(leds.enableState(LED_STATES.TEST.id()));
         
