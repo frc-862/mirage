@@ -50,16 +50,16 @@ public class Indexer extends SubsystemBase {
 
         public static final double SPINDEXER_SIM_kV = 0.24;
         public static final double SPINDEXER_SIM_kA = 0.8;
-        public static final double SPINDEXDER_POWER = 0.55d;
+        public static final double SPINDEXDER_POWER = 0.5;
 
         public static final Time SPINDEXER_DELAY = Seconds.of(0.25);
 
         // transfer
-        public static final boolean TRANSFER_MOTOR_INVERTED = false; // temp
+        public static final boolean TRANSFER_MOTOR_INVERTED = true; // temp
         public static final Current TRANSFER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean TRANSFER_MOTOR_BRAKE_MODE = true; // temp
 
-        public static final double TRANSFER_POWER = 1;
+        public static final double TRANSFER_POWER = 0.5;
 
         // sim
         public static final AngularVelocity SIM_INDEX_THRESHOLD = RotationsPerSecond.of(1); // temp

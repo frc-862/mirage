@@ -49,7 +49,6 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
 import frc.util.AllianceHelpers;
-import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -430,15 +429,25 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         ChassisSpeeds speeds = getCurrentRobotChassisSpeeds();
         double dt = time.in(Seconds);
 
-        double multiplier = LightningShuffleboard.getDouble("OTF", "velocity_multiplier", 1);
+        Pose2d pose = getPose();
+
+        double sin = pose.getRotation().getSin();
+        double cos = pose.getRotation().getCos();
+
+        double rrXVel = (speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getX());
+        double rrYVel = (speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
+
+        double frXVel = (rrXVel * cos) - (rrYVel * sin);
+        double frYVel = (rrXVel * sin) + (rrYVel * cos);
+
         
         Twist2d twist = new Twist2d(
-            speeds.vxMetersPerSecond * dt * multiplier,
-            speeds.vyMetersPerSecond * dt * multiplier,
-            speeds.omegaRadiansPerSecond * dt * multiplier
+            (speeds.vxMetersPerSecond + frXVel) * dt,
+            (speeds.vyMetersPerSecond + frYVel) * dt,
+            speeds.omegaRadiansPerSecond * dt 
         );
 
-        return getPose().exp(twist);
+        return pose.exp(twist);
     }
  
     public void configurePathplanner(){

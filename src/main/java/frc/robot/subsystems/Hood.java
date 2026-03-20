@@ -20,14 +20,12 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -74,9 +72,10 @@ public class Hood extends SubsystemBase {
 
         public static final ThunderMap<Distance, Angle> HOOD_MAP = new ThunderMap<>() {
             {
+                // put(Inches.of(0), Degrees.of(0));
                 put(Inches.of(18.78*12), Degrees.of(65));
                 put(Inches.of(64), Degrees.of(80));
-                put(Inches.of(142), Degrees.of(63));
+                // put(Inches.of(142), Degrees.of(63));
                 // put(Inches.of(183), Degrees.of(80));
                 // put(Feet.of(23), Degrees.of(66));
             }
