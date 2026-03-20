@@ -174,7 +174,7 @@ public class RobotContainer {
         //RIGHT_, LEFT_, and MIDDLE_ are all set to 0, so temp shots wont work right now
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_RIGHT).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT).deadlineFor(rumble()));
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT).deadlineFor(rumble()));
-        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT).deadlineFor(rumble()));
+        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT).deadlineFor(rumble()));
             
         //  new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(
         //     shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
@@ -194,8 +194,6 @@ public class RobotContainer {
         new Trigger(copilot::getAButton).whileTrue(indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)).onFalse(new InstantCommand(() -> indexer.stop()));
 
         new Trigger(() -> Math.abs(copilot.getLeftTriggerAxis()) > DriveConstants.JOYSTICK_DEADBAND).whileTrue(indexer.transferCommand(() -> copilot.getLeftTriggerAxis())).onFalse(new InstantCommand(() -> indexer.stopTransfer()));
-
-        new Trigger(driver::getRightBumperButton).whileTrue(drivetrain.lowerSupplyLimits());
     }
     
     private void configureNamedCommands() {
@@ -242,7 +240,7 @@ public class RobotContainer {
         leds.setBehavior(LED_STATES.CANNED_SHOT_READY.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 2, Color.GREEN));
         leds.setBehavior(LED_STATES.NEAR_HUB.id(), LEDBehaviorFactory.blink(LEDConstants.stripAll, 3, Color.RED));
 
-        // new Trigger(hood::isStowed).whileTrue(leds.enableState(LED_STATES.HOOD_STOWED.id()));
+        new Trigger(hood::isStowed).whileTrue(leds.enableState(LED_STATES.HOOD_STOWED.id()));
 
         new Trigger(turret::getManual).whileTrue(leds.enableState(LED_STATES.TURRET_MANUAL.id()));
 
