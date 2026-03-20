@@ -118,6 +118,7 @@ public class Hood extends SubsystemBase {
     private Mechanism2d mech2d;
     private CANcoderSimState encoderSim;
     public boolean isHoodRetracted = false;
+    public boolean ignoreHoodRetract = false;
 
     private DoubleLogEntry angleLog;
     private DoubleLogEntry biasLog;
@@ -229,6 +230,9 @@ public class Hood extends SubsystemBase {
                 zeroingTimer.stop();
             }
         }
+        if (isHoodRetracted && !ignoreHoodRetract && hoodZeroed) {
+            motor.setControl(request.withPosition(HoodConstants.MAX_ANGLE));
+        }
         updateLogging();
     }
 
@@ -302,7 +306,7 @@ public class Hood extends SubsystemBase {
     }
 
     private void applyControl() {
-        if (!isHoodRetracted && hoodZeroed) {
+        if ((!isHoodRetracted || ignoreHoodRetract) && hoodZeroed) {
             motor.setControl(request.withPosition(getTargetAngleWithBias()));
         }
     }
@@ -382,15 +386,19 @@ public class Hood extends SubsystemBase {
      * Retracts the hood to its maximum angle ignoring the bias.
      * @return the command for retracting the hood
      */
-    public Command retract() {
-        return startEnd(() -> {
-            if (hoodZeroed) {
-                motor.setControl(request.withPosition(HoodConstants.MAX_ANGLE));
-            }
-            isHoodRetracted = true;
-        }, () -> {
-            isHoodRetracted = false;
-        });
+    public Command retractCommand() {
+        // do not require hood because it should run while allowing the hood to do something else (smart shoot)
+        return new StartEndCommand(() -> isHoodRetracted = true, () -> isHoodRetracted = false);
+    }
+
+
+    /**
+     * While this command is running, the hood will not be forced to retract, used for smart shoot in auton
+     * @return the command
+     */
+    public Command ignoreRetractCommand() {
+        // do not require hood because it should run while allowing the hood to do something else (smart shoot)
+        return new StartEndCommand(() -> ignoreHoodRetract = true, () -> ignoreHoodRetract = false);
     }
 
     /**

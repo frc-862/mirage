@@ -42,7 +42,6 @@ public class MacMini implements AutoCloseable {
 
         // Socket to send data
         DatagramSocket socket;
-
         public MacMini() {
             try {
                 // Create a new socket to send data to the rio
@@ -55,7 +54,7 @@ public class MacMini implements AutoCloseable {
             photonNT.setServer("localhost", 5810);
             photonNT.startClient4("mac-photon-client");
 
-            cameraConstants = VisionConstants.CAMERA_CONSTANTS;
+            cameraConstants = VisionConstants.IS_OASIS ? VisionConstants.OASIS_CAMERA_CONSTANTS : VisionConstants.CAMERA_CONSTANTS;
 
             // Create an empty array of cameras
             cameras = new CameraInfo[cameraConstants.length];

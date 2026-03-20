@@ -4,6 +4,7 @@
 package frc.robot.subsystems;
 
 import java.util.function.Supplier;
+import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -61,6 +62,8 @@ public class Turret extends SubsystemBase {
     public class TurretConstants {
         public static final boolean INVERTED = true; // temp
         public static final Current STATOR_LIMIT = Amps.of(40); // temp
+        public static final Current SUPPLY_LIMIT = Amps.of(40); // temp
+        public static final boolean SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean BRAKE = false; // temp
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
@@ -144,6 +147,9 @@ public class Turret extends SubsystemBase {
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = TurretConstants.MIN_ANGLE.in(Rotations);
 
         config.Feedback.SensorToMechanismRatio = TurretConstants.ENCODER_TO_MECHANISM_RATIO;
+
+        config.CurrentLimits.SupplyCurrentLimitEnable = TurretConstants.SUPPLY_LIMIT_ENABLE;
+        config.CurrentLimits.SupplyCurrentLimit = TurretConstants.SUPPLY_LIMIT.in(Amps);
 
         motor.applyConfig(config);
 

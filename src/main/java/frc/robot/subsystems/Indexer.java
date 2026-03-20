@@ -4,29 +4,25 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -48,6 +44,9 @@ public class Indexer extends SubsystemBase {
         public static final Current SPINDEXER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean SPINDEXER_MOTOR_BRAKE_MODE = true; // temp
 
+        public static final Current SPINDEXER_SUPPLY_LIMIT = Amps.of(40); // temp
+        public static final boolean SPINDEXER_SUPPLY_LIMIT_ENABLE = true; // temp
+
         public static final double SPINDEXER_SIM_kV = 0.24;
         public static final double SPINDEXER_SIM_kA = 0.8;
         public static final double SPINDEXDER_POWER = 0.5;
@@ -60,6 +59,8 @@ public class Indexer extends SubsystemBase {
         public static final boolean TRANSFER_MOTOR_BRAKE_MODE = true; // temp
 
         public static final double TRANSFER_POWER = 0.5;
+        public static final Current TRANSFER_SUPPLY_LIMIT = Amps.of(40); // temp
+        public static final boolean TRANSFER_SUPPLY_LIMIT_ENABLE = true; // temp
 
         // sim
         public static final AngularVelocity SIM_INDEX_THRESHOLD = RotationsPerSecond.of(1); // temp
@@ -87,6 +88,17 @@ public class Indexer extends SubsystemBase {
 
         spindexerDutyCycle = new DutyCycleOut(0d);
         transferDutyCycle = new DutyCycleOut(0d);
+
+        TalonFXConfiguration spindexerConfig = spindexerMotor.getConfig();
+        TalonFXConfiguration transferConfig = transferMotor.getConfig();
+
+        spindexerConfig.CurrentLimits.SupplyCurrentLimitEnable = IndexerConstants.SPINDEXER_SUPPLY_LIMIT_ENABLE;
+        spindexerConfig.CurrentLimits.SupplyCurrentLimit = IndexerConstants.SPINDEXER_SUPPLY_LIMIT.in(Amps);
+        transferConfig.CurrentLimits.SupplyCurrentLimitEnable = IndexerConstants.TRANSFER_SUPPLY_LIMIT_ENABLE;
+        transferConfig.CurrentLimits.SupplyCurrentLimit = IndexerConstants.TRANSFER_SUPPLY_LIMIT.in(Amps);
+
+        spindexerMotor.applyConfig(spindexerConfig);
+        transferMotor.applyConfig(transferConfig);
 
         if (Robot.isSimulation()) {
             spindexerSim = new LinearSystemSim<N1, N1, N1>(LinearSystemId.identifyVelocitySystem(IndexerConstants.SPINDEXER_SIM_kV,
