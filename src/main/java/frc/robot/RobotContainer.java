@@ -157,6 +157,7 @@ public class RobotContainer {
 
         new Trigger(() -> copilot.getBButton()).whileTrue(cannon.smartShoot()
             .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER * CollectorConstants.COLLECT_MULT))
+            .alongWith(collector.agitateCommand())
             .deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
 
         new Trigger(copilot::getStartButton).onTrue(collector.stowPivotCommand());
