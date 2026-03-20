@@ -24,6 +24,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.constants.RobotMap;
 import frc.robot.mac.VisionConstants.CameraConstant;
+import frc.robot.constants.RobotMap;
+import frc.robot.mac.VisionConstants.CameraConstant;
 
 public class MacMini implements AutoCloseable {
         // Camera info

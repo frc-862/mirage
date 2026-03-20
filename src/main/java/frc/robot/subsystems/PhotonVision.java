@@ -19,6 +19,8 @@ import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
@@ -27,9 +29,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.util.shuffleboard.LightningShuffleboard;
-
-import static edu.wpi.first.units.Units.Milliseconds;
-import static edu.wpi.first.units.Units.Seconds;
 
 public class PhotonVision extends SubsystemBase implements AutoCloseable {
     // Records to store specific groups of data
@@ -162,8 +161,9 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                 macTimeOffset = Utils.getCurrentTimeSeconds() - updatedPose.timestamp;
             }
 
+            double multiplier = LightningShuffleboard.getDouble("Vision", "ambiguity_multiplier", 20);
             // Calculate the standard deviation to use-- small multiplier so not too low
-            double trust = updatedPose.ambiguity() * 1.2;
+            double trust = Math.max(0.3, Math.min(10, updatedPose.ambiguity())) * multiplier;
 
             LightningShuffleboard.setPose2d("Vision", "updated pose", updatedPose.pose);
             LightningShuffleboard.setDouble("Vision", "mac time offset", macTimeOffset);

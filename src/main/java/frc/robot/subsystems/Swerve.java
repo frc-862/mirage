@@ -9,6 +9,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -25,6 +26,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
@@ -34,6 +36,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -426,6 +429,31 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return getState().Speeds;
     }
 
+    public Pose2d getFuturePoseFromTime(Time time) {
+        ChassisSpeeds speeds = getCurrentRobotChassisSpeeds();
+        double dt = time.in(Seconds);
+
+        Pose2d pose = getPose();
+
+        double sin = pose.getRotation().getSin();
+        double cos = pose.getRotation().getCos();
+
+        double rrXVel = (speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getX());
+        double rrYVel = (speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
+
+        double frXVel = (rrXVel * cos) - (rrYVel * sin);
+        double frYVel = (rrXVel * sin) + (rrYVel * cos);
+
+        
+        Twist2d twist = new Twist2d(
+            (speeds.vxMetersPerSecond + frXVel) * dt,
+            (speeds.vyMetersPerSecond + frYVel) * dt,
+            speeds.omegaRadiansPerSecond * dt 
+        );
+
+        return pose.exp(twist);
+    }
+ 
     public void configurePathplanner(){
         AutoBuilder.configure(
             this::getPose, // Supplier of current robot pose
@@ -475,7 +503,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         () -> pidR.calculate(getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees()));
     }
 
-    public Command changeDrivetrainSupplyLimits() {
+    public Command lowerSupplyLimits() {
         var modules = getModules();
         var savedConfigs = new CurrentLimitsConfigs[modules.length];
 
@@ -490,6 +518,30 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 configurator.apply(config
                     .withSupplyCurrentLimit(DriveConstants.SUPPLY_CURRENT_LIMIT)
                     .withSupplyCurrentLimitEnable(DriveConstants.ENABLE_SUPPLY_CURRENT_LIMIT));
+            }
+        }, () -> {
+            for (int i = 0; i < modules.length; i++) {
+                modules[i].getDriveMotor().getConfigurator().apply(savedConfigs[i]);
+            }
+        });
+    }
+
+    public Command increaseRampRates() {
+        var modules = getModules();
+        var savedConfigs = new OpenLoopRampsConfigs[modules.length];
+
+        return new StartEndCommand(() -> {
+            for (int i = 0; i < modules.length; i++) {
+                var config = new OpenLoopRampsConfigs();
+
+                var configurator = modules[i].getDriveMotor().getConfigurator();
+                configurator.refresh(config);
+                savedConfigs[i] = config.clone();
+
+                configurator.apply(config
+                        .withVoltageOpenLoopRampPeriod(0.5)
+                        .withDutyCycleOpenLoopRampPeriod(0.5)
+                        .withTorqueOpenLoopRampPeriod(0.5));
             }
         }, () -> {
             for (int i = 0; i < modules.length; i++) {

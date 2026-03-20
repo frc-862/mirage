@@ -20,14 +20,12 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -74,10 +72,12 @@ public class Hood extends SubsystemBase {
 
         public static final ThunderMap<Distance, Angle> HOOD_MAP = new ThunderMap<>() {
             {
+                // put(Inches.of(0), Degrees.of(0));
+                put(Inches.of(18.78*12), Degrees.of(65));
                 put(Inches.of(64), Degrees.of(80));
-                put(Inches.of(183), Degrees.of(80));
-                put(Feet.of(23), Degrees.of(66));
-                put(Feet.of(18), Degrees.of(80));
+                // put(Inches.of(142), Degrees.of(63));
+                // put(Inches.of(183), Degrees.of(80));
+                // put(Feet.of(23), Degrees.of(66));
             }
         };
 
@@ -97,8 +97,6 @@ public class Hood extends SubsystemBase {
 
         public static final Angle OFFSET_TO_MAX = Rotations.of(0d); // temp
         public static final Angle ENCODER_OFFSET = OFFSET_TO_MAX.plus(MAX_ANGLE);
-
-
         public static final DutyCycleOut HOOD_ZEROING_DC = new DutyCycleOut(0.2);
     }
 
@@ -410,7 +408,7 @@ public class Hood extends SubsystemBase {
      */
     public Command hoodAim(Cannon cannon){
         return run(() -> {
-            Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(cannon.getTarget()));
+            Distance distance = Meters.of(cannon.getShooterTranslation().getDistance(cannon.getTargetTranslation()));
             Angle targetAngle = HoodConstants.HOOD_MAP.get(distance);
             setPosition(targetAngle);
         });
