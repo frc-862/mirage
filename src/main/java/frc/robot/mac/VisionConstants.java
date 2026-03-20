@@ -31,9 +31,9 @@ public class VisionConstants {
     public static final CameraConstant[] CAMERA_CONSTANTS = new CameraConstant[] {
         new CameraConstant("rightCam",
             new Transform3d(
-                Inches.of(0.25),   // forward
+                Inches.of(0),   // forward
                 Inches.of(-11.8),   // LEFT
-                Inches.of(7.6),    // up 
+                Inches.of(7.6),    // up
                 new Rotation3d(
                     Math.toRadians(-15), 
                     0, // pitch up
@@ -43,20 +43,20 @@ public class VisionConstants {
         ),
         new CameraConstant("shooterCam",
             new Transform3d(
-                Inches.of(12),   // forward
-                Inches.of(-10.75), 
-                Inches.of(8.5),    // up
+                Inches.of(11.5),   // forward
+                Inches.of(-11.2), 
+                Inches.of(8.75),    // up
                 new Rotation3d(
-                    Degrees.of(0),
-                    Degrees.of(-15),  // pitch up
-                    Degrees.of(0)    // yaw outward (left)
+                    0,
+                    Math.toRadians(-20),  // pitch up
+                    0   // yaw outward (left)
                 )
             )
         ),
         new CameraConstant("leftCam",
             new Transform3d(
-                Inches.of(7.75),   // forward
-                Inches.of(12.5),   // LEFT
+                Inches.of(7.1),   // forward
+                Inches.of(12.3),   // LEFT
                 Inches.of(8.5),    // up
                 new Rotation3d(
                     Math.toRadians(20),
