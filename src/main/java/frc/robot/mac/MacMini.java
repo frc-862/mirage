@@ -217,7 +217,6 @@ public class MacMini implements AutoCloseable {
             
             // Get the estimated position
             Optional<EstimatedRobotPose> poseOpt = cameraInfo.poseEstimator().estimateCoprocMultiTagPose(useableResult);
-
             // If the estimated position is there run this code
             if (poseOpt.isPresent()) {
                 // The pose
