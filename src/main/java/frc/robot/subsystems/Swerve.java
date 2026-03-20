@@ -273,6 +273,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+        Pose2d pose = getPose();
+        if (!FieldConstants.FIELD.contains(pose.getTranslation())) {
+            resetPose(new Pose2d(FieldConstants.FIELD.nearest(pose.getTranslation()), pose.getRotation()));
+        }
     }
 
     @Override
