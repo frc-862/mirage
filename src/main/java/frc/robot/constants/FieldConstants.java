@@ -42,5 +42,7 @@ public class FieldConstants {
         public static final Rectangle2d LEFT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 1), new Translation2d(12.4, 0)); // temp, values found with sim
         public static final Rectangle2d RIGHT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 8), new Translation2d(12.4, 7)); // temp, values found with sim
 
+        public static final Rectangle2d FIELD = new Rectangle2d(new Translation2d(0, 0), new Translation2d(16.540988, 8.069326));
+
         public static final double FIELD_MIDDLE_Y = 4.034663;
     }
