@@ -56,6 +56,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private Notifier m_simNotifier = null;
     protected SwerveSim swerveSim;
 
+    private Pose2d drivetrainPose = Pose2d.kZero;
+
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
@@ -270,6 +272,13 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+        
+        drivetrainPose = getState().Pose;
+        // Check if the robot pose is in the field
+        if (!FieldConstants.FIELD.contains(drivetrainPose.getTranslation())) {
+            drivetrainPose = new Pose2d(FieldConstants.FIELD.nearest(drivetrainPose.getTranslation()), drivetrainPose.getRotation());
+            resetPose(drivetrainPose);
+        }
     }
 
     @Override
@@ -406,7 +415,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Pose2d getPose(){
-        return getState().Pose;
+        return drivetrainPose;
     }
 
     public boolean isNearTrench() {
