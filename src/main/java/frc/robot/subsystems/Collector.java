@@ -20,11 +20,13 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
@@ -42,6 +44,8 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
@@ -57,6 +61,7 @@ public class Collector extends SubsystemBase {
         public static final boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 1d;
         public static final double COLLECT_MULT = 1d;
+        public static final Time AGITATE_DELAY = Seconds.of(1.5);
 
         public static final MomentOfInertia COLLECTOR_MOI = KilogramSquareMeters.of(0.001); //temp 
         public static final double COLLECTOR_GEAR_RATIO = 1d; //temp
@@ -364,7 +369,20 @@ public class Collector extends SubsystemBase {
     // This command must not require the collector subsystem so it doesn't interrupt smart shoot
     public Command driverStowPivotCommand() {
         return new RunCommand(() -> stowPivot()).finallyDo( () -> deployPivot());
-    }    
+    }
+
+    /**
+     * Agitates the collector during shooting to help feed balls.
+     * After AGITATE_DELAY, stows the pivot then redeploys it.
+     * Does not require the Collector subsystem so it can run alongside collectCommand.
+     * @return the agitate command
+     */
+    public Command agitateCommand() {
+        return new WaitCommand(CollectorConstants.AGITATE_DELAY)
+            .andThen(new InstantCommand(() -> stowPivot()))
+            .andThen(new WaitUntilCommand(() -> isStowed()))
+            .andThen(new InstantCommand(() -> deployPivot()));
+    }
 
     public Command neutralPivotCommand() {
         return startEnd(() -> {
