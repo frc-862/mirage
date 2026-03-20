@@ -25,6 +25,7 @@ import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -52,6 +53,12 @@ public class Indexer extends SubsystemBase {
         public static final double SPINDEXDER_POWER = 0.55d;
 
         public static final Time SPINDEXER_DELAY = Seconds.of(0.25);
+
+        // Speed monitoring constants
+        public static final AngularVelocity SPINDEXER_MIN_SPEED = RotationsPerSecond.of(0.5); // TODO: tune on robot
+        public static final double SPINDEXER_POWER_RAMP_INCREMENT = 0.05;
+        public static final Time SPINDEXER_REVERSE_DURATION = Seconds.of(1);
+        public static final Time SPINDEXER_MONITOR_GRACE_PERIOD = Seconds.of(0.25);
 
         // transfer
         public static final boolean TRANSFER_MOTOR_INVERTED = false; // temp
@@ -229,7 +236,84 @@ public class Indexer extends SubsystemBase {
     }
 
     public Command autoIndex(double spindexerPower, double transferPower) {
-        return autoIndex(() -> spindexerPower, () -> transferPower);
+        return new InstantCommand(() -> setTransferPower(transferPower))
+            .andThen(new WaitCommand(IndexerConstants.SPINDEXER_DELAY))
+            .andThen(monitoredIndexCommand(spindexerPower, transferPower));
+    }
+
+    /**
+     * Creates a command that runs the spindexer with speed monitoring.
+     * If the spindexer velocity falls below the minimum speed, power is ramped up.
+     * If power reaches 100% and speed is still below threshold, the motor reverses
+     * for 1 second to clear a jam, then retries from the initial power.
+     * @param initialSpindexerPower starting duty cycle for the spindexer
+     * @param transferPower duty cycle for the transfer motor
+     * @return the monitored index command
+     */
+    public Command monitoredIndexCommand(double initialSpindexerPower, double transferPower) {
+        return new Command() {
+            private double currentPower;
+            private boolean reversing;
+            private boolean inGracePeriod;
+            private final Timer timer = new Timer();
+
+            {
+                addRequirements(Indexer.this);
+            }
+
+            @Override
+            public void initialize() {
+                currentPower = initialSpindexerPower;
+                reversing = false;
+                inGracePeriod = true;
+                timer.restart();
+                setSpindexerPower(initialSpindexerPower);
+                setTransferPower(transferPower);
+            }
+
+            @Override
+            public void execute() {
+                if (inGracePeriod) {
+                    if (timer.hasElapsed(IndexerConstants.SPINDEXER_MONITOR_GRACE_PERIOD.in(Seconds))) {
+                        inGracePeriod = false;
+                    }
+                    return;
+                }
+
+                if (reversing) {
+                    if (timer.hasElapsed(IndexerConstants.SPINDEXER_REVERSE_DURATION.in(Seconds))) {
+                        reversing = false;
+                        inGracePeriod = true;
+                        currentPower = initialSpindexerPower;
+                        timer.restart();
+                        setSpindexerPower(currentPower);
+                    }
+                    return;
+                }
+
+                double speed = Math.abs(getSpindexerVelocity().in(RotationsPerSecond));
+                if (speed < IndexerConstants.SPINDEXER_MIN_SPEED.in(RotationsPerSecond)) {
+                    if (currentPower >= 1.0) {
+                        reversing = true;
+                        timer.restart();
+                        setSpindexerPower(-1.0);
+                    } else {
+                        currentPower = Math.min(currentPower + IndexerConstants.SPINDEXER_POWER_RAMP_INCREMENT, 1.0);
+                        setSpindexerPower(currentPower);
+                    }
+                }
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                stop();
+            }
+
+            @Override
+            public boolean isFinished() {
+                return false;
+            }
+        };
     }
 
     public Command indexCommand(double spindexerPower, double transferPower) {
