@@ -94,7 +94,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Trench1ToFarCenter"
+                  "pathName": "InnerCenterToTrench1"
                 }
               },
               {
@@ -117,12 +117,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "FarCenterToTrench1"
           }
         },
         {
@@ -161,6 +155,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "DoubleAutons",
   "choreoAuto": false
 }

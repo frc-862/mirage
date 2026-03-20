@@ -21,7 +21,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.5
+                        "waitTime": 0.75
                       }
                     },
                     {
@@ -56,7 +56,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 4.0
                 }
               },
               {
@@ -72,7 +72,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 3.5
+                        "waitTime": 0.5
                       }
                     },
                     {
@@ -94,7 +94,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Copy of Trench2ToCenter"
+                  "pathName": "Trench2ToInnerCenter"
                 }
               },
               {
@@ -120,12 +120,6 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Copy of CenterToTrench2"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -142,7 +136,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 3.5
+                        "waitTime": 0.5
                       }
                     },
                     {
@@ -161,6 +155,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "DoubleAutons",
   "choreoAuto": false
 }

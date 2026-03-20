@@ -6,6 +6,8 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+
+import static edu.wpi.first.units.Units.Degrees;
 import java.nio.file.Paths;
 
 import static edu.wpi.first.units.Units.Inches;
@@ -47,7 +49,7 @@ public class VisionConstants {
                 new Rotation3d(
                     0,
                     Math.toRadians(-20),  // pitch up
-                   0    // yaw outward (left)
+                    0   // yaw outward (left)
                 )
             )
         ),
