@@ -20,6 +20,7 @@ package frc.util.shuffleboard;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -32,16 +33,41 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class LightningShuffleboard {
-    private static HashMap<String, Object> keyList = new HashMap<String, Object>();
+    // Two-level caches keyed by [tabName][key] — avoids string concatenation on every call
+    private static final HashMap<String, HashMap<String, Object>> valueCache = new HashMap<>();
+    private static final HashMap<String, HashMap<String, NetworkTableEntry>> entryCache = new HashMap<>();
+    private static final HashMap<String, HashSet<String>> registeredKeys = new HashMap<>();
 
-    //seperate hm for poses in order to retain publishers.
-    private static HashMap<String, StructPublisher<Pose2d>> poseList = new HashMap<String, StructPublisher<Pose2d>>();
-    private static HashMap<String, StructPublisher<Pose3d>> pose3dList = new HashMap<String, StructPublisher<Pose3d>>();
+    // Cached struct publishers
+    private static final HashMap<String, HashMap<String, StructPublisher<Pose2d>>> posePublishers = new HashMap<>();
+    private static final HashMap<String, HashMap<String, StructPublisher<Pose3d>>> pose3dPublishers = new HashMap<>();
+    private static final HashMap<String, HashMap<String, StructPublisher<Translation2d>>> translation2dPublishers = new HashMap<>();
 
-    private static HashMap<String, StructPublisher<Translation2d>> translation2dList = new HashMap<String, StructPublisher<Translation2d>>();
+    private static <T> T getFromCache(HashMap<String, HashMap<String, T>> cache, String tab, String key) {
+        HashMap<String, T> tabMap = cache.get(tab);
+        return tabMap == null ? null : tabMap.get(key);
+    }
+
+    private static <T> void putInCache(HashMap<String, HashMap<String, T>> cache, String tab, String key, T value) {
+        cache.computeIfAbsent(tab, k -> new HashMap<>()).put(key, value);
+    }
+
+    private static NetworkTableEntry getOrCreateEntry(String tabName, String key, Object initialValue) {
+        NetworkTableEntry entry = getFromCache(entryCache, tabName, key);
+        if (entry == null) {
+            Shuffleboard.getTab(tabName).add(key, initialValue);
+            entry = NetworkTableInstance.getDefault()
+                .getTable("Shuffleboard").getSubTable(tabName).getEntry(key);
+            putInCache(entryCache, tabName, key, entry);
+        }
+        return entry;
+    }
+
+    private static boolean isFirstRegistration(String tabName, String key) {
+        return registeredKeys.computeIfAbsent(tabName, k -> new HashSet<>()).add(key);
+    }
 
     /**
      * Creates and sets a double to NT through shuffleboard
@@ -51,21 +77,16 @@ public class LightningShuffleboard {
      * @implNote must be called periodically to update
      */
     public static void setDouble(String tabName, String key, double value) {
-        ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if they exists but is not updated, update it
-         * else, the key exists and is up-to-date, so nothing needs to be done
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            tab.add(key, value);
-        } else if(!keyList.get(index).equals(value)) {
-            keyList.put(index, value);
-            NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).setDouble(value);
+        NetworkTableEntry entry = getFromCache(entryCache, tabName, key);
+        if (entry == null) {
+            entry = getOrCreateEntry(tabName, key, value);
+            putInCache(valueCache, tabName, key, value);
+        } else {
+            double last = (double) getFromCache(valueCache, tabName, key);
+            if (last != value) {
+                entry.setDouble(value);
+                putInCache(valueCache, tabName, key, value);
+            }
         }
     }
 
@@ -77,21 +98,16 @@ public class LightningShuffleboard {
      * @implNote must be called periodically to update
      */
     public static void setBool(String tabName, String key, boolean value) {
-        ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if they exists but is not updated, update it
-         * else, the key exists and is up-to-date, so nothing needs to be done
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            tab.add(key, value);
-        } else if(!keyList.get(index).equals(value)) {
-            keyList.put(index, value);
-            NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).setBoolean(value);
+        NetworkTableEntry entry = getFromCache(entryCache, tabName, key);
+        if (entry == null) {
+            entry = getOrCreateEntry(tabName, key, value);
+            putInCache(valueCache, tabName, key, value);
+        } else {
+            boolean last = (boolean) getFromCache(valueCache, tabName, key);
+            if (last != value) {
+                entry.setBoolean(value);
+                putInCache(valueCache, tabName, key, value);
+            }
         }
     }
 
@@ -103,21 +119,16 @@ public class LightningShuffleboard {
      * @implNote must be called periodically to update
      */
     public static void setString(String tabName, String key, String value) {
-        ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if they exists but is not updated, update it
-         * else, the key exists and is up-to-date, so nothing needs to be done
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            tab.add(key, value);
-        } else if(!keyList.get(index).equals(value)) {
-            keyList.put(index, value);
-            NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).setString(value);
+        NetworkTableEntry entry = getFromCache(entryCache, tabName, key);
+        if (entry == null) {
+            entry = getOrCreateEntry(tabName, key, value);
+            putInCache(valueCache, tabName, key, value);
+        } else {
+            Object last = getFromCache(valueCache, tabName, key);
+            if (!value.equals(last)) {
+                entry.setString(value);
+                putInCache(valueCache, tabName, key, value);
+            }
         }
     }
 
@@ -129,16 +140,8 @@ public class LightningShuffleboard {
      * @implNote will update automatically
      */
     public static void setDoubleSupplier(String tabName, String key, DoubleSupplier value) {
-        ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it. this is it because its a supplier
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            tab.add(key, value);
+        if (isFirstRegistration(tabName, key)) {
+            Shuffleboard.getTab(tabName).add(key, value);
         }
     }
 
@@ -150,16 +153,8 @@ public class LightningShuffleboard {
      * @implNote will update automatically
      */
     public static void setBoolSupplier(String tabName, String key, BooleanSupplier value) {
-        ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it. this is it because its a supplier
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            tab.add(key, value);
+        if (isFirstRegistration(tabName, key)) {
+            Shuffleboard.getTab(tabName).add(key, value);
         }
     }
 
@@ -171,16 +166,8 @@ public class LightningShuffleboard {
      * @implNote will update automatically
      */
     public static void setStringSupplier(String tabName, String key, Supplier<String> value) {
-        ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it. this is it because its a supplier
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            tab.add(key, value);
+        if (isFirstRegistration(tabName, key)) {
+            Shuffleboard.getTab(tabName).add(key, value);
         }
     }
 
@@ -190,26 +177,14 @@ public class LightningShuffleboard {
      * @param key the name of the shuffleboard entry
      * @param defaultValue the initial entry value
      * @return the value of the shuffleboard entry
-     *
-     * @implNote this causes some performance issues if used periodically.
      */
     public static double getDouble(String tabName, String key, double defaultValue) {
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if the key exists, update it
-         * this does create some overhead if used periodically
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, defaultValue);
-            Shuffleboard.getTab(tabName).add(key, defaultValue);
+        NetworkTableEntry entry = getFromCache(entryCache, tabName, key);
+        if (entry == null) {
+            entry = getOrCreateEntry(tabName, key, defaultValue);
             return defaultValue;
-        } else {
-            double value = NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).getDouble(defaultValue);
-            keyList.put(index, value);
-            return value;
         }
+        return entry.getDouble(defaultValue);
     }
 
     /**
@@ -218,26 +193,14 @@ public class LightningShuffleboard {
      * @param key the name of the shuffleboard entry
      * @param defaultValue the initial entry value
      * @return the value of the shuffleboard entry
-     *
-     * @implNote this causes some performance issues if used periodically.
      */
     public static boolean getBool(String tabName, String key, boolean defaultValue) {
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if the key exists, update it
-         * this does create some overhead if used periodically
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, defaultValue);
-            Shuffleboard.getTab(tabName).add(key, defaultValue);
+        NetworkTableEntry entry = getFromCache(entryCache, tabName, key);
+        if (entry == null) {
+            entry = getOrCreateEntry(tabName, key, defaultValue);
             return defaultValue;
-        } else {
-            boolean value = NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).getBoolean(defaultValue);
-            keyList.put(index, value);
-            return value;
         }
+        return entry.getBoolean(defaultValue);
     }
 
     /**
@@ -246,28 +209,15 @@ public class LightningShuffleboard {
      * @param key the name of the shuffleboard entry
      * @param defaultValue the initial entry value
      * @return the value of the shuffleboard entry
-     *
-     * @implNote this causes some performance issues if used periodically.
      */
     public static String getString(String tabName, String key, String defaultValue) {
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if the key exists, update it
-         * this does create some overhead if used periodically
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, defaultValue);
-            Shuffleboard.getTab(tabName).add(key, defaultValue);
+        NetworkTableEntry entry = getFromCache(entryCache, tabName, key);
+        if (entry == null) {
+            entry = getOrCreateEntry(tabName, key, defaultValue);
             return defaultValue;
-        } else {
-            String value = NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).getString(defaultValue);
-            keyList.put(index, value);
-            return value;
         }
+        return entry.getString(defaultValue);
     }
-
 
     /**
      * Creates and sets a double array from NT through shuffleboard
@@ -277,21 +227,13 @@ public class LightningShuffleboard {
      * @implNote must be called periodically to update
      */
     public static void setDoubleArray(String tabName, String key, double[] value) {
-        ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if they exists but is not updated, update it
-         * else, the key exists and is up-to-date, so nothing needs to be done
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            tab.add(key, value);
-        } else if(!Arrays.equals((double[]) keyList.get(index), value)) {
-            keyList.put(index, value);
-            NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).setDoubleArray(value);
+        NetworkTableEntry entry = getFromCache(entryCache, tabName, key);
+        if (entry == null) {
+            entry = getOrCreateEntry(tabName, key, value);
+            putInCache(valueCache, tabName, key, value);
+        } else if (!Arrays.equals((double[]) getFromCache(valueCache, tabName, key), value)) {
+            entry.setDoubleArray(value);
+            putInCache(valueCache, tabName, key, value);
         }
     }
 
@@ -303,21 +245,13 @@ public class LightningShuffleboard {
      * @implNote must be called periodically to update
      */
     public static void setBoolArray(String tabName, String key, boolean[] value) {
-        ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if they exists but is not updated, update it
-         * else, the key exists and is up-to-date, so nothing needs to be done
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            tab.add(key, value);
-        } else if(!Arrays.equals((boolean[]) keyList.get(index), value)) {
-            keyList.put(index, value);
-            NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).setBooleanArray(value);
+        NetworkTableEntry entry = getFromCache(entryCache, tabName, key);
+        if (entry == null) {
+            entry = getOrCreateEntry(tabName, key, value);
+            putInCache(valueCache, tabName, key, value);
+        } else if (!Arrays.equals((boolean[]) getFromCache(valueCache, tabName, key), value)) {
+            entry.setBooleanArray(value);
+            putInCache(valueCache, tabName, key, value);
         }
     }
 
@@ -329,102 +263,79 @@ public class LightningShuffleboard {
      * @implNote must be called periodically to update
      */
     public static void setStringArray(String tabName, String key, String[] value) {
-        ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if they exists but is not updated, update it
-         * else, the key exists and is up-to-date, so nothing needs to be done
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            tab.add(key, value);
-        } else if(!Arrays.equals((String[]) keyList.get(index), value)) {
-            keyList.put(index, value);
-            NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).setStringArray(value);
+        NetworkTableEntry entry = getFromCache(entryCache, tabName, key);
+        if (entry == null) {
+            entry = getOrCreateEntry(tabName, key, value);
+            putInCache(valueCache, tabName, key, value);
+        } else if (!Arrays.equals((String[]) getFromCache(valueCache, tabName, key), value)) {
+            entry.setStringArray(value);
+            putInCache(valueCache, tabName, key, value);
         }
     }
 
     /**
-     * Creates and sets a Pose2d from NT through shuffleboard in AdvantageScope Struct formar
+     * Creates and sets a Pose2d from NT through shuffleboard in AdvantageScope Struct format
      * @param tabName the tab to set the value to
      * @param key the name of the shuffleboard entry
      * @param value the value of the shuffleboard entry
      * @implNote must be called periodically to update
      */
     public static void setPose2d(String tabName, String key, Pose2d value) {
-        // ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if they exists but is not updated, update it
-         * else, the key exists and is up-to-date, so nothing needs to be done
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            poseList.put(index, NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getStructTopic(key, Pose2d.struct).publish());
-            poseList.get(index).accept(value);
-        } else if(!keyList.get(index).equals(value)) {
-            keyList.put(index, value);
-            poseList.get(index).accept(value);
+        StructPublisher<Pose2d> publisher = getFromCache(posePublishers, tabName, key);
+        if (publisher == null) {
+            publisher = NetworkTableInstance.getDefault()
+                .getTable("Shuffleboard").getSubTable(tabName)
+                .getStructTopic(key, Pose2d.struct).publish();
+            putInCache(posePublishers, tabName, key, publisher);
+            putInCache(valueCache, tabName, key, value);
+            publisher.accept(value);
+        } else if (!value.equals(getFromCache(valueCache, tabName, key))) {
+            putInCache(valueCache, tabName, key, value);
+            publisher.accept(value);
         }
     }
 
     /**
-     * Creates and sets a Translation2d from NT through shuffleboard in AdvantageScope Struct formar
+     * Creates and sets a Translation2d from NT through shuffleboard in AdvantageScope Struct format
      * @param tabName the tab to set the value to
      * @param key the name of the shuffleboard entry
      * @param value the value of the shuffleboard entry
      * @implNote must be called periodically to update
      */
     public static void setTranslation2d(String tabName, String key, Translation2d value) {
-        // ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if they exists but is not updated, update it
-         * else, the key exists and is up-to-date, so nothing needs to be done
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            translation2dList.put(index, NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getStructTopic(key, Translation2d.struct).publish());
-            translation2dList.get(index).accept(value);
-        } else if(!keyList.get(index).equals(value)) {
-            keyList.put(index, value);
-            translation2dList.get(index).accept(value);
+        StructPublisher<Translation2d> publisher = getFromCache(translation2dPublishers, tabName, key);
+        if (publisher == null) {
+            publisher = NetworkTableInstance.getDefault()
+                .getTable("Shuffleboard").getSubTable(tabName)
+                .getStructTopic(key, Translation2d.struct).publish();
+            putInCache(translation2dPublishers, tabName, key, publisher);
+            putInCache(valueCache, tabName, key, value);
+            publisher.accept(value);
+        } else if (!value.equals(getFromCache(valueCache, tabName, key))) {
+            putInCache(valueCache, tabName, key, value);
+            publisher.accept(value);
         }
     }
 
     /**
-     * Creates and sets a Pose3d from NT through shuffleboard in AdvantageScope Struct formar
+     * Creates and sets a Pose3d from NT through shuffleboard in AdvantageScope Struct format
      * @param tabName the tab to set the value to
      * @param key the name of the shuffleboard entry
      * @param value the value of the shuffleboard entry
      * @implNote must be called periodically to update
      */
     public static void setPose3d(String tabName, String key, Pose3d value) {
-        // ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if they exists but is not updated, update it
-         * else, the key exists and is up-to-date, so nothing needs to be done
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            pose3dList.put(index, NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getStructTopic(key, Pose3d.struct).publish());
-            pose3dList.get(index).accept(value);
-        } else if(!keyList.get(index).equals(value)) {
-            keyList.put(index, value);
-            pose3dList.get(index).accept(value);
+        StructPublisher<Pose3d> publisher = getFromCache(pose3dPublishers, tabName, key);
+        if (publisher == null) {
+            publisher = NetworkTableInstance.getDefault()
+                .getTable("Shuffleboard").getSubTable(tabName)
+                .getStructTopic(key, Pose3d.struct).publish();
+            putInCache(pose3dPublishers, tabName, key, publisher);
+            putInCache(valueCache, tabName, key, value);
+            publisher.accept(value);
+        } else if (!value.equals(getFromCache(valueCache, tabName, key))) {
+            putInCache(valueCache, tabName, key, value);
+            publisher.accept(value);
         }
     }
 
@@ -435,16 +346,8 @@ public class LightningShuffleboard {
      * @param value the value of the shuffleboard entry
      */
     public static void send(String tabName, String key, Sendable value) {
-        ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it. this is it because its a supplier
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            tab.add(key, value);
+        if (isFirstRegistration(tabName, key)) {
+            Shuffleboard.getTab(tabName).add(key, value);
         }
     }
 
@@ -458,15 +361,20 @@ public class LightningShuffleboard {
      * @implNote if entry does not exist, returns null. will NOT create entry automatically.
      */
     public static NetworkTableEntry getEntry(String table, String subTable, String key) {
-        // if the component exists, get it using the NetworkTable, and if not, create the component
+        // getEntry uses a different key space (arbitrary table), so uses flat lookup
+        NetworkTableEntry entry = getFromCache(entryCache, table + "/" + subTable, key);
+        if (entry != null) {
+            return entry;
+        }
         try {
-            return NetworkTableInstance.getDefault().getTable(table).getSubTable(subTable).getEntry(key);
+            entry = NetworkTableInstance.getDefault().getTable(table).getSubTable(subTable).getEntry(key);
+            putInCache(entryCache, table + "/" + subTable, key, entry);
+            return entry;
         } catch (Exception e) {
             System.out.println("entry grab failed: " + e);
             return null;
         }
     }
-
 
     /**
      * Set a generic object to NT through shuffleboard
@@ -475,42 +383,25 @@ public class LightningShuffleboard {
      * @param value the value of the shuffleboard entry
      */
     public static void set(String tabName, String key, Object value) {
-        ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it
-         * if they exists but is not updated, update it
-         * else, the key exists and is up-to-date, so nothing needs to be done
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            tab.add(key, value);
-        } else if(!keyList.get(index).equals(value)) {
-            keyList.put(index, value);
-            NetworkTableInstance.getDefault().getTable("Shuffleboard").getSubTable(tabName).getEntry(key).setValue(value);
+        NetworkTableEntry entry = getFromCache(entryCache, tabName, key);
+        if (entry == null) {
+            entry = getOrCreateEntry(tabName, key, value);
+            putInCache(valueCache, tabName, key, value);
+        } else if (!value.equals(getFromCache(valueCache, tabName, key))) {
+            entry.setValue(value);
+            putInCache(valueCache, tabName, key, value);
         }
     }
 
     /**
-     *
      * Set a {@link <a href="https://docs.wpilib.org/en/stable/docs/software/telemetry/robot-telemetry-with-sendable.html">Sendable</a>} object to NT through shuffleboard
      * @param tabName the tab this shuffleboard entry will be placed in
      * @param key the name of the shuffleboard entry
      * @param value the value of the shuffleboard entry
      */
     public static void set(String tabName, String key, Sendable value) {
-        ShuffleboardTab tab = Shuffleboard.getTab(tabName);
-
-        String index = tabName + "/" + key;
-
-        /* logic breakdown:
-         * if the key does not exist, create it. this is it because its a supplier
-         */
-        if(!keyList.containsKey(index)) {
-            keyList.put(index, value);
-            tab.add(key, value);
+        if (isFirstRegistration(tabName, key)) {
+            Shuffleboard.getTab(tabName).add(key, value);
         }
     }
 }
