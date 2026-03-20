@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 3.896244444444445,
-        "y": 7.491677777777777
+        "x": 3.7350000000000003,
+        "y": 7.481599999999999
       },
       "prevControl": {
-        "x": 5.024740371688415,
-        "y": 7.492681969157769
+        "x": 4.86349592724397,
+        "y": 7.482604191379991
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Trench1-NoShoot"
     }
   ],
   "rotationTargets": [],
