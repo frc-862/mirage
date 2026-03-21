@@ -65,8 +65,8 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = Degrees.of(-290);
-        public static final Angle MAX_ANGLE = Degrees.of(130);
+        public static final Angle MIN_ANGLE = Degrees.of(-305);
+        public static final Angle MAX_ANGLE = Degrees.of(115);
 
         public static final double kP = 150d;
         public static final double kI = 0d;
@@ -74,7 +74,7 @@ public class Turret extends SubsystemBase {
         public static final double kD = 12d;
         public static final double kS = 0.33d;
 
-        public static final double kV_FEEDFORWARD = 0.15d;
+        public static final double kV_FEEDFORWARD = 4d;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
 
@@ -263,14 +263,14 @@ public class Turret extends SubsystemBase {
      * sets angle of the turret with an angular velocity feedforward
      *
      * @param angle sets the angle to the motor of the turret
-     * @param chassisOmegaRadPerSec the angular velocity of the chassis
+     * @param chassisOmegaRotPerSec the angular velocity of the chassis
      */
-    public void setAngle(Angle angle, double chassisOmegaRadPerSec) {
+    public void setAngle(Angle angle, double chassisOmegaRotPerSec) {
         Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-300), Degrees.of(60));
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed && !manual) { // only allow position control if turret has been zeroed but store to apply when zeroed
-            double feedforwardVolts = -chassisOmegaRadPerSec * TurretConstants.kV_FEEDFORWARD;
+            double feedforwardVolts = -chassisOmegaRotPerSec * TurretConstants.kV_FEEDFORWARD;
 
             motor.setControl(positionPID
                 .withPosition(optimizeTurretAngle(targetPosition))
@@ -395,18 +395,18 @@ public class Turret extends SubsystemBase {
         return desired;
     }
 
-    public void turretAim(Pose2d turretPose, Target target, double chassisOmegaRadPerSec) {
+    public void turretAim(Pose2d turretPose, Target target, double chassisOmegaRotPerSec) {
         Translation2d delta = FieldConstants.getTargetData(target).minus(turretPose.getTranslation());
 
         Angle fieldAngle = delta.getAngle().getMeasure();
 
         Angle turretAngle = fieldAngle.minus(turretPose.getRotation().getMeasure());
 
-        setAngle(turretAngle, chassisOmegaRadPerSec);
+        setAngle(turretAngle, chassisOmegaRotPerSec);
     }
 
-    public Command turretAimCommand(Supplier<Pose2d> turretPose, Supplier<Target> target, DoubleSupplier chassisOmegaRadPerSec) {
-        return run(() -> turretAim(turretPose.get(), target.get(), chassisOmegaRadPerSec.getAsDouble()));
+    public Command turretAimCommand(Supplier<Pose2d> turretPose, Supplier<Target> target, DoubleSupplier chassisOmegaRotPerSec) {
+        return run(() -> turretAim(turretPose.get(), target.get(), chassisOmegaRotPerSec.getAsDouble()));
     }
 
     public Command turretAimCommand(Cannon cannon) {
