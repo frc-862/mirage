@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 7.258346153846155,
-        "y": 0.837243589743589
+        "x": 7.121133333333334,
+        "y": 0.8604999999999996
       },
       "prevControl": {
-        "x": 6.655164247285555,
-        "y": 0.37193183325398516
+        "x": 6.517951426772734,
+        "y": 0.3951882435103957
       },
       "nextControl": {
-        "x": 7.665333333333335,
-        "y": 1.1512051282051268
+        "x": 7.5281205128205135,
+        "y": 1.1744615384615373
       },
       "isLocked": false,
       "linkedName": "Trench2CenterMidpoint"
@@ -64,19 +64,19 @@
     },
     {
       "anchor": {
-        "x": 7.258346153846155,
-        "y": 0.837243589743589
+        "x": 5.680011111111112,
+        "y": 0.8604999999999996
       },
       "prevControl": {
-        "x": 7.8281282051282055,
-        "y": 1.7326153846153844
+        "x": 6.445922222222223,
+        "y": 1.455088888888889
       },
       "nextControl": {
-        "x": 6.810725553233044,
-        "y": 0.13383978878012626
+        "x": 4.970672681295399,
+        "y": 0.3098293768535909
       },
       "isLocked": false,
-      "linkedName": "Trench2CenterMidpoint"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -118,7 +118,14 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "STOW_COLLECTOR",
+      "waypointRelativePos": 3.5376044568245195,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
