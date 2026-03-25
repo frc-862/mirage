@@ -8,12 +8,36 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 
 import java.io.File;
 import java.util.Optional;
 import java.util.Scanner;
 
+// 100% vibecoded
+
 public class FieldLayoutHelper {
+
+    private static Rotation3d quaternionToRotation(JsonNode q) {
+        return new Rotation3d(
+            new edu.wpi.first.math.geometry.Quaternion(
+                q.get("W").asDouble(),
+                q.get("X").asDouble(),
+                q.get("Y").asDouble(),
+                q.get("Z").asDouble()
+            )
+        );
+    }
+
+    private static void writeQuaternion(ObjectNode rotNode, Rotation3d rot) {
+        var q = rot.getQuaternion();
+        ObjectNode qNode = (ObjectNode) rotNode.get("quaternion");
+        qNode.put("W", q.getW());
+        qNode.put("X", q.getX());
+        qNode.put("Y", q.getY());
+        qNode.put("Z", q.getZ());
+    }
 
     public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
@@ -57,17 +81,36 @@ public class FieldLayoutHelper {
             System.exit(1);
         }
 
-        double ox = officialPose.get().getX();
-        double oy = officialPose.get().getY();
-        double oz = officialPose.get().getZ();
-        System.out.printf("Official anchor position: (%.4f, %.4f, %.4f)%n", ox, oy, oz);
+        Translation3d officialTranslation = officialPose.get().getTranslation();
+        Rotation3d officialRotation = officialPose.get().getRotation();
+        System.out.printf("Official anchor position: (%.4f, %.4f, %.4f)%n",
+                officialTranslation.getX(), officialTranslation.getY(), officialTranslation.getZ());
 
-        // Apply the translation offset to every tag
+        // Get the anchor's rotation from the custom layout
+        Rotation3d customAnchorRotation = quaternionToRotation(
+                anchorTag.get("pose").get("rotation").get("quaternion"));
+
+        // R_correction = R_official * R_custom^(-1), maps custom frame -> field frame
+        Rotation3d rotationCorrection = customAnchorRotation.unaryMinus().plus(officialRotation);
+
+        // Transform every tag: rotate its position into field frame, then translate
         for (JsonNode tag : custom.get("tags")) {
             ObjectNode translation = (ObjectNode) tag.get("pose").get("translation");
-            translation.put("x", translation.get("x").asDouble() + ox);
-            translation.put("y", translation.get("y").asDouble() + oy);
-            translation.put("z", translation.get("z").asDouble() + oz);
+            double x = translation.get("x").asDouble();
+            double y = translation.get("y").asDouble();
+            double z = translation.get("z").asDouble();
+
+            Translation3d rotated = new Translation3d(x, y, z).rotateBy(rotationCorrection);
+
+            translation.put("x", rotated.getX() + officialTranslation.getX());
+            translation.put("y", rotated.getY() + officialTranslation.getY());
+            translation.put("z", rotated.getZ() + officialTranslation.getZ());
+
+            // Also correct each tag's own rotation
+            ObjectNode rotNode = (ObjectNode) tag.get("pose").get("rotation");
+            Rotation3d customTagRotation = quaternionToRotation(rotNode.get("quaternion"));
+            Rotation3d correctedRotation = customTagRotation.plus(rotationCorrection);
+            writeQuaternion(rotNode, correctedRotation);
         }
 
         // Use official field dimensions
