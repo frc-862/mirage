@@ -193,7 +193,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                 VecBuilder.fill(xyTrust, xyTrust, rotTrust)
             );
         }     
-
+        
         updateLogging();
     }
     

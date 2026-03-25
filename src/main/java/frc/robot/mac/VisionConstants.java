@@ -26,6 +26,8 @@ public class VisionConstants {
 
     public static final boolean IS_OASIS = Paths.get(System.getProperty("user.home"), "Oasis").toFile().exists();
 
+    public static final String LOG_PATH = "/Users/lightning/VisionRunner/vision-logs";
+
     // Carmera constants to store camera name and offsets
     public record CameraConstant(String name, Transform3d offset) {};
     public static final CameraConstant[] CAMERA_CONSTANTS = new CameraConstant[] {

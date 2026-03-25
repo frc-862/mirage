@@ -22,9 +22,9 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.constants.RobotMap;
-import frc.robot.mac.VisionConstants.CameraConstant;
-import frc.robot.constants.RobotMap;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.StructLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.mac.VisionConstants.CameraConstant;
 
 public class MacMini implements AutoCloseable {
@@ -42,6 +42,15 @@ public class MacMini implements AutoCloseable {
 
         // Socket to send data
         DatagramSocket socket;
+
+        // poses from each camera
+        private VisionInfo[] poses;
+
+        // logging
+        private StructLogEntry<Pose2d> rightCamPoseLog;
+        private StructLogEntry<Pose2d> shooterCamPoseLog;
+        private StructLogEntry<Pose2d> leftCamPoseLog;
+
         public MacMini() {
             try {
                 // Create a new socket to send data to the rio
@@ -58,6 +67,9 @@ public class MacMini implements AutoCloseable {
 
             // Create an empty array of cameras
             cameras = new CameraInfo[cameraConstants.length];
+
+            // poses from each camera
+            poses = new VisionInfo[cameraConstants.length];
             
             // Create the cameras
             for (int i = 0; i < cameraConstants.length; i++) {
@@ -88,6 +100,17 @@ public class MacMini implements AutoCloseable {
                 // Create the camera
                 cameras[i] = new CameraInfo(camera, poseEstimator);
             }
+
+            initLogging();
+        }
+
+        private void initLogging() {
+            DataLogManager.start(VisionConstants.LOG_PATH);
+            DataLog log = DataLogManager.getLog();
+
+            rightCamPoseLog = StructLogEntry.create(log, "/rightCam/pose", Pose2d.struct);
+            shooterCamPoseLog = StructLogEntry.create(log, "/shooterCam/pose", Pose2d.struct);
+            leftCamPoseLog = StructLogEntry.create(log, "/leftCam/pose", Pose2d.struct);
         }
 
         public void run() {
@@ -107,12 +130,28 @@ public class MacMini implements AutoCloseable {
                         log("Failed to send packet: " + e);
                     }
                 }
+
+                updateLogging();
                 
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
                     log("Error sleeping: " + e.getMessage());
                 }
+            }
+        }
+
+        private void updateLogging() {
+            if(poses[0] != null) {
+                rightCamPoseLog.append(poses[0].pose().estimatedPose.toPose2d());
+            }
+            
+            if(poses[1] != null) {
+                shooterCamPoseLog.append(poses[1].pose().estimatedPose.toPose2d());
+            }
+
+            if(poses[2] != null) {
+                leftCamPoseLog.append(poses[2].pose().estimatedPose.toPose2d());
             }
         }
 
@@ -123,8 +162,6 @@ public class MacMini implements AutoCloseable {
             }
 
             try {
-                VisionInfo[] poses = new VisionInfo[cameraConstants.length];
-                
                 for (int i = 0; i < cameraConstants.length; i++) {
                     poses[i] = getVisionPose(cameras[i]);
                 }
@@ -249,6 +286,7 @@ public class MacMini implements AutoCloseable {
         }
 
         private DatagramPacket getBinaryPacket(Pose2d pose, double ambiguity, double timestamp) throws IllegalArgumentException, UnknownHostException {
+            // TODO: UPDATE WITH 8 MORE BITS
             ByteBuffer buffer = ByteBuffer.allocate(40);
 
             // Add our data to the buffer
