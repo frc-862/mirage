@@ -416,7 +416,7 @@ public class Turret extends SubsystemBase {
             () -> new Pose2d(cannon.getShooterTranslation(), drivetrain.getPose().getRotation()),
             () -> cannon.getTarget(),
             () -> drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond,
-            () -> cannon.getTurretAngularVelocity()
+            () -> cannon.getHubAngularVelocity()
         );
     }
 

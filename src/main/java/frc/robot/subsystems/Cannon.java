@@ -355,6 +355,10 @@ public class Cannon extends SubsystemBase {
         return (hood.isOnTarget() && turret.isOnTarget() && shooter.isOnTarget());
     }
 
+    /**
+     * get the angular velocity of the hub based on the robot's velocity and position relative to the hub.
+     * @return the angular velocity of the hub based on the robot's velocity and position relative to the hub
+     */
     public double getHubAngularVelocity() {
         double velocityMagnitude = Math.sqrt(Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, 2) + Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, 2));
         double velocityAngle = Math.atan2(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond);
