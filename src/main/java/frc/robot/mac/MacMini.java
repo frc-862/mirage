@@ -22,9 +22,9 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.constants.RobotMap;
-import frc.robot.mac.VisionConstants.CameraConstant;
-import frc.robot.constants.RobotMap;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.mac.VisionConstants.CameraConstant;
 
 public class MacMini implements AutoCloseable {
@@ -42,6 +42,13 @@ public class MacMini implements AutoCloseable {
 
         // Socket to send data
         DatagramSocket socket;
+
+        // logging
+        private VisionInfo[] camLogPoses;
+        private DoubleArrayLogEntry rightCamPoseLog;
+        private DoubleArrayLogEntry shooterCamPoseLog;
+        private DoubleArrayLogEntry leftCamPoseLog;
+
         public MacMini() {
             try {
                 // Create a new socket to send data to the rio
@@ -88,6 +95,17 @@ public class MacMini implements AutoCloseable {
                 // Create the camera
                 cameras[i] = new CameraInfo(camera, poseEstimator);
             }
+
+            initLogging();
+        }
+
+        private void initLogging() {
+            DataLogManager.start(VisionConstants.LOG_PATH);
+            DataLog log = DataLogManager.getLog();
+
+            rightCamPoseLog = new DoubleArrayLogEntry(log, "/rightCam/pose");
+            shooterCamPoseLog = new DoubleArrayLogEntry(log, "/shooterCam/pose");
+            leftCamPoseLog = new DoubleArrayLogEntry(log, "/leftCam/pose");
         }
 
         public void run() {
@@ -107,12 +125,34 @@ public class MacMini implements AutoCloseable {
                         log("Failed to send packet: " + e);
                     }
                 }
+
+                updateLogging();
                 
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
                     log("Error sleeping: " + e.getMessage());
                 }
+            }
+        }
+
+        private void updateLogging() {
+            if(camLogPoses[0].pose().estimatedPose != null) {
+            rightCamPoseLog.append(new double[]{camLogPoses[0].pose().estimatedPose.getX(),
+                camLogPoses[0].pose().estimatedPose.getY(),
+                camLogPoses[0].pose().estimatedPose.getRotation().getAngle()});
+            }
+            
+            if(camLogPoses[1].pose().estimatedPose != null) {
+            shooterCamPoseLog.append(new double[]{camLogPoses[1].pose().estimatedPose.getX(),
+                camLogPoses[1].pose().estimatedPose.getY(),
+                camLogPoses[1].pose().estimatedPose.getRotation().getAngle()});
+            }
+
+            if(camLogPoses[2].pose().estimatedPose != null) {
+            leftCamPoseLog.append(new double[]{camLogPoses[2].pose().estimatedPose.getX(),
+                camLogPoses[2].pose().estimatedPose.getY(),
+                camLogPoses[2].pose().estimatedPose.getRotation().getAngle()});
             }
         }
 
@@ -124,9 +164,11 @@ public class MacMini implements AutoCloseable {
 
             try {
                 VisionInfo[] poses = new VisionInfo[cameraConstants.length];
+                camLogPoses = poses;
                 
                 for (int i = 0; i < cameraConstants.length; i++) {
                     poses[i] = getVisionPose(cameras[i]);
+                    camLogPoses[i] = poses[i];
                 }
 
                 return getBestPose(poses);
@@ -249,6 +291,7 @@ public class MacMini implements AutoCloseable {
         }
 
         private DatagramPacket getBinaryPacket(Pose2d pose, double ambiguity, double timestamp) throws IllegalArgumentException, UnknownHostException {
+            // TODO: UPDATE WITH 8 MORE BITS
             ByteBuffer buffer = ByteBuffer.allocate(40);
 
             // Add our data to the buffer
