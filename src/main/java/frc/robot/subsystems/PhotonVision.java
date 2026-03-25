@@ -170,13 +170,14 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
             // Continuously update the clock offset, subtracting estimated pipeline latency
             // so the timestamp reflects when the image was captured, not when we received it
-            double estimatedLatency = LightningShuffleboard.getDouble("Vision", "latency_compensation_s", 0.05);
+            double estimatedLatency = 0.08;
             macTimeOffset = now - updatedPose.timestamp - estimatedLatency;
 
             LightningShuffleboard.setPose2d("Vision", "robot pose", updatedPose.pose);
 
-            double xyMultiplier = LightningShuffleboard.getDouble("Vision", "xy_multiplier", 2);
-            double rotMultiplier = LightningShuffleboard.getDouble("Vision", "rot_multiplier", 4);
+            double xyMultiplier = 2;
+            double rotMultiplier = 4; 
+
             double ambiguity = Math.max(0.1, Math.min(5, updatedPose.ambiguity()));
             double xyTrust = ambiguity * xyMultiplier;
             double rotTrust = ambiguity * rotMultiplier;
