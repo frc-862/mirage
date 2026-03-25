@@ -319,7 +319,7 @@ public class Cannon extends SubsystemBase {
             shooter.setVelocity(shooterVelocity);
             
             double chassisOmega = drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond / (2 * Math.PI);
-            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), chassisOmega);
+            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), chassisOmega, getHubAngularVelocity());
       }, turret, shooter, hood)
       .alongWith(indexWhenOnTarget())
       .alongWith(drivetrain.increaseRampRates())
@@ -353,5 +353,26 @@ public class Cannon extends SubsystemBase {
      */
     public boolean isOnTarget(){
         return (hood.isOnTarget() && turret.isOnTarget() && shooter.isOnTarget());
+    }
+
+    public double getHubAngularVelocity() {
+        double velocityMagnitude = Math.sqrt(Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, 2) + Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, 2));
+        double velocityAngle = Math.atan2(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond);
+
+        double[] velocityVector = {velocityMagnitude, velocityAngle};
+
+        double robotHubMagnitude = getShooterTranslation().getDistance(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION));
+        double robotHubAngle = Math.atan2(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION).getY() - getShooterTranslation().getY(), FieldConstants.getTargetData(FieldConstants.GOAL_POSITION).getX() - getShooterTranslation().getX());
+
+        double[] robotHubVector = {robotHubMagnitude, robotHubAngle};
+
+        double[] robotHubOrthogonalVector = {1, robotHubAngle + Math.PI / 2};
+
+        double orthagVectorScalar = velocityMagnitude * Math.cos(velocityAngle - robotHubAngle);
+
+        double circumference = 2 * Math.PI * robotHubMagnitude;
+
+        double angularVelocity = orthagVectorScalar / circumference;
+        return angularVelocity;
     }
 }
