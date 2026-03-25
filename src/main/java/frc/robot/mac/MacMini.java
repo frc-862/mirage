@@ -23,7 +23,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
+import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.mac.VisionConstants.CameraConstant;
 
@@ -43,11 +43,13 @@ public class MacMini implements AutoCloseable {
         // Socket to send data
         DatagramSocket socket;
 
+        // poses from each camera
+        private VisionInfo[] poses;
+
         // logging
-        private VisionInfo[] camLogPoses;
-        private DoubleArrayLogEntry rightCamPoseLog;
-        private DoubleArrayLogEntry shooterCamPoseLog;
-        private DoubleArrayLogEntry leftCamPoseLog;
+        private StructLogEntry<Pose2d> rightCamPoseLog;
+        private StructLogEntry<Pose2d> shooterCamPoseLog;
+        private StructLogEntry<Pose2d> leftCamPoseLog;
 
         public MacMini() {
             try {
@@ -65,6 +67,9 @@ public class MacMini implements AutoCloseable {
 
             // Create an empty array of cameras
             cameras = new CameraInfo[cameraConstants.length];
+
+            // poses from each camera
+            poses = new VisionInfo[cameraConstants.length];
             
             // Create the cameras
             for (int i = 0; i < cameraConstants.length; i++) {
@@ -103,9 +108,9 @@ public class MacMini implements AutoCloseable {
             DataLogManager.start(VisionConstants.LOG_PATH);
             DataLog log = DataLogManager.getLog();
 
-            rightCamPoseLog = new DoubleArrayLogEntry(log, "/rightCam/pose");
-            shooterCamPoseLog = new DoubleArrayLogEntry(log, "/shooterCam/pose");
-            leftCamPoseLog = new DoubleArrayLogEntry(log, "/leftCam/pose");
+            rightCamPoseLog = StructLogEntry.create(log, "/rightCam/pose", Pose2d.struct);
+            shooterCamPoseLog = StructLogEntry.create(log, "/shooterCam/pose", Pose2d.struct);
+            leftCamPoseLog = StructLogEntry.create(log, "/leftCam/pose", Pose2d.struct);
         }
 
         public void run() {
@@ -137,22 +142,16 @@ public class MacMini implements AutoCloseable {
         }
 
         private void updateLogging() {
-            if(camLogPoses[0].pose().estimatedPose != null) {
-            rightCamPoseLog.append(new double[]{camLogPoses[0].pose().estimatedPose.getX(),
-                camLogPoses[0].pose().estimatedPose.getY(),
-                camLogPoses[0].pose().estimatedPose.getRotation().getAngle()});
+            if(poses[0] != null) {
+                rightCamPoseLog.append(poses[0].pose().estimatedPose.toPose2d());
             }
             
-            if(camLogPoses[1].pose().estimatedPose != null) {
-            shooterCamPoseLog.append(new double[]{camLogPoses[1].pose().estimatedPose.getX(),
-                camLogPoses[1].pose().estimatedPose.getY(),
-                camLogPoses[1].pose().estimatedPose.getRotation().getAngle()});
+            if(poses[1] != null) {
+                shooterCamPoseLog.append(poses[1].pose().estimatedPose.toPose2d());
             }
 
-            if(camLogPoses[2].pose().estimatedPose != null) {
-            leftCamPoseLog.append(new double[]{camLogPoses[2].pose().estimatedPose.getX(),
-                camLogPoses[2].pose().estimatedPose.getY(),
-                camLogPoses[2].pose().estimatedPose.getRotation().getAngle()});
+            if(poses[2] != null) {
+                leftCamPoseLog.append(poses[2].pose().estimatedPose.toPose2d());
             }
         }
 
@@ -163,12 +162,8 @@ public class MacMini implements AutoCloseable {
             }
 
             try {
-                VisionInfo[] poses = new VisionInfo[cameraConstants.length];
-                camLogPoses = poses;
-                
                 for (int i = 0; i < cameraConstants.length; i++) {
                     poses[i] = getVisionPose(cameras[i]);
-                    camLogPoses[i] = poses[i];
                 }
 
                 return getBestPose(poses);
