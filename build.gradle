@@ -86,6 +86,14 @@ task runMac(type: JavaExec) {
     }
 }
 
+task runFieldHelper(type: JavaExec) {
+    group = 'application'
+    description = 'Runs the field layout helper to correct tag positions'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'frc.util.FieldLayoutHelper'
+    standardInput = System.in
+}
+
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
