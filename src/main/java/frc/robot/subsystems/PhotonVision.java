@@ -174,7 +174,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                 updatedPose.timestamp + macTimeOffset, 
                 VecBuilder.fill(trust, trust, trust)
             );
-        }     
+        }
+        
         updateLogging();
     }
     
