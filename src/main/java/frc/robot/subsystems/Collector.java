@@ -75,6 +75,7 @@ public class Collector extends SubsystemBase {
         public static final Current PIVOT_SUPPLY_LIMIT = RobotMap.IS_OASIS ? Amps.of(6) : Amps.of(6); // temp
         public static final boolean PIVOT_SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean PIVOT_BRAKE_MODE = true; // temp
+        public static final double PIVOT_ZERO_TIMER_THRESHOLD = 1;
         public static final Current COLLECTOR_SUPPLY_LIMIT = Amps.of(40); // temp
         public static final boolean COLLECTOR_SUPPLY_LIMIT_ENABLE = true; // temp
         public static final double ROTOR_TO_ENCODER_RATIO = 1d; // temp
@@ -208,7 +209,7 @@ public class Collector extends SubsystemBase {
                 pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC);
             } else if (!pivotMotor.getVelocity().getValue().isNear(RotationsPerSecond.zero(), RotationsPerSecond.of(0.1))) {
                 zeroingTimer.reset();
-            } else if (zeroingTimer.hasElapsed(0.2)) {
+            } else if (zeroingTimer.hasElapsed(CollectorConstants.PIVOT_ZERO_TIMER_THRESHOLD)) {
                 pivotZeroed = true;
                 pivotMotor.setPosition(CollectorConstants.STOW_ANGLE);
                 zeroingTimer.stop();

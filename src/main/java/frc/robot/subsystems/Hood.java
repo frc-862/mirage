@@ -75,6 +75,7 @@ public class Hood extends SubsystemBase {
                 // put(Inches.of(0), Degrees.of(0));
                 put(Inches.of(18.78*12), Degrees.of(65));
                 put(Inches.of(64), Degrees.of(80));
+                put(Inches.of(144), Degrees.of(70));
                 // put(Inches.of(142), Degrees.of(63));
                 // put(Inches.of(183), Degrees.of(80));
                 // put(Feet.of(23), Degrees.of(66));

@@ -76,6 +76,7 @@ public class Shooter extends SubsystemBase {
                 // put(Inches.of(0), RotationsPerSecond.of(0));
                 put(Inches.of(18.78*12), RotationsPerSecond.of(65));
                 put(Inches.of(64), RotationsPerSecond.of(43));
+                put(Inches.of(144), RotationsPerSecond.of(52));
                 // put(Inches.of(142), RotationsPerSecond.of(55));
                 // put(Inches.of(183), RotationsPerSecond.of(65));
                 // put(Feet.of(23), RotationsPerSecond.of(79));
