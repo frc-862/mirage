@@ -8,43 +8,48 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.979192307692311,
-        "y": 0.5930512820512819
+        "x": 4.9897729748048185,
+        "y": 0.7814640578715883
       },
       "isLocked": false,
       "linkedName": "Trench2-NoShoot"
     },
     {
       "anchor": {
-        "x": 7.121133333333334,
-        "y": 0.8604999999999996
+        "x": 7.7258,
+        "y": 1.162833333333333
       },
       "prevControl": {
-        "x": 6.295530769230768,
-        "y": 0.3953717948717953
+        "x": 7.171209859886125,
+        "y": 0.497199680927378
       },
       "nextControl": {
-        "x": 7.883120018018928,
-        "y": 1.2897882730623043
+        "x": 8.24588341507832,
+        "y": 1.7870511080367604
       },
       "isLocked": false,
       "linkedName": "Trench2CenterMidpoint"
     },
     {
       "anchor": {
-        "x": 7.705644444444445,
-        "y": 4.014844444444445
+        "x": 7.94751111111111,
+        "y": 3.3900222222222216
       },
       "prevControl": {
-        "x": 8.087093712930013,
-        "y": 2.7062396204033212
+        "x": 7.776042330185382,
+        "y": 2.1094536485863533
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Trench2-Center"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.1293759512937454,
+      "rotationDegrees": -74.52214164850334
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
