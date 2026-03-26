@@ -33,7 +33,7 @@ import frc.robot.mac.VisionConstants.CameraConstant;
 
 public class MacMini implements AutoCloseable {
         // Camera info
-        private record CameraLogEntry(StructLogEntry<Pose2d> poselLogEntry, IntegerArrayLogEntry tagNumEntries, StructArrayLogEntry<Pose3d> tagPoseEntries, DoubleArrayLogEntry tagDistanceEntries, DoubleArrayLogEntry tagAmbiguityEntries) {};
+        private record CameraLogEntry(StructLogEntry<Pose2d> robotPoseEntry, IntegerArrayLogEntry tagNumEntries, StructArrayLogEntry<Pose3d> tagPoseEntries, DoubleArrayLogEntry tagDistanceEntries, DoubleArrayLogEntry tagAmbiguityEntries) {};
         private record CameraInfo(PhotonCamera camera, PhotonPoseEstimator poseEstimator, CameraLogEntry logEntry) {}; 
         private record VisionInfo(PhotonPipelineResult result, EstimatedRobotPose pose) {};
 
@@ -255,7 +255,7 @@ public class MacMini implements AutoCloseable {
             if (poseOpt.isPresent()) {
                 // The pose
                 EstimatedRobotPose pose = poseOpt.get();
-                cameraInfo.logEntry().poselLogEntry.append(pose.estimatedPose.toPose2d());
+                cameraInfo.logEntry().robotPoseEntry.append(pose.estimatedPose.toPose2d());
                 
                 // Add the vision measurment
                 return new VisionInfo(useableResult, pose);
@@ -266,7 +266,7 @@ public class MacMini implements AutoCloseable {
                 if (poseOpt.isPresent()) {
                     // The pose
                     EstimatedRobotPose pose = poseOpt.get();
-                    cameraInfo.logEntry().poselLogEntry.append(pose.estimatedPose.toPose2d());
+                    cameraInfo.logEntry().robotPoseEntry.append(pose.estimatedPose.toPose2d());
 
                     // Add the vision measurment
                     return new VisionInfo(useableResult, pose);
