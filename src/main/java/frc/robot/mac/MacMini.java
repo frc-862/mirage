@@ -83,7 +83,7 @@ public class MacMini implements AutoCloseable {
                     // Get the path to a custom field from the home directory
                     Path fieldPath = Path.of(
                         System.getProperty("user.home"),
-                        "field_layout.json"
+                        "NONE.json"
                     );
 
                     fieldLayout = new AprilTagFieldLayout(fieldPath);
