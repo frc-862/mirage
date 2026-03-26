@@ -317,7 +317,9 @@ public class Cannon extends SubsystemBase {
 
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
-            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget());
+            
+            double chassisOmega = drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond / (2 * Math.PI);
+            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), chassisOmega);
       }, turret, shooter, hood)
       .alongWith(indexWhenOnTarget())
       .alongWith(drivetrain.increaseRampRates())
