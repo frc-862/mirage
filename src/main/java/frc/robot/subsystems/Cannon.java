@@ -363,20 +363,14 @@ public class Cannon extends SubsystemBase {
         double velocityMagnitude = Math.sqrt(Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, 2) + Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, 2));
         double velocityAngle = Math.atan2(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond);
 
-        double[] velocityVector = {velocityMagnitude, velocityAngle};
-
         double robotHubMagnitude = getShooterTranslation().getDistance(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION));
         double robotHubAngle = Math.atan2(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION).getY() - getShooterTranslation().getY(), FieldConstants.getTargetData(FieldConstants.GOAL_POSITION).getX() - getShooterTranslation().getX());
 
-        double[] robotHubVector = {robotHubMagnitude, robotHubAngle};
-
-        double[] robotHubOrthogonalVector = {1, robotHubAngle + Math.PI / 2};
-
-        double orthagVectorScalar = velocityMagnitude * Math.cos(velocityAngle - robotHubAngle);
+        double tangentialVelocity = velocityMagnitude * Math.sin(velocityAngle - robotHubAngle);
 
         double circumference = 2 * Math.PI * robotHubMagnitude;
 
-        double angularVelocity = orthagVectorScalar / circumference;
+        double angularVelocity = tangentialVelocity / circumference;
         return angularVelocity;
     }
 }

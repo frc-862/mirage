@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -73,8 +73,14 @@ public class Turret extends SubsystemBase {
         
         public static final double kD = 0.14d;
         public static final double kS = 0.33d;
+        public static final double kV = 4.7d; // ~12V / (motorFreeSpeed / gearRatio) ≈ 12 / 2.58
 
         public static final double kV_FEEDFORWARD = 3d;
+
+        // Motion Magic profile constraints (mechanism rotations)
+        public static final double MOTION_MAGIC_CRUISE_VELOCITY = 1.5; // rotations per second
+        public static final double MOTION_MAGIC_ACCELERATION = 4.0; // rotations per second squared
+        public static final double MOTION_MAGIC_JERK = 40; // rotations per second cubed (S-curve)
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
 
@@ -94,7 +100,7 @@ public class Turret extends SubsystemBase {
 
     private Angle targetPosition = Rotations.zero();
 
-    public final PositionVoltage positionPID = new PositionVoltage(0);
+    public final MotionMagicVoltage motionMagic = new MotionMagicVoltage(0);
     private final DutyCycleOut dutyCycle = new DutyCycleOut(0.0);
 
     private DCMotor gearbox;
@@ -139,6 +145,11 @@ public class Turret extends SubsystemBase {
         config.Slot0.kI = TurretConstants.kI;
         config.Slot0.kD = TurretConstants.kD;
         config.Slot0.kS = TurretConstants.kS;
+        config.Slot0.kV = TurretConstants.kV;
+
+        config.MotionMagic.MotionMagicCruiseVelocity = TurretConstants.MOTION_MAGIC_CRUISE_VELOCITY;
+        config.MotionMagic.MotionMagicAcceleration = TurretConstants.MOTION_MAGIC_ACCELERATION;
+        config.MotionMagic.MotionMagicJerk = TurretConstants.MOTION_MAGIC_JERK;
 
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = TurretConstants.MAX_ANGLE.in(Rotations);
@@ -274,7 +285,7 @@ public class Turret extends SubsystemBase {
             double feedforwardVolts = -chassisOmegaRotPerSec * TurretConstants.kV_FEEDFORWARD; // feedforward for chassis rotation
             feedforwardVolts += -hubRotPerSec * TurretConstants.kV_FEEDFORWARD; // add feedforward for hub velocity as well
 
-            motor.setControl(positionPID
+            motor.setControl(motionMagic
                 .withPosition(optimizeTurretAngle(targetPosition))
                 .withFeedForward(feedforwardVolts));
         }
@@ -415,7 +426,7 @@ public class Turret extends SubsystemBase {
         return turretAimCommand(
             () -> new Pose2d(cannon.getShooterTranslation(), drivetrain.getPose().getRotation()),
             () -> cannon.getTarget(),
-            () -> drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond,
+            () -> drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond / (2 * Math.PI),
             () -> cannon.getHubAngularVelocity()
         );
     }
