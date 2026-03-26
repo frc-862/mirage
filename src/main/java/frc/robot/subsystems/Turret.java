@@ -71,10 +71,10 @@ public class Turret extends SubsystemBase {
         public static final double kP = 150d;
         public static final double kI = 0d;
         
-        public static final double kD = 12d;
+        public static final double kD = 0.14d;
         public static final double kS = 0.33d;
 
-        public static final double kV_FEEDFORWARD = 4d;
+        public static final double kV_FEEDFORWARD = 3d;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
 
@@ -271,7 +271,7 @@ public class Turret extends SubsystemBase {
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed && !manual) { // only allow position control if turret has been zeroed but store to apply when zeroed
-            double feedforwardVolts = -chassisOmegaRotPerSec * TurretConstants.kV_FEEDFORWARD;
+            double feedforwardVolts = -chassisOmegaRotPerSec * TurretConstants.kV_FEEDFORWARD; // feedforward for chassis rotation
             feedforwardVolts += -hubRotPerSec * TurretConstants.kV_FEEDFORWARD; // add feedforward for hub velocity as well
 
             motor.setControl(positionPID
