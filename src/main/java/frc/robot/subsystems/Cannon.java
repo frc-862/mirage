@@ -372,7 +372,7 @@ public class Cannon extends SubsystemBase {
 
         double[] robotHubOrthogonalVector = {1, robotHubAngle + Math.PI / 2};
 
-        double orthagVectorScalar = velocityMagnitude * Math.cos(velocityAngle - robotHubAngle);
+        double orthagVectorScalar = velocityMagnitude * Math.sin(velocityAngle - robotHubAngle);
 
         double circumference = 2 * Math.PI * robotHubMagnitude;
 

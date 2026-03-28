@@ -271,8 +271,8 @@ public class Turret extends SubsystemBase {
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed && !manual) { // only allow position control if turret has been zeroed but store to apply when zeroed
-            double feedforwardVolts = -chassisOmegaRotPerSec * TurretConstants.kV_FEEDFORWARD;
-            feedforwardVolts += -hubRotPerSec * TurretConstants.kV_FEEDFORWARD; // add feedforward for hub velocity as well
+            double feedforwardVolts = -chassisOmegaRotPerSec * LightningShuffleboard.getDouble("Turret", "KV", TurretConstants.kV_FEEDFORWARD); // feedforward to counteract chassis rotation
+            feedforwardVolts += -hubRotPerSec * LightningShuffleboard.getDouble("Turret", "KV", TurretConstants.kV_FEEDFORWARD); // add feedforward for hub velocity as well
 
             motor.setControl(positionPID
                 .withPosition(optimizeTurretAngle(targetPosition))
@@ -415,7 +415,7 @@ public class Turret extends SubsystemBase {
         return turretAimCommand(
             () -> new Pose2d(cannon.getShooterTranslation(), drivetrain.getPose().getRotation()),
             () -> cannon.getTarget(),
-            () -> drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond,
+            () -> drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond / (2 * Math.PI),
             () -> cannon.getHubAngularVelocity()
         );
     }
