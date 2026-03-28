@@ -74,7 +74,7 @@ public class Turret extends SubsystemBase {
         public static final double kD = 12d;
         public static final double kS = 0.33d;
 
-        public static final double kV_FEEDFORWARD = 4d;
+        public static final double kV_FEEDFORWARD = 23d;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
 
@@ -263,16 +263,16 @@ public class Turret extends SubsystemBase {
      * sets angle of the turret with an angular velocity feedforward
      *
      * @param angle sets the angle to the motor of the turret
-     * @param chassisOmegaRotPerSec the angular velocity of the chassis
-     * @param hubRotPerSec the angular velocity of the hub
+     * @param chassisOmegaRadPerSec the angular velocity of the chassis
+     * @param hubRadPerSec the angular velocity of the hub
      */
-    public void setAngle(Angle angle, double chassisOmegaRotPerSec, double hubRotPerSec) {
+    public void setAngle(Angle angle, AngularVelocity chassisOmegaRadPerSec, AngularVelocity hubRadPerSec) {
         Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-300), Degrees.of(60));
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed && !manual) { // only allow position control if turret has been zeroed but store to apply when zeroed
-            double feedforwardVolts = -chassisOmegaRotPerSec * LightningShuffleboard.getDouble("Turret", "KV_robot", TurretConstants.kV_FEEDFORWARD); // feedforward to counteract chassis rotation
-            feedforwardVolts += -hubRotPerSec * LightningShuffleboard.getDouble("Turret", "KV_hub", TurretConstants.kV_FEEDFORWARD); // add feedforward for hub velocity as well
+            double feedforwardVolts = -chassisOmegaRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // feedforward to counteract chassis rotation
+            feedforwardVolts += -hubRadPerSec.in(RotationsPerSecond) * LightningShuffleboard.getDouble("Turret", "KV_hub", TurretConstants.kV_FEEDFORWARD); // add feedforward for hub velocity as well
 
             motor.setControl(positionPID
                 .withPosition(optimizeTurretAngle(targetPosition))
@@ -286,7 +286,7 @@ public class Turret extends SubsystemBase {
      * @param angle sets the angle to the motor of the turret
      */
     public void setAngle(Angle angle) {
-        setAngle(angle, 0, 0);
+        setAngle(angle, RadiansPerSecond.zero(), RadiansPerSecond.zero());
     }
 
     /**
@@ -397,25 +397,25 @@ public class Turret extends SubsystemBase {
         return desired;
     }
 
-    public void turretAim(Pose2d turretPose, Target target, double chassisOmegaRotPerSec, double hubRotPerSec) {
+    public void turretAim(Pose2d turretPose, Target target, AngularVelocity chassisOmegaRadPerSec, AngularVelocity hubRadPerSec) {
         Translation2d delta = FieldConstants.getTargetData(target).minus(turretPose.getTranslation());
 
         Angle fieldAngle = delta.getAngle().getMeasure();
 
         Angle turretAngle = fieldAngle.minus(turretPose.getRotation().getMeasure());
 
-        setAngle(turretAngle, chassisOmegaRotPerSec, hubRotPerSec);
+        setAngle(turretAngle, chassisOmegaRadPerSec, hubRadPerSec);
     }
 
-    public Command turretAimCommand(Supplier<Pose2d> turretPose, Supplier<Target> target, DoubleSupplier chassisOmegaRotPerSec, DoubleSupplier hubRotPerSec) {
-        return run(() -> turretAim(turretPose.get(), target.get(), chassisOmegaRotPerSec.getAsDouble(), hubRotPerSec.getAsDouble()));
+    public Command turretAimCommand(Supplier<Pose2d> turretPose, Supplier<Target> target, Supplier<AngularVelocity> chassisOmegaRadPerSec, Supplier<AngularVelocity> hubRadPerSec) {
+        return run(() -> turretAim(turretPose.get(), target.get(), chassisOmegaRadPerSec.get(), hubRadPerSec.get()));
     }
 
     public Command turretAimCommand(Cannon cannon) {
         return turretAimCommand(
             () -> new Pose2d(cannon.getShooterTranslation(), drivetrain.getPose().getRotation()),
             () -> cannon.getTarget(),
-            () -> drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond / (2 * Math.PI),
+            () -> cannon.getRobotAngularVelocity(),
             () -> cannon.getHubAngularVelocity()
         );
     }
