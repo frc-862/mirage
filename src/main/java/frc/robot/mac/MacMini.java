@@ -8,6 +8,9 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +48,9 @@ public class MacMini implements AutoCloseable {
         // Cameras
         CameraInfo[] cameras;
 
+        // Best Pose
+        StructLogEntry<Pose2d> bestPoseLogEntry;
+
         // Socket to send data
         DatagramSocket socket;
 
@@ -71,8 +77,12 @@ public class MacMini implements AutoCloseable {
             // poses from each camera
             poses = new VisionInfo[cameraConstants.length];
 
-            //start log manager
-            DataLogManager.start(VisionConstants.LOG_PATH);
+            // Name the log file so it doesn't get deleted when we restart the mac mini
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").withZone(ZoneId.of("UTC"));
+            LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+            DataLogManager.start(VisionConstants.LOG_PATH, "FRC_MacMini_" + timeFormatter.format(now) + ".wpilog");
+
+            bestPoseLogEntry = StructLogEntry.create(DataLogManager.getLog(), "bestPose", Pose2d.struct);
             
             // Create the cameras
             for (int i = 0; i < cameraConstants.length; i++) {
@@ -194,7 +204,11 @@ public class MacMini implements AutoCloseable {
                     bestPose = info;
                 }
             }
-            return bestPose == null ? new VisionInfo(null, null) : bestPose;
+            if (bestPose != null) {
+                bestPoseLogEntry.append(bestPose.pose().estimatedPose.toPose2d());
+                return bestPose;
+            }
+            return new VisionInfo(null, null);
         }
 
         private VisionInfo getVisionPose(CameraInfo cameraInfo) {
