@@ -208,7 +208,7 @@ public class Collector extends SubsystemBase {
                 pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC);
             } else if (!pivotMotor.getVelocity().getValue().isNear(RotationsPerSecond.zero(), RotationsPerSecond.of(0.1))) {
                 zeroingTimer.reset();
-            } else if (zeroingTimer.hasElapsed(0.2)) {
+            } else if (zeroingTimer.hasElapsed(1d)) {
                 pivotZeroed = true;
                 pivotMotor.setPosition(CollectorConstants.STOW_ANGLE);
                 zeroingTimer.stop();
