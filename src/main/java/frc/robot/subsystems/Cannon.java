@@ -385,8 +385,10 @@ public class Cannon extends SubsystemBase {
         // return angularVelocity;
 
         double robotTargetAngle = getTargetAngle().in(Radians);
+        
+        Translation2d fieldRelativeVelocity = new Translation2d(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond).rotateBy(drivetrain.getPose().getRotation());
 
-        double hubRotation = (-(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond * Math.sin(robotTargetAngle)) + (drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond * Math.cos(robotTargetAngle))) / (getTargetDistance().in(Meters));
+        double hubRotation = (-fieldRelativeVelocity.getX() * Math.sin(robotTargetAngle) + fieldRelativeVelocity.getY() * Math.cos(robotTargetAngle)) / getTargetDistance().in(Meters);
         return RadiansPerSecond.of(hubRotation);
     }
 
