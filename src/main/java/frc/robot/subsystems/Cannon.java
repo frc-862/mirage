@@ -34,7 +34,6 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
 import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.Shooter.ShooterConstants;
-import frc.util.AllianceHelpers;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderMap;
 
