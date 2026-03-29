@@ -101,8 +101,10 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                         packetsCount++;
 
                         if (Utils.getCurrentTimeSeconds() - startTime > 2) {
-                            // double packetsPerSecond = packetsCount / (Utils.getCurrentTimeSeconds() - startTime);
-                            // LightningShuffleboard.setDouble("Vision", "Packets per second", packetsPerSecond);
+                            if (Robot.isNTEnabled()) {
+                                double packetsPerSecond = packetsCount / (Utils.getCurrentTimeSeconds() - startTime);
+                                LightningShuffleboard.setDouble("Vision", "Packets per second", packetsPerSecond);
+                            }
                             packetsCount = 0;
                             startTime = Utils.getCurrentTimeSeconds();
                         }
@@ -160,9 +162,11 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     
     @Override
     public void periodic() {
-        // LightningShuffleboard.setDouble("Vision", "robot_time", Utils.getCurrentTimeSeconds());
-        // LightningShuffleboard.setBool("Vision", "is Mac Connected", macMiniIsConnected);
-        // LightningShuffleboard.setDouble("Vision", "Mac Mini Ping", macMiniPing.get().in(Milliseconds));
+        if (Robot.isNTEnabled()) {
+            LightningShuffleboard.setDouble("Vision", "robot_time", Utils.getCurrentTimeSeconds());
+            LightningShuffleboard.setBool("Vision", "is Mac Connected", macMiniIsConnected);
+            LightningShuffleboard.setDouble("Vision", "Mac Mini Ping", macMiniPing.get().in(Milliseconds));
+        }
 
         VisionInfo updatedPose = pose.getAndSet(null);
         if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {

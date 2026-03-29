@@ -45,6 +45,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.RobotMap;
 import frc.util.hardware.ThunderBird;
+import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderMap;
 
 public class Shooter extends SubsystemBase {
@@ -178,11 +179,11 @@ public class Shooter extends SubsystemBase {
         leftVelocityLog.append(getLeftVelocity().in(RotationsPerSecond));
         rightVelocityLog.append(getRightVelocity().in(RotationsPerSecond));
 
-        if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
-            // LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
-            // LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
-            // LightningShuffleboard.setDouble("Shooter", "Target Velocity", getTargetVelocity().in(RotationsPerSecond));
-            // LightningShuffleboard.setDouble("Shooter", "Bias", getBias().in(RotationsPerSecond));
+        if (Robot.isNTEnabled()) {
+            LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
+            LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
+            LightningShuffleboard.setDouble("Shooter", "Target Velocity", getTargetVelocity().in(RotationsPerSecond));
+            LightningShuffleboard.setDouble("Shooter", "Bias", getBias().in(RotationsPerSecond));
         }
     }
 
