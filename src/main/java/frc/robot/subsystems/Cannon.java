@@ -47,7 +47,6 @@ public class Cannon extends SubsystemBase {
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
-        // TODO: Create the actual map
         public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap<Distance, Time>() {{
             put(Inches.of(18.78*12), Seconds.of(35.0/30.0));
             put(Inches.of(64), Seconds.of(24.0/30.0));

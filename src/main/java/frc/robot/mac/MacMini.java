@@ -146,7 +146,7 @@ public class MacMini implements AutoCloseable {
                 }
                 
                 try {
-                    Thread.sleep(1);
+                    Thread.sleep(20);
                 } catch (InterruptedException e) {
                     log("Error sleeping: " + e.getMessage());
                 }
