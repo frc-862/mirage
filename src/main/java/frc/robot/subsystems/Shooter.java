@@ -180,10 +180,10 @@ public class Shooter extends SubsystemBase {
         rightVelocityLog.append(getRightVelocity().in(RotationsPerSecond));
 
         if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
-            LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
-            LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
-            LightningShuffleboard.setDouble("Shooter", "Target Velocity", getTargetVelocity().in(RotationsPerSecond));
-            LightningShuffleboard.setDouble("Shooter", "Bias", getBias().in(RotationsPerSecond));
+            // LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
+            // LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
+            // LightningShuffleboard.setDouble("Shooter", "Target Velocity", getTargetVelocity().in(RotationsPerSecond));
+            // LightningShuffleboard.setDouble("Shooter", "Bias", getBias().in(RotationsPerSecond));
         }
     }
 

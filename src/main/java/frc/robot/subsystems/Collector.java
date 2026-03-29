@@ -227,10 +227,10 @@ public class Collector extends SubsystemBase {
         pivotOnTargetLog.append(pivotOnTarget());
 
         if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
-            LightningShuffleboard.setDouble("Collector", "Pivot Rotations", getPivotAngle().in(Rotations));
-            LightningShuffleboard.setDouble("Collector", "Pivot Target Rotations", getTargetPivotAngle().in(Rotations));
-            LightningShuffleboard.setBool("Collector", "Pivot On Target", pivotOnTarget());
-            LightningShuffleboard.setDouble("Collector", "Collector Velocity", getCollectorVelocity().in(RotationsPerSecond));
+            // LightningShuffleboard.setDouble("Collector", "Pivot Rotations", getPivotAngle().in(Rotations));
+            // LightningShuffleboard.setDouble("Collector", "Pivot Target Rotations", getTargetPivotAngle().in(Rotations));
+            // LightningShuffleboard.setBool("Collector", "Pivot On Target", pivotOnTarget());
+            // LightningShuffleboard.setDouble("Collector", "Collector Velocity", getCollectorVelocity().in(RotationsPerSecond));
             // LightningShuffleboard.setBool("Collector", "Pivot Zeroed", pivotZeroed);
         }
     }

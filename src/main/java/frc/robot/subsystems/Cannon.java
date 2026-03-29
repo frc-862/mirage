@@ -34,7 +34,6 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
 import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.Shooter.ShooterConstants;
-import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderMap;
 
 public class Cannon extends SubsystemBase {
@@ -128,10 +127,10 @@ public class Cannon extends SubsystemBase {
         distToTargetLog.append(getTargetDistance().in(Meters));
 
         if(!DriverStation.isFMSAttached() || Robot.isSimulation()) {
-            LightningShuffleboard.setTranslation2d("Cannon", "Target Position", FieldConstants.getTargetData(getTarget()));
-            // LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
-            LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTargetTranslation(), new Rotation2d()));
-            LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
+            // LightningShuffleboard.setTranslation2d("Cannon", "Target Position", FieldConstants.getTargetData(getTarget()));
+            // // LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
+            // LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTargetTranslation(), new Rotation2d()));
+            // LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
         }
     }
 

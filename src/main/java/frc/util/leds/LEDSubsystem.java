@@ -140,7 +140,7 @@ public class LEDSubsystem extends SubsystemBase {
         }
 
         if (!DriverStation.isFMSAttached()) {
-            LightningShuffleboard.setBoolArray("LEDs", "EnabledStates", enabledStates);
+            // LightningShuffleboard.setBoolArray("LEDs", "EnabledStates", enabledStates);
         }
 
         updateLogging();

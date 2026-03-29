@@ -242,14 +242,14 @@ public class Hood extends SubsystemBase {
         biasLog.append(getBias().in(Degrees));
 
         if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
-            LightningShuffleboard.setDouble("Hood", "Angle", getAngle().in(Degrees));
-            if (hasEncoder()) {
-                LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
-            }
-            LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
-            LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
-            LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
-            LightningShuffleboard.setBool("Hood", "Zeroed", hoodZeroed);
+            // LightningShuffleboard.setDouble("Hood", "Angle", getAngle().in(Degrees));
+            // if (hasEncoder()) {
+            //     LightningShuffleboard.setDouble("Hood", "CANcoder angle", encoder.getAbsolutePosition().getValue().in(Degrees));
+            // }
+            // LightningShuffleboard.setDouble("Hood", "Target Angle", getTargetAngle().in(Degrees));
+            // LightningShuffleboard.setDouble("Hood", "Bias", getBias().in(Degrees));
+            // LightningShuffleboard.setBool("Hood", "On Target", isOnTarget());
+            // LightningShuffleboard.setBool("Hood", "Zeroed", hoodZeroed);
         }
     }
 
