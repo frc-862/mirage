@@ -101,7 +101,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                         packetsCount++;
 
                         if (Utils.getCurrentTimeSeconds() - startTime > 2) {
-                            double packetsPerSecond = packetsCount / (Utils.getCurrentTimeSeconds() - startTime);
+                            // double packetsPerSecond = packetsCount / (Utils.getCurrentTimeSeconds() - startTime);
                             // LightningShuffleboard.setDouble("Vision", "Packets per second", packetsPerSecond);
                             packetsCount = 0;
                             startTime = Utils.getCurrentTimeSeconds();
