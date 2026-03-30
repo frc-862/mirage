@@ -3,6 +3,9 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -23,9 +26,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -59,18 +59,22 @@ public class Turret extends SubsystemBase {
     public class TurretConstants {
         public static final boolean INVERTED = true; // temp
         public static final Current STATOR_LIMIT = Amps.of(40); // temp
+        public static final Current SUPPLY_LIMIT = Amps.of(40); // temp
+        public static final boolean SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean BRAKE = false; // temp
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
 
-        public static final Angle MIN_ANGLE = Degrees.of(-290);
-        public static final Angle MAX_ANGLE = Degrees.of(130);
+        public static final Angle MIN_ANGLE = Degrees.of(-305);
+        public static final Angle MAX_ANGLE = Degrees.of(115);
 
         public static final double kP = 150d;
         public static final double kI = 0d;
         
         public static final double kD = 12d;
         public static final double kS = 0.33d;
+
+        public static final double kV_FEEDFORWARD = 4d;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
 
@@ -142,6 +146,9 @@ public class Turret extends SubsystemBase {
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = TurretConstants.MIN_ANGLE.in(Rotations);
 
         config.Feedback.SensorToMechanismRatio = TurretConstants.ENCODER_TO_MECHANISM_RATIO;
+
+        config.CurrentLimits.SupplyCurrentLimitEnable = TurretConstants.SUPPLY_LIMIT_ENABLE;
+        config.CurrentLimits.SupplyCurrentLimit = TurretConstants.SUPPLY_LIMIT.in(Amps);
 
         motor.applyConfig(config);
 
@@ -253,17 +260,31 @@ public class Turret extends SubsystemBase {
     }
 
     /**
-     * sets angle of the turret
+     * sets angle of the turret with an angular velocity feedforward
      *
      * @param angle sets the angle to the motor of the turret
+     * @param chassisOmegaRotPerSec the angular velocity of the chassis
      */
-    public void setAngle(Angle angle) {
+    public void setAngle(Angle angle, double chassisOmegaRotPerSec) {
         Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-300), Degrees.of(60));
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed && !manual) { // only allow position control if turret has been zeroed but store to apply when zeroed
-            motor.setControl(positionPID.withPosition(optimizeTurretAngle(targetPosition)));
+            double feedforwardVolts = -chassisOmegaRotPerSec * TurretConstants.kV_FEEDFORWARD;
+
+            motor.setControl(positionPID
+                .withPosition(optimizeTurretAngle(targetPosition))
+                .withFeedForward(feedforwardVolts));
         }
+    }
+
+    /**
+     * sets angle of the turret without any feedforward
+     * 
+     * @param angle sets the angle to the motor of the turret
+     */
+    public void setAngle(Angle angle) {
+        setAngle(angle, 0);
     }
 
     /**
@@ -374,35 +395,26 @@ public class Turret extends SubsystemBase {
         return desired;
     }
 
-    public Command turretAim(Target target) {
-        return run(() -> {
-            Pose2d robotPose = drivetrain.getPose();
+    public void turretAim(Pose2d turretPose, Target target, double chassisOmegaRotPerSec) {
+        Translation2d delta = FieldConstants.getTargetData(target).minus(turretPose.getTranslation());
 
-            Translation2d delta = FieldConstants.getTargetData(target).minus(robotPose.getTranslation());
+        Angle fieldAngle = delta.getAngle().getMeasure();
 
-            Angle fieldAngle = delta.getAngle().getMeasure();
+        Angle turretAngle = fieldAngle.minus(turretPose.getRotation().getMeasure());
 
-            Angle turretAngle = fieldAngle.minus(robotPose.getRotation().getMeasure());
-
-            setAngle(turretAngle);
-        });
+        setAngle(turretAngle, chassisOmegaRotPerSec);
     }
 
-    public Command turretAim(Cannon cannon) {
-        return run(() -> {
-            Translation2d shooterTranslation = cannon.getShooterTranslation();
+    public Command turretAimCommand(Supplier<Pose2d> turretPose, Supplier<Target> target, DoubleSupplier chassisOmegaRotPerSec) {
+        return run(() -> turretAim(turretPose.get(), target.get(), chassisOmegaRotPerSec.getAsDouble()));
+    }
 
-            Translation2d target = cannon.getTarget();
-
-            Translation2d delta = target.minus(shooterTranslation);
-
-            Angle fieldAngle = delta.getAngle().getMeasure();
-
-            Angle turretAngle
-                    = fieldAngle.minus(drivetrain.getPose().getRotation().getMeasure());
-
-            setAngle(turretAngle);
-        });
+    public Command turretAimCommand(Cannon cannon) {
+        return turretAimCommand(
+            () -> new Pose2d(cannon.getShooterTranslation(), drivetrain.getPose().getRotation()),
+            () -> cannon.getTarget(),
+            () -> drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond
+        );
     }
 
     /**

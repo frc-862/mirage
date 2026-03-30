@@ -19,6 +19,8 @@ import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
@@ -27,9 +29,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.util.shuffleboard.LightningShuffleboard;
-
-import static edu.wpi.first.units.Units.Milliseconds;
-import static edu.wpi.first.units.Units.Seconds;
 
 public class PhotonVision extends SubsystemBase implements AutoCloseable {
     // Records to store specific groups of data
@@ -64,6 +63,9 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     private static final String MAC_MINI_IP = "10.8.62.11";
     private static final int VISION_PORT = 12345;
 
+    private int packetsCount = 0;
+    private double startTime = 0;
+
     /** Creates a new PhotonVision.
      * 
      * @param drivetrain The main drivetrain on the robot
@@ -86,6 +88,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         
         // Start a separate thread to receive packets
         receiveThread = new Thread(() -> {
+            startTime = Utils.getCurrentTimeSeconds();
             // Run while the thread is still valid
             while (!Thread.currentThread().isInterrupted()) {
                 try {
@@ -95,6 +98,14 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     
                     if (socket != null) {
                         socket.receive(receivePacket);
+                        packetsCount++;
+
+                        if (Utils.getCurrentTimeSeconds() - startTime > 2) {
+                            double packetsPerSecond = packetsCount / (Utils.getCurrentTimeSeconds() - startTime);
+                            LightningShuffleboard.setDouble("Vision", "Packets per second", packetsPerSecond);
+                            packetsCount = 0;
+                            startTime = Utils.getCurrentTimeSeconds();
+                        }
                     } else {
                         break;
                     }
@@ -123,13 +134,11 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
                     double startTime = Utils.getCurrentTimeSeconds();
                     macMiniIsConnected = macMiniAddress.isReachable(1000); //timeout in ms
                     macMiniPing.set(Seconds.of(Utils.getCurrentTimeSeconds() - startTime));
+
+                    Thread.sleep(1000);
                 } catch (IOException e) {
                     macMiniIsConnected = false;
                     macMiniPing.set(Seconds.of(0));
-                }
-
-                try {
-                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -157,24 +166,34 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         VisionInfo updatedPose = pose.getAndSet(null);
         if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
-            // If the time offset has not been set yet, calculate it
-            if (macTimeOffset == 0) {
-                macTimeOffset = Utils.getCurrentTimeSeconds() - updatedPose.timestamp;
-            }
+            double now = Utils.getCurrentTimeSeconds();
 
-            // Calculate the standard deviation to use-- small multiplier so not too low
-            double trust = updatedPose.ambiguity() * 1.2;
+            // Continuously update the clock offset, subtracting estimated pipeline latency
+            // so the timestamp reflects when the image was captured, not when we received it
+            double estimatedLatency = 0.08;
+            macTimeOffset = now - updatedPose.timestamp - estimatedLatency;
+
+            LightningShuffleboard.setPose2d("Vision", "robot pose", updatedPose.pose);
+
+            double xyMultiplier = 2;
+            double rotMultiplier = 4; 
+
+            double ambiguity = Math.max(0.1, Math.min(5, updatedPose.ambiguity()));
+            double xyTrust = ambiguity * xyMultiplier;
+            double rotTrust = ambiguity * rotMultiplier;
 
             LightningShuffleboard.setPose2d("Vision", "updated pose", updatedPose.pose);
             LightningShuffleboard.setDouble("Vision", "mac time offset", macTimeOffset);
+            LightningShuffleboard.setDouble("Vision", "xy_trust", xyTrust);
+            LightningShuffleboard.setDouble("Vision", "rot_trust", rotTrust);
             
-            // Adds our estimated pose from vision to our drivetrain's pose, fuses with odometry
             drivetrain.addVisionMeasurement(
                 updatedPose.pose(), 
                 updatedPose.timestamp + macTimeOffset, 
-                VecBuilder.fill(trust, trust, trust)
+                VecBuilder.fill(xyTrust, xyTrust, rotTrust)
             );
         }     
+        
         updateLogging();
     }
     

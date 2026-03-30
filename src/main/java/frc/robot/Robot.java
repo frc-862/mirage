@@ -4,10 +4,8 @@
 
 package frc.robot;
 
-import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,8 +16,8 @@ public class Robot extends TimedRobot {
 
     private static RobotContainer robotContainer;
 
-    private DoubleLogEntry totalCurrentEntry;
-    private DoubleLogEntry voltageEntry;
+    // private DoubleLogEntry totalCurrentEntry;
+    // private DoubleLogEntry voltageEntry;
 
     public Robot() {
         getContainer();
@@ -50,8 +48,8 @@ public class Robot extends TimedRobot {
         LiveWindow.disableAllTelemetry();
 
         if (DriverStation.isFMSAttached()) {
-            totalCurrentEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/TotalCurrent");
-            voltageEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/Voltage");
+            // totalCurrentEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/TotalCurrent");
+            // voltageEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/Voltage");
         }
     }
 
@@ -60,8 +58,8 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
 
         if (DriverStation.isFMSAttached()) {
-            totalCurrentEntry.append(RobotController.getInputCurrent());
-            voltageEntry.append(RobotController.getBatteryVoltage());
+            // totalCurrentEntry.append(RobotController.getInputCurrent());
+            // voltageEntry.append(RobotController.getBatteryVoltage());
         } else {
             // LightningShuffleboard.setDouble("PDH", "Total Current", getContainer().pdh.getTotalCurrent());
             // LightningShuffleboard.setDouble("PDH", "Voltage", getContainer().pdh.getVoltage());

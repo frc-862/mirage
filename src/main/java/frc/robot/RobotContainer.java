@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -116,6 +117,7 @@ public class RobotContainer {
 
 
         shooter.setDefaultCommand(shooter.coast());
+//         collector.setDefaultCommand(collector.neutralPivotCommand());
         hood.setDefaultCommand(cannon.hoodAim());
         turret.setDefaultCommand(cannon.turretAim());
     }
@@ -128,6 +130,7 @@ public class RobotContainer {
         // new Trigger(driver::getYButton).whileTrue(turret.zero());
         
         // TODO: Bind OTF to LB and Climb AA to RB
+        new Trigger(copilot::getBButton).whileTrue(cannon.shootOTF());
 
         // change biases for the driver
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
@@ -142,19 +145,13 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        new Trigger(() -> driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(drivetrain.robotCentricDrive(
-            () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
-                    VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND), 
-                    DriveConstants.CONTROLLER_POW).times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? 
-                    DriveConstants.SLOW_MODE_MULT : 1.0), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
-                    DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
-                    * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
+        new Trigger(() -> driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(collector.driverStowPivotCommand());
 
         new Trigger(driver::getBButton).toggleOnTrue(turret.manual());
 
         /* Copilot */
-        new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retract());
-        new Trigger(copilot::getXButton).whileTrue(hood.retract().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+        new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retractCommand());
+        new Trigger(copilot::getXButton).whileTrue(hood.retractCommand().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
         new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER,
             -IndexerConstants.TRANSFER_POWER));
@@ -165,9 +162,9 @@ public class RobotContainer {
             .alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER * CollectorConstants.COLLECT_MULT))
             .deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
 
-        new Trigger(copilot::getStartButton).whileTrue(collector.stowPivotCommand());
+        new Trigger(copilot::getStartButton).onTrue(collector.stowPivotCommand());
     
-        new Trigger(() -> copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND || copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)
+        new Trigger(() -> (copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND || copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)  && !(driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND))
             .whileTrue(collector.collectCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()) *  CollectorConstants.COLLECT_MULT));
 
         new Trigger(copilot::getBackButton).whileTrue(turret.manual()); // disable turret
@@ -179,8 +176,8 @@ public class RobotContainer {
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_RIGHT).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT).deadlineFor(rumble()));
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT).deadlineFor(rumble()));
         new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT).deadlineFor(rumble()));
-
-        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(
+            
+        //  new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(
         //     shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
         //     .alongWith(hood.hoodCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))))
         //     .andThen(indexer.autoIndex(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
@@ -198,8 +195,6 @@ public class RobotContainer {
         new Trigger(copilot::getAButton).whileTrue(indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)).onFalse(new InstantCommand(() -> indexer.stop()));
 
         new Trigger(() -> Math.abs(copilot.getLeftTriggerAxis()) > DriveConstants.JOYSTICK_DEADBAND).whileTrue(indexer.transferCommand(() -> copilot.getLeftTriggerAxis())).onFalse(new InstantCommand(() -> indexer.stopTransfer()));
-
-        new Trigger(driver::getRightBumperButton).whileTrue(drivetrain.changeDrivetrainSupplyLimits());
     }
     
     private void configureNamedCommands() {
@@ -208,15 +203,14 @@ public class RobotContainer {
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
 
         NamedCommands.registerCommand("MOVE_TO_TOWER", drivetrain.autoAlign(FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
-        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot().alongWith(collector.collectCommand(() -> CollectorConstants.COLLECT_POWER)));
-        NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER));
-        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot().deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
+        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot().alongWith(hood.ignoreRetractCommand()).deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
         NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER).deadlineFor(leds.enableState(LED_STATES.COLLECT.id())));
         NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.deployPivotCommand());
         NamedCommands.registerCommand("STOW_COLLECTOR", collector.stowPivotCommand());
         NamedCommands.registerCommand("WAIT_UNTIL_DEPLOYED", new WaitUntilCommand(collector::isDeployed));
         NamedCommands.registerCommand("WAIT_UNTIL_STOWED", new WaitUntilCommand(collector::isStowed));
         NamedCommands.registerCommand("COLLECTOR_WHEELS", collector.runCollectorWheels(() -> CollectorConstants.COLLECT_POWER));
+        NamedCommands.registerCommand("STOW_AND_COLLECTOR_WHEELS", new ParallelCommandGroup(collector.stowPivotCommand(), collector.runCollectorWheels(() -> CollectorConstants.COLLECT_POWER)));
         
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);

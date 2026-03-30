@@ -8,6 +8,9 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,12 +24,23 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
+import edu.wpi.first.util.datalog.IntegerArrayLogEntry;
+import edu.wpi.first.util.datalog.StructArrayLogEntry;
+import edu.wpi.first.util.datalog.StructLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import frc.robot.mac.VisionConstants.CameraConstant;
 
 public class MacMini implements AutoCloseable {
         // Camera info
-        private record CameraInfo(PhotonCamera camera, PhotonPoseEstimator poseEstimator) {}; 
+        private record CameraLogEntry(StructLogEntry<Pose2d> robotPoseEntry, IntegerArrayLogEntry tagNumEntries, StructArrayLogEntry<Pose3d> tagPoseEntries, DoubleArrayLogEntry tagDistanceEntries, DoubleArrayLogEntry tagAmbiguityEntries) {};
+        private record CameraInfo(PhotonCamera camera, PhotonPoseEstimator poseEstimator, CameraLogEntry logEntry) {}; 
         private record VisionInfo(PhotonPipelineResult result, EstimatedRobotPose pose) {};
+
+        CameraConstant[] cameraConstants;
 
         // The network tables instance that will connect to the local photonvision server
         NetworkTableInstance photonNT = NetworkTableInstance.create();
@@ -34,8 +48,14 @@ public class MacMini implements AutoCloseable {
         // Cameras
         CameraInfo[] cameras;
 
+        // Best Pose
+        StructLogEntry<Pose2d> bestPoseLogEntry;
+
         // Socket to send data
         DatagramSocket socket;
+
+        // poses from each camera
+        private VisionInfo[] poses;
 
         public MacMini() {
             try {
@@ -49,19 +69,31 @@ public class MacMini implements AutoCloseable {
             photonNT.setServer("localhost", 5810);
             photonNT.startClient4("mac-photon-client");
 
+            cameraConstants = VisionConstants.IS_OASIS ? VisionConstants.OASIS_CAMERA_CONSTANTS : VisionConstants.CAMERA_CONSTANTS;
+
             // Create an empty array of cameras
-            cameras = new CameraInfo[VisionConstants.CAMERA_CONSTANTS.length];
+            cameras = new CameraInfo[cameraConstants.length];
+
+            // poses from each camera
+            poses = new VisionInfo[cameraConstants.length];
+
+            // Name the log file so it doesn't get deleted when we restart the mac mini
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").withZone(ZoneId.of("UTC"));
+            LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+            DataLogManager.start(VisionConstants.LOG_PATH, "FRC_MacMini_" + timeFormatter.format(now) + ".wpilog");
+
+            bestPoseLogEntry = StructLogEntry.create(DataLogManager.getLog(), "bestPose", Pose2d.struct);
             
             // Create the cameras
-            for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
-                log("Creating " + VisionConstants.CAMERA_CONSTANTS[i].name() + " info");
+            for (int i = 0; i < cameraConstants.length; i++) {
+                log("Creating " + cameraConstants[i].name() + " info");
                 AprilTagFieldLayout fieldLayout;
 
                 try {
                     // Get the path to a custom field from the home directory
                     Path fieldPath = Path.of(
                         System.getProperty("user.home"),
-                        "field_layout.json"
+                        "NONE.json"
                     );
 
                     fieldLayout = new AprilTagFieldLayout(fieldPath);
@@ -73,15 +105,27 @@ public class MacMini implements AutoCloseable {
 
                 // Get the pose estimator
                 PhotonPoseEstimator poseEstimator =
-                        new PhotonPoseEstimator(fieldLayout,VisionConstants.CAMERA_CONSTANTS[i].offset());
+                        new PhotonPoseEstimator(fieldLayout,cameraConstants[i].offset());
                     
                 // Create the camera using the name from our constant
-                PhotonCamera camera = new PhotonCamera(photonNT, VisionConstants.CAMERA_CONSTANTS[i].name());
+                String cameraName = cameraConstants[i].name();
+                PhotonCamera camera = new PhotonCamera(photonNT, cameraName);
+
+                DataLog log = DataLogManager.getLog();
+                CameraLogEntry logEntry = new CameraLogEntry(
+                    StructLogEntry.create(log, cameraName + "/robotPose", Pose2d.struct), 
+                    new IntegerArrayLogEntry(log, cameraName + "/tagNum"), 
+                    StructArrayLogEntry.create(log, cameraName + "/tagPose", Pose3d.struct), 
+                    new DoubleArrayLogEntry(log, cameraName + "/tagDistance"), 
+                    new DoubleArrayLogEntry(log, cameraName + "/tagAmbiguity")
+                );
 
                 // Create the camera
-                cameras[i] = new CameraInfo(camera, poseEstimator);
+                cameras[i] = new CameraInfo(camera, poseEstimator, logEntry);
             }
+
         }
+
 
         public void run() {
             while (true) {
@@ -116,9 +160,7 @@ public class MacMini implements AutoCloseable {
             }
 
             try {
-                VisionInfo[] poses = new VisionInfo[VisionConstants.CAMERA_CONSTANTS.length];
-                
-                for (int i = 0; i < VisionConstants.CAMERA_CONSTANTS.length; i++) {
+                for (int i = 0; i < cameraConstants.length; i++) {
                     poses[i] = getVisionPose(cameras[i]);
                 }
 
@@ -162,7 +204,11 @@ public class MacMini implements AutoCloseable {
                     bestPose = info;
                 }
             }
-            return bestPose == null ? new VisionInfo(null, null) : bestPose;
+            if (bestPose != null) {
+                bestPoseLogEntry.append(bestPose.pose().estimatedPose.toPose2d());
+                return bestPose;
+            }
+            return new VisionInfo(null, null);
         }
 
         private VisionInfo getVisionPose(CameraInfo cameraInfo) {
@@ -186,6 +232,13 @@ public class MacMini implements AutoCloseable {
             if (filteredTargets.isEmpty()) {
                 return null;
             }
+
+            //Log all tags
+            var tags = latestResult.getTargets();
+            cameraInfo.logEntry().tagNumEntries.append(tags.stream().mapToLong((tag) -> tag.getFiducialId()).toArray());
+            cameraInfo.logEntry().tagPoseEntries.append(tags.stream().map((tag) -> new Pose3d().plus(tag.getBestCameraToTarget())).toArray(Pose3d[]::new));
+            cameraInfo.logEntry().tagDistanceEntries.append(tags.stream().mapToDouble((tag) -> tag.getBestCameraToTarget().getTranslation().getNorm()).toArray());
+            cameraInfo.logEntry().tagAmbiguityEntries.append(tags.stream().mapToDouble((tag) -> tag.getPoseAmbiguity()).toArray());
 
             PhotonPipelineResult useableResult = latestResult;
 
@@ -212,11 +265,11 @@ public class MacMini implements AutoCloseable {
             
             // Get the estimated position
             Optional<EstimatedRobotPose> poseOpt = cameraInfo.poseEstimator().estimateCoprocMultiTagPose(useableResult);
-
             // If the estimated position is there run this code
             if (poseOpt.isPresent()) {
                 // The pose
                 EstimatedRobotPose pose = poseOpt.get();
+                cameraInfo.logEntry().robotPoseEntry.append(pose.estimatedPose.toPose2d());
                 
                 // Add the vision measurment
                 return new VisionInfo(useableResult, pose);
@@ -227,6 +280,7 @@ public class MacMini implements AutoCloseable {
                 if (poseOpt.isPresent()) {
                     // The pose
                     EstimatedRobotPose pose = poseOpt.get();
+                    cameraInfo.logEntry().robotPoseEntry.append(pose.estimatedPose.toPose2d());
 
                     // Add the vision measurment
                     return new VisionInfo(useableResult, pose);
@@ -243,6 +297,7 @@ public class MacMini implements AutoCloseable {
         }
 
         private DatagramPacket getBinaryPacket(Pose2d pose, double ambiguity, double timestamp) throws IllegalArgumentException, UnknownHostException {
+            // TODO: UPDATE WITH 8 MORE BITS
             ByteBuffer buffer = ByteBuffer.allocate(40);
 
             // Add our data to the buffer

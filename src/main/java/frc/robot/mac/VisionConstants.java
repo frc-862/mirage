@@ -6,6 +6,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+
+import static edu.wpi.first.units.Units.Degrees;
+import java.nio.file.Paths;
+
 import static edu.wpi.first.units.Units.Inches;
 
 public class VisionConstants {
@@ -20,6 +24,10 @@ public class VisionConstants {
     public static final double POSE_AMBIGUITY_TOLERANCE = 1;
     public static final double TAG_DISTANCE_TOLERANCE = 6;
 
+    public static final boolean IS_OASIS = Paths.get(System.getProperty("user.home"), "Oasis").toFile().exists();
+
+    public static final String LOG_PATH = "/Users/lightning/VisionRunner/vision-logs";
+
     // Carmera constants to store camera name and offsets
     public record CameraConstant(String name, Transform3d offset) {};
     public static final CameraConstant[] CAMERA_CONSTANTS = new CameraConstant[] {
@@ -29,9 +37,9 @@ public class VisionConstants {
                 Inches.of(-11.8),   // LEFT
                 Inches.of(7.6),    // up
                 new Rotation3d(
-                    0,
-                    Math.toRadians(-25),  // pitch up
-                    Math.toRadians(-90)    // yaw outward (left)
+                    Degrees.of(0),
+                    Degrees.of(340), // pitch up
+                    Degrees.of(270)   // y/ yaw outward (left)
                 )
             )
         ),
@@ -41,9 +49,9 @@ public class VisionConstants {
                 Inches.of(-11.2), 
                 Inches.of(8.75),    // up
                 new Rotation3d(
-                    0,
-                    Math.toRadians(-20),  // pitch up
-                   0    // yaw outward (left)
+                    Degrees.of(0),
+                    Degrees.of(340), // pitch up
+                    Degrees.of(0)   // yaw outward (left)
                 )
             )
         ),
@@ -53,12 +61,34 @@ public class VisionConstants {
                 Inches.of(12.3),   // LEFT
                 Inches.of(8.5),    // up
                 new Rotation3d(
-                    0,
-                    Math.toRadians(-25),  // pitch up
-                    Math.toRadians(90)    // yaw outward (left)
+                    Degrees.of(0),
+                    Degrees.of(340), // pitch up
+                    Degrees.of(90)   // y
                 )
             )
         )
     };
 
+    public static final CameraConstant[] OASIS_CAMERA_CONSTANTS = new CameraConstant[] {
+        new CameraConstant("rightCam",
+            new Transform3d(
+                Inches.of(0),   // forward
+                Inches.of(-11.8),   // LEFT
+                Inches.of(7.6),    // up
+                new Rotation3d(
+                    0,
+                    Math.toRadians(-25),  // pitch up
+                    Math.toRadians(-90)    // yaw outward (right)
+                )
+            )
+        ),
+        new CameraConstant("leftCam", 
+            new Transform3d(
+                Inches.of(11.25),
+                Inches.of(11.25),   // RIGHT side
+                Inches.of(10.5),
+                new Rotation3d(0, -15, -45)
+            )
+        ),
+    };
 }
