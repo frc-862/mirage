@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
             DriverStation.startDataLog(DataLogManager.getLog());
         }
 
-        //Silence joystick warnings in simulation
+        // Silence joystick warnings in simulation
         if (isSimulation()){
             DriverStation.silenceJoystickConnectionWarning(true);
         }
