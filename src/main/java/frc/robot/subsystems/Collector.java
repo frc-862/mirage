@@ -11,6 +11,9 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.networktables.BooleanEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
@@ -86,7 +89,8 @@ public class Collector extends SubsystemBase {
         public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
         public static final Angle STOW_ANGLE = MIN_ANGLE;
         public static final Angle TOLERANCE = Rotations.of(0.05);
-        public static final DutyCycleOut PIVOT_ZEROING_DC = new DutyCycleOut(-0.1);
+        public static final DutyCycleOut PIVOT_ZEROING_DC_STOW = new DutyCycleOut(-0.1);
+        public static final DutyCycleOut PIVOT_ZEROING_DC_DEPLOY = new DutyCycleOut(0.1);
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.01); // temp
         public static final Distance LENGTH = Inches.of(6);
@@ -117,6 +121,9 @@ public class Collector extends SubsystemBase {
     private boolean pivotZeroed = true;
     private final Timer zeroingTimer = new Timer();
     private boolean pivotActive = false;
+    private BooleanEntry requestZeroingDeploy;
+    private BooleanEntry requestZeroingStow;
+    private boolean stowZero = false;
 
     private DCMotor gearbox;
 
@@ -157,6 +164,13 @@ public class Collector extends SubsystemBase {
         pivotMotor.applyConfig(pivotConfig);
         collectorMotor.applyConfig(collectorConfig);
 
+        requestZeroingDeploy = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Deploy").getEntry(false);
+        requestZeroingStow = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Stow").getEntry(false);
+
+        requestZeroingDeploy.set(false);
+        requestZeroingStow.set(false);
+
+
         if(Robot.isSimulation()){
             // pivot sim stuff
             gearbox = DCMotor.getKrakenX60Foc(1);
@@ -194,26 +208,37 @@ public class Collector extends SubsystemBase {
 
         pivotTargetAngleLog = new DoubleLogEntry(log, "/Collector/pivotTargetAngle");
         pivotOnTargetLog = new BooleanLogEntry(log, "/Collector/pivotOnTarget");
-
-        LightningShuffleboard.setBool("Collector", "Request Zeroing", false);
     }
 
     @Override
     public void periodic() {
-        if (LightningShuffleboard.getBool("Collector", "Request Zeroing", false)) {
+        if (requestZeroingStow.get()) {
             pivotZeroed = false;
+            stowZero = true;
+        } else if (requestZeroingDeploy.get()) {
+            pivotZeroed = false;
+            stowZero = false;
         }
         if (!pivotZeroed && DriverStation.isEnabled()) {
             if (!zeroingTimer.isRunning()) {
                 zeroingTimer.restart();
-                pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC);
+                if (stowZero) {
+                    pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC_STOW);
+                } else {
+                    pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC_DEPLOY);
+                }
             } else if (!pivotMotor.getVelocity().getValue().isNear(RotationsPerSecond.zero(), RotationsPerSecond.of(0.1))) {
                 zeroingTimer.reset();
             } else if (zeroingTimer.hasElapsed(CollectorConstants.PIVOT_ZERO_TIMER_THRESHOLD)) {
                 pivotZeroed = true;
-                pivotMotor.setPosition(CollectorConstants.STOW_ANGLE);
+                if (stowZero) {
+                    requestZeroingStow.set(false);
+                    pivotMotor.setPosition(CollectorConstants.STOW_ANGLE);
+                } else {
+                    requestZeroingDeploy.set(false);
+                    pivotMotor.setPosition(CollectorConstants.DEPLOY_ANGLE);
+                }
                 zeroingTimer.stop();
-                LightningShuffleboard.setBool("Collector", "Request Zeroing", false);
                 setPivotAngle(targetPivotPosition);
             }
         }
