@@ -40,12 +40,10 @@ public class AllianceHelpers {
 
         boolean redInactiveFirst = false;
         switch (gameData.charAt(0)) {
-            case 'R' -> redInactiveFirst = true;
-            case 'B' -> redInactiveFirst = false;
-            default -> {
-                // If we have invalid game data, assume hub is active.
-                return true;
-            }
+            case 'R':
+                    redInactiveFirst = true;
+            case 'B':
+                    redInactiveFirst = false;
         }
 
         // Shift one is active for blue if red won auto, or red if blue won auto.
