@@ -10,11 +10,14 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.util.shuffleboard.LightningShuffleboard;
 
 public class Robot extends TimedRobot {
     private Command autonomousCommand;
 
     private static RobotContainer robotContainer;
+
+    private static boolean enableNT;
 
     // private DoubleLogEntry totalCurrentEntry;
     // private DoubleLogEntry voltageEntry;
@@ -39,11 +42,11 @@ public class Robot extends TimedRobot {
             DriverStation.startDataLog(DataLogManager.getLog());
         }
 
-        //Silence joystick warnings in simulation
+        // Silence joystick warnings in simulation
         if (isSimulation()){
             DriverStation.silenceJoystickConnectionWarning(true);
         }
-        
+
         // No Live Window for now
         LiveWindow.disableAllTelemetry();
 
@@ -51,6 +54,8 @@ public class Robot extends TimedRobot {
             // totalCurrentEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/TotalCurrent");
             // voltageEntry = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/Voltage");
         }
+
+        enableNT = false;
     }
 
     @Override
@@ -63,6 +68,10 @@ public class Robot extends TimedRobot {
         } else {
             // LightningShuffleboard.setDouble("PDH", "Total Current", getContainer().pdh.getTotalCurrent());
             // LightningShuffleboard.setDouble("PDH", "Voltage", getContainer().pdh.getVoltage());
+        }
+
+        if (!DriverStation.isFMSAttached()) {
+            enableNT = LightningShuffleboard.getBool("NT", "Enable NetworkTables", enableNT);
         }
     }
 
@@ -116,4 +125,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void simulationPeriodic() {}
+
+    public static boolean isNTEnabled() {
+        return enableNT;
+    }
 }

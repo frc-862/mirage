@@ -24,7 +24,6 @@ import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -50,7 +49,6 @@ public class Cannon extends SubsystemBase {
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
-        // TODO: Create the actual map
         public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap<Distance, Time>() {{
             put(Inches.of(18.78*12), Seconds.of(35.0/30.0));
             put(Inches.of(64), Seconds.of(24.0/30.0));
@@ -129,7 +127,7 @@ public class Cannon extends SubsystemBase {
         targetPositionLog.append(new double[]{getTargetTranslation().getX(), getTargetTranslation().getY()});
         distToTargetLog.append(getTargetDistance().in(Meters));
 
-        if(!DriverStation.isFMSAttached() || Robot.isSimulation()) {
+        if (Robot.isNTEnabled()) {
             LightningShuffleboard.setTranslation2d("Cannon", "Target Position", FieldConstants.getTargetData(getTarget()));
             // LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
             LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTargetTranslation(), new Rotation2d()));
