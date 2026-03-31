@@ -15,6 +15,7 @@ public class RobotMap {
 
     public static final int SPINDEXER = 11;
     public static final int TRANSFER = 12;
+    public static final int UPDEXER = 20;
 
     public static final int TURRET = 13;
     public static final int TURRET_ZERO_SWITCH = 0;
