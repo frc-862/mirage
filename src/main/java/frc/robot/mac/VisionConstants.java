@@ -1,20 +1,18 @@
 package frc.robot.mac;
 
+import java.nio.file.Paths;
 import java.util.List;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-
 import static edu.wpi.first.units.Units.Degrees;
-import java.nio.file.Paths;
-
 import static edu.wpi.first.units.Units.Inches;
 
 public class VisionConstants {
     // A list of tags that we want to ignore in our results
-    public static final List<Short> TAG_IGNORE_LIST = List.of();
+    public static final List<Integer> TAG_IGNORE_LIST = List.of(17, 28, 23, 22);
 
     // This years field
     public static final AprilTagFieldLayout REBUILT_FIELD = AprilTagFieldLayout
