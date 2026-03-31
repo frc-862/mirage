@@ -11,6 +11,8 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.networktables.BooleanSubscriber;
+
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
@@ -117,6 +119,7 @@ public class Collector extends SubsystemBase {
     private boolean pivotZeroed = true;
     private final Timer zeroingTimer = new Timer();
     private boolean pivotActive = false;
+    BooleanSubscriber requestZeroingSub;
 
     private DCMotor gearbox;
 
@@ -200,7 +203,7 @@ public class Collector extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (LightningShuffleboard.getBool("Collector", "Request Zeroing", false)) {
+        if (requestZeroingSub.get()) {
             pivotZeroed = false;
         }
         if (!pivotZeroed && DriverStation.isEnabled()) {
