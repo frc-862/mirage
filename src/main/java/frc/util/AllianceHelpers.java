@@ -1,10 +1,6 @@
 package frc.util;
 
-import java.util.Optional;
-
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.util.shuffleboard.LightningShuffleboard;
 
 public class AllianceHelpers {
 
