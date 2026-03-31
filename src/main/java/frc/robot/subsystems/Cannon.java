@@ -44,7 +44,7 @@ public class Cannon extends SubsystemBase {
 
     public class CannonConstants { 
         public static final Distance SMART_SHOOT_MIN_DISTANCE = Inches.of(64);
-        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(3.275), Inches.of(-3.275));
+        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(7.5), Inches.of(-7.5));
         public static final Transform2d SHOOTER_TRANSFORM = new Transform2d(SHOOTER_TRANSLATION, new Rotation2d());
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
 
@@ -327,7 +327,9 @@ public class Cannon extends SubsystemBase {
 
             turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity());
       }, turret, shooter, hood)
-      .alongWith(indexWhenOnTarget());
+      .alongWith(indexWhenOnTarget())
+      .onlyWhile(() -> turret.isOnTarget(Degrees.of(12)));
+    
     //   .alongWith(drivetrain.increaseRampRates())
     //   .alongWith(drivetrain.lowerSupplyLimits());
       
