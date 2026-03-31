@@ -11,6 +11,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
@@ -121,8 +122,8 @@ public class Collector extends SubsystemBase {
     private boolean pivotZeroed = true;
     private final Timer zeroingTimer = new Timer();
     private boolean pivotActive = false;
-    private BooleanSubscriber requestZeroingDeploy;
-    private BooleanSubscriber requestZeroingStow;
+    private BooleanEntry requestZeroingDeploy;
+    private BooleanEntry requestZeroingStow;
     private boolean stowZero = false;
 
     private DCMotor gearbox;
@@ -164,8 +165,12 @@ public class Collector extends SubsystemBase {
         pivotMotor.applyConfig(pivotConfig);
         collectorMotor.applyConfig(collectorConfig);
 
-        requestZeroingDeploy = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Deploy").subscribe(false);
-        requestZeroingStow = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Stow").subscribe(false);
+        requestZeroingDeploy = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Deploy").getEntry(false);
+        requestZeroingStow = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Stow").getEntry(false);
+
+        requestZeroingDeploy.set(false);
+        requestZeroingStow.set(false);
+
 
         if(Robot.isSimulation()){
             // pivot sim stuff
@@ -204,8 +209,6 @@ public class Collector extends SubsystemBase {
 
         pivotTargetAngleLog = new DoubleLogEntry(log, "/Collector/pivotTargetAngle");
         pivotOnTargetLog = new BooleanLogEntry(log, "/Collector/pivotOnTarget");
-
-        LightningShuffleboard.setBool("Collector", "Request Zeroing", false);
     }
 
     @Override
@@ -213,6 +216,9 @@ public class Collector extends SubsystemBase {
         if (requestZeroingStow.get()) {
             pivotZeroed = false;
             stowZero = true;
+        } else if (requestZeroingDeploy.get()) {
+            pivotZeroed = false;
+            stowZero = false;
         }
         if (!pivotZeroed && DriverStation.isEnabled()) {
             if (!zeroingTimer.isRunning()) {
@@ -227,13 +233,13 @@ public class Collector extends SubsystemBase {
             } else if (zeroingTimer.hasElapsed(CollectorConstants.PIVOT_ZERO_TIMER_THRESHOLD)) {
                 pivotZeroed = true;
                 if (stowZero) {
-                    targetPivotPosition = CollectorConstants.STOW_ANGLE;
+                    requestZeroingStow.set(false);
+                    pivotMotor.setPosition(CollectorConstants.STOW_ANGLE);
                 } else {
-                    targetPivotPosition = CollectorConstants.DEPLOY_ANGLE;
+                    requestZeroingDeploy.set(false);
+                    pivotMotor.setPosition(CollectorConstants.DEPLOY_ANGLE);
                 }
-                pivotMotor.setPosition(CollectorConstants.STOW_ANGLE);
                 zeroingTimer.stop();
-                LightningShuffleboard.setBool("Collector", "Request Zeroing", false);
                 setPivotAngle(targetPivotPosition);
             }
         }
