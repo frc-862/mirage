@@ -12,6 +12,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
@@ -88,7 +89,8 @@ public class Collector extends SubsystemBase {
         public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
         public static final Angle STOW_ANGLE = MIN_ANGLE;
         public static final Angle TOLERANCE = Rotations.of(0.05);
-        public static final DutyCycleOut PIVOT_ZEROING_DC = new DutyCycleOut(-0.1);
+        public static final DutyCycleOut PIVOT_ZEROING_DC_STOW = new DutyCycleOut(-0.1);
+        public static final DutyCycleOut PIVOT_ZEROING_DC_DEPLOY = new DutyCycleOut(0.1);
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.01); // temp
         public static final Distance LENGTH = Inches.of(6);
@@ -119,7 +121,9 @@ public class Collector extends SubsystemBase {
     private boolean pivotZeroed = true;
     private final Timer zeroingTimer = new Timer();
     private boolean pivotActive = false;
-    BooleanSubscriber requestZeroingSub;
+    private BooleanSubscriber requestZeroingDeploy;
+    private BooleanSubscriber requestZeroingStow;
+    private boolean stowZero = false;
 
     private DCMotor gearbox;
 
@@ -159,6 +163,9 @@ public class Collector extends SubsystemBase {
 
         pivotMotor.applyConfig(pivotConfig);
         collectorMotor.applyConfig(collectorConfig);
+
+        requestZeroingDeploy = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Deploy").subscribe(false);
+        requestZeroingStow = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Stow").subscribe(false);
 
         if(Robot.isSimulation()){
             // pivot sim stuff
@@ -203,17 +210,27 @@ public class Collector extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (requestZeroingSub.get()) {
+        if (requestZeroingStow.get()) {
             pivotZeroed = false;
+            stowZero = true;
         }
         if (!pivotZeroed && DriverStation.isEnabled()) {
             if (!zeroingTimer.isRunning()) {
                 zeroingTimer.restart();
-                pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC);
+                if (stowZero) {
+                    pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC_STOW);
+                } else {
+                    pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC_DEPLOY);
+                }
             } else if (!pivotMotor.getVelocity().getValue().isNear(RotationsPerSecond.zero(), RotationsPerSecond.of(0.1))) {
                 zeroingTimer.reset();
             } else if (zeroingTimer.hasElapsed(CollectorConstants.PIVOT_ZERO_TIMER_THRESHOLD)) {
                 pivotZeroed = true;
+                if (stowZero) {
+                    targetPivotPosition = CollectorConstants.STOW_ANGLE;
+                } else {
+                    targetPivotPosition = CollectorConstants.DEPLOY_ANGLE;
+                }
                 pivotMotor.setPosition(CollectorConstants.STOW_ANGLE);
                 zeroingTimer.stop();
                 LightningShuffleboard.setBool("Collector", "Request Zeroing", false);
