@@ -11,6 +11,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
@@ -169,6 +171,10 @@ public class Cannon extends SubsystemBase {
         return FieldConstants.getTargetData(getTarget());
     }
 
+    public Angle getTargetAngle() {
+        return Radians.of(getTargetTranslation().minus(getShooterTranslation()).getAngle().getRadians());
+    }
+
     /**
      * Gets the distance from the robot to the target
      * @return The distance
@@ -317,9 +323,8 @@ public class Cannon extends SubsystemBase {
 
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
-            
-            double chassisOmega = drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond / (2 * Math.PI);
-            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), chassisOmega, getHubAngularVelocity());
+
+            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity());
       }, turret, shooter, hood)
       .alongWith(indexWhenOnTarget());
     //   .alongWith(drivetrain.increaseRampRates())
@@ -359,18 +364,35 @@ public class Cannon extends SubsystemBase {
      * get the angular velocity of the hub based on the robot's velocity and position relative to the hub.
      * @return the angular velocity of the hub based on the robot's velocity and position relative to the hub
      */
-    public double getHubAngularVelocity() {
-        double velocityMagnitude = Math.sqrt(Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, 2) + Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, 2));
-        double velocityAngle = Math.atan2(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond);
+    public AngularVelocity getHubAngularVelocity() {
+        // double velocityMagnitude = Math.sqrt(Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, 2) + Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, 2));
+        // double velocityAngle = Math.atan2(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond);
 
-        double robotHubMagnitude = getShooterTranslation().getDistance(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION));
-        double robotHubAngle = Math.atan2(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION).getY() - getShooterTranslation().getY(), FieldConstants.getTargetData(FieldConstants.GOAL_POSITION).getX() - getShooterTranslation().getX());
+        // double[] velocityVector = {velocityMagnitude, velocityAngle};
 
-        double tangentialVelocity = velocityMagnitude * Math.sin(velocityAngle - robotHubAngle);
+        // double robotHubMagnitude = getShooterTranslation().getDistance(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION));
+        // double robotHubAngle = Math.atan2(FieldConstants.getTargetData(FieldConstants.GOAL_POSITION).getY() - getShooterTranslation().getY(), FieldConstants.getTargetData(FieldConstants.GOAL_POSITION).getX() - getShooterTranslation().getX());
 
-        double circumference = 2 * Math.PI * robotHubMagnitude;
+        // double[] robotHubVector = {robotHubMagnitude, robotHubAngle};
 
-        double angularVelocity = tangentialVelocity / circumference;
-        return angularVelocity;
+        // double[] robotHubOrthogonalVector = {1, robotHubAngle + Math.PI / 2};
+
+        // double orthagVectorScalar = velocityMagnitude * Math.sin(velocityAngle - robotHubAngle);
+
+        // double circumference = 2 * Math.PI * robotHubMagnitude;
+
+        // double angularVelocity = orthagVectorScalar / circumference;
+        // return angularVelocity;
+
+        double robotTargetAngle = getTargetAngle().in(Radians);
+        
+        Translation2d fieldRelativeVelocity = new Translation2d(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond).rotateBy(drivetrain.getPose().getRotation());
+
+        double hubRotation = (-fieldRelativeVelocity.getX() * Math.sin(robotTargetAngle) + fieldRelativeVelocity.getY() * Math.cos(robotTargetAngle)) / getTargetDistance().in(Meters);
+        return RadiansPerSecond.of(hubRotation);
+    }
+
+    public AngularVelocity getRobotAngularVelocity() {
+        return RadiansPerSecond.of(drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond);
     }
 }
