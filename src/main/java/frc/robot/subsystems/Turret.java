@@ -36,6 +36,7 @@ import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -224,6 +225,8 @@ public class Turret extends SubsystemBase {
             LightningShuffleboard.setBool("Turret", "On Target", isOnTarget());
             LightningShuffleboard.setBool("Turret", "Zero Limit Switch", getZeroLimitSwitch());
             LightningShuffleboard.setBool("Turret", "Max Limit Switch", getMaxLimitSwitch());
+            LightningShuffleboard.setBool("Turret", "Zeroed", zeroed);
+        } else if (DriverStation.isDisabled()) {
             LightningShuffleboard.setBool("Turret", "Zeroed", zeroed);
         }
      }

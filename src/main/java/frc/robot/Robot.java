@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
         if (isSimulation()){
             DriverStation.silenceJoystickConnectionWarning(true);
         }
-        
+
         // No Live Window for now
         LiveWindow.disableAllTelemetry();
 
