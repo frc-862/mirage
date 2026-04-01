@@ -10,6 +10,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -45,6 +46,7 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.Turret.TurretConstants;
+import frc.util.AllianceHelpers;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDBooleanSupplier;
@@ -69,6 +71,7 @@ public class RobotContainer {
     private final PhotonVision vision;
     private final Telemetry logger;
     private final Cannon cannon;
+    private final AllianceHelpers allianceHelper;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -89,6 +92,7 @@ public class RobotContainer {
         turret = new Turret(drivetrain);
         cannon = new Cannon(shooter, turret, hood, drivetrain, indexer);
         vision = new PhotonVision(drivetrain);
+        allianceHelper = new AllianceHelpers();
         
 
         if (Robot.isSimulation()) {
@@ -192,6 +196,7 @@ public class RobotContainer {
 
         new Trigger(copilot::getAButton).whileTrue(indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)).onFalse(new InstantCommand(() -> indexer.stop()));
         new Trigger(copilot::getYButton).whileTrue(indexer.indexCommand(-0.5).withTimeout(0.1).andThen(indexer.indexCommand(1)));
+        new Trigger(() -> allianceHelper.isHubActive()).and(() -> drivetrain.isInZone()).whileTrue(shooter.shootCommand(RotationsPerSecond.of(41)));
     }
     
     private void configureNamedCommands() {
