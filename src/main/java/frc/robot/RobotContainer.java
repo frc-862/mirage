@@ -197,7 +197,7 @@ public class RobotContainer {
 
         new Trigger(copilot::getAButton).whileTrue(indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)).onFalse(new InstantCommand(() -> indexer.stop()));
         new Trigger(copilot::getYButton).whileTrue(indexer.indexCommand(-0.5).withTimeout(0.1).andThen(indexer.indexCommand(1)));
-        new Trigger(() -> allianceHelper.isHubActive()).and(() -> drivetrain.isInZone()).whileTrue(shooter.shootCommand(ShooterConstants.VELOCITY_MAP.get(Inches.of(cannon.getShooterTranslation().getNorm()))));
+        new Trigger(() -> allianceHelper.isHubActive()).and(() -> drivetrain.isInZone()).whileTrue(shooter.shootCommand(ShooterConstants.VELOCITY_MAP.get(cannon.getTargetDistance())));
     }
     
     private void configureNamedCommands() {
