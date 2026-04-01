@@ -35,7 +35,6 @@ import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -183,7 +182,7 @@ public class Shooter extends SubsystemBase {
         leftVelocityLog.append(getLeftVelocity().in(RotationsPerSecond));
         rightVelocityLog.append(getRightVelocity().in(RotationsPerSecond));
 
-        if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
+        if (Robot.isNTEnabled()) {
             LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
             LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
             LightningShuffleboard.setDouble("Shooter", "Target Velocity", getTargetVelocity().in(RotationsPerSecond));

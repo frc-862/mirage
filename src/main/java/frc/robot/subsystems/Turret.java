@@ -221,14 +221,15 @@ public class Turret extends SubsystemBase {
         zeroLimitSwitchLog.append(getZeroLimitSwitch());
         maxLimitSwitchLog.append(getMaxLimitSwitch());
 
-        if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
+        if (Robot.isNTEnabled()) {
             LightningShuffleboard.setDouble("Turret", "Current Angle", getAngle().in(Degrees));
             LightningShuffleboard.setDouble("Turret", "Target Angle", getTargetAngle().in(Degrees));
             LightningShuffleboard.setBool("Turret", "On Target", isOnTarget());
             LightningShuffleboard.setBool("Turret", "Zero Limit Switch", getZeroLimitSwitch());
             LightningShuffleboard.setBool("Turret", "Max Limit Switch", getMaxLimitSwitch());
             LightningShuffleboard.setBool("Turret", "Zeroed", zeroed);
-            LightningShuffleboard.setBool("Turret", "Manual", manual);
+        } else if (DriverStation.isDisabled()) {
+            LightningShuffleboard.setBool("Turret", "Zeroed", zeroed);
         }
      }
 
