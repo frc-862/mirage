@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -95,7 +95,7 @@ public class Turret extends SubsystemBase {
 
     private Angle targetPosition = Rotations.zero();
 
-    public final MotionMagicVoltage motionMagic = new MotionMagicVoltage(0);
+    public final PositionVoltage positionVoltage = new PositionVoltage(0);
     private final DutyCycleOut dutyCycle = new DutyCycleOut(0.0);
 
     private DCMotor gearbox;
@@ -278,7 +278,7 @@ public class Turret extends SubsystemBase {
             double feedforwardVolts = -chassisOmegaRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // feedforward to counteract chassis rotation
             feedforwardVolts += -hubRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // add feedforward for hub velocity as well
 
-            motor.setControl(motionMagic
+            motor.setControl(positionVoltage
                 .withPosition(optimizeTurretAngle(targetPosition))
                 .withFeedForward(feedforwardVolts));
         }
