@@ -27,6 +27,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DataLogBackgroundWriter;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.IntegerArrayLogEntry;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
@@ -57,6 +58,8 @@ public class MacMini implements AutoCloseable {
         // poses from each camera
         private VisionInfo[] poses;
 
+        // data logging
+        private DataLog log;
         private long startTime;
 
         public MacMini() {
@@ -81,12 +84,13 @@ public class MacMini implements AutoCloseable {
             // poses from each camera
             poses = new VisionInfo[cameraConstants.length];
 
-            // Name the log file so it doesn't get deleted when we restart the mac mini
+            // Create a log file with the current date and time
             DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").withZone(ZoneId.of("UTC"));
             LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-            DataLogManager.start(VisionConstants.LOG_PATH, "FRC_MacMini_" + timeFormatter.format(now) + ".wpilog");
+            String logFile = "FRC_MacMini_" + timeFormatter.format(now) + ".wpilog";
+            log = new DataLogBackgroundWriter(VisionConstants.LOG_PATH, logFile, 0.25);
 
-            bestPoseLogEntry = StructLogEntry.create(DataLogManager.getLog(), "bestPose", Pose2d.struct, getMicroSeconds());
+            bestPoseLogEntry = StructLogEntry.create(log, "bestPose", Pose2d.struct, getMicroSeconds());
             
             // Create the cameras
             for (int i = 0; i < cameraConstants.length; i++) {
@@ -115,7 +119,6 @@ public class MacMini implements AutoCloseable {
                 String cameraName = cameraConstants[i].name();
                 PhotonCamera camera = new PhotonCamera(photonNT, cameraName);
 
-                DataLog log = DataLogManager.getLog();
                 long time = getMicroSeconds();
                 CameraLogEntry logEntry = new CameraLogEntry(
                     StructLogEntry.create(log, cameraName + "/robotPose", Pose2d.struct, time), 
