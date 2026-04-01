@@ -57,7 +57,11 @@ public class MacMini implements AutoCloseable {
         // poses from each camera
         private VisionInfo[] poses;
 
+        private long startTime;
+
         public MacMini() {
+            startTime = System.nanoTime();
+
             try {
                 // Create a new socket to send data to the rio
                 socket = new DatagramSocket();
@@ -82,7 +86,7 @@ public class MacMini implements AutoCloseable {
             LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
             DataLogManager.start(VisionConstants.LOG_PATH, "FRC_MacMini_" + timeFormatter.format(now) + ".wpilog");
 
-            bestPoseLogEntry = StructLogEntry.create(DataLogManager.getLog(), "bestPose", Pose2d.struct);
+            bestPoseLogEntry = StructLogEntry.create(DataLogManager.getLog(), "bestPose", Pose2d.struct, getMicroSeconds());
             
             // Create the cameras
             for (int i = 0; i < cameraConstants.length; i++) {
@@ -112,12 +116,13 @@ public class MacMini implements AutoCloseable {
                 PhotonCamera camera = new PhotonCamera(photonNT, cameraName);
 
                 DataLog log = DataLogManager.getLog();
+                long time = getMicroSeconds();
                 CameraLogEntry logEntry = new CameraLogEntry(
-                    StructLogEntry.create(log, cameraName + "/robotPose", Pose2d.struct), 
-                    new IntegerArrayLogEntry(log, cameraName + "/tagNum"), 
-                    StructArrayLogEntry.create(log, cameraName + "/tagPose", Pose3d.struct), 
-                    new DoubleArrayLogEntry(log, cameraName + "/tagDistance"), 
-                    new DoubleArrayLogEntry(log, cameraName + "/tagAmbiguity")
+                    StructLogEntry.create(log, cameraName + "/robotPose", Pose2d.struct, time), 
+                    new IntegerArrayLogEntry(log, cameraName + "/tagNum", time), 
+                    StructArrayLogEntry.create(log, cameraName + "/tagPose", Pose3d.struct, time), 
+                    new DoubleArrayLogEntry(log, cameraName + "/tagDistance", time), 
+                    new DoubleArrayLogEntry(log, cameraName + "/tagAmbiguity", time)
                 );
 
                 // Create the camera
@@ -205,7 +210,7 @@ public class MacMini implements AutoCloseable {
                 }
             }
             if (bestPose != null) {
-                bestPoseLogEntry.append(bestPose.pose().estimatedPose.toPose2d());
+                bestPoseLogEntry.append(bestPose.pose().estimatedPose.toPose2d(), getMicroSeconds());
                 return bestPose;
             }
             return new VisionInfo(null, null);
@@ -235,10 +240,11 @@ public class MacMini implements AutoCloseable {
 
             //Log all tags
             var tags = latestResult.getTargets();
-            cameraInfo.logEntry().tagNumEntries.append(tags.stream().mapToLong((tag) -> tag.getFiducialId()).toArray());
-            cameraInfo.logEntry().tagPoseEntries.append(tags.stream().map((tag) -> new Pose3d().plus(tag.getBestCameraToTarget())).toArray(Pose3d[]::new));
-            cameraInfo.logEntry().tagDistanceEntries.append(tags.stream().mapToDouble((tag) -> tag.getBestCameraToTarget().getTranslation().getNorm()).toArray());
-            cameraInfo.logEntry().tagAmbiguityEntries.append(tags.stream().mapToDouble((tag) -> tag.getPoseAmbiguity()).toArray());
+            long time = getMicroSeconds();
+            cameraInfo.logEntry().tagNumEntries.append(tags.stream().mapToLong((tag) -> tag.getFiducialId()).toArray(), time);
+            cameraInfo.logEntry().tagPoseEntries.append(tags.stream().map((tag) -> new Pose3d().plus(tag.getBestCameraToTarget())).toArray(Pose3d[]::new), time);
+            cameraInfo.logEntry().tagDistanceEntries.append(tags.stream().mapToDouble((tag) -> tag.getBestCameraToTarget().getTranslation().getNorm()).toArray(), time);
+            cameraInfo.logEntry().tagAmbiguityEntries.append(tags.stream().mapToDouble((tag) -> tag.getPoseAmbiguity()).toArray(), time);
 
             PhotonPipelineResult useableResult = latestResult;
 
@@ -316,5 +322,9 @@ public class MacMini implements AutoCloseable {
             // Close our connections when the program closes
             socket.close();
             photonNT.close();
+        }
+
+        private long getMicroSeconds() {
+            return (System.nanoTime() - startTime) / 1000;
         }
     }
