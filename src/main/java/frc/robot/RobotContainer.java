@@ -11,6 +11,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Inches;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -196,7 +197,7 @@ public class RobotContainer {
 
         new Trigger(copilot::getAButton).whileTrue(indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)).onFalse(new InstantCommand(() -> indexer.stop()));
         new Trigger(copilot::getYButton).whileTrue(indexer.indexCommand(-0.5).withTimeout(0.1).andThen(indexer.indexCommand(1)));
-        new Trigger(() -> allianceHelper.isHubActive()).and(() -> drivetrain.isInZone()).whileTrue(shooter.shootCommand(RotationsPerSecond.of(41)));
+        new Trigger(() -> allianceHelper.isHubActive()).and(() -> drivetrain.isInZone()).whileTrue(shooter.shootCommand(ShooterConstants.VELOCITY_MAP.get(Inches.of(cannon.getShooterTranslation().getNorm()))));
     }
     
     private void configureNamedCommands() {
