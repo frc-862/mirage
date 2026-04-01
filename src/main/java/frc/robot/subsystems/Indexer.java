@@ -65,7 +65,7 @@ public class Indexer extends SubsystemBase {
         public static final boolean TRANSFER_SUPPLY_LIMIT_ENABLE = true; // temp
 
         public static final double TRANSFER_kP = 0.09; // temp
-        public static final double TRANSFER_kV_FEEDFORWARD = 0.092; // temp
+        public static final double TRANSFER_kV = 0.092; // temp
 
         // sim
         public static final AngularVelocity SIM_INDEX_THRESHOLD = RotationsPerSecond.of(1); // temp
@@ -104,6 +104,7 @@ public class Indexer extends SubsystemBase {
         spindexerConfig.CurrentLimits.SupplyCurrentLimit = IndexerConstants.SPINDEXER_SUPPLY_LIMIT.in(Amps);
 
         transferConfig.Slot0.kP = IndexerConstants.TRANSFER_kP;
+        transferConfig.Slot0.kV = IndexerConstants.TRANSFER_kV;
 
         transferConfig.CurrentLimits.SupplyCurrentLimitEnable = IndexerConstants.TRANSFER_SUPPLY_LIMIT_ENABLE;
         transferConfig.CurrentLimits.SupplyCurrentLimit = IndexerConstants.TRANSFER_SUPPLY_LIMIT.in(Amps);
@@ -190,7 +191,7 @@ public class Indexer extends SubsystemBase {
     }
 
     public void setTransferVelocity(double velocity) {
-        transferMotor.setControl(transferVelocityVoltage.withVelocity(velocity).withFeedForward(IndexerConstants.TRANSFER_kV_FEEDFORWARD));
+        transferMotor.setControl(transferVelocityVoltage.withVelocity(velocity));
     }
 
     /**
