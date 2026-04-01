@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -71,7 +71,7 @@ public class Turret extends SubsystemBase {
         public static final double kP = 150d;
         public static final double kI = 0d;
         
-        public static final double kD = 0.14d;
+        public static final double kD = 12d;
         public static final double kS = 0.33d;
         public static final double kV = 4.7d; // ~12V / (motorFreeSpeed / gearRatio) ≈ 12 / 2.58
 
@@ -95,7 +95,7 @@ public class Turret extends SubsystemBase {
 
     private Angle targetPosition = Rotations.zero();
 
-    public final MotionMagicVoltage motionMagic = new MotionMagicVoltage(0);
+    public final PositionVoltage positionVoltage = new PositionVoltage(0);
     private final DutyCycleOut dutyCycle = new DutyCycleOut(0.0);
 
     private DCMotor gearbox;
@@ -275,10 +275,10 @@ public class Turret extends SubsystemBase {
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed && !manual) { // only allow position control if turret has been zeroed but store to apply when zeroed
-            double feedforwardVolts = -chassisOmegaRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // feedforward to counteract chassis rotation
-            feedforwardVolts += -hubRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // add feedforward for hub velocity as well
+            double feedforwardVolts = -chassisOmegaRadPerSec.in(RotationsPerSecond) * LightningShuffleboard.getDouble("Turret", "kV feedforward", 0); // feedforward to counteract chassis rotation
+            feedforwardVolts += -hubRadPerSec.in(RotationsPerSecond) * LightningShuffleboard.getDouble("Turret", "kV feedforward", 0); // add feedforward for hub velocity as well
 
-            motor.setControl(motionMagic
+            motor.setControl(positionVoltage
                 .withPosition(optimizeTurretAngle(targetPosition))
                 .withFeedForward(feedforwardVolts));
         }
@@ -329,13 +329,17 @@ public class Turret extends SubsystemBase {
         });
     }
 
+    public boolean isOnTarget(Angle tolerance) {
+        return getTargetAngle().isNear(getAngle(), tolerance) && zeroed;
+    }
+
     /**
      * gets whether the turret is currently on target with set target angle
      *
      * @return whether turret on target
      */
     public boolean isOnTarget() {
-        return getTargetAngle().isNear(getAngle(), TurretConstants.ANGLE_TOLERANCE) && zeroed;
+        return isOnTarget(TurretConstants.ANGLE_TOLERANCE);
     }
 
     /**

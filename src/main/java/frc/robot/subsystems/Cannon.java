@@ -43,16 +43,18 @@ public class Cannon extends SubsystemBase {
 
     public class CannonConstants { 
         public static final Distance SMART_SHOOT_MIN_DISTANCE = Inches.of(64);
-        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(3.275), Inches.of(-3.275));
+        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(7.5), Inches.of(-7.5));
         public static final Transform2d SHOOTER_TRANSFORM = new Transform2d(SHOOTER_TRANSLATION, new Rotation2d());
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
         public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap<Distance, Time>() {{
-            put(Inches.of(18.78*12), Seconds.of(35.0/30.0));
-            put(Inches.of(64), Seconds.of(24.0/30.0));
+            // put(Inches.of(18.78*12), Seconds.of(35.0/30.0));
+            // put(Inches.of(64), Seconds.of(24.0/30.0));
             // put(Inches.of(142), Seconds.of(0.86));
+            put(Inches.of(60), Seconds.of(0.88));
+            put(Inches.of(228), Seconds.of(1.4));
         }};
 
         public static final int MAX_OTF_ITERATIONS = 10;
@@ -323,7 +325,8 @@ public class Cannon extends SubsystemBase {
 
             turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity());
       }, turret, shooter, hood)
-      .alongWith(indexWhenOnTarget());
+      .alongWith(indexWhenOnTarget().onlyWhile(() -> turret.isOnTarget(Degrees.of(12))).repeatedly());
+    
     //   .alongWith(drivetrain.increaseRampRates())
     //   .alongWith(drivetrain.lowerSupplyLimits());
       
