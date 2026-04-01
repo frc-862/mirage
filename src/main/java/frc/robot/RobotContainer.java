@@ -156,9 +156,9 @@ public class RobotContainer {
         new Trigger(copilot::getXButton).whileTrue(hood.retractCommand().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
         new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER,
-            -IndexerConstants.TRANSFER_POWER));
+            -IndexerConstants.TRANSFER_VELOCITY));
         new Trigger(copilot::getRightBumperButton).whileTrue(indexer.indexCommand(IndexerConstants.SPINDEXDER_POWER,
-            IndexerConstants.TRANSFER_POWER));
+            IndexerConstants.TRANSFER_VELOCITY));
 
         new Trigger(copilot::getStartButton).onTrue(collector.stowPivotCommand());
     
@@ -190,7 +190,7 @@ public class RobotContainer {
 
         // new Trigger(() -> DriverStation.isEnabled()).onTrue(hood.zeroCommand());
 
-        new Trigger(copilot::getAButton).whileTrue(indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)).onFalse(new InstantCommand(() -> indexer.stop()));
+        new Trigger(copilot::getAButton).whileTrue(indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_VELOCITY)).onFalse(new InstantCommand(() -> indexer.stop()));
         new Trigger(copilot::getYButton).whileTrue(indexer.indexCommand(-0.5).withTimeout(0.1).andThen(indexer.indexCommand(1)));
     }
     
