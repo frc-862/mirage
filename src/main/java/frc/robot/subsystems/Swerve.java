@@ -448,7 +448,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Twist2d twist = new Twist2d(
             (speeds.vxMetersPerSecond + frXVel) * dt,
             (speeds.vyMetersPerSecond + frYVel) * dt,
-            speeds.omegaRadiansPerSecond * dt 
+            0
         );
 
         return pose.exp(twist);
