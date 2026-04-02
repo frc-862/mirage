@@ -385,6 +385,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return run(() -> {
             var xy = xyInput.get();
             setControl(DriveConstants.fieldCentricRequest
+            .withVelocityX(DriveConstants.MaxSpeed.times(xy.get(0)))
+            .withVelocityY(DriveConstants.MaxSpeed.times(xy.get(1)))
+            .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage));
         });
