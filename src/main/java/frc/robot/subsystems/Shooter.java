@@ -50,7 +50,7 @@ import frc.util.units.ThunderMap;
 public class Shooter extends SubsystemBase {
 
     public class ShooterConstants {
-        public static final boolean INVERTED = false; // temp
+        public static final boolean INVERTED = RobotMap.IS_OASIS; // temp
         public static final Current STATOR_LIMIT = Amps.of(160.0); // temp
         public static final boolean BRAKE = false; // temp
         public static final double COAST_DC = 0.3; // Shooter power when coasting

@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.256212245354845,
-        "y": 5.867493275609625
+        "x": 7.733045747827757,
+        "y": 5.632834261784044
       },
       "isLocked": false,
       "linkedName": "Trench1-Center"
     },
     {
       "anchor": {
-        "x": 6.738177777777778,
-        "y": 7.108722222222223
+        "x": 7.211833333333334,
+        "y": 6.8567777777777765
       },
       "prevControl": {
-        "x": 7.519956534421894,
-        "y": 6.977250643554767
+        "x": 7.882343438751345,
+        "y": 6.373131144361504
       },
       "nextControl": {
-        "x": 2.855345153058548,
-        "y": 7.761697415695947
+        "x": 6.59708888888889,
+        "y": 7.3002
       },
       "isLocked": false,
       "linkedName": "Trench1CenterMidpoint"
@@ -36,33 +36,20 @@
         "y": 7.481599999999999
       },
       "prevControl": {
-        "x": 3.9729636474146712,
-        "y": 7.404962525425832
+        "x": 4.712544444444445,
+        "y": 7.400977777777777
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Trench1-NoShoot"
+      "linkedName": "Trench1-Shoot"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.4113277623027012,
-      "maxWaypointRelativePos": 2.0,
-      "constraints": {
-        "maxVelocity": 2.0,
-        "maxAcceleration": 2.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 2.0,
+      "maxWaypointRelativePos": 1.1810584958217274,
       "constraints": {
         "maxVelocity": 5.0,
         "maxAcceleration": 5.0,
@@ -85,7 +72,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -178.320800106277
   },
   "reversed": false,
   "folder": "DoubleAutonPaths",

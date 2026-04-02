@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.987822222222224,
-        "y": 2.9969888888888887
+        "x": 7.806422222222222,
+        "y": 3.4404111111111115
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.911228821426699,
-        "y": 2.3726510302639117
+        "x": 7.826577777777777,
+        "y": 2.81558888888889
       },
       "isLocked": false,
       "linkedName": "Trench2-Center"
@@ -20,12 +20,12 @@
         "y": 1.3845444444444432
       },
       "prevControl": {
-        "x": 8.72211710832398,
-        "y": 2.4489995577165695
+        "x": 7.937433333333333,
+        "y": 1.928744444444444
       },
       "nextControl": {
-        "x": 6.725956090873486,
-        "y": 0.35861003968474203
+        "x": 7.370366187890077,
+        "y": 0.5973694073167899
       },
       "isLocked": false,
       "linkedName": null
@@ -41,17 +41,13 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Trench2-NoShoot"
+      "linkedName": "Trench2-Shoot"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 0.5,
       "rotationDegrees": -92.19564876893226
-    },
-    {
-      "waypointRelativePos": 1.10059171597633,
-      "rotationDegrees": -90.38209280276261
     }
   ],
   "constraintZones": [
@@ -81,7 +77,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -88.60281897270353
+    "rotation": 179.73226466129785
   },
   "reversed": false,
   "folder": "DoubleAutonPaths",
