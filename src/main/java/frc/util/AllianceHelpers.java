@@ -1,6 +1,7 @@
 package frc.util;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 
 public class AllianceHelpers {
 
@@ -18,7 +19,7 @@ public class AllianceHelpers {
         return !isBlueAlliance();
     }
 
-    public boolean isHubActive() {
+    public static boolean isHubActive() {
         // Hub is always enabled in autonomous.
         if (DriverStation.isAutonomousEnabled()) {
             return true;
@@ -62,6 +63,58 @@ public class AllianceHelpers {
             // Shift 3
             return shift1Active;
         } else if (matchTime > 30) {
+            // Shift 4
+            return !shift1Active;
+        } else {
+            // End game, hub always active.
+            return true;
+        }
+    }
+
+    public static boolean isHubAboutToBeActive() {        
+        // Hub is always enabled in autonomous.
+        if (DriverStation.isAutonomousEnabled()) {
+            return true;
+        }
+
+        // At this point, if we're not teleop enabled, there is no hub.
+        if (!DriverStation.isTeleopEnabled()) {
+            return false;
+        }
+
+        // We're teleop enabled, compute.
+        double matchTime = DriverStation.getMatchTime();
+        String gameData = DriverStation.getGameSpecificMessage();
+        
+        // If we have no game data, we cannot compute, assume hub is active, as its likely early in teleop.
+        if (gameData.isEmpty()) {
+            return true;
+        }
+
+        boolean redInactiveFirst = false;
+        switch (gameData.charAt(0)) {
+            case 'R':
+                    redInactiveFirst = true;
+            case 'B':
+                    redInactiveFirst = false;
+        }
+
+        // Shift one is active for blue if red won auto, or red if blue won auto.
+        boolean shift1Active = isBlueAlliance() ? redInactiveFirst : !redInactiveFirst;
+
+        if (matchTime > 131) {
+            // Transition shift, hub is active.
+            return true;
+        } else if (matchTime > 106) {
+            // Shift 1
+            return shift1Active;
+        } else if (matchTime > 81) {
+            // Shift 2
+            return !shift1Active;
+        } else if (matchTime > 56) {
+            // Shift 3
+            return shift1Active;
+        } else if (matchTime > 31) {
             // Shift 4
             return !shift1Active;
         } else {

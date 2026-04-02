@@ -72,8 +72,7 @@ public class RobotContainer {
     private final PhotonVision vision;
     private final Telemetry logger;
     private final Cannon cannon;
-    private final AllianceHelpers allianceHelper;
-
+    
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     public RobotContainer() {
@@ -92,9 +91,7 @@ public class RobotContainer {
         hood = new Hood();
         turret = new Turret(drivetrain);
         cannon = new Cannon(shooter, turret, hood, drivetrain, indexer);
-        vision = new PhotonVision(drivetrain);
-        allianceHelper = new AllianceHelpers();
-        
+        vision = new PhotonVision(drivetrain);        
 
         if (Robot.isSimulation()) {
             new MapleSim(drivetrain, collector, indexer, turret, hood, shooter);
@@ -197,7 +194,7 @@ public class RobotContainer {
 
         new Trigger(copilot::getAButton).whileTrue(indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)).onFalse(new InstantCommand(() -> indexer.stop()));
         new Trigger(copilot::getYButton).whileTrue(indexer.indexCommand(-0.5).withTimeout(0.1).andThen(indexer.indexCommand(1)));
-        new Trigger(() -> allianceHelper.isHubActive()).and(() -> drivetrain.isInZone()).whileTrue(shooter.shootCommand(ShooterConstants.VELOCITY_MAP.get(cannon.getTargetDistance())));
+        new Trigger(() -> AllianceHelpers.isHubAboutToBeActive()).and(() -> drivetrain.isInZone()).whileTrue(shooter.runShootCommand(() -> ShooterConstants.VELOCITY_MAP.get(cannon.getTargetDistance())));
     }
     
     private void configureNamedCommands() {
