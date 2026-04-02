@@ -54,7 +54,12 @@ public class Cannon extends SubsystemBase {
             // put(Inches.of(64), Seconds.of(24.0/30.0));
             // put(Inches.of(142), Seconds.of(0.86));
             put(Inches.of(60), Seconds.of(0.88));
+            put(Inches.of(102), Seconds.of(1.0));
+            put(Inches.of(144), Seconds.of(1.166));
+            put(Inches.of(186), Seconds.of(1.51));
             put(Inches.of(228), Seconds.of(1.4));
+            put(Inches.of(262), Seconds.of(1.46));
+            put(Inches.of(298), Seconds.of(1.66));
         }};
 
         public static final int MAX_OTF_ITERATIONS = 10;
@@ -134,6 +139,7 @@ public class Cannon extends SubsystemBase {
             // LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
             LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTargetTranslation(), new Rotation2d()));
             LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
+            LightningShuffleboard.setPose2d("Cannon", "Turret Position", new Pose2d(getShooterTranslation(), new Rotation2d()));
         }
     }
 
