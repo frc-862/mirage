@@ -132,7 +132,7 @@ public class RobotContainer {
         // new Trigger(driver::getYButton).whileTrue(turret.zero());
         
         // TODO: Bind OTF to LB and Climb AA to RB
-
+        new Trigger(copilot::getBButton).whileTrue(cannon.shootOTF());
 
         // change biases for the driver
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
@@ -152,8 +152,6 @@ public class RobotContainer {
         new Trigger(driver::getBButton).toggleOnTrue(turret.manual());
 
         /* Copilot */
-        new Trigger(copilot::getBButton).whileTrue(cannon.shootOTF());
-
         new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retractCommand());
         new Trigger(copilot::getXButton).whileTrue(hood.retractCommand().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
@@ -193,6 +191,7 @@ public class RobotContainer {
         // new Trigger(() -> DriverStation.isEnabled()).onTrue(hood.zeroCommand());
 
         new Trigger(copilot::getAButton).whileTrue(indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)).onFalse(new InstantCommand(() -> indexer.stop()));
+
         new Trigger(copilot::getYButton).whileTrue(indexer.indexCommand(-0.5).withTimeout(0.1).andThen(indexer.indexCommand(1)));
         new Trigger(() -> AllianceHelpers.isHubAboutToBeActive()).and(() -> drivetrain.isInZone()).whileTrue(shooter.runShootCommand(() -> ShooterConstants.VELOCITY_MAP.get(cannon.getTargetDistance())));
     }
