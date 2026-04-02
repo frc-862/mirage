@@ -65,8 +65,8 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(2);
 
-        public static final Angle MIN_ANGLE = Degrees.of(-325);
-        public static final Angle MAX_ANGLE = Degrees.of(75);
+        public static final Angle MIN_ANGLE = Degrees.of(-370);
+        public static final Angle MAX_ANGLE = Degrees.of(90);
 
         public static final double kP = 150d;
         public static final double kI = 0d;
@@ -428,14 +428,18 @@ public class Turret extends SubsystemBase {
         );
     }
 
+    public Command setAngleCommand(Angle angle) {
+        return new InstantCommand(() -> setAngle(angle));
+    }
+
     /**
      * Returns a command to set the angle of the turret
      *
      * @param angle The angle to set
      * @return The command
      */
-    public Command setAngleCommand(Angle angle) {
-        return new InstantCommand(() -> setAngle(angle));
+    public Command setAngleCommand(Supplier<Angle> angle) {
+        return new InstantCommand(() -> setAngle(angle.get()));
     }
 
     public boolean getZeroed() {
