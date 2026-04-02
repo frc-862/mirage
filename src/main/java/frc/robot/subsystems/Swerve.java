@@ -71,8 +71,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
-    private double inputMultiplier = 1;
-
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     @SuppressWarnings("unused")
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -387,9 +385,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return run(() -> {
             var xy = xyInput.get();
             setControl(DriveConstants.fieldCentricRequest
-            .withVelocityX(DriveConstants.MaxSpeed.times(xy.get(0) * inputMultiplier))
-            .withVelocityY(DriveConstants.MaxSpeed.times(xy.get(1) * inputMultiplier))
-            .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble() * inputMultiplier))
             .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage));
         });
