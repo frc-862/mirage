@@ -49,6 +49,7 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
 import frc.util.AllianceHelpers;
+import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -444,10 +445,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         double frXVel = (rrXVel * cos) - (rrYVel * sin);
         double frYVel = (rrXVel * sin) + (rrYVel * cos);
 
+        double driveMultiplier = LightningShuffleboard.getDouble("Cannon", "OTF Multiplier", 1);
         
         Twist2d twist = new Twist2d(
-            (speeds.vxMetersPerSecond + frXVel) * dt,
-            (speeds.vyMetersPerSecond + frYVel) * dt,
+            (speeds.vxMetersPerSecond + frXVel) * dt * driveMultiplier,
+            (speeds.vyMetersPerSecond + frYVel) * dt * driveMultiplier,
             0
         );
 
