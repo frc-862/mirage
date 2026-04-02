@@ -35,7 +35,6 @@ import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -56,11 +55,11 @@ public class Shooter extends SubsystemBase {
         public static final boolean BRAKE = false; // temp
         public static final double COAST_DC = 0.3; // Shooter power when coasting
 
-        public static final double kP = 0.75d;
+        public static final double kP = 1d;
         public static final double kI = 0d;
         public static final double kD = 0d;
-        public static final double kV = RobotMap.IS_OASIS ? 0.1185d : 0.122d;
-        public static final double kS = RobotMap.IS_OASIS ? 0.37 : 0.35;
+        public static final double kV = RobotMap.IS_OASIS ? 0.1185d : 0.1211d;
+        public static final double kS = RobotMap.IS_OASIS ? 0.37 : 0.31;
         public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
         public static final AngularVelocity BIAS_DELTA = RotationsPerSecond.of(1);
         public static final Frequency UPDATE_FREQUENCY = Hertz.of(1000);
@@ -74,11 +73,15 @@ public class Shooter extends SubsystemBase {
         public static final ThunderMap<Distance, AngularVelocity> VELOCITY_MAP = new ThunderMap<>() {
             {
                 // put(Inches.of(0), RotationsPerSecond.of(0));
-                put(Inches.of(18.78*12), RotationsPerSecond.of(65));
-                put(Inches.of(64), RotationsPerSecond.of(43));
+                // put(Inches.of(18.78*12), RotationsPerSecond.of(65));
+                // put(Inches.of(64), RotationsPerSecond.of(43));
+                // put(Inches.of(144), RotationsPerSecond.of(52));
                 // put(Inches.of(142), RotationsPerSecond.of(55));
                 // put(Inches.of(183), RotationsPerSecond.of(65));
                 // put(Feet.of(23), RotationsPerSecond.of(79));
+                put(Inches.of(60), RotationsPerSecond.of(41));
+                put(Inches.of(228), RotationsPerSecond.of(66));
+                put(Inches.of(229), RotationsPerSecond.of(90));
             }
         };
 
@@ -179,7 +182,7 @@ public class Shooter extends SubsystemBase {
         leftVelocityLog.append(getLeftVelocity().in(RotationsPerSecond));
         rightVelocityLog.append(getRightVelocity().in(RotationsPerSecond));
 
-        if (!DriverStation.isFMSAttached() || Robot.isSimulation()) {
+        if (Robot.isNTEnabled()) {
             LightningShuffleboard.setDouble("Shooter", "Left Velocity", getLeftVelocity().in(RotationsPerSecond));
             LightningShuffleboard.setDouble("Shooter", "Right Velocity", getRightVelocity().in(RotationsPerSecond));
             LightningShuffleboard.setDouble("Shooter", "Target Velocity", getTargetVelocity().in(RotationsPerSecond));
