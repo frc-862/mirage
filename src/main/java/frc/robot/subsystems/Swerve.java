@@ -436,13 +436,24 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
         double driveMultiplier = LightningShuffleboard.getDouble("Cannon", "OTF Multiplier", 1);
 
+        Pose2d pose = getPose();
+
+        double sin = pose.getRotation().getSin();
+        double cos = pose.getRotation().getCos();
+
+        double rrXVel = (-speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
+        double rrYVel = (speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getX());
+
+        double frXVel = (rrXVel * cos) - (rrYVel * sin);
+        double frYVel = (rrXVel * sin) + (rrYVel * cos);
+
         Twist2d twist = new Twist2d(
-            speeds.vxMetersPerSecond * dt * driveMultiplier,
-            speeds.vyMetersPerSecond * dt * driveMultiplier,
-            speeds.omegaRadiansPerSecond * dt * driveMultiplier
+            (speeds.vxMetersPerSecond + frXVel) * dt * driveMultiplier,
+            (speeds.vyMetersPerSecond + frYVel) * dt * driveMultiplier,
+            0
         );
 
-        return getPose().exp(twist);
+        return pose.exp(twist);
     }
  
     public void configurePathplanner(){
