@@ -10,7 +10,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -182,7 +181,7 @@ public class RobotContainer {
         //     () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
         //     .finallyDo(shooter::stop));
 
-        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(turret.setAngleCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Turret", "Setpoint (Degrees)", 0))));
+        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(turret.setAngleCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Turret", "Setpoint (Degrees)", 0))));
 
         // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(hood.hoodCommand(() -> 
         //     Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
