@@ -74,7 +74,7 @@ public class Collector extends SubsystemBase {
 
 
         // pivot
-        public static final boolean PIVOT_INVERTED = true; // temp
+        public static final boolean PIVOT_INVERTED = !RobotMap.IS_OASIS;
         public static final Current PIVOT_STATOR_LIMIT = Amps.of(40); // temp
         public static final Current PIVOT_SUPPLY_LIMIT = RobotMap.IS_OASIS ? Amps.of(6) : Amps.of(6); // temp
         public static final boolean PIVOT_SUPPLY_LIMIT_ENABLE = true; // temp
