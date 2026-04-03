@@ -28,9 +28,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Robot;
+import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
 import frc.robot.subsystems.Indexer.IndexerConstants;
@@ -329,12 +331,14 @@ public class Cannon extends SubsystemBase {
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
 
+            LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
+
             turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity());
       }, turret, shooter, hood)
       .alongWith(indexWhenOnTarget().onlyWhile(() -> turret.isOnTarget(Degrees.of(12))).repeatedly());
     
     //   .alongWith(drivetrain.increaseRampRates())
-    //   .alongWith(drivetrain.lowerSupplyLimits());
+    //   .alongWith(drivetrain.lowerSupplyLimits());    
       
     }
 
