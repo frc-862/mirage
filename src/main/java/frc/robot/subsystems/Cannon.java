@@ -35,6 +35,7 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
 import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.Shooter.ShooterConstants;
+import frc.util.AllianceHelpers;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderMap;
 
@@ -302,7 +303,11 @@ public class Cannon extends SubsystemBase {
      * @return DA OTFFF
      */
     public Command shootOTF() {
-        return new RunCommand(() -> {    
+        return new RunCommand(() -> { // hi david (from Bea)
+            if(isInNoPassingZone()) {
+                return;
+            }
+            
             Time tof;
 
             Pose2d previousPose;
@@ -356,6 +361,15 @@ public class Cannon extends SubsystemBase {
             new WaitUntilCommand(() -> isOnTarget()),
             indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
         );
+    }
+
+    /**
+     * Checks if the cannon is in between the tower and hub on the opposite alliance zone
+     * @return if the cannon is in the no passing zone
+     */
+    public boolean isInNoPassingZone() {
+        return AllianceHelpers.isBlueAlliance() ? FieldConstants.BLUE_NO_PASSING_ZONE.contains(getShooterTranslation()) 
+            : FieldConstants.RED_NO_PASSING_ZONE.contains(getShooterTranslation());
     }
 
     /**

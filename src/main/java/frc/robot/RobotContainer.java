@@ -45,6 +45,7 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.Turret.TurretConstants;
+import frc.util.AllianceHelpers;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDBooleanSupplier;
@@ -253,6 +254,9 @@ public class RobotContainer {
         
         //Turn on the NEAR_HUB light when it is near the HUB.
         new Trigger(() -> cannon.isNearHub()).whileTrue(leds.enableState(LED_STATES.NEAR_HUB.id()));
+
+        // Turn on the NEAR_HUB light when in no passing zone
+        new Trigger(() -> cannon.isInNoPassingZone()).whileTrue(leds.enableState(LED_STATES.NEAR_HUB.id()));
     }
 
         /**
