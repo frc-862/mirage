@@ -7,42 +7,45 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.util.AllianceHelpers;
 
 public class FieldConstants {
-        public record Target(Translation2d blue, Translation2d red) {}
+    public record Target(Translation2d blue, Translation2d red) {}
 
-        public static final Target GOAL_POSITION = new Target(new Translation2d(4.625594, 4.034536), new Translation2d(11.915394, 4.034536));
-        public static final Target DEPOT_POSITION = new Target(new Translation2d(0.3937, 0.665988), new Translation2d(16.147288, 7.403338));
+    public static final Target GOAL_POSITION = new Target(new Translation2d(4.625594, 4.034536), new Translation2d(11.915394, 4.034536));
+    public static final Target DEPOT_POSITION = new Target(new Translation2d(0.3937, 0.665988), new Translation2d(16.147288, 7.403338));
 
-        public static Translation2d getTargetData(Target target) {
-            return AllianceHelpers.isBlueAlliance() ? target.blue() : target.red();
-        }
-
-        public record TargetPose(Pose2d blue, Pose2d red) {}
-
-        public static final TargetPose TOWER_POSITION = new TargetPose(new Pose2d(1.707, 3.384, Rotation2d.fromDegrees(180)), new Pose2d(14.83, 4.69, Rotation2d.fromDegrees(0)));
-
-        public static Pose2d getPose(TargetPose targetPose) {
-            return AllianceHelpers.isBlueAlliance() ? targetPose.blue() : targetPose.red();
-        }
-
-        // All Rectangle2ds probably have to be changed
-        public static final Rectangle2d BLUE_ALLIANCE_RECT = new Rectangle2d(new Pose2d(2.312797, 4.034663, new Rotation2d()), 4.625594, 8.069326); // temp
-        public static final Rectangle2d RED_ALLIANCE_RECT = new Rectangle2d(new Pose2d(14.228191, 4.034663, new Rotation2d()), 4.625594, 8.069326); // temp
-
-        public static final Rectangle2d BOTTOM_HALF_RECT = new Rectangle2d(new Pose2d(8.270494, 2.017268, new Rotation2d()), 16.540988, 4.034663); // temp - side on left from perspective of blue driverstation
-        public static final Rectangle2d TOP_HALF_RECT = new Rectangle2d(new Pose2d(8.270494, 6.052291, new Rotation2d()), 16.540988, 4.034663); // temp - side on right from perspective of blue driverstation
-
-        public static final Translation2d ZONE_POSITION_BLUE_TOP = new Translation2d(2.034536, 5.963158);
-        public static final Translation2d ZONE_POSITION_BLUE_BOTTOM = new Translation2d(2.034536, 2.105914);
-
-        public static final Translation2d ZONE_POSITION_RED_TOP = new Translation2d(13.915394, 5.963158);
-        public static final Translation2d ZONE_POSITION_RED_BOTTOM = new Translation2d(13.915394, 2.105914);
-
-        public static final Rectangle2d LEFT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 1), new Translation2d(5.2, 0)); // temp, values found with sim
-        public static final Rectangle2d RIGHT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 8), new Translation2d(5.2, 7)); // temp, values found with sim
-        public static final Rectangle2d LEFT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 1), new Translation2d(12.4, 0)); // temp, values found with sim
-        public static final Rectangle2d RIGHT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 8), new Translation2d(12.4, 7)); // temp, values found with sim
-
-        public static final Rectangle2d FIELD = new Rectangle2d(new Translation2d(0, 0), new Translation2d(16.540988, 8.069326));
-
-        public static final double FIELD_MIDDLE_Y = 4.034663;
+    public static Translation2d getTargetData(Target target) {
+        return AllianceHelpers.isBlueAlliance() ? target.blue() : target.red();
     }
+
+    public record TargetPose(Pose2d blue, Pose2d red) {}
+
+    public static final TargetPose TOWER_POSITION = new TargetPose(new Pose2d(1.707, 3.384, Rotation2d.fromDegrees(180)), new Pose2d(14.83, 4.69, Rotation2d.fromDegrees(0)));
+
+    public static Pose2d getPose(TargetPose targetPose) {
+        return AllianceHelpers.isBlueAlliance() ? targetPose.blue() : targetPose.red();
+    }
+
+    // All Rectangle2ds probably have to be changed
+    public static final Rectangle2d BLUE_ALLIANCE_RECT = new Rectangle2d(new Pose2d(2.312797, 4.034663, new Rotation2d()), 4.625594, 8.069326); // temp
+    public static final Rectangle2d RED_ALLIANCE_RECT = new Rectangle2d(new Pose2d(14.228191, 4.034663, new Rotation2d()), 4.625594, 8.069326); // temp
+
+    public static final Rectangle2d BOTTOM_HALF_RECT = new Rectangle2d(new Pose2d(8.270494, 2.017268, new Rotation2d()), 16.540988, 4.034663); // temp - side on left from perspective of blue driverstation
+    public static final Rectangle2d TOP_HALF_RECT = new Rectangle2d(new Pose2d(8.270494, 6.052291, new Rotation2d()), 16.540988, 4.034663); // temp - side on right from perspective of blue driverstation
+
+    public static final Translation2d ZONE_POSITION_BLUE_TOP = new Translation2d(2.034536, 5.963158);
+    public static final Translation2d ZONE_POSITION_BLUE_BOTTOM = new Translation2d(2.034536, 2.105914);
+
+    public static final Translation2d ZONE_POSITION_RED_TOP = new Translation2d(13.915394, 5.963158);
+    public static final Translation2d ZONE_POSITION_RED_BOTTOM = new Translation2d(13.915394, 2.105914);
+
+    public static final Rectangle2d LEFT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 1), new Translation2d(5.2, 0)); // temp, values found with sim
+    public static final Rectangle2d RIGHT_BLUE_TRENCH = new Rectangle2d(new Translation2d(4, 8), new Translation2d(5.2, 7)); // temp, values found with sim
+    public static final Rectangle2d LEFT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 1), new Translation2d(12.4, 0)); // temp, values found with sim
+    public static final Rectangle2d RIGHT_RED_TRENCH = new Rectangle2d(new Translation2d(11.2, 8), new Translation2d(12.4, 7)); // temp, values found with sim
+
+    public static final Rectangle2d FIELD = new Rectangle2d(new Translation2d(0, 0), new Translation2d(16.540988, 8.069326));
+
+    public static final Rectangle2d BLUE_NO_PASSING_ZONE = new Rectangle2d(new Translation2d(0, 4.528), new Translation2d(4, 3.486)); // temp, values found with sim
+    public static final Rectangle2d RED_NO_PASSING_ZONE = new Rectangle2d(new Translation2d(16.541, 4.473), new Translation2d(12.677, 3.486)); // temp, values found with sim
+
+    public static final double FIELD_MIDDLE_Y = 4.034663;
+}

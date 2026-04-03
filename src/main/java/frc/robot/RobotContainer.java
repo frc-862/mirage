@@ -1,6 +1,7 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
+
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -131,7 +132,7 @@ public class RobotContainer {
         // new Trigger(driver::getYButton).whileTrue(turret.zero());
         
         // TODO: Bind OTF to LB and Climb AA to RB
-        new Trigger(copilot::getBButton).whileTrue(cannon.shootOTF());
+        new Trigger(() -> copilot.getBButton() && !cannon.isInNoPassingZone()).whileTrue(cannon.shootOTF());
 
         // change biases for the driver
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
@@ -256,6 +257,9 @@ public class RobotContainer {
         
         //Turn on the NEAR_HUB light when it is near the HUB.
         new Trigger(() -> cannon.isNearHub()).whileTrue(leds.enableState(LED_STATES.NEAR_HUB.id()));
+
+        // Turn on the NEAR_HUB light when in no passing zone
+        new Trigger(() -> cannon.isInNoPassingZone()).whileTrue(leds.enableState(LED_STATES.NEAR_HUB.id()));
     }
 
         /**
