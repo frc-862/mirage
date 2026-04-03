@@ -142,6 +142,8 @@ public class Cannon extends SubsystemBase {
             LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
             LightningShuffleboard.setPose2d("Cannon", "Turret Position", new Pose2d(getShooterTranslation(), new Rotation2d()));
         }
+
+        LightningShuffleboard.setBool("Cannon", "In No Passing Zone", isInNoPassingZone());
     }
 
     /**
@@ -304,10 +306,6 @@ public class Cannon extends SubsystemBase {
      */
     public Command shootOTF() {
         return new RunCommand(() -> { // hi david (from Bea)
-            if(isInNoPassingZone()) {
-                return;
-            }
-            
             Time tof;
 
             Pose2d previousPose;
@@ -368,8 +366,8 @@ public class Cannon extends SubsystemBase {
      * @return if the cannon is in the no passing zone
      */
     public boolean isInNoPassingZone() {
-        return AllianceHelpers.isBlueAlliance() ? FieldConstants.BLUE_NO_PASSING_ZONE.contains(getShooterTranslation()) 
-            : FieldConstants.RED_NO_PASSING_ZONE.contains(getShooterTranslation());
+        return AllianceHelpers.isBlueAlliance() ? FieldConstants.RED_NO_PASSING_ZONE.contains(getShooterTranslation()) 
+            : FieldConstants.BLUE_NO_PASSING_ZONE.contains(getShooterTranslation());
     }
 
     /**

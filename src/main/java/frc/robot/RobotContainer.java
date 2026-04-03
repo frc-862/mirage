@@ -1,6 +1,7 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
+
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -45,7 +46,6 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.Turret.TurretConstants;
-import frc.util.AllianceHelpers;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDBooleanSupplier;
@@ -131,7 +131,7 @@ public class RobotContainer {
         // new Trigger(driver::getYButton).whileTrue(turret.zero());
         
         // TODO: Bind OTF to LB and Climb AA to RB
-        new Trigger(copilot::getBButton).whileTrue(cannon.shootOTF());
+        new Trigger(() -> copilot.getBButton() && !cannon.isInNoPassingZone()).whileTrue(cannon.shootOTF());
 
         // change biases for the driver
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
