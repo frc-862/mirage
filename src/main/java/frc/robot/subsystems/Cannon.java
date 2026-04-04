@@ -35,6 +35,7 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
 import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.Shooter.ShooterConstants;
+import frc.util.AllianceHelpers;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderMap;
 
@@ -54,7 +55,12 @@ public class Cannon extends SubsystemBase {
             // put(Inches.of(64), Seconds.of(24.0/30.0));
             // put(Inches.of(142), Seconds.of(0.86));
             put(Inches.of(60), Seconds.of(0.88));
+            put(Inches.of(102), Seconds.of(1.0));
+            put(Inches.of(144), Seconds.of(1.166));
+            put(Inches.of(186), Seconds.of(1.51));
             put(Inches.of(228), Seconds.of(1.4));
+            put(Inches.of(262), Seconds.of(1.46));
+            put(Inches.of(298), Seconds.of(1.66));
         }};
 
         public static final int MAX_OTF_ITERATIONS = 10;
@@ -134,7 +140,10 @@ public class Cannon extends SubsystemBase {
             // LightningShuffleboard.setTranslation2d("Cannon", "Target Position", getTarget());
             LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTargetTranslation(), new Rotation2d()));
             LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
+            LightningShuffleboard.setPose2d("Cannon", "Turret Position", new Pose2d(getShooterTranslation(), new Rotation2d()));
         }
+
+        LightningShuffleboard.setBool("Cannon", "In No Passing Zone", isInNoPassingZone());
     }
 
     /**
@@ -296,7 +305,7 @@ public class Cannon extends SubsystemBase {
      * @return DA OTFFF
      */
     public Command shootOTF() {
-        return new RunCommand(() -> {    
+        return new RunCommand(() -> { // hi david (from Bea)
             Time tof;
 
             Pose2d previousPose;
@@ -350,6 +359,15 @@ public class Cannon extends SubsystemBase {
             new WaitUntilCommand(() -> isOnTarget()),
             indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, Indexer.IndexerConstants.TRANSFER_POWER)
         );
+    }
+
+    /**
+     * Checks if the cannon is in between the tower and hub on the opposite alliance zone
+     * @return if the cannon is in the no passing zone
+     */
+    public boolean isInNoPassingZone() {
+        return AllianceHelpers.isBlueAlliance() ? FieldConstants.RED_NO_PASSING_ZONE.contains(getShooterTranslation()) 
+            : FieldConstants.BLUE_NO_PASSING_ZONE.contains(getShooterTranslation());
     }
 
     /**
