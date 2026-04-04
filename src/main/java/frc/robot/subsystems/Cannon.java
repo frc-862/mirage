@@ -249,14 +249,17 @@ public class Cannon extends SubsystemBase {
     }
 
     /**
-     * Creates a cand shot command that uses only hood and shooter
+     * Creates a cand shot command that uses only hood and shooter.
+     * The shooter runs at target velocity for the entire duration (including
+     * while the indexer feeds balls), preventing the flywheel from decelerating
+     * during the shot.
      * @param value The cand shot value
      * @return The command
      */
     public Command createCandShotCommand(CannonConstants.CandShot value) {
         return new ParallelCommandGroup(
-            createCannonCommand(value.hoodAngle, value.shooterVelocity).andThen(hood.idle(), shooter.idle()),
-            
+            shooter.runShootCommand(() -> value.shooterVelocity()),
+            hood.setPositionCommand(value.hoodAngle()),
             indexWhenOnTarget()
         ).handleInterrupt(() -> {
             shooter.stop();
@@ -264,17 +267,20 @@ public class Cannon extends SubsystemBase {
             hood.stop();
             indexer.stop();
         });
-        
+
     }
 
     /**
-     * Creates a cand shot command that also uses turret
+     * Creates a cand shot command that also uses turret.
+     * The shooter runs at target velocity for the entire duration.
      * @param value The cand shot to use
      * @return The command
      */
     public Command createTurretCandShotCommand(CannonConstants.CandShot value) {
       return new ParallelCommandGroup(
-            createCannonCommand(value.turretAngle, value.hoodAngle, value.shooterVelocity).andThen(hood.idle(), shooter.idle()),
+            shooter.runShootCommand(() -> value.shooterVelocity()),
+            turret.setAngleCommand(value.turretAngle()),
+            hood.setPositionCommand(value.hoodAngle()),
             indexWhenOnTarget()
         );
     }
