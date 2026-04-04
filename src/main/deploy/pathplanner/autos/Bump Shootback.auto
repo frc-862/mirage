@@ -5,21 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "SMART_SHOOT"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "HubDepotPath"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bump-Shootback"
+                }
+              },
               {
                 "type": "named",
                 "data": {
