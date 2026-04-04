@@ -170,7 +170,7 @@ public class Hood extends SubsystemBase {
         motorConfig.Feedback.SensorToMechanismRatio = HoodConstants.ENCODER_TO_MECHANISM_RATIO;
         motorConfig.Feedback.RotorToSensorRatio = HoodConstants.ROTOR_TO_ENCODER_RATIO;
 
-        motorConfig.CurrentLimits.StatorCurrentLimitEnable = HoodConstants.SUPPLY_LIMIT_ENABLE;
+        motorConfig.CurrentLimits.SupplyCurrentLimitEnable = HoodConstants.SUPPLY_LIMIT_ENABLE;
         motorConfig.CurrentLimits.SupplyCurrentLimit = HoodConstants.SUPPLY_LIMIT.in(Amps);
 
         motor.applyConfig(motorConfig);
