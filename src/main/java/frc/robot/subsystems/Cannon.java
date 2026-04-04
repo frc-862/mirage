@@ -345,39 +345,32 @@ public class Cannon extends SubsystemBase {
 
             double robotX = pose.getX();
             double robotY = pose.getY();
-            double sin = pose.getRotation().getSin();
-            double cos = pose.getRotation().getCos();
+            double poseTheta = pose.getRotation().getRadians();
+            double omega = speeds.omegaRadiansPerSecond;
 
             double targetX = target.getX();
             double targetY = target.getY();
 
-            // Shooter offset in field frame (constant for this loop since dtheta=0)
+            // Shooter offset (robot-relative, constant)
             double shooterOffX = CannonConstants.SHOOTER_TRANSLATION.getX();
             double shooterOffY = CannonConstants.SHOOTER_TRANSLATION.getY();
-            double shooterFieldX = shooterOffX * cos - shooterOffY * sin;
-            double shooterFieldY = shooterOffX * sin + shooterOffY * cos;
-
-            // Robot-relative velocity of the shooter offset due to chassis rotation,
-            // then rotated to field frame and added to chassis velocity.
-            // This matches getFuturePoseFromTime's existing math.
-            double rrXVel = -speeds.omegaRadiansPerSecond * shooterOffY;
-            double rrYVel =  speeds.omegaRadiansPerSecond * shooterOffX;
-            double totalVx = speeds.vxMetersPerSecond + (rrXVel * cos - rrYVel * sin);
-            double totalVy = speeds.vyMetersPerSecond + (rrXVel * sin + rrYVel * cos);
 
             double driveMultiplier = LightningShuffleboard.getDouble("Cannon", "OTF Multiplier", 1);
 
             // ── Initial state: current shooter position ──────────────
 
+            double sin0 = Math.sin(poseTheta);
+            double cos0 = Math.cos(poseTheta);
             double futureX = robotX;
             double futureY = robotY;
 
-            double sx = robotX + shooterFieldX;
-            double sy = robotY + shooterFieldY;
+            double sx = robotX + shooterOffX * cos0 - shooterOffY * sin0;
+            double sy = robotY + shooterOffX * sin0 + shooterOffY * cos0;
             double futureDist = Math.sqrt((targetX - sx) * (targetX - sx) + (targetY - sy) * (targetY - sy));
+            double futureTheta = poseTheta;
 
             double toleranceSq = CannonConstants.OTF_TOLERANCE.in(Meters);
-            toleranceSq *= toleranceSq; // compare squared to avoid sqrt in convergence check
+            toleranceSq *= toleranceSq;
 
             // ── Convergence loop (zero allocations) ──────────────────
 
@@ -385,12 +378,31 @@ public class Cannon extends SubsystemBase {
                 double tof = CannonConstants.TIME_OF_FLIGHT_MAP.getBaseUnit(futureDist);
                 double dt = tof * driveMultiplier;
 
-                // Predict future robot position: pose.exp(twist) with dtheta=0
-                // simplifies to rotating the twist by the heading then translating.
-                double twistDx = totalVx * dt;
-                double twistDy = totalVy * dt;
-                double rawX = robotX + twistDx * cos - twistDy * sin;
-                double rawY = robotY + twistDx * sin + twistDy * cos;
+                // Future heading after rotation during the ball's flight
+                futureTheta = poseTheta + omega * dt;
+
+                // Use the midpoint heading for a better displacement estimate.
+                // This is a trapezoidal approximation: as the robot rotates,
+                // its velocity direction (in field frame) sweeps through an arc.
+                // Using the heading halfway through the TOF averages the start
+                // and end directions, which is much more accurate than using
+                // only the current heading.
+                double midTheta = poseTheta + omega * dt * 0.5;
+                double midSin = Math.sin(midTheta);
+                double midCos = Math.cos(midTheta);
+
+                // Robot-relative velocity → field-relative using midpoint heading
+                double vxField = speeds.vxMetersPerSecond * midCos - speeds.vyMetersPerSecond * midSin;
+                double vyField = speeds.vxMetersPerSecond * midSin + speeds.vyMetersPerSecond * midCos;
+
+                // Add shooter offset velocity from rotation, also at midpoint heading
+                double rrXVel = -omega * shooterOffY;
+                double rrYVel =  omega * shooterOffX;
+                vxField += rrXVel * midCos - rrYVel * midSin;
+                vyField += rrXVel * midSin + rrYVel * midCos;
+
+                double rawX = robotX + vxField * dt;
+                double rawY = robotY + vyField * dt;
 
                 // Under-relaxation: blend toward prediction to guarantee convergence
                 double prevX = futureX;
@@ -398,9 +410,11 @@ public class Cannon extends SubsystemBase {
                 futureX = prevX + CannonConstants.OTF_RELAXATION * (rawX - prevX);
                 futureY = prevY + CannonConstants.OTF_RELAXATION * (rawY - prevY);
 
-                // Distance from future shooter position to target
-                sx = futureX + shooterFieldX;
-                sy = futureY + shooterFieldY;
+                // Shooter offset at the FUTURE heading (robot will have rotated)
+                double futureSin = Math.sin(futureTheta);
+                double futureCos = Math.cos(futureTheta);
+                sx = futureX + shooterOffX * futureCos - shooterOffY * futureSin;
+                sy = futureY + shooterOffX * futureSin + shooterOffY * futureCos;
                 futureDist = Math.sqrt((targetX - sx) * (targetX - sx) + (targetY - sy) * (targetY - sy));
 
                 // Convergence check (squared distance avoids sqrt)
@@ -420,10 +434,22 @@ public class Cannon extends SubsystemBase {
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
 
-            Pose2d futurePose = new Pose2d(futureX, futureY, pose.getRotation());
+            Pose2d futurePose = new Pose2d(futureX, futureY, new Rotation2d(futureTheta));
             LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
 
-            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity());
+            // Compute hub angular velocity from FUTURE pose (not current),
+            // so the feedforward matches where we're actually aiming.
+            double futureAngle = Math.atan2(targetY - sy, targetX - sx);
+            Translation2d fieldVel = new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond)
+                .rotateBy(pose.getRotation());
+            double hubOmega = (-fieldVel.getX() * Math.sin(futureAngle)
+                             + fieldVel.getY() * Math.cos(futureAngle)) / futureDist;
+
+            turret.turretAim(
+                new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()),
+                getTarget(),
+                getRobotAngularVelocity(),
+                RadiansPerSecond.of(hubOmega));
       }, turret, shooter, hood)
       .alongWith(indexWhenOnTarget().onlyWhile(() -> turret.isOnTarget(Degrees.of(12))).repeatedly());
     
