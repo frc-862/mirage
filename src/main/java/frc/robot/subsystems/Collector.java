@@ -68,7 +68,10 @@ public class Collector extends SubsystemBase {
         public static final double PIVOT_KI = 0d; // temp
         public static final double PIVOT_KD = 0d; // temp
         public static final double PIVOT_KS = 0; // temp
-        public static final double PIVOT_KG = 0d; // temp
+        // Gravity compensation voltage. Negative = upward force (same convention
+        // as Hood kG). START LOW and increase until the arm holds position without
+        // sagging. If the arm drifts up, make the value less negative (closer to 0).
+        public static final double PIVOT_KG = RobotMap.IS_OASIS ? -0.15d : -0.15d; // tune me!
 
 
         // pivot
@@ -117,12 +120,12 @@ public class Collector extends SubsystemBase {
     private MechanismLigament2d ligament;
     private Angle targetPivotPosition;
     private PositionVoltage positionPID;
-    private boolean pivotZeroed = true;
+    private boolean pivotZeroed = false; // false = will auto-zero on first enable
     private final Timer zeroingTimer = new Timer();
     private boolean pivotActive = false;
     private BooleanEntry requestZeroingDeploy;
     private BooleanEntry requestZeroingStow;
-    private boolean stowZero = false;
+    private boolean stowZero = true; // true = zero toward stow (retracted) hard stop on startup
 
     private DCMotor gearbox;
 
@@ -152,6 +155,7 @@ public class Collector extends SubsystemBase {
         pivotConfig.Slot0.kI = CollectorConstants.PIVOT_KI;
         pivotConfig.Slot0.kD = CollectorConstants.PIVOT_KD;
         pivotConfig.Slot0.kS = CollectorConstants.PIVOT_KS;
+        pivotConfig.Slot0.kG = CollectorConstants.PIVOT_KG;
         pivotConfig.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
 
         pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = CollectorConstants.PIVOT_SUPPLY_LIMIT_ENABLE;
