@@ -207,12 +207,12 @@ public class Indexer extends SubsystemBase {
      */
     public void setPower(double power) {
         setSpindexerPower(power);
-        setTransferPower(power);
+        setTransferVelocity(power);
     }
 
     public void setPower(double spindexerPower, double transferPower) {
         setSpindexerPower(spindexerPower);
-        setTransferPower(transferPower);
+        setTransferVelocity(transferPower);
     }
 
     /**
