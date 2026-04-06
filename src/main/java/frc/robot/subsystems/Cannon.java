@@ -60,8 +60,8 @@ public class Cannon extends SubsystemBase {
             put(Inches.of(102), Seconds.of(0.91));
             put(Inches.of(144), Seconds.of(1.04));
             put(Inches.of(186), Seconds.of(1.17));
-            put(Inches.of(228), Seconds.of(1.39));
-            put(Inches.of(262), Seconds.of(1.2));
+            put(Inches.of(228), Seconds.of(1.25));
+            put(Inches.of(262), Seconds.of(1.33));
             put(Inches.of(298), Seconds.of(1.4));
         }};
 
