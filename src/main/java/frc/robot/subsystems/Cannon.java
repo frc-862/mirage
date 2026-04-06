@@ -181,8 +181,12 @@ public class Cannon extends SubsystemBase {
         return FieldConstants.getTargetData(getTarget());
     }
 
+    public Angle getTargetAngle(Pose2d pose) {
+        return Radians.of(getTargetTranslation().minus(getShooterTranslation(pose)).getAngle().getRadians());
+    }
+
     public Angle getTargetAngle() {
-        return Radians.of(getTargetTranslation().minus(getShooterTranslation()).getAngle().getRadians());
+        return getTargetAngle(drivetrain.getPose());
     }
 
     /**
@@ -336,7 +340,7 @@ public class Cannon extends SubsystemBase {
 
             LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
 
-            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity());
+            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity(futurePose));
       }, turret, shooter, hood)
       .alongWith(indexWhenOnTarget().onlyWhile(() -> turret.isOnTarget(Degrees.of(12))).repeatedly());
     
@@ -386,7 +390,7 @@ public class Cannon extends SubsystemBase {
      * get the angular velocity of the hub based on the robot's velocity and position relative to the hub.
      * @return the angular velocity of the hub based on the robot's velocity and position relative to the hub
      */
-    public AngularVelocity getHubAngularVelocity() {
+    public AngularVelocity getHubAngularVelocity(Pose2d pose) {
         // double velocityMagnitude = Math.sqrt(Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, 2) + Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, 2));
         // double velocityAngle = Math.atan2(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond);
 
@@ -406,7 +410,7 @@ public class Cannon extends SubsystemBase {
         // double angularVelocity = orthagVectorScalar / circumference;
         // return angularVelocity;
 
-        double robotTargetAngle = getTargetAngle().in(Radians);
+        double robotTargetAngle = getTargetAngle(pose).in(Radians);
         
         Translation2d fieldRelativeVelocity = new Translation2d(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond).rotateBy(drivetrain.getPose().getRotation());
 
