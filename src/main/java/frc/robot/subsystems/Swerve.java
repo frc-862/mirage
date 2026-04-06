@@ -49,6 +49,7 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
 import frc.util.AllianceHelpers;
+import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -433,22 +434,30 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         ChassisSpeeds speeds = getCurrentRobotChassisSpeeds();
         double dt = time.in(Seconds);
 
+        double driveMultiplier = LightningShuffleboard.getDouble("Cannon", "OTF Multiplier", 1);
+
         Pose2d pose = getPose();
 
-        double sin = pose.getRotation().getSin();
-        double cos = pose.getRotation().getCos();
+        // Use midpoint heading for better accuracy during rotation
+        double omega = speeds.omegaRadiansPerSecond;
+        double midTheta = pose.getRotation().getRadians() + omega * dt * 0.5;
+        double midSin = Math.sin(midTheta);
+        double midCos = Math.cos(midTheta);
 
-        double rrXVel = (speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getX());
-        double rrYVel = (speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
+        double rrXVel = (-omega * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
+        double rrYVel = (omega * Cannon.CannonConstants.SHOOTER_TRANSLATION.getX());
 
-        double frXVel = (rrXVel * cos) - (rrYVel * sin);
-        double frYVel = (rrXVel * sin) + (rrYVel * cos);
+        double frXVel = (rrXVel * midCos) - (rrYVel * midSin);
+        double frYVel = (rrXVel * midSin) + (rrYVel * midCos);
 
-        
+        // Robot-relative chassis velocity rotated by midpoint heading
+        double vxField = speeds.vxMetersPerSecond * midCos - speeds.vyMetersPerSecond * midSin;
+        double vyField = speeds.vxMetersPerSecond * midSin + speeds.vyMetersPerSecond * midCos;
+
         Twist2d twist = new Twist2d(
-            (speeds.vxMetersPerSecond + frXVel) * dt,
-            (speeds.vyMetersPerSecond + frYVel) * dt,
-            0
+            (vxField + frXVel) * dt * driveMultiplier,
+            (vyField + frYVel) * dt * driveMultiplier,
+            omega * dt
         );
 
         return pose.exp(twist);
