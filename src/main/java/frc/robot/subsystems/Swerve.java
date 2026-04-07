@@ -448,8 +448,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         double frYVel = (rrXVel * sin) + (rrYVel * cos);
 
         Twist2d twist = new Twist2d(
-            (speeds.vxMetersPerSecond + frXVel) * dt * driveMultiplier,
-            (speeds.vyMetersPerSecond + frYVel) * dt * driveMultiplier,
+            (speeds.vxMetersPerSecond + rrXVel) * dt * driveMultiplier,
+            (speeds.vyMetersPerSecond + rrYVel) * dt * driveMultiplier,
             0
         );
 
