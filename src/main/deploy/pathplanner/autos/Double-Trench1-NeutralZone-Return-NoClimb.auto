@@ -72,7 +72,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 3.5
+                        "waitTime": 3.0
                       }
                     },
                     {
@@ -123,12 +123,6 @@
           "type": "parallel",
           "data": {
             "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "SMART_SHOOT"
-                }
-              },
               {
                 "type": "sequential",
                 "data": {

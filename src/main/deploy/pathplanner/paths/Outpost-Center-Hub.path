@@ -1,0 +1,115 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.5403444444444443,
+        "y": 0.6297153024911029
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 0.8628333333333333,
+        "y": 0.5884000000000003
+      },
+      "isLocked": false,
+      "linkedName": "Outpost"
+    },
+    {
+      "anchor": {
+        "x": 7.483933333333333,
+        "y": 0.7698000000000003
+      },
+      "prevControl": {
+        "x": 3.7350000000000008,
+        "y": 0.35661111111111027
+      },
+      "nextControl": {
+        "x": 8.326872881296861,
+        "y": 0.8627046275981313
+      },
+      "isLocked": false,
+      "linkedName": "Trench2CenterMidpoint"
+    },
+    {
+      "anchor": {
+        "x": 7.796344444444443,
+        "y": 3.5109555555555554
+      },
+      "prevControl": {
+        "x": 8.522948476978053,
+        "y": 2.9573524831489952
+      },
+      "nextControl": {
+        "x": 6.949811111111111,
+        "y": 4.1559333333333335
+      },
+      "isLocked": false,
+      "linkedName": "Trench2-Center"
+    },
+    {
+      "anchor": {
+        "x": 3.271422222222222,
+        "y": 2.35201111111111
+      },
+      "prevControl": {
+        "x": 4.564203084962534,
+        "y": 1.9129534596143976
+      },
+      "nextControl": {
+        "x": 2.7373000000000003,
+        "y": 2.533411111111111
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.5861333333333336,
+        "y": 3.6218111111111115
+      },
+      "prevControl": {
+        "x": 2.747377777777778,
+        "y": 3.188466666666667
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7792998477929938,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 1.2420091324201046,
+      "rotationDegrees": -89.56996735654407
+    },
+    {
+      "waypointRelativePos": 2.3257229832572435,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Work-In-Progress",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -0.09062195608639394
+  },
+  "useDefaultConstraints": true
+}
