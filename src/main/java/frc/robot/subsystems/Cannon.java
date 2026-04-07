@@ -40,7 +40,7 @@ import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.Shooter.ShooterConstants;
 import frc.util.AllianceHelpers;
 import frc.util.shuffleboard.LightningShuffleboard;
-import frc.util.units.ThunderMap;
+import frc.util.units.SplineMap;
 
 public class Cannon extends SubsystemBase {
     // ======== CANNON CONSTANTS ========
@@ -53,10 +53,12 @@ public class Cannon extends SubsystemBase {
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
-        public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap<Distance, Time>() {{
-            // put(Inches.of(18.78*12), Seconds.of(35.0/30.0));
-            // put(Inches.of(64), Seconds.of(24.0/30.0));
-            // put(Inches.of(142), Seconds.of(0.86));
+        // SplineMap uses cubic spline interpolation instead of ThunderMap's linear.
+        // Our TOF data is non-monotonic: 186" = 1.51s, 228" = 1.40s (goes DOWN!).
+        // Linear interpolation draws a straight line through this peak, missing the
+        // true curve shape. The spline captures it correctly.
+        // See SplineMapTest.java for a visual comparison.
+        public static final SplineMap<Distance, Time> TIME_OF_FLIGHT_MAP = new SplineMap<Distance, Time>() {{
             put(Inches.of(60), Seconds.of(0.88));
             put(Inches.of(102), Seconds.of(1.0));
             put(Inches.of(144), Seconds.of(1.166));
@@ -66,8 +68,24 @@ public class Cannon extends SubsystemBase {
             put(Inches.of(298), Seconds.of(1.66));
         }};
 
-        public static final int MAX_OTF_ITERATIONS = 10;
+        public static final int MAX_OTF_ITERATIONS = 15;
         public static final Distance OTF_TOLERANCE = Inches.of(1.5);
+
+        // Under-relaxation factor for OTF convergence (0 to 1).
+        //
+        // The OTF loop is a "fixed-point iteration" that converges when the
+        // contraction factor |speed * dTOF/dDistance| < 1. With the spline map's
+        // steeper slopes, this can exceed 1 at high speed, causing DIVERGENCE
+        // (the predicted pose oscillates instead of settling).
+        //
+        // Under-relaxation fixes this by blending each new prediction with the
+        // previous one: pose_{n+1} = lerp(pose_n, raw_prediction, RELAXATION).
+        // This reduces the effective contraction to RELAXATION * |speed * dTOF/dd|.
+        //
+        // At 0.5: worst case is 0.5 * 5.0m/s * 0.35s/m = 0.875 -- converges
+        // at any FRC speed. Trade-off: needs more iterations (hence 15 max),
+        // but warm-starting means we typically only need 2-3 anyway.
+        public static final double OTF_RELAXATION = 0.5;
 
         // How far ahead to extrapolate the robot's pose before starting the OTF loop.
         // This compensates for the total system latency: camera capture + vision
@@ -389,9 +407,17 @@ public class Cannon extends SubsystemBase {
             for (int i = 0; i < CannonConstants.MAX_OTF_ITERATIONS; i++) {
                 // Predict where the robot will be after the ball has been in the air for 'tof'
                 previousPose = futurePose;
-                futurePose = drivetrain.getFuturePoseFromTime(tof);
+                Pose2d rawPrediction = drivetrain.getFuturePoseFromTime(tof);
 
-                // Recalculate distance from the predicted future position
+                // Under-relaxation: blend between previous and raw prediction.
+                // Without this, the loop can diverge at high speeds when
+                // |speed * dTOF/dDistance| > 1. Blending partway keeps
+                // the iteration stable at any FRC speed.
+                Translation2d relaxedTranslation = previousPose.getTranslation()
+                    .interpolate(rawPrediction.getTranslation(), CannonConstants.OTF_RELAXATION);
+                futurePose = new Pose2d(relaxedTranslation, rawPrediction.getRotation());
+
+                // Recalculate distance from the relaxed predicted position
                 futureDist = getTargetDistance(futurePose);
 
                 // Update the TOF estimate for the new distance
@@ -412,6 +438,11 @@ public class Cannon extends SubsystemBase {
             // Log solver performance so we can verify warm-starting is working
             otfIterationsLog.append(iterations);
             otfConvergedTofLog.append(tof.in(Seconds));
+
+            // Log the converged future pose so we can visualize on Shuffleboard
+            // where the solver thinks the robot will be when the ball arrives.
+            // Useful for debugging aim-point errors.
+            LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
 
             // Hood and shooter use the raw predicted distance (actual flight path)
             Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(futureDist);

@@ -194,6 +194,12 @@ deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)
 wpi.java.configureTestTasks(test)
 
+// Without this, Gradle uses the JUnit 4 runner and silently skips all
+// JUnit 5 @Test methods. This was the reason tests never ran before.
+test {
+    useJUnitPlatform()
+}
+
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
