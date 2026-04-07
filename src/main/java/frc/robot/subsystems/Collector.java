@@ -55,7 +55,7 @@ public class Collector extends SubsystemBase {
 
     public class CollectorConstants {
         // Collector Rollers
-        public static final boolean INVERTED = false; // temp
+        public static final boolean INVERTED = true; // temp
         public static final Current STATOR_LIMIT = Amps.of(80); // temp
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final 
