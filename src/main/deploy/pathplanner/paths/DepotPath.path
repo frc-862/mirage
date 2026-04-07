@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.0559608540925263,
-        "y": 7.481599999999999
+        "x": 3.019477777777778,
+        "y": 7.521911111111111
       },
       "isLocked": false,
       "linkedName": "Trench1-NoShoot"
     },
     {
       "anchor": {
-        "x": 0.7620555555555557,
-        "y": 5.980011111111112
+        "x": 0.5101111111111112,
+        "y": 5.929622222222222
       },
       "prevControl": {
-        "x": 4.775234677738237,
-        "y": 5.947733531039938
+        "x": 1.2659444444444443,
+        "y": 6.010244444444443
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,14 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "",
+      "waypointRelativePos": 0.4568245125348129,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -62,7 +69,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 89.37102968301032
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

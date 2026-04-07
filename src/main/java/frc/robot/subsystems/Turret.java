@@ -63,10 +63,10 @@ public class Turret extends SubsystemBase {
         public static final boolean SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean BRAKE = false; // temp
 
-        public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
+        public static final Angle ANGLE_TOLERANCE = Degrees.of(2);
 
-        public static final Angle MIN_ANGLE = Degrees.of(-325);
-        public static final Angle MAX_ANGLE = Degrees.of(75);
+        public static final Angle MIN_ANGLE = Degrees.of(-330);
+        public static final Angle MAX_ANGLE = Degrees.of(70);
 
         public static final double kP = 150d;
         public static final double kI = 0d;
@@ -75,7 +75,7 @@ public class Turret extends SubsystemBase {
         public static final double kS = 0.33d;
         public static final double kV = 4.7d; // ~12V / (motorFreeSpeed / gearRatio) ≈ 12 / 2.58
 
-        public static final double kV_FEEDFORWARD = 23d;
+        public static final double kV_FEEDFORWARD = 21d;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
 
@@ -275,9 +275,9 @@ public class Turret extends SubsystemBase {
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed && !manual) { // only allow position control if turret has been zeroed but store to apply when zeroed
-            double feedforwardVolts = -chassisOmegaRadPerSec.in(RotationsPerSecond) * LightningShuffleboard.getDouble("Turret", "kV feedforward", 0); // feedforward to counteract chassis rotation
-            feedforwardVolts += -hubRadPerSec.in(RotationsPerSecond) * LightningShuffleboard.getDouble("Turret", "kV feedforward", 0); // add feedforward for hub velocity as well
-
+            double feedforwardVolts = -chassisOmegaRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // feedforward to counteract chassis rotation
+            feedforwardVolts += -hubRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // add feedforward for hub velocity as well
+            
             motor.setControl(positionVoltage
                 .withPosition(optimizeTurretAngle(targetPosition))
                 .withFeedForward(feedforwardVolts));
@@ -424,8 +424,12 @@ public class Turret extends SubsystemBase {
             () -> new Pose2d(cannon.getShooterTranslation(), drivetrain.getPose().getRotation()),
             () -> cannon.getTarget(),
             () -> cannon.getRobotAngularVelocity(),
-            () -> cannon.getHubAngularVelocity()
+            () -> cannon.getHubAngularVelocity(drivetrain.getPose())
         );
+    }
+
+    public Command setAngleCommand(Angle angle) {
+        return new InstantCommand(() -> setAngle(angle));
     }
 
     /**
@@ -434,8 +438,8 @@ public class Turret extends SubsystemBase {
      * @param angle The angle to set
      * @return The command
      */
-    public Command setAngleCommand(Angle angle) {
-        return new InstantCommand(() -> setAngle(angle));
+    public Command setAngleCommand(Supplier<Angle> angle) {
+        return new InstantCommand(() -> setAngle(angle.get()));
     }
 
     public boolean getZeroed() {
