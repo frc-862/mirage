@@ -430,8 +430,39 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return getState().Speeds;
     }
 
-    public Pose2d getFuturePoseFromTime(Time time) {
+    // When the robot is pressed against a field wall, wheels spin but the robot
+    // doesn't actually move into the wall. This zeros the velocity component
+    // pointing off-field so the OTF solver doesn't lead shots based on phantom motion.
+    private static final double WALL_MARGIN = 0.20; // meters (~8 in, bumper width + tolerance)
+
+    public ChassisSpeeds getWallCorrectedChassisSpeeds() {
         ChassisSpeeds speeds = getCurrentRobotChassisSpeeds();
+        Pose2d pose = getPose();
+
+        double sin = pose.getRotation().getSin();
+        double cos = pose.getRotation().getCos();
+
+        // Robot-relative to field-relative
+        double fieldVx = speeds.vxMetersPerSecond * cos - speeds.vyMetersPerSecond * sin;
+        double fieldVy = speeds.vxMetersPerSecond * sin + speeds.vyMetersPerSecond * cos;
+
+        Translation2d pos = pose.getTranslation();
+
+        // Clamp velocity component pointing out of the field near each wall
+        if (pos.getX() < WALL_MARGIN && fieldVx < 0)                          fieldVx = 0;
+        if (pos.getX() > FieldConstants.FIELD_LENGTH - WALL_MARGIN && fieldVx > 0) fieldVx = 0;
+        if (pos.getY() < WALL_MARGIN && fieldVy < 0)                          fieldVy = 0;
+        if (pos.getY() > FieldConstants.FIELD_WIDTH - WALL_MARGIN && fieldVy > 0)  fieldVy = 0;
+
+        // Field-relative back to robot-relative
+        double rrVx =  fieldVx * cos + fieldVy * sin;
+        double rrVy = -fieldVx * sin + fieldVy * cos;
+
+        return new ChassisSpeeds(rrVx, rrVy, speeds.omegaRadiansPerSecond);
+    }
+
+    public Pose2d getFuturePoseFromTime(Time time) {
+        ChassisSpeeds speeds = getWallCorrectedChassisSpeeds();
         double dt = time.in(Seconds);
 
         double driveMultiplier = LightningShuffleboard.getDouble("Cannon", "OTF Multiplier", 1);
