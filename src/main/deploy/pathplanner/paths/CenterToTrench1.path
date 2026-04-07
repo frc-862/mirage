@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.705644444444445,
-        "y": 4.014844444444445
+        "x": 7.7358777777777785,
+        "y": 4.5792
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.699691024120205,
-        "y": 5.129461012257809
+        "x": 7.733045747827757,
+        "y": 5.632834261784044
       },
       "isLocked": false,
       "linkedName": "Trench1-Center"
     },
     {
       "anchor": {
-        "x": 6.486233333333334,
-        "y": 6.816466666666667
+        "x": 7.211833333333334,
+        "y": 6.8567777777777765
       },
       "prevControl": {
-        "x": 7.026720258382237,
-        "y": 6.510455687043391
+        "x": 7.822870417873605,
+        "y": 6.299883219715756
       },
       "nextControl": {
-        "x": 5.115655555555556,
-        "y": 7.592455555555556
+        "x": 6.41568888888889,
+        "y": 7.582377777777777
       },
       "isLocked": false,
       "linkedName": "Trench1CenterMidpoint"
@@ -36,33 +36,25 @@
         "y": 7.481599999999999
       },
       "prevControl": {
-        "x": 4.86349592724397,
-        "y": 7.482604191379991
+        "x": 4.712544444444445,
+        "y": 7.400977777777777
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Trench1-NoShoot"
+      "linkedName": "Trench1-Shoot"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.4246575342465757,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.4113277623027012,
-      "maxWaypointRelativePos": 2.0,
-      "constraints": {
-        "maxVelocity": 2.0,
-        "maxAcceleration": 2.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 2.0,
+      "maxWaypointRelativePos": 1.1810584958217274,
       "constraints": {
         "maxVelocity": 5.0,
         "maxAcceleration": 5.0,
@@ -85,7 +77,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 89.37102968301032
+    "rotation": -178.320800106277
   },
   "reversed": false,
   "folder": "DoubleAutonPaths",

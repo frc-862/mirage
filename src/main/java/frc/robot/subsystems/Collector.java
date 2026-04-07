@@ -13,7 +13,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
@@ -51,13 +50,15 @@ import frc.util.hardware.ThunderBird;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderUnits;
 public class Collector extends SubsystemBase {
+    
 
     public class CollectorConstants {
         // Collector Rollers
         public static final boolean INVERTED = true; // temp
         public static final Current STATOR_LIMIT = Amps.of(80); // temp
         public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
-        public static final boolean BRAKE = true; // temp
+        public static final 
+        boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 1d;
         public static final double COLLECT_MULT = 1d;
 
@@ -73,9 +74,9 @@ public class Collector extends SubsystemBase {
 
 
         // pivot
-        public static final boolean PIVOT_INVERTED = true; // temp
+        public static final boolean PIVOT_INVERTED = !RobotMap.IS_OASIS;
         public static final Current PIVOT_STATOR_LIMIT = Amps.of(40); // temp
-        public static final Current PIVOT_SUPPLY_LIMIT = RobotMap.IS_OASIS ? Amps.of(6) : Amps.of(6); // temp
+        public static final Current PIVOT_SUPPLY_LIMIT = RobotMap.IS_OASIS ? Amps.of(6) : Amps.of(20); // temp
         public static final boolean PIVOT_SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean PIVOT_BRAKE_MODE = true; // temp
         public static final double PIVOT_ZERO_TIMER_THRESHOLD = 1;
@@ -155,10 +156,10 @@ public class Collector extends SubsystemBase {
         pivotConfig.Slot0.kS = CollectorConstants.PIVOT_KS;
         pivotConfig.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
 
-        pivotConfig.CurrentLimits.StatorCurrentLimitEnable = CollectorConstants.PIVOT_SUPPLY_LIMIT_ENABLE;
+        pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = CollectorConstants.PIVOT_SUPPLY_LIMIT_ENABLE;
         pivotConfig.CurrentLimits.SupplyCurrentLimit = CollectorConstants.PIVOT_SUPPLY_LIMIT.in(Amps);
 
-        collectorConfig.CurrentLimits.StatorCurrentLimitEnable = CollectorConstants.COLLECTOR_SUPPLY_LIMIT_ENABLE;
+        collectorConfig.CurrentLimits.SupplyCurrentLimitEnable = CollectorConstants.COLLECTOR_SUPPLY_LIMIT_ENABLE;
         collectorConfig.CurrentLimits.SupplyCurrentLimit = CollectorConstants.COLLECTOR_SUPPLY_LIMIT.in(Amps);
 
         pivotMotor.applyConfig(pivotConfig);

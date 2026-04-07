@@ -63,10 +63,10 @@ public class Turret extends SubsystemBase {
         public static final boolean SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean BRAKE = false; // temp
 
-        public static final Angle ANGLE_TOLERANCE = Degrees.of(5);
+        public static final Angle ANGLE_TOLERANCE = Degrees.of(2);
 
-        public static final Angle MIN_ANGLE = Degrees.of(-325);
-        public static final Angle MAX_ANGLE = Degrees.of(75);
+        public static final Angle MIN_ANGLE = Degrees.of(-330);
+        public static final Angle MAX_ANGLE = Degrees.of(70);
 
         public static final double kP = 150d;
         public static final double kI = 0d;
@@ -424,8 +424,12 @@ public class Turret extends SubsystemBase {
             () -> new Pose2d(cannon.getShooterTranslation(), drivetrain.getPose().getRotation()),
             () -> cannon.getTarget(),
             () -> cannon.getRobotAngularVelocity(),
-            () -> cannon.getHubAngularVelocity()
+            () -> cannon.getHubAngularVelocity(drivetrain.getPose())
         );
+    }
+
+    public Command setAngleCommand(Angle angle) {
+        return new InstantCommand(() -> setAngle(angle));
     }
 
     /**
@@ -434,8 +438,8 @@ public class Turret extends SubsystemBase {
      * @param angle The angle to set
      * @return The command
      */
-    public Command setAngleCommand(Angle angle) {
-        return new InstantCommand(() -> setAngle(angle));
+    public Command setAngleCommand(Supplier<Angle> angle) {
+        return new InstantCommand(() -> setAngle(angle.get()));
     }
 
     public boolean getZeroed() {

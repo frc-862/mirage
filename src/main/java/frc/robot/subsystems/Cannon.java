@@ -28,13 +28,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Robot;
+import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Target;
 import frc.robot.subsystems.Indexer.IndexerConstants;
 import frc.robot.subsystems.Shooter.ShooterConstants;
+import frc.util.AllianceHelpers;
 import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.units.ThunderMap;
 
@@ -54,12 +57,12 @@ public class Cannon extends SubsystemBase {
             // put(Inches.of(64), Seconds.of(24.0/30.0));
             // put(Inches.of(142), Seconds.of(0.86));
             put(Inches.of(60), Seconds.of(0.88));
-            put(Inches.of(102), Seconds.of(1.0));
-            put(Inches.of(144), Seconds.of(1.166));
-            put(Inches.of(186), Seconds.of(1.51));
-            put(Inches.of(228), Seconds.of(1.4));
-            put(Inches.of(262), Seconds.of(1.46));
-            put(Inches.of(298), Seconds.of(1.66));
+            put(Inches.of(102), Seconds.of(0.91));
+            put(Inches.of(144), Seconds.of(1.04));
+            put(Inches.of(186), Seconds.of(1.17));
+            put(Inches.of(228), Seconds.of(1.25));
+            put(Inches.of(262), Seconds.of(1.33));
+            put(Inches.of(298), Seconds.of(1.4));
         }};
 
         public static final int MAX_OTF_ITERATIONS = 10;
@@ -141,6 +144,8 @@ public class Cannon extends SubsystemBase {
             LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
             LightningShuffleboard.setPose2d("Cannon", "Turret Position", new Pose2d(getShooterTranslation(), new Rotation2d()));
         }
+
+        LightningShuffleboard.setBool("Cannon", "In No Passing Zone", isInNoPassingZone());
     }
 
     /**
@@ -176,8 +181,12 @@ public class Cannon extends SubsystemBase {
         return FieldConstants.getTargetData(getTarget());
     }
 
+    public Angle getTargetAngle(Pose2d pose) {
+        return Radians.of(getTargetTranslation().minus(getShooterTranslation(pose)).getAngle().getRadians());
+    }
+
     public Angle getTargetAngle() {
-        return Radians.of(getTargetTranslation().minus(getShooterTranslation()).getAngle().getRadians());
+        return getTargetAngle(drivetrain.getPose());
     }
 
     /**
@@ -302,7 +311,7 @@ public class Cannon extends SubsystemBase {
      * @return DA OTFFF
      */
     public Command shootOTF() {
-        return new RunCommand(() -> {    
+        return new RunCommand(() -> { // hi david (from Bea)
             Time tof;
 
             Pose2d previousPose;
@@ -329,12 +338,14 @@ public class Cannon extends SubsystemBase {
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
 
-            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity());
+            LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
+
+            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity(futurePose));
       }, turret, shooter, hood)
       .alongWith(indexWhenOnTarget().onlyWhile(() -> turret.isOnTarget(Degrees.of(12))).repeatedly());
     
     //   .alongWith(drivetrain.increaseRampRates())
-    //   .alongWith(drivetrain.lowerSupplyLimits());
+    //   .alongWith(drivetrain.lowerSupplyLimits());    
       
     }
 
@@ -359,6 +370,15 @@ public class Cannon extends SubsystemBase {
     }
 
     /**
+     * Checks if the cannon is in between the tower and hub on the opposite alliance zone
+     * @return if the cannon is in the no passing zone
+     */
+    public boolean isInNoPassingZone() {
+        return AllianceHelpers.isBlueAlliance() ? FieldConstants.RED_NO_PASSING_ZONE.contains(getShooterTranslation()) 
+            : FieldConstants.BLUE_NO_PASSING_ZONE.contains(getShooterTranslation());
+    }
+
+    /**
      *  Checks if the hood, turret, and shooter is on target.
      * @return if they are on target.
      */
@@ -369,8 +389,9 @@ public class Cannon extends SubsystemBase {
     /**
      * get the angular velocity of the hub based on the robot's velocity and position relative to the hub.
      * @return the angular velocity of the hub based on the robot's velocity and position relative to the hub
+     * @param pose the pose to use for the calculation
      */
-    public AngularVelocity getHubAngularVelocity() {
+    public AngularVelocity getHubAngularVelocity(Pose2d pose) {
         // double velocityMagnitude = Math.sqrt(Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, 2) + Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, 2));
         // double velocityAngle = Math.atan2(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond);
 
@@ -390,7 +411,7 @@ public class Cannon extends SubsystemBase {
         // double angularVelocity = orthagVectorScalar / circumference;
         // return angularVelocity;
 
-        double robotTargetAngle = getTargetAngle().in(Radians);
+        double robotTargetAngle = getTargetAngle(pose).in(Radians);
         
         Translation2d fieldRelativeVelocity = new Translation2d(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond).rotateBy(drivetrain.getPose().getRotation());
 
