@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -77,6 +77,16 @@ public class Turret extends SubsystemBase {
 
         public static final double kV_FEEDFORWARD = 21d;
 
+        // Motion Magic Expo profile parameters — these control the shape of the
+        // turret's motion when slewing to a new angle. Unlike the PID gains above,
+        // these don't affect tracking accuracy, just how aggressively the turret
+        // accelerates and what its max speed is.
+        //
+        // kV: higher = slower cruise speed (volts per rotation/sec)
+        // kA: higher = gentler acceleration (volts per rotation/sec^2)
+        public static final double MOTION_MAGIC_EXPO_kV = 6.0;
+        public static final double MOTION_MAGIC_EXPO_kA = 12.0;
+
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
 
         public static final Angle ZERO_ANGLE = Degrees.of(-1.2);
@@ -95,7 +105,11 @@ public class Turret extends SubsystemBase {
 
     private Angle targetPosition = Rotations.zero();
 
-    public final PositionVoltage positionVoltage = new PositionVoltage(0);
+    // Motion Magic Expo generates a smooth exponential profile on-device at 1kHz.
+    // This means the turret accelerates and decelerates smoothly instead of relying
+    // only on PID to manage the motion. The profile matches actual motor physics
+    // (motors produce less torque at higher speeds) better than a trapezoidal profile.
+    public final MotionMagicExpoVoltage motionMagicExpo = new MotionMagicExpoVoltage(0);
     private final DutyCycleOut dutyCycle = new DutyCycleOut(0.0);
 
     private DCMotor gearbox;
@@ -141,6 +155,11 @@ public class Turret extends SubsystemBase {
         config.Slot0.kD = TurretConstants.kD;
         config.Slot0.kS = TurretConstants.kS;
         config.Slot0.kV = TurretConstants.kV;
+
+        // Motion Magic Expo generates a smooth on-device profile at 1kHz.
+        // The PID gains above track this profile; these parameters shape it.
+        config.MotionMagic.MotionMagicExpo_kV = TurretConstants.MOTION_MAGIC_EXPO_kV;
+        config.MotionMagic.MotionMagicExpo_kA = TurretConstants.MOTION_MAGIC_EXPO_kA;
 
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = TurretConstants.MAX_ANGLE.in(Rotations);
@@ -278,7 +297,7 @@ public class Turret extends SubsystemBase {
             double feedforwardVolts = -chassisOmegaRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // feedforward to counteract chassis rotation
             feedforwardVolts += -hubRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // add feedforward for hub velocity as well
             
-            motor.setControl(positionVoltage
+            motor.setControl(motionMagicExpo
                 .withPosition(optimizeTurretAngle(targetPosition))
                 .withFeedForward(feedforwardVolts));
         }
