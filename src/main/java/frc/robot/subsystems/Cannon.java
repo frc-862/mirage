@@ -14,11 +14,14 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
@@ -71,6 +74,15 @@ public class Cannon extends SubsystemBase {
         // pipeline + code processing + mechanism response. If shots consistently
         // trail behind the target while driving, increase this value.
         public static final Time PHASE_DELAY = Seconds.of(0.030);
+
+        // Below this speed, OTF adds turret jitter with no accuracy benefit.
+        // We fall back to static aiming (like smartShoot) when nearly stationary.
+        public static final LinearVelocity MIN_OTF_SPEED = MetersPerSecond.of(0.1);
+
+        // Above this speed, OTF predictions are unreliable because the ball's
+        // inherited lateral velocity is outside our calibrated range. We suppress
+        // the indexer to prevent wild shots while sprinting.
+        public static final LinearVelocity MAX_OTF_SPEED = MetersPerSecond.of(3.0);
 
         // Horizontal air drag coefficient for the ball (units: 1/seconds).
         // Air drag decays the ball's sideways velocity during flight, so it drifts
@@ -340,6 +352,24 @@ public class Cannon extends SubsystemBase {
      */
     public Command shootOTF() {
         return new RunCommand(() -> {
+            // LOW SPEED GATE: when barely moving, skip OTF math entirely.
+            // At very low speeds, tiny velocity measurement errors cause the
+            // predicted future pose to jump around, making the turret jitter.
+            // Static aiming is rock-steady and just as accurate when nearly still.
+            if (getRobotSpeed().lt(CannonConstants.MIN_OTF_SPEED)) {
+                Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(getTargetDistance());
+                AngularVelocity shooterVelocity = Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance());
+                hood.setPosition(hoodAngle);
+                shooter.setVelocity(shooterVelocity);
+                turret.turretAim(
+                    new Pose2d(getShooterTranslation(), drivetrain.getPose().getRotation()),
+                    getTarget(),
+                    getRobotAngularVelocity(),
+                    getHubAngularVelocity()
+                );
+                return; // skip the OTF loop entirely
+            }
+
             Pose2d previousPose;
 
             // Start from a latency-compensated pose instead of the "current" pose.
@@ -404,7 +434,9 @@ public class Cannon extends SubsystemBase {
 
             turret.turretAim(dragCorrectedPose, getTarget(), getRobotAngularVelocity(), getHubAngularVelocity(dragCorrectedPose, dragCorrectedDist));
       }, turret, shooter, hood)
-      .alongWith(indexWhenOnTarget().onlyWhile(() -> turret.isOnTarget(Degrees.of(12))).repeatedly());
+      // HIGH SPEED GATE: suppress indexer when going too fast for reliable OTF.
+      // The turret still tracks, but we don't commit to a shot that would miss.
+      .alongWith(indexWhenOnTarget().onlyWhile(() -> turret.isOnTarget(Degrees.of(12)) && canShootOTF()).repeatedly());
     }
 
     /**
@@ -471,6 +503,30 @@ public class Cannon extends SubsystemBase {
      */
     public boolean isOnTarget(){
         return (hood.isOnTarget() && turret.isOnTarget() && shooter.isOnTarget());
+    }
+
+    /**
+     * Gets the robot's translational speed (ignoring rotation).
+     * This is the magnitude of the velocity vector: sqrt(vx^2 + vy^2).
+     * Used for speed gating in OTF mode.
+     *
+     * @return the robot's linear speed
+     */
+    public LinearVelocity getRobotSpeed() {
+        ChassisSpeeds speeds = drivetrain.getCurrentRobotChassisSpeeds();
+        double speedMps = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+        return MetersPerSecond.of(speedMps);
+    }
+
+    /**
+     * Returns true if the robot is moving slowly enough for OTF shots to be reliable.
+     * Above MAX_OTF_SPEED, the ball's inherited lateral velocity is outside our
+     * calibrated range and the solver may not converge — so we suppress firing.
+     *
+     * @return true if speed is within the reliable OTF shooting envelope
+     */
+    public boolean canShootOTF() {
+        return getRobotSpeed().lt(CannonConstants.MAX_OTF_SPEED);
     }
 
     /**
