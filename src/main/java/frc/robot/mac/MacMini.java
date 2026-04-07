@@ -278,7 +278,7 @@ public class MacMini implements AutoCloseable {
             if (poseOpt.isPresent()) {
                 // The pose
                 EstimatedRobotPose pose = poseOpt.get();
-                cameraInfo.logEntry().robotPoseEntry.append(pose.estimatedPose.toPose2d());
+                cameraInfo.logEntry().robotPoseEntry.append(pose.estimatedPose.toPose2d(), getMicroSeconds());
                 
                 // Add the vision measurment
                 return new VisionInfo(useableResult, pose);
@@ -289,7 +289,7 @@ public class MacMini implements AutoCloseable {
                 if (poseOpt.isPresent()) {
                     // The pose
                     EstimatedRobotPose pose = poseOpt.get();
-                    cameraInfo.logEntry().robotPoseEntry.append(pose.estimatedPose.toPose2d());
+                    cameraInfo.logEntry().robotPoseEntry.append(pose.estimatedPose.toPose2d(), getMicroSeconds());
 
                     // Add the vision measurment
                     return new VisionInfo(useableResult, pose);
