@@ -389,6 +389,7 @@ public class Cannon extends SubsystemBase {
     /**
      * get the angular velocity of the hub based on the robot's velocity and position relative to the hub.
      * @return the angular velocity of the hub based on the robot's velocity and position relative to the hub
+     * @param pose the pose to use for the calculation
      */
     public AngularVelocity getHubAngularVelocity(Pose2d pose) {
         // double velocityMagnitude = Math.sqrt(Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, 2) + Math.pow(drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond, 2));
