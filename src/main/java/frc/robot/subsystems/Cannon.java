@@ -65,6 +65,12 @@ public class Cannon extends SubsystemBase {
 
         public static final int MAX_OTF_ITERATIONS = 10;
         public static final Distance OTF_TOLERANCE = Inches.of(1.5);
+
+        // How far ahead to extrapolate the robot's pose before starting the OTF loop.
+        // This compensates for the total system latency: camera capture + vision
+        // pipeline + code processing + mechanism response. If shots consistently
+        // trail behind the target while driving, increase this value.
+        public static final Time PHASE_DELAY = Seconds.of(0.030);
       
         public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
         public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
@@ -328,9 +334,13 @@ public class Cannon extends SubsystemBase {
     public Command shootOTF() {
         return new RunCommand(() -> {
             Pose2d previousPose;
-            Pose2d futurePose = drivetrain.getPose();
 
-            Distance futureDist = getTargetDistance();
+            // Start from a latency-compensated pose instead of the "current" pose.
+            // The pose we read is already ~30ms stale by the time the ball exits,
+            // so we extrapolate forward to where the robot actually is right now.
+            Pose2d futurePose = drivetrain.getFuturePoseFromTime(CannonConstants.PHASE_DELAY);
+
+            Distance futureDist = getTargetDistance(futurePose);
 
             // Warm-start: reuse last cycle's converged TOF if available.
             // On the very first cycle (or after a reset), fall back to the lookup table.
