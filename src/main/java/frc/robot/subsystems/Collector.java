@@ -154,10 +154,10 @@ public class Collector extends SubsystemBase {
         pivotConfig.Slot0.kS = CollectorConstants.PIVOT_KS;
         pivotConfig.Feedback.SensorToMechanismRatio = CollectorConstants.ENCODER_TO_MECHANISM_RATIO;
 
-        pivotConfig.CurrentLimits.StatorCurrentLimitEnable = CollectorConstants.PIVOT_SUPPLY_LIMIT_ENABLE;
+        pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = CollectorConstants.PIVOT_SUPPLY_LIMIT_ENABLE;
         pivotConfig.CurrentLimits.SupplyCurrentLimit = CollectorConstants.PIVOT_SUPPLY_LIMIT.in(Amps);
 
-        collectorConfig.CurrentLimits.StatorCurrentLimitEnable = CollectorConstants.COLLECTOR_SUPPLY_LIMIT_ENABLE;
+        collectorConfig.CurrentLimits.SupplyCurrentLimitEnable = CollectorConstants.COLLECTOR_SUPPLY_LIMIT_ENABLE;
         collectorConfig.CurrentLimits.SupplyCurrentLimit = CollectorConstants.COLLECTOR_SUPPLY_LIMIT.in(Amps);
 
         pivotMotor.applyConfig(pivotConfig);
