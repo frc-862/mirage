@@ -382,7 +382,11 @@ public class Cannon extends SubsystemBase {
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
 
-            turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity());
+            // Use the converged future pose for turret aiming, and compute the hub
+            // angular velocity from the future position so the feedforward matches
+            // the actual distance the ball will travel (not the current distance).
+            Pose2d futureShooterPose = new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation());
+            turret.turretAim(futureShooterPose, getTarget(), getRobotAngularVelocity(), getHubAngularVelocity(futureShooterPose, futureDist));
       }, turret, shooter, hood)
       .alongWith(indexWhenOnTarget().onlyWhile(() -> turret.isOnTarget(Degrees.of(12))).repeatedly());
     }
@@ -463,6 +467,38 @@ public class Cannon extends SubsystemBase {
         Translation2d fieldRelativeVelocity = new Translation2d(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond).rotateBy(drivetrain.getPose().getRotation());
 
         double hubRotation = (-fieldRelativeVelocity.getX() * Math.sin(robotTargetAngle) + fieldRelativeVelocity.getY() * Math.cos(robotTargetAngle)) / getTargetDistance().in(Meters);
+        return RadiansPerSecond.of(hubRotation);
+    }
+
+    /**
+     * Computes hub angular velocity using a specific pose and distance.
+     *
+     * The default getHubAngularVelocity() uses the robot's current position,
+     * but the OTF solver has already figured out where the robot WILL BE when
+     * the ball arrives. Using that future distance as the denominator gives a
+     * more accurate feedforward — especially at long range where the distance
+     * changes significantly during flight.
+     *
+     * @param shooterPose the predicted future pose of the shooter
+     * @param distance the predicted future distance to the target
+     * @return angular velocity of the target from the shooter's perspective
+     */
+    public AngularVelocity getHubAngularVelocity(Pose2d shooterPose, Distance distance) {
+        // Compute the angle from the future shooter position to the target
+        Translation2d delta = getTargetTranslation().minus(shooterPose.getTranslation());
+        double targetAngle = delta.getAngle().getRadians();
+
+        // Robot velocity in field coordinates (same velocity, different reference point)
+        Translation2d fieldRelativeVelocity = new Translation2d(
+            drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond,
+            drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond
+        ).rotateBy(drivetrain.getPose().getRotation());
+
+        // tangential_velocity / range = angular velocity of the target in the turret's frame
+        double hubRotation = (-fieldRelativeVelocity.getX() * Math.sin(targetAngle)
+            + fieldRelativeVelocity.getY() * Math.cos(targetAngle))
+            / distance.in(Meters);
+
         return RadiansPerSecond.of(hubRotation);
     }
 
