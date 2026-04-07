@@ -49,6 +49,7 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
 import frc.util.AllianceHelpers;
+import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -433,21 +434,22 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         ChassisSpeeds speeds = getCurrentRobotChassisSpeeds();
         double dt = time.in(Seconds);
 
+        double driveMultiplier = LightningShuffleboard.getDouble("Cannon", "OTF Multiplier", 1);
+
         Pose2d pose = getPose();
 
         double sin = pose.getRotation().getSin();
         double cos = pose.getRotation().getCos();
 
-        double rrXVel = (speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getX());
-        double rrYVel = (speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
+        double rrXVel = (-speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
+        double rrYVel = (speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getX());
 
         double frXVel = (rrXVel * cos) - (rrYVel * sin);
         double frYVel = (rrXVel * sin) + (rrYVel * cos);
 
-        
         Twist2d twist = new Twist2d(
-            (speeds.vxMetersPerSecond + frXVel) * dt,
-            (speeds.vyMetersPerSecond + frYVel) * dt,
+            (speeds.vxMetersPerSecond + rrXVel) * dt * driveMultiplier,
+            (speeds.vyMetersPerSecond + rrYVel) * dt * driveMultiplier,
             0
         );
 

@@ -112,9 +112,9 @@ public class RobotContainer {
         */
         drivetrain.setDefaultCommand(drivetrain.driveCommand(
                 () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
-                        VecBuilder.fill(-driver.getLeftY(), -driver.getLeftX()), DriveConstants.JOYSTICK_DEADBAND),
+                        VecBuilder.fill((-driver.getLeftY()), (-driver.getLeftX())), DriveConstants.JOYSTICK_DEADBAND),
                         DriveConstants.CONTROLLER_POW).times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND 
-                        ? DriveConstants.SLOW_MODE_MULT : 1.0), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(-driver.getRightX(),
+                        ? DriveConstants.SLOW_MODE_MULT : 1.0), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband((-driver.getRightX()),
                         DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
                         * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
@@ -182,6 +182,8 @@ public class RobotContainer {
         //     .andThen(indexer.autoIndex(() -> LightningShuffleboard.getDouble("Indexer", "Power", IndexerConstants.SPINDEXDER_POWER), 
         //     () -> LightningShuffleboard.getDouble("Indexer", "Transfer Power", IndexerConstants.TRANSFER_POWER)))
         //     .finallyDo(shooter::stop));
+
+        // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(turret.setAngleCommand(() -> Degrees.of(LightningShuffleboard.getDouble("Turret", "Setpoint (Degrees)", 0))));
 
         // new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(hood.hoodCommand(() -> 
         //     Degrees.of(LightningShuffleboard.getDouble("Hood", "Setpoint (Degrees)", 80))));
