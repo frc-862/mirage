@@ -71,6 +71,13 @@ public class Cannon extends SubsystemBase {
         // pipeline + code processing + mechanism response. If shots consistently
         // trail behind the target while driving, increase this value.
         public static final Time PHASE_DELAY = Seconds.of(0.030);
+
+        // Horizontal air drag coefficient for the ball (units: 1/seconds).
+        // Air drag decays the ball's sideways velocity during flight, so it drifts
+        // less than a naive v*t prediction assumes. Higher value = more correction.
+        // Set to 0 to disable drag compensation entirely (for A/B testing).
+        // 0.24 is empirically tuned for foam balls at FRC velocities.
+        public static final double HORIZONTAL_DRAG_COEFF = 0.24;
       
         public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
         public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
@@ -376,19 +383,47 @@ public class Cannon extends SubsystemBase {
             otfIterationsLog.append(iterations);
             otfConvergedTofLog.append(tof.in(Seconds));
 
+            // Hood and shooter use the raw predicted distance (actual flight path)
             Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(futureDist);
             AngularVelocity shooterVelocity = Shooter.ShooterConstants.VELOCITY_MAP.get(futureDist);
 
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
 
-            // Use the converged future pose for turret aiming, and compute the hub
-            // angular velocity from the future position so the feedforward matches
-            // the actual distance the ball will travel (not the current distance).
-            Pose2d futureShooterPose = new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation());
-            turret.turretAim(futureShooterPose, getTarget(), getRobotAngularVelocity(), getHubAngularVelocity(futureShooterPose, futureDist));
+            // Apply air drag correction for turret aiming only.
+            // The ball's sideways velocity decays due to air resistance, so it drifts
+            // less than the full v*tof prediction. We blend between current and future
+            // positions by the drag factor to avoid over-leading at long range.
+            Translation2d currentShooterPos = getShooterTranslation(drivetrain.getFuturePoseFromTime(CannonConstants.PHASE_DELAY));
+            Translation2d futureShooterPos = getShooterTranslation(futurePose);
+            double dragFactor = dragDampingFactor(tof.in(Seconds));
+            Translation2d dragCorrectedPos = currentShooterPos.interpolate(futureShooterPos, dragFactor);
+
+            Pose2d dragCorrectedPose = new Pose2d(dragCorrectedPos, futurePose.getRotation());
+            Distance dragCorrectedDist = Meters.of(getTargetTranslation().minus(dragCorrectedPos).getNorm());
+
+            turret.turretAim(dragCorrectedPose, getTarget(), getRobotAngularVelocity(), getHubAngularVelocity(dragCorrectedPose, dragCorrectedDist));
       }, turret, shooter, hood)
       .alongWith(indexWhenOnTarget().onlyWhile(() -> turret.isOnTarget(Degrees.of(12))).repeatedly());
+    }
+
+    /**
+     * Computes the drag damping factor for horizontal ball drift.
+     *
+     * With no air drag, the ball drifts sideways by v*t. But air resistance
+     * exponentially decays the ball's sideways velocity: v(t) = v0 * e^(-c*t).
+     * The actual drift is v0 * (1 - e^(-c*t)) / c, which is always less than v0*t.
+     *
+     * This method returns the ratio: actual_drift / naive_drift.
+     * It's always between 0 and 1 (1 = no drag, 0 = infinite drag).
+     *
+     * @param tofSeconds time of flight in seconds
+     * @return fraction of naive drift that actually occurs (0 to 1)
+     */
+    private static double dragDampingFactor(double tofSeconds) {
+        double c = CannonConstants.HORIZONTAL_DRAG_COEFF;
+        if (c < 1e-6 || tofSeconds < 1e-6) return 1.0; // no drag correction
+        return (1.0 - Math.exp(-c * tofSeconds)) / (c * tofSeconds);
     }
 
     /**
