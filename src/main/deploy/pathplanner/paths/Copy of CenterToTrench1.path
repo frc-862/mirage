@@ -20,12 +20,12 @@
         "y": 6.8567777777777765
       },
       "prevControl": {
-        "x": 8.097419485067991,
-        "y": 6.797738700995466
+        "x": 7.886758666069369,
+        "y": 6.280388811919941
       },
       "nextControl": {
-        "x": 5.113790628707001,
-        "y": 6.9966472914195315
+        "x": 6.5915658362989324,
+        "y": 7.386488730723606
       },
       "isLocked": false,
       "linkedName": "Trench1CenterMidpoint"
@@ -50,21 +50,7 @@
       "rotationDegrees": -178.321
     }
   ],
-  "constraintZones": [
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 2.0,
-      "constraints": {
-        "maxVelocity": 1.0,
-        "maxAcceleration": 1.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    }
-  ],
+  "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
