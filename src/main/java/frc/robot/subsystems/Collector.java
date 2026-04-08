@@ -56,7 +56,7 @@ public class Collector extends SubsystemBase {
         // Collector Rollers
         public static final boolean INVERTED = true; // temp
         public static final Current STATOR_LIMIT = Amps.of(80); // temp
-        public static final Current CURRENT_THRESHOLD = Amps.of(20); // temp
+        public static final Current COLLECTOR_CURRENT_THRESHOLD = Amps.of(20); // temp
         public static final 
         boolean BRAKE = true; // temp
         public static final double COLLECT_POWER = 1d;
@@ -246,7 +246,10 @@ public class Collector extends SubsystemBase {
         if (DriverStation.isDisabled()) {
             pivotActive = false;
         }
-        updateLogging();
+        if (collectorMotor.getStatorCurrent().getValue().in(Amps) > (CollectorConstants.COLLECTOR_CURRENT_THRESHOLD.in(Amps))) {
+            setCollectorPower(CollectorConstants.COLLECT_POWER * -1); 
+        }
+        updateLogging(); 
     }
 
     private void updateLogging() {
