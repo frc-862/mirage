@@ -48,4 +48,7 @@ public class FieldConstants {
     public static final Rectangle2d RED_NO_PASSING_ZONE = new Rectangle2d(new Translation2d(16.541, 4.473), new Translation2d(12.677, 3.486)); // temp, values found with sim
 
     public static final double FIELD_MIDDLE_Y = 4.034663;
+
+    public static final double FIELD_LENGTH = 16.540988; // meters (X extent)
+    public static final double FIELD_WIDTH = 8.069326;   // meters (Y extent)
 }
