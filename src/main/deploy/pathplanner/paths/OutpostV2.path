@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.3822777777777784,
-        "y": 3.954377777777778
+        "x": 3.714844444444445,
+        "y": 0.6387888888888893
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3822777777777797,
-        "y": 3.954377777777778
+        "x": 2.4938707340013346,
+        "y": 0.736246037721007
       },
       "isLocked": false,
-      "linkedName": "Hub"
+      "linkedName": "Trench2-Shoot"
     },
     {
       "anchor": {
-        "x": 1.6992888888888888,
-        "y": 3.3396333333333335
+        "x": 0.5403444444444443,
+        "y": 0.6297153024911029
       },
       "prevControl": {
-        "x": 2.152788888888889,
-        "y": 3.3900222222222216
+        "x": 1.5425927374108033,
+        "y": 0.9614562564465943
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "TowerShot"
+      "linkedName": "Outpost"
     }
   ],
   "rotationTargets": [],
@@ -41,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 0.0
+    "velocity": 0,
+    "rotation": -0.09062195608639394
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Work-In-Progress",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 179.73226466129788
   },
   "useDefaultConstraints": true
 }
