@@ -8,24 +8,40 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7346149070778965,
-        "y": 1.1461565836298933
+        "x": 0.7442990615469076,
+        "y": 0.9420161943765352
       },
       "isLocked": false,
       "linkedName": "Outpost"
     },
     {
       "anchor": {
-        "x": 1.6992888888888888,
-        "y": 3.3396333333333335
+        "x": 2.1201279658564816,
+        "y": 4.951119864004629
       },
       "prevControl": {
-        "x": 2.3140333333333336,
-        "y": 2.543488888888888
+        "x": 2.4269206551033915,
+        "y": 4.080738043006837
+      },
+      "nextControl": {
+        "x": 1.8474883573287728,
+        "y": 5.724608174723434
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.5101111111111112,
+        "y": 5.929622222222222
+      },
+      "prevControl": {
+        "x": 0.2605894610627174,
+        "y": 5.914164338889536
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Depot"
     }
   ],
   "rotationTargets": [],
@@ -45,7 +61,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Work-In-Progress",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -0.09062195608639394
