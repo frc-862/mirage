@@ -64,8 +64,9 @@ public class Indexer extends SubsystemBase {
         public static final Current TRANSFER_SUPPLY_LIMIT = Amps.of(40); // temp
         public static final boolean TRANSFER_SUPPLY_LIMIT_ENABLE = true; // temp
 
-        public static final double TRANSFER_kP = 0.09; // temp
-        public static final double TRANSFER_kV = 0.092; // temp
+        public static final double TRANSFER_kP = 0.2; // temp
+        public static final double TRANSFER_kV = 0.124; // temp
+        public static final double TRANSFER_kS = 0.25;
 
         // sim
         public static final AngularVelocity SIM_INDEX_THRESHOLD = RotationsPerSecond.of(1); // temp
