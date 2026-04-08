@@ -11,12 +11,6 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.5
-          }
-        },
-        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -86,15 +80,22 @@
                             }
                           },
                           {
-                            "type": "named",
+                            "type": "parallel",
                             "data": {
-                              "name": "COLLECT"
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "SMART_SHOOT"
+                              "commands": [
+                                {
+                                  "type": "named",
+                                  "data": {
+                                    "name": "COLLECT"
+                                  }
+                                },
+                                {
+                                  "type": "named",
+                                  "data": {
+                                    "name": "SMART_SHOOT"
+                                  }
+                                }
+                              ]
                             }
                           }
                         ]
