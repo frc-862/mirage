@@ -145,6 +145,12 @@
       "waypointRelativePos": 3.5376044568245195,
       "endWaypointRelativePos": null,
       "command": null
+    },
+    {
+      "name": "RETRACT_HOOD",
+      "waypointRelativePos": 3.8997214484680103,
+      "endWaypointRelativePos": null,
+      "command": null
     }
   ],
   "globalConstraints": {
