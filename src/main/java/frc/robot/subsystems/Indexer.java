@@ -41,7 +41,7 @@ public class Indexer extends SubsystemBase {
     public class IndexerConstants {
         // spindexer
         public static final boolean SPINDEXER_MOTOR_INVERTED = true; // temp
-        public static final Current SPINDEXER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
+        public static final Current SPINDEXER_MOTOR_STATOR_LIMIT = Amps.of(0); // temp
         public static final boolean SPINDEXER_MOTOR_BRAKE_MODE = true; // temp
 
         public static final Current SPINDEXER_SUPPLY_LIMIT = Amps.of(40); // temp
@@ -55,11 +55,11 @@ public class Indexer extends SubsystemBase {
 
         // transfer
         public static final boolean TRANSFER_MOTOR_INVERTED = true; // temp
-        public static final Current TRANSFER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
+        public static final Current TRANSFER_MOTOR_STATOR_LIMIT = Amps.of(0); // temp
         public static final boolean TRANSFER_MOTOR_BRAKE_MODE = true; // temp
 
         public static final double TRANSFER_POWER = 0.8;
-        public static final Current TRANSFER_SUPPLY_LIMIT = Amps.of(40); // temp
+        public static final Current TRANSFER_SUPPLY_LIMIT = Amps.of(40); // temp 
         public static final boolean TRANSFER_SUPPLY_LIMIT_ENABLE = true; // temp
 
         // sim

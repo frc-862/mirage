@@ -415,7 +415,7 @@ public class Cannon extends SubsystemBase {
         
         Translation2d fieldRelativeVelocity = new Translation2d(drivetrain.getWallCorrectedChassisSpeeds().vxMetersPerSecond, drivetrain.getWallCorrectedChassisSpeeds().vyMetersPerSecond).rotateBy(drivetrain.getPose().getRotation());
 
-        double hubRotation = (-fieldRelativeVelocity.getX() * Math.sin(robotTargetAngle) + fieldRelativeVelocity.getY() * Math.cos(robotTargetAngle)) / getTargetDistance().in(Meters);
+        double hubRotation = (-fieldRelativeVelocity.getX() * Math.sin(robotTargetAngle) + fieldRelativeVelocity.getY() * Math.cos(robotTargetAngle)) / getTargetDistance(pose).in(Meters);
         return RadiansPerSecond.of(hubRotation);
     }
 

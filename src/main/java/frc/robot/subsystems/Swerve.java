@@ -430,7 +430,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return getState().Speeds;
     }
 
-        private static final double WALL_MARGIN = 0.20; // meters (~8 in, bumper width + tolerance)
+        private static final double WALL_MARGIN = 0.5;; // meters (~8 in, bumper width + tolerance)
 
 
     public ChassisSpeeds getWallCorrectedChassisSpeeds() {
