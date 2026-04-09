@@ -15,15 +15,28 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "COLLECT"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SMART_SHOOT"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "COLLECT"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SMART_SHOOT"
+                      }
+                    }
+                  ]
                 }
               }
             ]
