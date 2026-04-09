@@ -152,7 +152,7 @@ public class RobotContainer {
 
         new Trigger(driver::getBButton).toggleOnTrue(turret.manual());
 
-        /* Copilot */
+        /* Copilot */ 
         new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retractCommand());
         new Trigger(copilot::getXButton).whileTrue(hood.retractCommand().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
