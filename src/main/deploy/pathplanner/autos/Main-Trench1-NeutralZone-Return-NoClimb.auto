@@ -143,6 +143,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "DoubleAutons",
+  "folder": "MainAutons",
   "choreoAuto": false
 }
