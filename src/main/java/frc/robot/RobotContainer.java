@@ -152,7 +152,7 @@ public class RobotContainer {
 
         new Trigger(driver::getBButton).toggleOnTrue(turret.manual());
 
-        /* Copilot */
+        /* Copilot */ 
         new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retractCommand());
         new Trigger(copilot::getXButton).whileTrue(hood.retractCommand().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
@@ -214,6 +214,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("WAIT_UNTIL_STOWED", new WaitUntilCommand(collector::isStowed));
         NamedCommands.registerCommand("COLLECTOR_WHEELS", collector.runCollectorWheels(() -> CollectorConstants.COLLECT_POWER));
         NamedCommands.registerCommand("STOW_AND_COLLECTOR_WHEELS", new ParallelCommandGroup(collector.stowPivotCommand(), collector.runCollectorWheels(() -> CollectorConstants.COLLECT_POWER)));
+        NamedCommands.registerCommand("RETRACT_HOOD", hood.retractCommand());
         
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);

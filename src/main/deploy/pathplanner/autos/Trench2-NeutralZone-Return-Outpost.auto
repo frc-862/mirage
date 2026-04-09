@@ -39,17 +39,17 @@
         {
           "type": "path",
           "data": {
-            "pathName": "CenterToTrench2"
+            "pathName": "OutpostV2"
           }
         },
         {
-          "type": "deadline",
+          "type": "sequential",
           "data": {
             "commands": [
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 4.0
+                  "waitTime": 2.5
                 }
               },
               {
@@ -59,18 +59,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "OutpostV2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SMART_SHOOT"
           }
         }
       ]
