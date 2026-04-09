@@ -75,7 +75,18 @@ public class Turret extends SubsystemBase {
         public static final double kS = 0.33d;
         public static final double kV = 4.7d; // ~12V / (motorFreeSpeed / gearRatio) ≈ 12 / 2.58
 
-        public static final double kV_FEEDFORWARD = 21d;
+        // Feedforward gains for tracking moving targets.
+        // These are SEPARATE because they compensate for different things:
+        //   - CHASSIS: counteracts robot body rotation so turret stays pointed
+        //     at the same field position. Should theoretically equal kV (4.7),
+        //     but empirically needs to be higher, possibly due to control latency.
+        //   - HUB: tracks the apparent angular motion of the target as the robot
+        //     drives. Depends on robot speed, distance, and geometry.
+        // Both were previously set to the same value (21). Splitting them lets
+        // you tune each independently. Start by leaving both at 21 and adjust
+        // one at a time on the real robot.
+        public static final double kV_CHASSIS_FEEDFORWARD = 21d;
+        public static final double kV_HUB_FEEDFORWARD = 21d;
 
         public static final double ENCODER_TO_MECHANISM_RATIO = 93d / 12d * 5d;
 
@@ -267,17 +278,17 @@ public class Turret extends SubsystemBase {
      * sets angle of the turret with an angular velocity feedforward
      *
      * @param angle sets the angle to the motor of the turret
-     * @param chassisOmegaRadPerSec the angular velocity of the chassis
-     * @param hubRadPerSec the angular velocity of the hub
+     * @param chassisOmega the angular velocity of the chassis
+     * @param hubOmega the angular velocity of the hub (apparent target motion)
      */
-    public void setAngle(Angle angle, AngularVelocity chassisOmegaRadPerSec, AngularVelocity hubRadPerSec) {
+    public void setAngle(Angle angle, AngularVelocity chassisOmega, AngularVelocity hubOmega) {
         Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-300), Degrees.of(60));
 
         targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
         if (zeroed && !manual) { // only allow position control if turret has been zeroed but store to apply when zeroed
-            double feedforwardVolts = -chassisOmegaRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // feedforward to counteract chassis rotation
-            feedforwardVolts += -hubRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // add feedforward for hub velocity as well
-            
+            double feedforwardVolts = -chassisOmega.in(RotationsPerSecond) * TurretConstants.kV_CHASSIS_FEEDFORWARD;
+            feedforwardVolts += -hubOmega.in(RotationsPerSecond) * TurretConstants.kV_HUB_FEEDFORWARD;
+
             motor.setControl(positionVoltage
                 .withPosition(optimizeTurretAngle(targetPosition))
                 .withFeedForward(feedforwardVolts));
