@@ -197,7 +197,7 @@ public class RobotContainer {
 
         new Trigger(copilot::getYButton).whileTrue(indexer.indexCommand(-0.5).withTimeout(0.1).andThen(indexer.indexCommand(1)));
 
-      
+    //     new Trigger(driver::getXButton).whileTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d(12.566, 0.713, new Rotation2d(0.057)))));
     }
     
     private void configureNamedCommands() {
