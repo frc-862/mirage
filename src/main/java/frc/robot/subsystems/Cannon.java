@@ -24,6 +24,7 @@ import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -143,10 +144,11 @@ public class Cannon extends SubsystemBase {
             LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTargetTranslation(), new Rotation2d()));
             LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
             LightningShuffleboard.setPose2d("Cannon", "Turret Position", new Pose2d(getShooterTranslation(), new Rotation2d()));
+            LightningShuffleboard.setBool("Cannon", "In No Passing Zone", isInNoPassingZone());
         }
-
-        LightningShuffleboard.setBool("Cannon", "In No Passing Zone", isInNoPassingZone());
     }
+
+        
 
     /**
      * Gets the translation of the shooter relative to the field
@@ -338,7 +340,7 @@ public class Cannon extends SubsystemBase {
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
 
-            LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
+            if (!DriverStation.isFMSAttached()) LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
 
             turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity(futurePose));
       }, turret, shooter, hood)

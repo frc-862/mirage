@@ -26,6 +26,7 @@ import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.util.shuffleboard.LightningShuffleboard;
@@ -177,7 +178,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             double estimatedLatency = 0.08;
             macTimeOffset = now - updatedPose.timestamp - estimatedLatency;
 
-            LightningShuffleboard.setPose2d("Vision", "robot pose", updatedPose.pose);
+            if (!DriverStation.isFMSAttached()) LightningShuffleboard.setPose2d("Vision", "robot pose", updatedPose.pose);
 
             double xyMultiplier = 2;
             double rotMultiplier = 4; 

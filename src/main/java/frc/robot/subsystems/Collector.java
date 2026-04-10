@@ -119,12 +119,12 @@ public class Collector extends SubsystemBase {
     private MechanismLigament2d ligament;
     private Angle targetPivotPosition;
     private PositionVoltage positionPID;
-    private boolean pivotZeroed = true;
+    private boolean pivotZeroed = false;
     private final Timer zeroingTimer = new Timer();
     private boolean pivotActive = false;
     private BooleanEntry requestZeroingDeploy;
     private BooleanEntry requestZeroingStow;
-    private boolean stowZero = false;
+    private boolean stowZero = true;
 
     private DCMotor gearbox;
 
@@ -165,11 +165,13 @@ public class Collector extends SubsystemBase {
         pivotMotor.applyConfig(pivotConfig);
         collectorMotor.applyConfig(collectorConfig);
 
-        requestZeroingDeploy = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Deploy").getEntry(false);
-        requestZeroingStow = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Stow").getEntry(false);
+        if (!DriverStation.isFMSAttached()) {
+            requestZeroingDeploy = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Deploy").getEntry(false);
+            requestZeroingStow = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Stow").getEntry(false);
 
-        requestZeroingDeploy.set(false);
-        requestZeroingStow.set(false);
+            requestZeroingDeploy.set(false);
+            requestZeroingStow.set(false);
+        }
 
 
         if(Robot.isSimulation()){
@@ -213,14 +215,14 @@ public class Collector extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (LightningShuffleboard.getBool("Collector", "Run Periodic", true)) {
-            if (requestZeroingStow.get()) {
-                pivotZeroed = false;
-                stowZero = true;
-            } else if (requestZeroingDeploy.get()) {
-                pivotZeroed = false;
-                stowZero = false;
-            }
+        // if (LightningShuffleboard.getBool("Collector", "Run Periodic", true)) {
+        //     if (requestZeroingStow.get()) {
+        //         pivotZeroed = false;
+        //         stowZero = true;
+        //     } else if (requestZeroingDeploy.get()) {
+        //         pivotZeroed = false;
+        //         stowZero = false;
+        //     }
             if (!pivotZeroed && DriverStation.isEnabled()) {
                 if (!zeroingTimer.isRunning()) {
                     zeroingTimer.restart();
@@ -247,7 +249,7 @@ public class Collector extends SubsystemBase {
             if (DriverStation.isDisabled()) {
                 pivotActive = false;
             }
-        }
+        // }
 
         updateLogging();
     }

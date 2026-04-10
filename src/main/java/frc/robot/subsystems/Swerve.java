@@ -466,7 +466,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         ChassisSpeeds speeds = getWallCorrectedChassisSpeeds();
         double dt = time.in(Seconds);
 
-        double driveMultiplier = LightningShuffleboard.getDouble("Cannon", "OTF Multiplier", 1);
+        double driveMultiplier = 1;
 
         Pose2d pose = getPose();
 
