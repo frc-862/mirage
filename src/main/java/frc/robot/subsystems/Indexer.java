@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
@@ -58,9 +59,14 @@ public class Indexer extends SubsystemBase {
         public static final Current TRANSFER_MOTOR_STATOR_LIMIT = Amps.of(40); // temp
         public static final boolean TRANSFER_MOTOR_BRAKE_MODE = true; // temp
 
-        public static final double TRANSFER_POWER = 0.8;
+        public static final double TRANSFER_POWER = 0.7;
+        public static final double TRANSFER_VELOCITY = 70;
         public static final Current TRANSFER_SUPPLY_LIMIT = Amps.of(40); // temp
         public static final boolean TRANSFER_SUPPLY_LIMIT_ENABLE = true; // temp
+
+        public static final double TRANSFER_kP = 0.2; // temp
+        public static final double TRANSFER_kV = 0.124; // temp
+        public static final double TRANSFER_kS = 0.25;
 
         // sim
         public static final AngularVelocity SIM_INDEX_THRESHOLD = RotationsPerSecond.of(1); // temp
@@ -71,6 +77,8 @@ public class Indexer extends SubsystemBase {
 
     private final DutyCycleOut spindexerDutyCycle;
     private final DutyCycleOut transferDutyCycle;
+
+    private VelocityVoltage transferVelocityVoltage;
 
     private LinearSystemSim<N1, N1, N1> spindexerSim;
     private TalonFXSimState motorSim;
@@ -88,12 +96,17 @@ public class Indexer extends SubsystemBase {
 
         spindexerDutyCycle = new DutyCycleOut(0d);
         transferDutyCycle = new DutyCycleOut(0d);
+        VelocityVoltage transferVelocityVoltage = new VelocityVoltage(0);
 
         TalonFXConfiguration spindexerConfig = spindexerMotor.getConfig();
         TalonFXConfiguration transferConfig = transferMotor.getConfig();
 
         spindexerConfig.CurrentLimits.SupplyCurrentLimitEnable = IndexerConstants.SPINDEXER_SUPPLY_LIMIT_ENABLE;
         spindexerConfig.CurrentLimits.SupplyCurrentLimit = IndexerConstants.SPINDEXER_SUPPLY_LIMIT.in(Amps);
+
+        transferConfig.Slot0.kP = IndexerConstants.TRANSFER_kP;
+        transferConfig.Slot0.kV = IndexerConstants.TRANSFER_kV;
+
         transferConfig.CurrentLimits.SupplyCurrentLimitEnable = IndexerConstants.TRANSFER_SUPPLY_LIMIT_ENABLE;
         transferConfig.CurrentLimits.SupplyCurrentLimit = IndexerConstants.TRANSFER_SUPPLY_LIMIT.in(Amps);
 
@@ -178,6 +191,10 @@ public class Indexer extends SubsystemBase {
         transferMotor.setControl(transferDutyCycle.withOutput(power));
     }
 
+    public void setTransferVelocity(double velocity) {
+        transferMotor.setControl(transferVelocityVoltage.withVelocity(velocity));
+    }
+
     /**
      * stops all movement to the transfer motor
      */
@@ -191,12 +208,12 @@ public class Indexer extends SubsystemBase {
      */
     public void setPower(double power) {
         setSpindexerPower(power);
-        setTransferPower(power);
+        setTransferVelocity(power);
     }
 
     public void setPower(double spindexerPower, double transferPower) {
         setSpindexerPower(spindexerPower);
-        setTransferPower(transferPower);
+        setTransferVelocity(transferPower);
     }
 
     /**
@@ -217,25 +234,25 @@ public class Indexer extends SubsystemBase {
         return new StartEndCommand(() -> setPower(power), () -> stop(), this);
     }
 
-    public Command indexCommand(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
-        return new StartEndCommand(() -> setPower(spindexerPower.getAsDouble(), transferPower.getAsDouble()), this::stop);
+    public Command indexCommand(DoubleSupplier spindexerPower, DoubleSupplier transferVelocity) {
+        return new StartEndCommand(() -> setPower(spindexerPower.getAsDouble(), transferVelocity.getAsDouble()), this::stop);
     }
 
-    public Command autoIndex(DoubleSupplier spindexerPower, DoubleSupplier transferPower) {
-        return new InstantCommand(() -> setTransferPower(transferPower.getAsDouble()))
+    public Command autoIndex(DoubleSupplier spindexerPower, DoubleSupplier transferVelocity) {
+        return new InstantCommand(() -> setTransferVelocity(transferVelocity.getAsDouble()))
             .andThen(new WaitCommand(IndexerConstants.SPINDEXER_DELAY))
-            .andThen(indexCommand(spindexerPower, transferPower));
+            .andThen(indexCommand(spindexerPower, transferVelocity));
     }
 
-    public Command autoIndex(double spindexerPower, double transferPower) {
-        return autoIndex(() -> spindexerPower, () -> transferPower);
+    public Command autoIndex(double spindexerPower, double transferVelocity) {
+        return autoIndex(() -> spindexerPower, () -> transferVelocity);
     }
 
-    public Command indexCommand(double spindexerPower, double transferPower) {
-        return indexCommand(() -> spindexerPower, () -> transferPower);
+    public Command indexCommand(double spindexerPower, double transferVelocity) {
+        return indexCommand(() -> spindexerPower, () -> transferVelocity);
     }
 
-    public Command transferCommand(DoubleSupplier transferPower) {
-        return new RunCommand(() -> setTransferPower(transferPower.getAsDouble()));
+    public Command transferCommand(DoubleSupplier transferVelocity) {
+        return new RunCommand(() -> setTransferVelocity(transferVelocity.getAsDouble()));
     }
 }
