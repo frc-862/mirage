@@ -10,7 +10,7 @@ public class FieldConstants {
     public record Target(Translation2d blue, Translation2d red) {}
 
     public static final Target GOAL_POSITION = new Target(new Translation2d(4.625594, 4.034536), new Translation2d(11.915394, 4.034536));
-    public static final Target DEPOT_POSITION = new Target(new Translation2d(0.3937, 0.665988), new Translation2d(16.147288, 7.403338));
+    public static final Target DEPOT_POSITION = new Target(new Translation2d(3.735, 0.619), new Translation2d(12.644, 0.659));
 
     public static Translation2d getTargetData(Target target) {
         return AllianceHelpers.isBlueAlliance() ? target.blue() : target.red();
@@ -48,4 +48,7 @@ public class FieldConstants {
     public static final Rectangle2d RED_NO_PASSING_ZONE = new Rectangle2d(new Translation2d(16.541, 4.473), new Translation2d(12.677, 3.486)); // temp, values found with sim
 
     public static final double FIELD_MIDDLE_Y = 4.034663;
+
+    public static final double FIELD_LENGTH = 16.540988; // meters (X extent)
+    public static final double FIELD_WIDTH = 8.069326;   // meters (Y extent)
 }

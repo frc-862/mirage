@@ -213,39 +213,42 @@ public class Collector extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (requestZeroingStow.get()) {
-            pivotZeroed = false;
-            stowZero = true;
-        } else if (requestZeroingDeploy.get()) {
-            pivotZeroed = false;
-            stowZero = false;
-        }
-        if (!pivotZeroed && DriverStation.isEnabled()) {
-            if (!zeroingTimer.isRunning()) {
-                zeroingTimer.restart();
-                if (stowZero) {
-                    pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC_STOW);
-                } else {
-                    pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC_DEPLOY);
+        if (LightningShuffleboard.getBool("Collector", "Run Periodic", true)) {
+            if (requestZeroingStow.get()) {
+                pivotZeroed = false;
+                stowZero = true;
+            } else if (requestZeroingDeploy.get()) {
+                pivotZeroed = false;
+                stowZero = false;
+            }
+            if (!pivotZeroed && DriverStation.isEnabled()) {
+                if (!zeroingTimer.isRunning()) {
+                    zeroingTimer.restart();
+                    if (stowZero) {
+                        pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC_STOW);
+                    } else {
+                        pivotMotor.setControl(CollectorConstants.PIVOT_ZEROING_DC_DEPLOY);
+                    }
+                } else if (!pivotMotor.getVelocity().getValue().isNear(RotationsPerSecond.zero(), RotationsPerSecond.of(0.1))) {
+                    zeroingTimer.reset();
+                } else if (zeroingTimer.hasElapsed(CollectorConstants.PIVOT_ZERO_TIMER_THRESHOLD)) {
+                    pivotZeroed = true;
+                    if (stowZero) {
+                        requestZeroingStow.set(false);
+                        pivotMotor.setPosition(CollectorConstants.STOW_ANGLE);
+                    } else {
+                        requestZeroingDeploy.set(false);
+                        pivotMotor.setPosition(CollectorConstants.DEPLOY_ANGLE);
+                    }
+                    zeroingTimer.stop();
+                    setPivotAngle(targetPivotPosition);
                 }
-            } else if (!pivotMotor.getVelocity().getValue().isNear(RotationsPerSecond.zero(), RotationsPerSecond.of(0.1))) {
-                zeroingTimer.reset();
-            } else if (zeroingTimer.hasElapsed(CollectorConstants.PIVOT_ZERO_TIMER_THRESHOLD)) {
-                pivotZeroed = true;
-                if (stowZero) {
-                    requestZeroingStow.set(false);
-                    pivotMotor.setPosition(CollectorConstants.STOW_ANGLE);
-                } else {
-                    requestZeroingDeploy.set(false);
-                    pivotMotor.setPosition(CollectorConstants.DEPLOY_ANGLE);
-                }
-                zeroingTimer.stop();
-                setPivotAngle(targetPivotPosition);
+            }
+            if (DriverStation.isDisabled()) {
+                pivotActive = false;
             }
         }
-        if (DriverStation.isDisabled()) {
-            pivotActive = false;
-        }
+
         updateLogging();
     }
 

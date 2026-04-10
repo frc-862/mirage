@@ -23,6 +23,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -71,6 +72,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+
+    private final LinearFilter chassisVelocityFilter = LinearFilter.singlePoleIIR(0.07, 0.02);
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     @SuppressWarnings("unused")
@@ -430,26 +433,53 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return getState().Speeds;
     }
 
-    public Pose2d getFuturePoseFromTime(Time time) {
+        private static final double WALL_MARGIN = 0.5;; // meters (~8 in, bumper width + tolerance)
+
+
+    public ChassisSpeeds getWallCorrectedChassisSpeeds() {
         ChassisSpeeds speeds = getCurrentRobotChassisSpeeds();
+        Pose2d pose = getPose();
+
+        double sin = pose.getRotation().getSin();
+        double cos = pose.getRotation().getCos();
+
+        // Robot-relative to field-relative
+        double fieldVx = speeds.vxMetersPerSecond * cos - speeds.vyMetersPerSecond * sin;
+        double fieldVy = speeds.vxMetersPerSecond * sin + speeds.vyMetersPerSecond * cos;
+
+        Translation2d pos = pose.getTranslation();
+
+        // Clamp velocity component pointing out of the field near each wall
+        if (pos.getX() < WALL_MARGIN && fieldVx < 0)                          fieldVx = 0;
+        if (pos.getX() > FieldConstants.FIELD_LENGTH - WALL_MARGIN && fieldVx > 0) fieldVx = 0;
+        if (pos.getY() < WALL_MARGIN && fieldVy < 0)                          fieldVy = 0;
+        if (pos.getY() > FieldConstants.FIELD_WIDTH - WALL_MARGIN && fieldVy > 0)  fieldVy = 0;
+
+        // Field-relative back to robot-relative
+        double rrVx =  fieldVx * cos + fieldVy * sin;
+        double rrVy = -fieldVx * sin + fieldVy * cos;
+
+        return new ChassisSpeeds(rrVx, rrVy, speeds.omegaRadiansPerSecond);
+    }
+
+    public Pose2d getFuturePoseFromTime(Time time) {
+        ChassisSpeeds speeds = getWallCorrectedChassisSpeeds();
         double dt = time.in(Seconds);
 
         double driveMultiplier = LightningShuffleboard.getDouble("Cannon", "OTF Multiplier", 1);
 
         Pose2d pose = getPose();
 
-        double sin = pose.getRotation().getSin();
-        double cos = pose.getRotation().getCos();
+        double filteredOmegaRadPerSec = speeds.omegaRadiansPerSecond;
+        double filteredXVel = speeds.vxMetersPerSecond;
+        double filteredYVel = speeds.vyMetersPerSecond;
 
-        double rrXVel = (-speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
-        double rrYVel = (speeds.omegaRadiansPerSecond * Cannon.CannonConstants.SHOOTER_TRANSLATION.getX());
-
-        double frXVel = (rrXVel * cos) - (rrYVel * sin);
-        double frYVel = (rrXVel * sin) + (rrYVel * cos);
+        double rrXVel = (-filteredOmegaRadPerSec * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
+        double rrYVel = (filteredOmegaRadPerSec * Cannon.CannonConstants.SHOOTER_TRANSLATION.getX());
 
         Twist2d twist = new Twist2d(
-            (speeds.vxMetersPerSecond + rrXVel) * dt * driveMultiplier,
-            (speeds.vyMetersPerSecond + rrYVel) * dt * driveMultiplier,
+            (filteredXVel+ rrXVel) * dt * driveMultiplier,
+            (filteredYVel + rrYVel) * dt * driveMultiplier,
             0
         );
 

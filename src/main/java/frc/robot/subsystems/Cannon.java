@@ -342,7 +342,7 @@ public class Cannon extends SubsystemBase {
 
             turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity(futurePose));
       }, turret, shooter, hood)
-      .alongWith(indexWhenOnTarget().onlyWhile(() -> turret.isOnTarget(Degrees.of(12))).repeatedly());
+      .alongWith(indexWhenOnTarget());
     
     //   .alongWith(drivetrain.increaseRampRates())
     //   .alongWith(drivetrain.lowerSupplyLimits());    
@@ -413,13 +413,13 @@ public class Cannon extends SubsystemBase {
 
         double robotTargetAngle = getTargetAngle(pose).in(Radians);
         
-        Translation2d fieldRelativeVelocity = new Translation2d(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond).rotateBy(drivetrain.getPose().getRotation());
+        Translation2d fieldRelativeVelocity = new Translation2d(drivetrain.getWallCorrectedChassisSpeeds().vxMetersPerSecond, drivetrain.getWallCorrectedChassisSpeeds().vyMetersPerSecond).rotateBy(drivetrain.getPose().getRotation());
 
-        double hubRotation = (-fieldRelativeVelocity.getX() * Math.sin(robotTargetAngle) + fieldRelativeVelocity.getY() * Math.cos(robotTargetAngle)) / getTargetDistance().in(Meters);
+        double hubRotation = (-fieldRelativeVelocity.getX() * Math.sin(robotTargetAngle) + fieldRelativeVelocity.getY() * Math.cos(robotTargetAngle)) / getTargetDistance(pose).in(Meters);
         return RadiansPerSecond.of(hubRotation);
     }
 
     public AngularVelocity getRobotAngularVelocity() {
-        return RadiansPerSecond.of(drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond);
+        return RadiansPerSecond.of(drivetrain.getWallCorrectedChassisSpeeds().omegaRadiansPerSecond);
     }
 }
