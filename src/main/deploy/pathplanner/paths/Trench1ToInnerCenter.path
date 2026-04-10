@@ -3,89 +3,89 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.745,
-        "y": 7.491677777777777
+        "x": 3.715,
+        "y": 7.361
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.861333333333334,
-        "y": 7.380822222222222
+        "x": 4.480755555555556,
+        "y": 7.350588888888889
       },
       "isLocked": false,
       "linkedName": "Trench1-Shoot"
     },
     {
       "anchor": {
-        "x": 7.897122222222222,
-        "y": 6.766077777777777
+        "x": 7.696,
+        "y": 6.998
       },
       "prevControl": {
-        "x": 7.41338888888889,
-        "y": 7.431211111111111
+        "x": 6.0471706505065335,
+        "y": 7.376902347694572
       },
       "nextControl": {
-        "x": 8.629890309783715,
-        "y": 5.758521657380722
+        "x": 9.056066666666666,
+        "y": 6.6854555555555555
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.897122222222222,
-        "y": 4.085388888888889
+        "x": 8.26,
+        "y": 4.015
       },
       "prevControl": {
-        "x": 8.232864896118725,
-        "y": 4.93146042710807
+        "x": 8.35285024264545,
+        "y": 4.247118143281996
       },
       "nextControl": {
-        "x": 7.645177777777777,
-        "y": 3.4504888888888883
+        "x": 7.776188888888889,
+        "y": 2.8055111111111115
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
+        "x": 6.003,
+        "y": 3.915
+      },
+      "prevControl": {
+        "x": 6.058918477200044,
+        "y": 3.046352966620511
+      },
+      "nextControl": {
         "x": 5.962188888888888,
-        "y": 4.085388888888889
-      },
-      "prevControl": {
-        "x": 6.269425444910838,
-        "y": 3.31585797556472
-      },
-      "nextControl": {
-        "x": 5.542562844717793,
-        "y": 5.1364201112364025
+        "y": 4.548966666666667
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.163744444444445,
-        "y": 7.1389555555555555
+        "x": 6.486,
+        "y": 7.23
       },
       "prevControl": {
-        "x": 6.73035445485797,
-        "y": 6.427060927087282
+        "x": 8.15325183950728,
+        "y": 6.863050342766826
       },
       "nextControl": {
-        "x": 5.770711111111111,
-        "y": 7.632766666666667
+        "x": 5.297055555555556,
+        "y": 7.491677777777777
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.1303333333333336,
-        "y": 7.481599999999999
+        "x": 3.363,
+        "y": 7.407
       },
       "prevControl": {
-        "x": 4.327474196890503,
-        "y": 7.371699210634411
+        "x": 4.642,
+        "y": 7.290122222222222
       },
       "nextControl": null,
       "isLocked": false,
@@ -98,15 +98,15 @@
       "rotationDegrees": 67.79662138501568
     },
     {
-      "waypointRelativePos": 2.191780821917787,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 1.9561403508772033,
+      "rotationDegrees": 85.21368247034259
     },
     {
       "waypointRelativePos": 3.0,
       "rotationDegrees": -90.0
     },
     {
-      "waypointRelativePos": 4.018264840182698,
+      "waypointRelativePos": 4.324561403508784,
       "rotationDegrees": 180.0
     }
   ],
@@ -114,23 +114,10 @@
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 1.3,
+      "maxWaypointRelativePos": 3.2336655592469263,
       "constraints": {
         "maxVelocity": 5.0,
         "maxAcceleration": 5.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.9,
-      "maxWaypointRelativePos": 3.869080779944296,
-      "constraints": {
-        "maxVelocity": 4.0,
-        "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
