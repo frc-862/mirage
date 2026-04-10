@@ -469,11 +469,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         double driveMultiplier = LightningShuffleboard.getDouble("Cannon", "OTF Multiplier", 1);
 
         Pose2d pose = getPose();
-        boolean useFilter = LightningShuffleboard.getBool("Cannon", "Filter Velocity", true);
 
-        double filteredOmegaRadPerSec = useFilter ? chassisVelocityFilter.calculate(speeds.omegaRadiansPerSecond) : speeds.omegaRadiansPerSecond;
-        double filteredXVel = useFilter ? chassisVelocityFilter.calculate(speeds.vxMetersPerSecond) : speeds.vxMetersPerSecond;
-        double filteredYVel = useFilter ? chassisVelocityFilter.calculate(speeds.vyMetersPerSecond) : speeds.vyMetersPerSecond;
+        double filteredOmegaRadPerSec = speeds.omegaRadiansPerSecond;
+        double filteredXVel = speeds.vxMetersPerSecond;
+        double filteredYVel = speeds.vyMetersPerSecond;
 
         double rrXVel = (-filteredOmegaRadPerSec * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
         double rrYVel = (filteredOmegaRadPerSec * Cannon.CannonConstants.SHOOTER_TRANSLATION.getX());
