@@ -3,45 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5838333333333336,
-        "y": 5.3249555555555546
+        "x": 1.965,
+        "y": 3.976
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9170496738397795,
-        "y": 5.784610955919487
-      },
-      "isLocked": false,
-      "linkedName": "Hub"
-    },
-    {
-      "anchor": {
-        "x": 0.7318222222222224,
-        "y": 7.3909
-      },
-      "prevControl": {
-        "x": 1.1349196007629099,
-        "y": 7.557698915258215
-      },
-      "nextControl": {
-        "x": 0.43956666666666666,
-        "y": 7.269966666666667
+        "x": 1.8731453553200461,
+        "y": 3.4227902028301456
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.44,
-        "y": 7.169
+        "x": 1.7000641025641037,
+        "y": 0.6628205128205127
       },
       "prevControl": {
-        "x": 0.42992222222222237,
-        "y": 7.834133333333332
+        "x": 1.791090136802675,
+        "y": 1.0607614353992534
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -58,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 89.30130561701654
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Work-In-Progress",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0
