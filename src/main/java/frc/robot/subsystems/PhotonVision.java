@@ -188,7 +188,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             double xyTrust = ambiguity * xyMultiplier;
             double rotTrust = ambiguity * rotMultiplier;
 
-            if(drivetrain.getPose().getTranslation().getDistance(updatedPose.pose().getTranslation()) > 1) {
+            if(drivetrain.getPose().getTranslation().getDistance(updatedPose.pose().getTranslation()) > .5) {
                 xyTrust *= 3;
                 rotTrust *= 3;
             }
