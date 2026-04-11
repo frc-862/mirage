@@ -25,6 +25,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -58,6 +59,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     private BooleanLogEntry macConnectedLog;
     private DoubleLogEntry macPingLog;
+    private StructLogEntry<Pose2d> visionPoseLog;
 
     private AtomicReference<Time> macMiniPing;
 
@@ -66,6 +68,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     private int packetsCount = 0;
     private double startTime = 0;
+
+    VisionInfo updatedPose = pose.getAndSet(null);
 
     /** Creates a new PhotonVision.
      * 
@@ -159,8 +163,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         macConnectedLog = new BooleanLogEntry(log, "/Vision/isMacConnected");
         macPingLog = new DoubleLogEntry(log, "/Vision/macMiniPing");
+        visionPoseLog = StructLogEntry.create(log, "/Vision/VisionPose", Pose2d.struct);
     }
-    
     @Override
     public void periodic() {
         if (Robot.isNTEnabled()) {
@@ -169,7 +173,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             LightningShuffleboard.setDouble("Vision", "Mac Mini Ping", macMiniPing.get().in(Milliseconds));
         }
 
-        VisionInfo updatedPose = pose.getAndSet(null);
+        updatedPose = pose.getAndSet(null);
         if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
             double now = Utils.getCurrentTimeSeconds();
 
@@ -180,7 +184,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
             if (!DriverStation.isFMSAttached()) LightningShuffleboard.setPose2d("Vision", "robot pose", updatedPose.pose);
 
-            double xyMultiplier = 2;
+            double xyMultiplier = 3;
             double rotMultiplier = 4; 
 
             double ambiguity = Math.max(0.1, Math.min(5, updatedPose.ambiguity()));
@@ -205,6 +209,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     private void updateLogging() {
         macConnectedLog.append(macMiniIsConnected);
         macPingLog.append(macMiniPing.get().in(Milliseconds));
+        visionPoseLog.append(updatedPose.pose);
     }
 
     /**

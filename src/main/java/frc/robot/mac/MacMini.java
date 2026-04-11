@@ -27,6 +27,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.DataLogBackgroundWriter;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.IntegerArrayLogEntry;
@@ -61,6 +62,7 @@ public class MacMini implements AutoCloseable {
         // data logging
         private DataLog log;
         private long startTime;
+        private DoubleLogEntry multiTagAmbiguity;
 
         public MacMini() {
             startTime = System.nanoTime();
@@ -128,6 +130,9 @@ public class MacMini implements AutoCloseable {
                     new DoubleArrayLogEntry(log, cameraName + "/tagAmbiguity", time)
                 );
 
+                // TEMP
+                multiTagAmbiguity = new DoubleLogEntry(log, "/multiTagAmbiguity");
+
                 // Create the camera
                 cameras[i] = new CameraInfo(camera, poseEstimator, logEntry);
             }
@@ -142,6 +147,13 @@ public class MacMini implements AutoCloseable {
                 if (info.pose != null && info.result != null) {
                     Pose2d poseToPublish = info.pose().estimatedPose.toPose2d();
                     double ambiguity = info.result().getBestTarget().poseAmbiguity;
+
+                    if (!info.result().getMultiTagResult().isEmpty()) {
+                        ambiguity = info.result().getMultiTagResult().get().estimatedPose.ambiguity;
+                        multiTagAmbiguity.append(ambiguity);
+                    }
+
+
                     double timestamp = info.result().getTimestampSeconds();
 
                     try {
