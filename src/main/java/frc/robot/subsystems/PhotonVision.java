@@ -25,11 +25,11 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.constants.FieldConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class PhotonVision extends SubsystemBase implements AutoCloseable {
@@ -59,7 +59,6 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     private BooleanLogEntry macConnectedLog;
     private DoubleLogEntry macPingLog;
-    private StructLogEntry<Pose2d> visionPoseLog;
 
     private AtomicReference<Time> macMiniPing;
 
@@ -68,8 +67,6 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     private int packetsCount = 0;
     private double startTime = 0;
-
-    VisionInfo updatedPose = pose.getAndSet(null);
 
     /** Creates a new PhotonVision.
      * 
@@ -163,8 +160,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         macConnectedLog = new BooleanLogEntry(log, "/Vision/isMacConnected");
         macPingLog = new DoubleLogEntry(log, "/Vision/macMiniPing");
-        visionPoseLog = StructLogEntry.create(log, "/Vision/VisionPose", Pose2d.struct);
     }
+    
     @Override
     public void periodic() {
         if (Robot.isNTEnabled()) {
@@ -173,8 +170,8 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             LightningShuffleboard.setDouble("Vision", "Mac Mini Ping", macMiniPing.get().in(Milliseconds));
         }
 
-        updatedPose = pose.getAndSet(null);
-        if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
+        VisionInfo updatedPose = pose.getAndSet(null);
+        if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0 && FieldConstants.FIELD.contains(updatedPose.pose().getTranslation())) {
             double now = Utils.getCurrentTimeSeconds();
 
             // Continuously update the clock offset, subtracting estimated pipeline latency
@@ -190,6 +187,11 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             double ambiguity = Math.max(0.1, Math.min(5, updatedPose.ambiguity()));
             double xyTrust = ambiguity * xyMultiplier;
             double rotTrust = ambiguity * rotMultiplier;
+
+            if(drivetrain.getPose().getTranslation().getDistance(updatedPose.pose().getTranslation()) > 1) {
+                xyTrust *= 3;
+                rotTrust *= 3;
+            }
 
             // LightningShuffleboard.setPose2d("Vision", "updated pose", updatedPose.pose);
             // LightningShuffleboard.setDouble("Vision", "mac time offset", macTimeOffset);
@@ -209,7 +211,6 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
     private void updateLogging() {
         macConnectedLog.append(macMiniIsConnected);
         macPingLog.append(macMiniPing.get().in(Milliseconds));
-        visionPoseLog.append(updatedPose.pose);
     }
 
     /**
