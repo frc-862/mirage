@@ -31,6 +31,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
@@ -44,6 +45,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -121,6 +123,9 @@ public class Turret extends SubsystemBase {
     private BooleanLogEntry onTargetLog;
     private BooleanLogEntry zeroLimitSwitchLog;
     private BooleanLogEntry maxLimitSwitchLog;
+
+    private MutAngle turretBias = Degrees.mutable(0);
+    private Angle manualAngle = Degrees.zero();
 
     /**
      * Creates a new Turret Subsystem.
@@ -324,8 +329,12 @@ public class Turret extends SubsystemBase {
     }
 
     public Command setManualPowerCommand(DoubleSupplier power) {
-        return run(() -> {
-            setPowerManual(power.getAsDouble());
+        return new RunCommand(() -> {
+            turretBias.mut_plus(Degrees.of(power.getAsDouble()));
+            if(manual) {
+                motor.setControl(positionVoltage
+                .withPosition(optimizeTurretAngle(manualAngle.plus(turretBias))));
+            }
         });
     }
 
@@ -448,10 +457,13 @@ public class Turret extends SubsystemBase {
 
     public Command manual() {
         return new StartEndCommand(() -> {
+            turretBias.mut_replace(Degrees.zero());
+            manualAngle = getAngle();
             stop();
             manual = true;
         }, () -> {
             manual = false;
+            turretBias.mut_replace(Degrees.zero());
         });
     }
 
