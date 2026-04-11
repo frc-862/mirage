@@ -154,9 +154,9 @@ public class RobotContainer {
 
         new Trigger(driver::getBButton).toggleOnTrue(turret.manual());
 
-        /* Copilot */
+        /* Copilot */ 
         new Trigger(() -> drivetrain.isNearTrench()).whileTrue(hood.retractCommand());
-        new Trigger(copilot::getXButton).whileTrue(hood.retractCommand().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+        // new Trigger(copilot::getXButton).whileTrue(hood.retractCommand().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
         new Trigger(copilot::getLeftBumperButton).whileTrue(indexer.indexCommand(-IndexerConstants.SPINDEXDER_POWER,
             -IndexerConstants.TRANSFER_POWER));
@@ -199,6 +199,8 @@ public class RobotContainer {
 
         new Trigger(copilot::getYButton).whileTrue(indexer.indexCommand(-0.5).withTimeout(0.1).andThen(indexer.indexCommand(1)));
         new Trigger(() -> AllianceHelpers.isHubAboutToBeActive()).and(() -> drivetrain.isInZone()).whileTrue(shooter.runShootCommand(() -> ShooterConstants.VELOCITY_MAP.get(cannon.getTargetDistance())));
+
+        new Trigger(driver::getXButton).whileTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d(12.566, 0.713, new Rotation2d(0.057)))));
     }
     
     private void configureNamedCommands() {
@@ -215,6 +217,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("WAIT_UNTIL_STOWED", new WaitUntilCommand(collector::isStowed));
         NamedCommands.registerCommand("COLLECTOR_WHEELS", collector.runCollectorWheels(() -> CollectorConstants.COLLECT_POWER));
         NamedCommands.registerCommand("STOW_AND_COLLECTOR_WHEELS", new ParallelCommandGroup(collector.stowPivotCommand(), collector.runCollectorWheels(() -> CollectorConstants.COLLECT_POWER)));
+        NamedCommands.registerCommand("RETRACT_HOOD", hood.retractCommand());
         
         autoChooser = AutoBuilder.buildAutoChooser();
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);

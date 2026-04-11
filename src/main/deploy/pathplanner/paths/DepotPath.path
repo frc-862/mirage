@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.7350000000000003,
-        "y": 7.481599999999999
+        "x": 4.007099999999999,
+        "y": 7.431211111111111
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.019477777777778,
-        "y": 7.521911111111111
+        "x": 3.291577777777777,
+        "y": 7.471522222222222
       },
       "isLocked": false,
       "linkedName": "Trench1-NoShoot"
     },
     {
       "anchor": {
-        "x": 0.5101111111111112,
-        "y": 5.929622222222222
+        "x": 0.44,
+        "y": 5.9699333333333335
       },
       "prevControl": {
-        "x": 1.2659444444444443,
-        "y": 6.010244444444443
+        "x": 1.195833333333333,
+        "y": 6.050555555555555
       },
       "nextControl": null,
       "isLocked": false,
@@ -47,7 +47,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "",
+      "name": "COLLECT",
       "waypointRelativePos": 0.4568245125348129,
       "endWaypointRelativePos": null,
       "command": null
@@ -63,7 +63,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 89.30130561701654
   },
   "reversed": false,
   "folder": null,

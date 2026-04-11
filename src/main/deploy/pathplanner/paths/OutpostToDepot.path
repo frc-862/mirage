@@ -3,65 +3,69 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.8366555555555575,
-        "y": 3.5109555555555554
+        "x": 0.5403444444444443,
+        "y": 0.6297153024911029
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.856811111111112,
-        "y": 2.886133333333334
+        "x": 0.6348803399935333,
+        "y": 1.325434729067172
       },
       "isLocked": false,
-      "linkedName": "Trench2-Center"
+      "linkedName": "Outpost"
     },
     {
       "anchor": {
-        "x": 7.705644444444445,
-        "y": 1.3845444444444432
+        "x": 2.4349666666666665,
+        "y": 5.183866666666667
       },
       "prevControl": {
-        "x": 8.061709828900225,
-        "y": 1.8568760768857824
+        "x": 2.428747335887679,
+        "y": 4.114344889113609
       },
       "nextControl": {
-        "x": 7.211833333333334,
-        "y": 0.7294888888888899
+        "x": 1.9052375923753164,
+        "y": 5.533762770883244
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.714844444444445,
-        "y": 0.6387888888888893
+        "x": 0.44,
+        "y": 7.169
       },
       "prevControl": {
-        "x": 5.307133333333334,
-        "y": 0.6085555555555562
+        "x": 1.4411914192996598,
+        "y": 5.425740298615963
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Trench2-Shoot"
+      "linkedName": "Depot"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": -92.19564876893226
-    },
-    {
-      "waypointRelativePos": 1.5372907153728856,
-      "rotationDegrees": 180.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 2.0,
+      "maxWaypointRelativePos": 0.7576601671309134,
       "constraints": {
         "maxVelocity": 4.0,
         "maxAcceleration": 4.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.1810584958217236,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 2.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -81,13 +85,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 179.73226466129788
+    "rotation": 89.30130561701654
   },
   "reversed": false,
-  "folder": "DoubleAutonPaths",
+  "folder": "Work-In-Progress",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -0.09062195608639394
   },
   "useDefaultConstraints": true
 }

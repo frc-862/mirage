@@ -3,16 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.017177777777778,
-        "y": 0.6387888888888893
+        "x": 7.8366555555555575,
+        "y": 3.5109555555555554
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.898221668643733,
-        "y": 0.6495480822459464
+        "x": 6.478580288682788,
+        "y": 1.9217459836141653
       },
       "isLocked": false,
-      "linkedName": "Trench2-NoShoot"
+      "linkedName": "Trench2-Center"
+    },
+    {
+      "anchor": {
+        "x": 6.284677777777778,
+        "y": 0.8705777777777768
+      },
+      "prevControl": {
+        "x": 6.946119469507587,
+        "y": 1.325168396139698
+      },
+      "nextControl": {
+        "x": 5.4644974327169855,
+        "y": 0.3068904643058845
+      },
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -20,15 +36,20 @@
         "y": 0.6297153024911029
       },
       "prevControl": {
-        "x": 1.2289328192961642,
-        "y": 0.6404744958481603
+        "x": 1.6513724719598883,
+        "y": 0.802026021339281
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Outpost"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.9984779299847671,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -45,10 +66,10 @@
     "rotation": -0.09062195608639394
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Work-In-Progress",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -89.3179396068274
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

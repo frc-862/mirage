@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.7350000000000003,
-        "y": 7.481599999999999
+        "x": 4.007099999999999,
+        "y": 7.431211111111111
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.661575567939053,
-        "y": 7.329451727759916
+        "x": 5.933675567939052,
+        "y": 7.2790628388710275
       },
       "isLocked": false,
       "linkedName": "Trench1-NoShoot"
@@ -36,8 +36,8 @@
         "y": 4.5792
       },
       "prevControl": {
-        "x": 7.643767094815091,
-        "y": 4.8116126117149145
+        "x": 7.7258,
+        "y": 4.871455555555555
       },
       "nextControl": null,
       "isLocked": false,
@@ -53,11 +53,11 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.5078922934076127,
+      "minWaypointRelativePos": 0,
       "maxWaypointRelativePos": 2.0,
       "constraints": {
-        "maxVelocity": 2.5,
-        "maxAcceleration": 2.5,
+        "maxVelocity": 4.0,
+        "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
