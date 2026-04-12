@@ -76,7 +76,7 @@ public class Cannon extends SubsystemBase {
         public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
         public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0), Degrees.of(80), RotationsPerSecond.of(53)); //Temp
 
-        public static final Distance SHOOT_DISTANCE_BIAS = Inches.of(0);
+        public static final Distance SHOOT_DISTANCE_BIAS = Inches.of(6);
     }
 
     
@@ -340,9 +340,15 @@ public class Cannon extends SubsystemBase {
                     break;
                 }
             }
+
+            Distance mapDist = futureDist;
+
+            if (DriverStation.isTeleop()) {
+                mapDist = futureDist.minus(Inches.of(8));
+            }
            
-            Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(futureDist.minus(CannonConstants.SHOOT_DISTANCE_BIAS));
-            AngularVelocity shooterVelocity = Shooter.ShooterConstants.VELOCITY_MAP.get(futureDist.minus(CannonConstants.SHOOT_DISTANCE_BIAS));
+            Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(mapDist);
+            AngularVelocity shooterVelocity = Shooter.ShooterConstants.VELOCITY_MAP.get(mapDist);
 
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);

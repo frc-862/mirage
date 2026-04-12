@@ -122,8 +122,6 @@ public class Collector extends SubsystemBase {
     private boolean pivotZeroed = false;
     private final Timer zeroingTimer = new Timer();
     private boolean pivotActive = false;
-    private BooleanEntry requestZeroingDeploy;
-    private BooleanEntry requestZeroingStow;
     private boolean stowZero = true;
 
     private DCMotor gearbox;
@@ -164,14 +162,6 @@ public class Collector extends SubsystemBase {
 
         pivotMotor.applyConfig(pivotConfig);
         collectorMotor.applyConfig(collectorConfig);
-
-        if (!DriverStation.isFMSAttached()) {
-            requestZeroingDeploy = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Deploy").getEntry(false);
-            requestZeroingStow = NetworkTableInstance.getDefault().getTable("Collector").getBooleanTopic("Request Zeroing Stow").getEntry(false);
-
-            requestZeroingDeploy.set(false);
-            requestZeroingStow.set(false);
-        }
 
 
         if(Robot.isSimulation()){
@@ -236,10 +226,10 @@ public class Collector extends SubsystemBase {
                 } else if (zeroingTimer.hasElapsed(CollectorConstants.PIVOT_ZERO_TIMER_THRESHOLD)) {
                     pivotZeroed = true;
                     if (stowZero) {
-                        requestZeroingStow.set(false);
+                        // requestZeroingStow.set(false);
                         pivotMotor.setPosition(CollectorConstants.STOW_ANGLE);
                     } else {
-                        requestZeroingDeploy.set(false);
+                        // requestZeroingDeploy.set(false);
                         pivotMotor.setPosition(CollectorConstants.DEPLOY_ANGLE);
                     }
                     zeroingTimer.stop();
