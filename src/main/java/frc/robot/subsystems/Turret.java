@@ -195,6 +195,7 @@ public class Turret extends SubsystemBase {
         DataLog log = DataLogManager.getLog();
 
         targetPositionLog = new DoubleLogEntry(log, "Turret/TargetPosition");
+        positionLog = new DoubleLogEntry(log, "Turret/Position");
         onTargetLog = new BooleanLogEntry(log, "Turret/OnTarget");
         zeroLimitSwitchLog = new BooleanLogEntry(log, "Turret/ZeroLimitSwitch");
         maxLimitSwitchLog = new BooleanLogEntry(log, "Turret/MaxLimitSwitch");

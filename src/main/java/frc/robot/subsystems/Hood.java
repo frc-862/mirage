@@ -217,6 +217,7 @@ public class Hood extends SubsystemBase {
         DataLog log = DataLogManager.getLog();
 
         angleLog = new DoubleLogEntry(log, "/Hood/Angle");
+        targetLog = new DoubleLogEntry(log, "/Hood/TargetAngle");
         onTargetLog = new BooleanLogEntry(log, "/Hood/OnTarget");
         biasLog = new DoubleLogEntry(log, "/Hood/Bias");
     }
