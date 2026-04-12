@@ -344,7 +344,7 @@ public class Cannon extends SubsystemBase {
             Distance mapDist = futureDist;
 
             if (DriverStation.isTeleop()) {
-                mapDist = futureDist.minus(Inches.of(8));
+                mapDist = futureDist.minus(Inches.of(LightningShuffleboard.getDouble("Cannon", "Shooter Distance Bias", 8)));
             }
            
             Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(mapDist);

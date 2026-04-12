@@ -1,5 +1,8 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -51,4 +54,6 @@ public class FieldConstants {
 
     public static final double FIELD_LENGTH = 16.540988; // meters (X extent)
     public static final double FIELD_WIDTH = 8.069326;   // meters (Y extent)
+
+    public static final Rectangle2d ROBOT_COMPENSATED_FIELD = new Rectangle2d(new Translation2d(Inches.of(17), Inches.of(17)), new Translation2d(Meters.of(FIELD_LENGTH).minus(Inches.of(17)), Meters.of(FIELD_WIDTH).minus(Inches.of(17))));
 }

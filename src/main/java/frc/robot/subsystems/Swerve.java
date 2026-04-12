@@ -278,14 +278,14 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             });
         }
         Pose2d pose = getPose();
-        if (!FieldConstants.FIELD.contains(pose.getTranslation())) {
-            resetPose(new Pose2d(FieldConstants.FIELD.nearest(pose.getTranslation()), pose.getRotation()));
+        if (!FieldConstants.ROBOT_COMPENSATED_FIELD.contains(pose.getTranslation())) {
+            resetPose(new Pose2d(FieldConstants.ROBOT_COMPENSATED_FIELD.nearest(pose.getTranslation()), pose.getRotation()));
         }
     }
 
     @Override
     public void simulationPeriodic() {
-        resetPose(swerveSim.mapleSimDrive.getSimulatedDriveTrainPose());
+        // resetPose(swerveSim.mapleSimDrive.getSimulatedDriveTrainPose());
     }
 
     private void startSimThread() {
@@ -467,11 +467,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         double dt = time.in(Seconds);
 
         double driveMultiplier = 1;
-
+    
         Pose2d pose = getPose();
 
         double filteredOmegaRadPerSec = speeds.omegaRadiansPerSecond;
-        double filteredXVel = speeds.vxMetersPerSecond - 0.18;
+        double filteredXVel = speeds.vxMetersPerSecond - LightningShuffleboard.getDouble("Cannon", "Shooter Bias Rotation", 0.18);
         double filteredYVel = speeds.vyMetersPerSecond;
 
         double rrXVel = (-filteredOmegaRadPerSec * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
