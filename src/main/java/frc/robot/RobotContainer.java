@@ -80,6 +80,8 @@ public class RobotContainer {
         copilot = new XboxController(RobotMap.COPILOT_PORT);
 
         drivetrain = DriveConstants.createDrivetrain();
+        // Update pose from vision before other subsystems so they use updated pose
+        vision = new PhotonVision(drivetrain);
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
@@ -91,7 +93,6 @@ public class RobotContainer {
         hood = new Hood();
         turret = new Turret(drivetrain);
         cannon = new Cannon(shooter, turret, hood, drivetrain, indexer);
-        vision = new PhotonVision(drivetrain);
         
 
         if (Robot.isSimulation()) {
