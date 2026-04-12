@@ -74,7 +74,7 @@ public class Turret extends SubsystemBase {
         public static final double kI = 0d;
         
         public static final double kD = 12d;
-        public static final double kS = 0.33d;
+        public static final double kS = 0.55d;
         public static final double kV = 4.7d; // ~12V / (motorFreeSpeed / gearRatio) ≈ 12 / 2.58
 
         public static final double kV_FEEDFORWARD = 21d;

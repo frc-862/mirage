@@ -119,7 +119,7 @@ public class RobotContainer {
                         * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
 
-        shooter.setDefaultCommand(shooter.coast());
+        shooter.setDefaultCommand(shooter.shootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(cannon.getTargetDistance().minus(CannonConstants.SHOOT_DISTANCE_BIAS))));
 //         collector.setDefaultCommand(collector.neutralPivotCommand());
         hood.setDefaultCommand(cannon.hoodAim());
         turret.setDefaultCommand(cannon.turretAim());

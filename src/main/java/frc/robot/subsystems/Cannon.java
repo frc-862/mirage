@@ -47,7 +47,7 @@ public class Cannon extends SubsystemBase {
 
     public class CannonConstants { 
         public static final Distance SMART_SHOOT_MIN_DISTANCE = Inches.of(64);
-        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(7.5), Inches.of(-7.5));
+        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(5.75), Inches.of(-5.75));
         public static final Transform2d SHOOTER_TRANSFORM = new Transform2d(SHOOTER_TRANSLATION, new Rotation2d());
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
 
@@ -72,6 +72,8 @@ public class Cannon extends SubsystemBase {
         public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
         public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
         public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0), Degrees.of(80), RotationsPerSecond.of(53)); //Temp
+
+        public static final Distance SHOOT_DISTANCE_BIAS = Inches.of(6);
     }
 
     
@@ -322,7 +324,7 @@ public class Cannon extends SubsystemBase {
             Distance futureDist = getTargetDistance(); 
 
             for (int i = 0; i < CannonConstants.MAX_OTF_ITERATIONS; i++) {
-                tof = CannonConstants.TIME_OF_FLIGHT_MAP.get(futureDist);
+                tof = CannonConstants.TIME_OF_FLIGHT_MAP.get(futureDist.minus(Inches.of(6)));
 
                 previousPose = futurePose;
                 futurePose = drivetrain.getFuturePoseFromTime(tof);
@@ -334,8 +336,8 @@ public class Cannon extends SubsystemBase {
                 }
             }
            
-            Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(futureDist);
-            AngularVelocity shooterVelocity = Shooter.ShooterConstants.VELOCITY_MAP.get(futureDist);
+            Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(futureDist.minus(CannonConstants.SHOOT_DISTANCE_BIAS));
+            AngularVelocity shooterVelocity = Shooter.ShooterConstants.VELOCITY_MAP.get(futureDist.minus(CannonConstants.SHOOT_DISTANCE_BIAS));
 
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
