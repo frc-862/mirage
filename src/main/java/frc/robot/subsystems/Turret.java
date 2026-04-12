@@ -120,6 +120,7 @@ public class Turret extends SubsystemBase {
     private final Swerve drivetrain;
 
     private DoubleLogEntry targetPositionLog;
+    private DoubleLogEntry positionLog;
     private BooleanLogEntry onTargetLog;
     private BooleanLogEntry zeroLimitSwitchLog;
     private BooleanLogEntry maxLimitSwitchLog;
@@ -222,6 +223,7 @@ public class Turret extends SubsystemBase {
 
     private void updateLogging() {
         targetPositionLog.append(getTargetAngle().in(Degrees));
+        positionLog.append(getAngle().in(Degrees));
         onTargetLog.append(isOnTarget());
         zeroLimitSwitchLog.append(getZeroLimitSwitch());
         maxLimitSwitchLog.append(getMaxLimitSwitch());

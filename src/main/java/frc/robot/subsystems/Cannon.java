@@ -16,6 +16,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.sql.Struct;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -23,6 +25,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -89,6 +92,7 @@ public class Cannon extends SubsystemBase {
 
     private DoubleArrayLogEntry targetPositionLog;
     private DoubleLogEntry distToTargetLog;
+    private StructLogEntry<Pose2d> futurePoseLog;
 
     /**
      * Creates a new cannon
@@ -116,6 +120,7 @@ public class Cannon extends SubsystemBase {
 
         targetPositionLog = new DoubleArrayLogEntry(log, "/Cannon/TargetPosition");
         distToTargetLog = new DoubleLogEntry(log, "/Cannon/DistanceToTarget");
+        futurePoseLog = StructLogEntry.create(log, "/Cannon/FuturePose", Pose2d.struct);
     }
 
     @Override
@@ -343,6 +348,7 @@ public class Cannon extends SubsystemBase {
             shooter.setVelocity(shooterVelocity);
 
             if (!DriverStation.isFMSAttached()) LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
+            futurePoseLog.append(futurePose);
 
             turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity(futurePose));
       }, turret, shooter, hood)
