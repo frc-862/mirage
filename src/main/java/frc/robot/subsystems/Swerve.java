@@ -471,7 +471,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Pose2d pose = getPose();
 
         double filteredOmegaRadPerSec = speeds.omegaRadiansPerSecond;
-        double filteredXVel = speeds.vxMetersPerSecond;
+        double filteredXVel = speeds.vxMetersPerSecond - 0.18;
         double filteredYVel = speeds.vyMetersPerSecond;
 
         double rrXVel = (-filteredOmegaRadPerSec * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());

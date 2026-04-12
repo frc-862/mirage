@@ -76,7 +76,7 @@ public class Cannon extends SubsystemBase {
         public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
         public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0), Degrees.of(80), RotationsPerSecond.of(53)); //Temp
 
-        public static final Distance SHOOT_DISTANCE_BIAS = Inches.of(6);
+        public static final Distance SHOOT_DISTANCE_BIAS = Inches.of(0);
     }
 
     
