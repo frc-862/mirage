@@ -324,7 +324,7 @@ public class Cannon extends SubsystemBase {
             Distance futureDist = getTargetDistance(); 
 
             for (int i = 0; i < CannonConstants.MAX_OTF_ITERATIONS; i++) {
-                tof = CannonConstants.TIME_OF_FLIGHT_MAP.get(futureDist.minus(Inches.of(6)));
+                tof = CannonConstants.TIME_OF_FLIGHT_MAP.get(futureDist);
 
                 previousPose = futurePose;
                 futurePose = drivetrain.getFuturePoseFromTime(tof);
