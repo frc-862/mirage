@@ -189,8 +189,13 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             double rotTrust = ambiguity * rotMultiplier;
 
             if(drivetrain.getPose().getTranslation().getDistance(updatedPose.pose().getTranslation()) > .5) {
-                xyTrust *= 3;
-                rotTrust *= 3;
+                xyTrust *= 4;
+                rotTrust *= 4;
+            }
+
+            if (drivetrain.getPose().getTranslation().getDistance(updatedPose.pose().getTranslation()) > 3) {
+                xyTrust *= drivetrain.getPose().getTranslation().getDistance(updatedPose.pose().getTranslation()) * 0.75;
+                rotTrust *= drivetrain.getPose().getTranslation().getDistance(updatedPose.pose().getTranslation()) * 0.75;
             }
 
             // LightningShuffleboard.setPose2d("Vision", "updated pose", updatedPose.pose);
