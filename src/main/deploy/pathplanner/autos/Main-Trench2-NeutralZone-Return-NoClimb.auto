@@ -9,25 +9,6 @@
           "data": {
             "commands": [
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.5
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SMART_SHOOT"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
                 "type": "path",
                 "data": {
                   "pathName": "Trench2ToCenter"
