@@ -61,6 +61,7 @@ public class Shooter extends SubsystemBase {
         public static final double kV = RobotMap.IS_OASIS ? 0.1185d : 0.1211d;
         public static final double kS = RobotMap.IS_OASIS ? 0.37 : 0.31;
         public static final AngularVelocity TOLERANCE = RotationsPerSecond.of(2);
+        public static final AngularVelocity MAX_SPEED = RotationsPerSecond.of(65);
         public static final AngularVelocity BIAS_DELTA = RotationsPerSecond.of(1);
         public static final Frequency UPDATE_FREQUENCY = Hertz.of(1000);
 
@@ -284,7 +285,11 @@ public class Shooter extends SubsystemBase {
      * @return whether or not the current velocity is near the target velocity
      */
     public boolean isOnTarget(){
-        return getLeftVelocity().isNear(getTargetVelocityWithBias(), ShooterConstants.TOLERANCE);
+        if (targetVelocity.gt(ShooterConstants.MAX_SPEED)) {
+            return true;
+        } else {
+            return getLeftVelocity().isNear(getTargetVelocityWithBias(), ShooterConstants.TOLERANCE);
+        }
     }
 
     /**
