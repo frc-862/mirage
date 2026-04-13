@@ -31,6 +31,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
@@ -44,6 +45,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -65,14 +67,14 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(2);
 
-        public static final Angle MIN_ANGLE = Degrees.of(-330);
-        public static final Angle MAX_ANGLE = Degrees.of(70);
+        public static final Angle MIN_ANGLE = Degrees.of(-320);
+        public static final Angle MAX_ANGLE = Degrees.of(50);
 
         public static final double kP = 150d;
         public static final double kI = 0d;
         
         public static final double kD = 12d;
-        public static final double kS = 0.33d;
+        public static final double kS = 0.55d;
         public static final double kV = 4.7d; // ~12V / (motorFreeSpeed / gearRatio) ≈ 12 / 2.58
 
         public static final double kV_FEEDFORWARD = 21d;
@@ -118,9 +120,13 @@ public class Turret extends SubsystemBase {
     private final Swerve drivetrain;
 
     private DoubleLogEntry targetPositionLog;
+    private DoubleLogEntry positionLog;
     private BooleanLogEntry onTargetLog;
     private BooleanLogEntry zeroLimitSwitchLog;
     private BooleanLogEntry maxLimitSwitchLog;
+
+    private MutAngle turretBias = Degrees.mutable(0);
+    private Angle manualAngle = Degrees.zero();
 
     /**
      * Creates a new Turret Subsystem.
@@ -189,6 +195,7 @@ public class Turret extends SubsystemBase {
         DataLog log = DataLogManager.getLog();
 
         targetPositionLog = new DoubleLogEntry(log, "Turret/TargetPosition");
+        positionLog = new DoubleLogEntry(log, "Turret/Position");
         onTargetLog = new BooleanLogEntry(log, "Turret/OnTarget");
         zeroLimitSwitchLog = new BooleanLogEntry(log, "Turret/ZeroLimitSwitch");
         maxLimitSwitchLog = new BooleanLogEntry(log, "Turret/MaxLimitSwitch");
@@ -217,6 +224,7 @@ public class Turret extends SubsystemBase {
 
     private void updateLogging() {
         targetPositionLog.append(getTargetAngle().in(Degrees));
+        positionLog.append(getAngle().in(Degrees));
         onTargetLog.append(isOnTarget());
         zeroLimitSwitchLog.append(getZeroLimitSwitch());
         maxLimitSwitchLog.append(getMaxLimitSwitch());
@@ -324,8 +332,12 @@ public class Turret extends SubsystemBase {
     }
 
     public Command setManualPowerCommand(DoubleSupplier power) {
-        return run(() -> {
-            setPowerManual(power.getAsDouble());
+        return new RunCommand(() -> {
+            turretBias.mut_plus(Degrees.of(power.getAsDouble()));
+            if(manual) {
+                motor.setControl(positionVoltage
+                .withPosition(optimizeTurretAngle(manualAngle.plus(turretBias))));
+            }
         });
     }
 
@@ -448,10 +460,13 @@ public class Turret extends SubsystemBase {
 
     public Command manual() {
         return new StartEndCommand(() -> {
+            turretBias.mut_replace(Degrees.zero());
+            manualAngle = getAngle();
             stop();
             manual = true;
         }, () -> {
             manual = false;
+            turretBias.mut_replace(Degrees.zero());
         });
     }
 

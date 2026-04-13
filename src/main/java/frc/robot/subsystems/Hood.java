@@ -127,6 +127,7 @@ public class Hood extends SubsystemBase {
     public boolean ignoreHoodRetract = false;
 
     private DoubleLogEntry angleLog;
+    private DoubleLogEntry targetLog;
     private DoubleLogEntry biasLog;
     private BooleanLogEntry onTargetLog;
 
@@ -216,6 +217,7 @@ public class Hood extends SubsystemBase {
         DataLog log = DataLogManager.getLog();
 
         angleLog = new DoubleLogEntry(log, "/Hood/Angle");
+        targetLog = new DoubleLogEntry(log, "/Hood/TargetAngle");
         onTargetLog = new BooleanLogEntry(log, "/Hood/OnTarget");
         biasLog = new DoubleLogEntry(log, "/Hood/Bias");
     }
@@ -244,6 +246,7 @@ public class Hood extends SubsystemBase {
 
     private void updateLogging() {
         angleLog.append(getAngle().in(Degrees));
+        targetLog.append(getTargetAngle().in(Degrees));
         onTargetLog.append(isOnTarget());
         biasLog.append(getBias().in(Degrees));
 

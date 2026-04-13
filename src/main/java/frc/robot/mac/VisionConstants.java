@@ -12,7 +12,7 @@ import static edu.wpi.first.units.Units.Inches;
 
 public class VisionConstants {
     // A list of tags that we want to ignore in our results
-    public static final List<Integer> TAG_IGNORE_LIST = List.of(17, 28, 23, 22);
+    public static final List<Integer> TAG_IGNORE_LIST = List.of();
 
     // This years field
     public static final AprilTagFieldLayout REBUILT_FIELD = AprilTagFieldLayout

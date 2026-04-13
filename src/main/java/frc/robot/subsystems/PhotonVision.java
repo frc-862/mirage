@@ -26,8 +26,10 @@ import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.constants.FieldConstants;
 import frc.util.shuffleboard.LightningShuffleboard;
 
 public class PhotonVision extends SubsystemBase implements AutoCloseable {
@@ -169,7 +171,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
         }
 
         VisionInfo updatedPose = pose.getAndSet(null);
-        if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0) {
+        if (updatedPose != null && updatedPose.pose != null && updatedPose.ambiguity < 1 && updatedPose.timestamp > 0 && FieldConstants.FIELD.contains(updatedPose.pose().getTranslation())) {
             double now = Utils.getCurrentTimeSeconds();
 
             // Continuously update the clock offset, subtracting estimated pipeline latency
@@ -177,14 +179,26 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             double estimatedLatency = 0.08;
             macTimeOffset = now - updatedPose.timestamp - estimatedLatency;
 
-            LightningShuffleboard.setPose2d("Vision", "robot pose", updatedPose.pose);
+            if (!DriverStation.isFMSAttached()) {
+                LightningShuffleboard.setPose2d("Vision", "robot pose", updatedPose.pose);
+            }
 
-            double xyMultiplier = 2;
+            double xyMultiplier = 3;
             double rotMultiplier = 4; 
 
             double ambiguity = Math.max(0.1, Math.min(5, updatedPose.ambiguity()));
             double xyTrust = ambiguity * xyMultiplier;
             double rotTrust = ambiguity * rotMultiplier;
+
+            if(drivetrain.getPose().getTranslation().getDistance(updatedPose.pose().getTranslation()) > .5) {
+                xyTrust *= 4;
+                rotTrust *= 4;
+            }
+
+            if (drivetrain.getPose().getTranslation().getDistance(updatedPose.pose().getTranslation()) > 3) {
+                xyTrust *= drivetrain.getPose().getTranslation().getDistance(updatedPose.pose().getTranslation()) * 0.75;
+                rotTrust *= drivetrain.getPose().getTranslation().getDistance(updatedPose.pose().getTranslation()) * 0.75;
+            }
 
             // LightningShuffleboard.setPose2d("Vision", "updated pose", updatedPose.pose);
             // LightningShuffleboard.setDouble("Vision", "mac time offset", macTimeOffset);
