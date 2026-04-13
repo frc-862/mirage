@@ -353,7 +353,10 @@ public class Cannon extends SubsystemBase {
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
 
-            if (!DriverStation.isFMSAttached()) LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
+            if (!DriverStation.isFMSAttached()) {
+                LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
+            }
+            
             futurePoseLog.append(futurePose);
 
             turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity(futurePose));
