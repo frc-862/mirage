@@ -25,6 +25,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -59,6 +60,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
     private BooleanLogEntry macConnectedLog;
     private DoubleLogEntry macPingLog;
+    private StructLogEntry<Pose2d> visionPoseLog;
 
     private AtomicReference<Time> macMiniPing;
 
@@ -160,6 +162,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
 
         macConnectedLog = new BooleanLogEntry(log, "/Vision/isMacConnected");
         macPingLog = new DoubleLogEntry(log, "/Vision/macMiniPing");
+        visionPoseLog = StructLogEntry.create(log, "/Vision/robotPose", Pose2d.struct);
     }
     
     @Override
@@ -182,6 +185,7 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             if (!DriverStation.isFMSAttached()) {
                 LightningShuffleboard.setPose2d("Vision", "robot pose", updatedPose.pose);
             }
+            visionPoseLog.append(updatedPose.pose);
 
             double xyMultiplier = 3;
             double rotMultiplier = 4; 
