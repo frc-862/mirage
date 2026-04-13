@@ -450,10 +450,18 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Translation2d pos = pose.getTranslation();
 
         // Clamp velocity component pointing out of the field near each wall
-        if (pos.getX() < WALL_MARGIN && fieldVx < 0)                          fieldVx = 0;
-        if (pos.getX() > FieldConstants.FIELD_LENGTH - WALL_MARGIN && fieldVx > 0) fieldVx = 0;
-        if (pos.getY() < WALL_MARGIN && fieldVy < 0)                          fieldVy = 0;
-        if (pos.getY() > FieldConstants.FIELD_WIDTH - WALL_MARGIN && fieldVy > 0)  fieldVy = 0;
+        if (pos.getX() < WALL_MARGIN && fieldVx < 0) {
+            fieldVx = 0;
+        }
+        if (pos.getX() > FieldConstants.FIELD_LENGTH - WALL_MARGIN && fieldVx > 0) {
+            fieldVx = 0;
+        }
+        if (pos.getY() < WALL_MARGIN && fieldVy < 0) {
+            fieldVy = 0;
+        }
+        if (pos.getY() > FieldConstants.FIELD_WIDTH - WALL_MARGIN && fieldVy > 0) {
+            fieldVy = 0;
+        }
 
         // Field-relative back to robot-relative
         double rrVx =  fieldVx * cos + fieldVy * sin;
