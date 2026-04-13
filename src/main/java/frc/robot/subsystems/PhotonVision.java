@@ -179,7 +179,9 @@ public class PhotonVision extends SubsystemBase implements AutoCloseable {
             double estimatedLatency = 0.08;
             macTimeOffset = now - updatedPose.timestamp - estimatedLatency;
 
-            if (!DriverStation.isFMSAttached()) LightningShuffleboard.setPose2d("Vision", "robot pose", updatedPose.pose);
+            if (!DriverStation.isFMSAttached()) {
+                LightningShuffleboard.setPose2d("Vision", "robot pose", updatedPose.pose);
+            }
 
             double xyMultiplier = 3;
             double rotMultiplier = 4; 
