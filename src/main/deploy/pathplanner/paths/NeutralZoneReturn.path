@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.622722222222224,
+        "x": 5.6497777777777785,
         "y": 5.586977777777778
       },
       "prevControl": null,
       "nextControl": {
-        "x": 9.622722222222224,
-        "y": 5.586977777777778
+        "x": 4.299614362429065,
+        "y": 5.600089350019172
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 5.586977777777778
       },
       "prevControl": {
-        "x": 2.2311111111111113,
-        "y": 5.586977777777778
+        "x": 2.8469820815057867,
+        "y": 5.583190494532951
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": 178.8481678924273
   },
   "reversed": false,
-  "folder": "Work-In-Progress",
+  "folder": "ThirdBotPaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

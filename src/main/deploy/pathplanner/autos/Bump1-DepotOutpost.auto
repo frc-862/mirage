@@ -5,32 +5,13 @@
     "data": {
       "commands": [
         {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 5.0
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SMART_SHOOT"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Bump2-Shootback"
+                  "pathName": "HubDepotPath"
                 }
               },
               {
@@ -44,21 +25,34 @@
                       }
                     },
                     {
-                      "type": "named",
+                      "type": "parallel",
                       "data": {
-                        "name": "COLLECT"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "SMART_SHOOT"
+                        "commands": [
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "COLLECT"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "SMART_SHOOT"
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot-Outpost"
           }
         },
         {
@@ -71,6 +65,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Work-In-Progress",
+  "folder": "ThirdBotAutons",
   "choreoAuto": false
 }

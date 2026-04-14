@@ -3,45 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5838333333333336,
-        "y": 5.3249555555555546
+        "x": 3.523366666666666,
+        "y": 2.5838
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9170496738397795,
-        "y": 5.784610955919487
-      },
-      "isLocked": false,
-      "linkedName": "Hub"
-    },
-    {
-      "anchor": {
-        "x": 0.7318222222222224,
-        "y": 7.3909
-      },
-      "prevControl": {
-        "x": 1.1349196007629099,
-        "y": 7.557698915258215
-      },
-      "nextControl": {
-        "x": 0.43956666666666666,
-        "y": 7.269966666666667
+        "x": 2.237486535175771,
+        "y": 1.7489327746481047
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.45972222222222214,
-        "y": 5.8691555555555555
+        "x": 0.5403444444444443,
+        "y": 0.6297153024911029
       },
       "prevControl": {
-        "x": 0.4496444444444445,
-        "y": 6.534288888888888
+        "x": 1.8280490872678017,
+        "y": 1.4658739358828674
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": "Outpost"
     }
   ],
   "rotationTargets": [],
@@ -58,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 89.30130561701654
+    "rotation": -0.09062195608639394
   },
   "reversed": false,
   "folder": "ThirdBotPaths",
