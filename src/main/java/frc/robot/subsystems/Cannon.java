@@ -306,7 +306,7 @@ public class Cannon extends SubsystemBase {
     public Command smartShoot() {
         return shooter.runShootCommand(() -> Shooter.ShooterConstants.VELOCITY_MAP.get(getTargetDistance()))
         .alongWith(new SequentialCommandGroup(
-            new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && shooter.isOnTarget() && !isNearHub()),
+            new WaitUntilCommand(() -> turret.isOnTarget() && hood.isOnTarget() && !isNearHub()),
             indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)
         )
         .finallyDo((end) -> {
@@ -402,7 +402,7 @@ public class Cannon extends SubsystemBase {
      * @return if they are on target.
      */
     public boolean isOnTarget(){
-        return (hood.isOnTarget() && turret.isOnTarget() && shooter.isOnTarget());
+        return (hood.isOnTarget() && turret.isOnTarget());
     }
 
     /**
