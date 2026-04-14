@@ -57,16 +57,11 @@ public class Cannon extends SubsystemBase {
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
         public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap<Distance, Time>() {{
-            // put(Inches.of(18.78*12), Seconds.of(35.0/30.0));
-            // put(Inches.of(64), Seconds.of(24.0/30.0));
-            // put(Inches.of(142), Seconds.of(0.86));
-            put(Inches.of(60), Seconds.of(0.88));
-            put(Inches.of(102), Seconds.of(0.91));
-            put(Inches.of(144), Seconds.of(1.04));
-            put(Inches.of(186), Seconds.of(1.17));
-            put(Inches.of(228), Seconds.of(1.25));
-            put(Inches.of(262), Seconds.of(1.33));
-            put(Inches.of(298), Seconds.of(1.4));
+            put(Inches.of(248), Seconds.of(3.45-2.12));
+            put(Inches.of(212), Seconds.of(1.55));
+            put(Inches.of(161), Seconds.of(1.1));
+            put(Inches.of(100), Seconds.of(0.95));
+            put(Inches.of(80), Seconds.of(0.95));
         }};
 
         public static final int MAX_OTF_ITERATIONS = 10;
