@@ -356,12 +356,11 @@ public class Cannon extends SubsystemBase {
             if (!DriverStation.isFMSAttached()) {
                 LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
             }
-            
+
             futurePoseLog.append(futurePose);
 
             turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity(futurePose));
-      }, turret, shooter, hood)
-      .alongWith(indexWhenOnTarget());
+      }, turret, shooter, hood);
     
     //   .alongWith(drivetrain.increaseRampRates())
     //   .alongWith(drivetrain.lowerSupplyLimits());    
