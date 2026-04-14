@@ -65,7 +65,7 @@ public class Turret extends SubsystemBase {
         public static final boolean SUPPLY_LIMIT_ENABLE = true; // temp
         public static final boolean BRAKE = false; // temp
 
-        public static final Angle ANGLE_TOLERANCE = Degrees.of(2);
+        public static final Angle ANGLE_TOLERANCE = Degrees.of(12);
 
         public static final Angle MIN_ANGLE = Degrees.of(-320);
         public static final Angle MAX_ANGLE = Degrees.of(50);
