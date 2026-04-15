@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.6667555555555555,
-        "y": 5.466044444444444
+        "x": 5.680011111111112,
+        "y": 2.466
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.666755555555563,
-        "y": 5.466044444444444
+        "x": 4.329847695762398,
+        "y": 2.4791115722413943
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.680011111111112,
-        "y": 5.466044444444444
+        "x": 2.2334111111111112,
+        "y": 2.466
       },
       "prevControl": {
-        "x": 4.680011111111112,
-        "y": 5.466044444444444
+        "x": 2.7675333333333354,
+        "y": 2.445844444444445
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "NeutralZone-Bump1"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 178.8481678924273
   },
   "reversed": false,
   "folder": "ThirdBotPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 179.29268063145577
+    "rotation": 180.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

@@ -4,15 +4,15 @@
     {
       "anchor": {
         "x": 5.629622222222221,
-        "y": 5.5970555555555555
+        "y": 5.597
       },
       "prevControl": null,
       "nextControl": {
         "x": 6.629622222222222,
-        "y": 5.5970555555555555
+        "y": 5.597
       },
       "isLocked": false,
-      "linkedName": "NeutralZone-Bump"
+      "linkedName": null
     },
     {
       "anchor": {

@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bump1"
+            "pathName": "Bump2"
           }
         },
         {
@@ -32,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bump1NeutralZoneReturn"
+            "pathName": "Bump2NeutralZoneReturn"
           }
         },
         {
