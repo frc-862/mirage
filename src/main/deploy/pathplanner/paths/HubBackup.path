@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.735,
-        "y": 0.619
+        "x": 3.363807829181496,
+        "y": 3.97582443653618
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.6160438908659547,
-        "y": 0.6297591933570571
+        "x": 3.0030883696138764,
+        "y": 3.945074457067035
       },
       "isLocked": false,
-      "linkedName": "Trench2-NoShoot"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.5403444444444443,
-        "y": 0.6297153024911029
+        "x": 1.965112692763939,
+        "y": 3.97582443653618
       },
       "prevControl": {
-        "x": 1.2289328192961642,
-        "y": 0.6404744958481603
+        "x": 2.214732014297807,
+        "y": 3.9896155321043887
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Outpost"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -0.09062195608639394
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -89.3179396068274
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

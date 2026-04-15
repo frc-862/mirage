@@ -16,6 +16,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.sql.Struct;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -23,7 +25,9 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -46,23 +50,18 @@ public class Cannon extends SubsystemBase {
 
     public class CannonConstants { 
         public static final Distance SMART_SHOOT_MIN_DISTANCE = Inches.of(64);
-        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(7.5), Inches.of(-7.5));
+        public static final Translation2d SHOOTER_TRANSLATION = new Translation2d(Inches.of(5.75), Inches.of(-5.75));
         public static final Transform2d SHOOTER_TRANSFORM = new Transform2d(SHOOTER_TRANSLATION, new Rotation2d());
         public static final Distance SHOOTER_HEIGHT = Inches.of(18);
 
         public record CandShot(Angle turretAngle, Angle hoodAngle, AngularVelocity shooterVelocity){};
 
         public static final ThunderMap<Distance, Time> TIME_OF_FLIGHT_MAP = new ThunderMap<Distance, Time>() {{
-            // put(Inches.of(18.78*12), Seconds.of(35.0/30.0));
-            // put(Inches.of(64), Seconds.of(24.0/30.0));
-            // put(Inches.of(142), Seconds.of(0.86));
-            put(Inches.of(60), Seconds.of(0.88));
-            put(Inches.of(102), Seconds.of(0.91));
-            put(Inches.of(144), Seconds.of(1.04));
-            put(Inches.of(186), Seconds.of(1.17));
-            put(Inches.of(228), Seconds.of(1.25));
-            put(Inches.of(262), Seconds.of(1.33));
-            put(Inches.of(298), Seconds.of(1.4));
+            put(Inches.of(248), Seconds.of(3.45-2.12));
+            put(Inches.of(212), Seconds.of(1.55));
+            put(Inches.of(161), Seconds.of(1.1));
+            put(Inches.of(100), Seconds.of(0.95));
+            put(Inches.of(80), Seconds.of(0.95));
         }};
 
         public static final int MAX_OTF_ITERATIONS = 10;
@@ -71,6 +70,8 @@ public class Cannon extends SubsystemBase {
         public static final CandShot LEFT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
         public static final CandShot RIGHT_SHOT = new CandShot(Degrees.of(0), Degrees.of(63), RotationsPerSecond.of(55)); //Temp
         public static final CandShot MIDDLE_SHOT = new CandShot(Degrees.of(0), Degrees.of(80), RotationsPerSecond.of(53)); //Temp
+
+        public static final Distance SHOOT_DISTANCE_BIAS = Inches.of(6);
     }
 
     
@@ -86,6 +87,7 @@ public class Cannon extends SubsystemBase {
 
     private DoubleArrayLogEntry targetPositionLog;
     private DoubleLogEntry distToTargetLog;
+    private StructLogEntry<Pose2d> futurePoseLog;
 
     /**
      * Creates a new cannon
@@ -113,6 +115,7 @@ public class Cannon extends SubsystemBase {
 
         targetPositionLog = new DoubleArrayLogEntry(log, "/Cannon/TargetPosition");
         distToTargetLog = new DoubleLogEntry(log, "/Cannon/DistanceToTarget");
+        futurePoseLog = StructLogEntry.create(log, "/Cannon/FuturePose", Pose2d.struct);
     }
 
     @Override
@@ -143,10 +146,11 @@ public class Cannon extends SubsystemBase {
             LightningShuffleboard.setPose2d("Cannon", "Target Pose", new Pose2d(getTargetTranslation(), new Rotation2d()));
             LightningShuffleboard.setDouble("Cannon", "Distance To Target", getTargetDistance().in(Meters));
             LightningShuffleboard.setPose2d("Cannon", "Turret Position", new Pose2d(getShooterTranslation(), new Rotation2d()));
+            LightningShuffleboard.setBool("Cannon", "In No Passing Zone", isInNoPassingZone());
         }
-
-        LightningShuffleboard.setBool("Cannon", "In No Passing Zone", isInNoPassingZone());
     }
+
+        
 
     /**
      * Gets the translation of the shooter relative to the field
@@ -331,18 +335,27 @@ public class Cannon extends SubsystemBase {
                     break;
                 }
             }
+
+            Distance mapDist = futureDist;
+
+            if (DriverStation.isTeleop()) {
+                mapDist = futureDist.minus(Inches.of(LightningShuffleboard.getDouble("Cannon", "Shooter Distance Bias", 8)));
+            }
            
-            Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(futureDist);
-            AngularVelocity shooterVelocity = Shooter.ShooterConstants.VELOCITY_MAP.get(futureDist);
+            Angle hoodAngle = Hood.HoodConstants.HOOD_MAP.get(mapDist);
+            AngularVelocity shooterVelocity = Shooter.ShooterConstants.VELOCITY_MAP.get(mapDist);
 
             hood.setPosition(hoodAngle);
             shooter.setVelocity(shooterVelocity);
 
-            LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
+            if (!DriverStation.isFMSAttached()) {
+                LightningShuffleboard.setPose2d("Cannon", "Future Pose", futurePose);
+            }
+
+            futurePoseLog.append(futurePose);
 
             turret.turretAim(new Pose2d(getShooterTranslation(futurePose), futurePose.getRotation()), getTarget(), getRobotAngularVelocity(), getHubAngularVelocity(futurePose));
-      }, turret, shooter, hood)
-      .alongWith(indexWhenOnTarget().onlyWhile(() -> turret.isOnTarget(Degrees.of(12))).repeatedly());
+      }, turret, shooter, hood);
     
     //   .alongWith(drivetrain.increaseRampRates())
     //   .alongWith(drivetrain.lowerSupplyLimits());    
@@ -413,13 +426,13 @@ public class Cannon extends SubsystemBase {
 
         double robotTargetAngle = getTargetAngle(pose).in(Radians);
         
-        Translation2d fieldRelativeVelocity = new Translation2d(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond, drivetrain.getCurrentRobotChassisSpeeds().vyMetersPerSecond).rotateBy(drivetrain.getPose().getRotation());
+        Translation2d fieldRelativeVelocity = new Translation2d(drivetrain.getWallCorrectedChassisSpeeds().vxMetersPerSecond, drivetrain.getWallCorrectedChassisSpeeds().vyMetersPerSecond).rotateBy(drivetrain.getPose().getRotation());
 
-        double hubRotation = (-fieldRelativeVelocity.getX() * Math.sin(robotTargetAngle) + fieldRelativeVelocity.getY() * Math.cos(robotTargetAngle)) / getTargetDistance().in(Meters);
+        double hubRotation = (-fieldRelativeVelocity.getX() * Math.sin(robotTargetAngle) + fieldRelativeVelocity.getY() * Math.cos(robotTargetAngle)) / getTargetDistance(pose).in(Meters);
         return RadiansPerSecond.of(hubRotation);
     }
 
     public AngularVelocity getRobotAngularVelocity() {
-        return RadiansPerSecond.of(drivetrain.getCurrentRobotChassisSpeeds().omegaRadiansPerSecond);
+        return RadiansPerSecond.of(drivetrain.getWallCorrectedChassisSpeeds().omegaRadiansPerSecond);
     }
 }

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.715,
-        "y": 0.6387888888888893
+        "x": 2.8,
+        "y": 0.6690222222222224
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.3178886960053795,
-        "y": 0.46154061053530215
+        "x": 4.402888696005378,
+        "y": 0.49177394386863593
       },
       "isLocked": false,
       "linkedName": "Trench2-Shoot"
@@ -80,11 +80,11 @@
     },
     {
       "anchor": {
-        "x": 3.363,
+        "x": 2.8,
         "y": 0.5930512820512819
       },
       "prevControl": {
-        "x": 4.208758119658118,
+        "x": 3.6457581196581175,
         "y": 0.477544444444444
       },
       "nextControl": null,
@@ -100,6 +100,14 @@
     {
       "waypointRelativePos": 1.9894736842105223,
       "rotationDegrees": -70.47876286645284
+    },
+    {
+      "waypointRelativePos": 2.280701754385965,
+      "rotationDegrees": -33.508328820693166
+    },
+    {
+      "waypointRelativePos": 2.456140350877166,
+      "rotationDegrees": 0.0
     },
     {
       "waypointRelativePos": 2.973684210526306,
@@ -126,11 +134,11 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 3.3333333333332997,
-      "maxWaypointRelativePos": 4.466109563602608,
+      "minWaypointRelativePos": 1.539313399778521,
+      "maxWaypointRelativePos": 3.233665559246963,
       "constraints": {
-        "maxVelocity": 3.0,
-        "maxAcceleration": 3.0,
+        "maxVelocity": 4.0,
+        "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,

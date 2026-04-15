@@ -80,6 +80,8 @@ public class RobotContainer {
         copilot = new XboxController(RobotMap.COPILOT_PORT);
 
         drivetrain = DriveConstants.createDrivetrain();
+        // Update pose from vision before other subsystems so they use updated pose
+        vision = new PhotonVision(drivetrain);
 
         logger = new Telemetry(DriveConstants.MaxSpeed.in(MetersPerSecond));
         leds = new LEDSubsystem(LED_STATES.values().length, LEDConstants.LED_COUNT, LEDConstants.LED_PWM_PORT);
@@ -91,7 +93,6 @@ public class RobotContainer {
         hood = new Hood();
         turret = new Turret(drivetrain);
         cannon = new Cannon(shooter, turret, hood, drivetrain, indexer);
-        vision = new PhotonVision(drivetrain);
         
 
         if (Robot.isSimulation()) {
@@ -119,7 +120,7 @@ public class RobotContainer {
                         * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
 
 
-        shooter.setDefaultCommand(shooter.coast());
+        shooter.setDefaultCommand(cannon.shootOTF());
 //         collector.setDefaultCommand(collector.neutralPivotCommand());
         hood.setDefaultCommand(cannon.hoodAim());
         turret.setDefaultCommand(cannon.turretAim());
@@ -133,7 +134,7 @@ public class RobotContainer {
         // new Trigger(driver::getYButton).whileTrue(turret.zero());
         
         // TODO: Bind OTF to LB and Climb AA to RB
-        new Trigger(() -> copilot.getBButton() && !cannon.isInNoPassingZone()).whileTrue(cannon.shootOTF());
+        new Trigger(() -> copilot.getBButton() && !cannon.isInNoPassingZone()).whileTrue(cannon.shootOTF().alongWith(cannon.indexWhenOnTarget()));
 
         // change biases for the driver
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
@@ -168,7 +169,7 @@ public class RobotContainer {
 
         new Trigger(copilot::getBackButton).whileTrue(turret.manual()); // disable turret
 
-        new Trigger(() -> Math.abs(copilot.getRightX()) > TurretConstants.MANUAL_CONTROL_DEADBAND).whileTrue(turret.setManualPowerCommand(() -> copilot.getRightX() * 0.1));
+        new Trigger(() -> Math.abs(copilot.getRightX()) > TurretConstants.MANUAL_CONTROL_DEADBAND).whileTrue(turret.setManualPowerCommand(() -> copilot.getRightX()));
 
         // Temp Cand shots
         //RIGHT_, LEFT_, and MIDDLE_ are all set to 0, so temp shots wont work right now
@@ -206,7 +207,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
 
         NamedCommands.registerCommand("MOVE_TO_TOWER", drivetrain.autoAlign(FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
-        NamedCommands.registerCommand("SMART_SHOOT", cannon.smartShoot().alongWith(hood.ignoreRetractCommand()).deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
+        NamedCommands.registerCommand("SMART_SHOOT", cannon.shootOTF().alongWith(hood.ignoreRetractCommand()).deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
         NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER).deadlineFor(leds.enableState(LED_STATES.COLLECT.id())));
         NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.deployPivotCommand());
         NamedCommands.registerCommand("STOW_COLLECTOR", collector.stowPivotCommand());
