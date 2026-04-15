@@ -172,7 +172,7 @@ public class Turret extends SubsystemBase {
             gearbox = DCMotor.getKrakenX44Foc(1);
             turretSim = new SingleJointedArmSim(gearbox, TurretConstants.ENCODER_TO_MECHANISM_RATIO,
                     TurretConstants.MOI.in(KilogramSquareMeters), TurretConstants.LENGTH.in(Meters),
-                    TurretConstants.MIN_ANGLE.in(Radians), TurretConstants.MAX_ANGLE.in(Radians),
+                    -TurretConstants.MAX_ANGLE.in(Radians), -TurretConstants.MIN_ANGLE.in(Radians),
                     false, 0);
 
             motorSim = new TalonFXSimState(motor);
@@ -279,15 +279,13 @@ public class Turret extends SubsystemBase {
      * @param hubRadPerSec the angular velocity of the hub
      */
     public void setAngle(Angle angle, AngularVelocity chassisOmegaRadPerSec, AngularVelocity hubRadPerSec) {
-        Angle wrappedPosition = ThunderUnits.inputModulus(angle, Degrees.of(-300), Degrees.of(60));
-
-        targetPosition = ThunderUnits.clamp(wrappedPosition, TurretConstants.MIN_ANGLE, TurretConstants.MAX_ANGLE);
+        targetPosition = optimizeTurretAngle(angle);
         if (zeroed && !manual) { // only allow position control if turret has been zeroed but store to apply when zeroed
             double feedforwardVolts = -chassisOmegaRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // feedforward to counteract chassis rotation
             feedforwardVolts += -hubRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // add feedforward for hub velocity as well
             
             motor.setControl(positionVoltage
-                .withPosition(optimizeTurretAngle(targetPosition))
+                .withPosition(targetPosition)
                 .withFeedForward(feedforwardVolts));
         }
     }
@@ -397,12 +395,8 @@ public class Turret extends SubsystemBase {
      * @return the angle optimized between -220 and 220
      */
     public Angle optimizeTurretAngle(Angle desired) {
-        Angle error = desired.minus(getAngle());
-        if (error.in(Degrees) > 180) {
-            desired = desired.minus(Degrees.of(360));
-        } else if (error.in(Degrees) < -180) {
-            desired = desired.plus(Degrees.of(360));
-        }
+        Angle error = ThunderUnits.inputModulus(desired.minus(getAngle()), Degrees.of(-180), Degrees.of(180));
+        desired = getAngle().plus(error);
 
         double minDeg = TurretConstants.MIN_ANGLE.in(Degrees);
         double maxDeg = TurretConstants.MAX_ANGLE.in(Degrees);
