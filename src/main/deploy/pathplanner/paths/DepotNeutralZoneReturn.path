@@ -16,19 +16,44 @@
     },
     {
       "anchor": {
-        "x": 1.4574222222222224,
-        "y": 5.466044444444444
+        "x": 0.3589444444444445,
+        "y": 5.012544444444445
       },
       "prevControl": {
-        "x": 1.9915444444444454,
-        "y": 5.445888888888889
+        "x": 0.4496444444444445,
+        "y": 4.669900000000002
+      },
+      "nextControl": {
+        "x": 0.1893035128417781,
+        "y": 5.653410186054515
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.47,
+        "y": 7.5723
+      },
+      "prevControl": {
+        "x": 0.48995555555555537,
+        "y": 7.2296555555555555
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.3859649122807032,
+      "rotationDegrees": -179.6452657530151
+    },
+    {
+      "waypointRelativePos": 0.85,
+      "rotationDegrees": -90.30200000000002
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,7 +67,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 178.8481678924273
+    "rotation": -89.387234277736
   },
   "reversed": false,
   "folder": "ThirdBotPaths",

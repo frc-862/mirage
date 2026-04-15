@@ -465,7 +465,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     public void configurePathplanner(){
         AutoBuilder.configure(
             this::getPose, // Supplier of current robot pose
-            this::resetAutonPose, // Consumer for seeding pose against auto
+            this::resetPose, // Consumer for seeding pose against auto
             this::getCurrentRobotChassisSpeeds,
                 (speeds, feedforwards) -> this
                     .setControl(DriveConstants.autonRequest.withSpeeds(speeds)

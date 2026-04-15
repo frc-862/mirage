@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 0.7318222222222224,
-        "y": 7.3909
+        "x": 0.45972222222222214,
+        "y": 4.810988888888889
       },
       "prevControl": {
-        "x": 1.1349196007629099,
-        "y": 7.557698915258215
+        "x": 0.8032670477659413,
+        "y": 5.0798500567057125
       },
       "nextControl": {
-        "x": 0.43956666666666666,
-        "y": 7.269966666666667
+        "x": 0.22793333333333338,
+        "y": 4.629588888888889
       },
       "isLocked": false,
       "linkedName": null
@@ -33,18 +33,27 @@
     {
       "anchor": {
         "x": 0.45972222222222214,
-        "y": 5.8691555555555555
+        "y": 7.673077777777777
       },
       "prevControl": {
-        "x": 0.4496444444444445,
-        "y": 6.534288888888888
+        "x": 0.43956666666666666,
+        "y": 7.098644444444445
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Depot"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.4421052631578979,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 0.9964912280701579,
+      "rotationDegrees": -91.11289024771644
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -58,7 +67,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 89.30130561701654
+    "rotation": -88.95837332399002
   },
   "reversed": false,
   "folder": "ThirdBotPaths",
