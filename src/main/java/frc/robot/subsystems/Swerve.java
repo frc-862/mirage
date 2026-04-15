@@ -470,30 +470,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return new ChassisSpeeds(rrVx, rrVy, speeds.omegaRadiansPerSecond);
     }
 
-    public Pose2d getFuturePoseFromTime(Time time) {
-        ChassisSpeeds speeds = getWallCorrectedChassisSpeeds();
-        double dt = time.in(Seconds);
-
-        double driveMultiplier = 1;
-    
-        Pose2d pose = getPose();
-
-        double filteredOmegaRadPerSec = speeds.omegaRadiansPerSecond;
-        double filteredXVel = speeds.vxMetersPerSecond - LightningShuffleboard.getDouble("Cannon", "Shooter Bias Rotation", 0.18);
-        double filteredYVel = speeds.vyMetersPerSecond;
-
-        double rrXVel = (-filteredOmegaRadPerSec * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
-        double rrYVel = (filteredOmegaRadPerSec * Cannon.CannonConstants.SHOOTER_TRANSLATION.getX());
-
-        Twist2d twist = new Twist2d(
-            (filteredXVel+ rrXVel) * dt * driveMultiplier,
-            (filteredYVel + rrYVel) * dt * driveMultiplier,
-            0
-        );
-
-        return pose.exp(twist);
-    }
-
     private void resetAutonPose(Pose2d pose){
         if (getPose().getTranslation().getNorm() <= 0.3) {
             resetPose(pose);
