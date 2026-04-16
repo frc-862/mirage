@@ -23,7 +23,6 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -50,7 +49,6 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
 import frc.util.AllianceHelpers;
-import frc.util.shuffleboard.LightningShuffleboard;
 import frc.util.simulation.SwerveSim;
 
 /**
@@ -73,7 +71,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
-    private final LinearFilter chassisVelocityFilter = LinearFilter.singlePoleIIR(0.07, 0.02);
+    // private final LinearFilter chassisVelocityFilter = LinearFilter.singlePoleIIR(0.07, 0.02);
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     @SuppressWarnings("unused")

@@ -66,6 +66,7 @@ public class Hood extends SubsystemBase {
 
         public static final Angle MIN_ANGLE = Degrees.of(50);
         public static final Angle MAX_ANGLE = Degrees.of(80);
+        public static final Angle ZERO_ANGLE = Degrees.of(79.8);
 
         public static final MomentOfInertia MOI = KilogramSquareMeters.of(0.004); // Temp
         public static final Distance MECHANISM_LENGTH = Inches.of(6);
@@ -200,7 +201,7 @@ public class Hood extends SubsystemBase {
         }
 
         if (!hasEncoder()){
-            motor.setPosition(HoodConstants.MAX_ANGLE); // needs to be after config and sim
+            motor.setPosition(HoodConstants.ZERO_ANGLE); // needs to be after config and sim
         }
 
         initLogging();

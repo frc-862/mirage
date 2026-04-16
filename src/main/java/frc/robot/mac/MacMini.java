@@ -27,13 +27,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.DataLogBackgroundWriter;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.IntegerArrayLogEntry;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
 import edu.wpi.first.util.datalog.StructLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.mac.VisionConstants.CameraConstant;
 
 public class MacMini implements AutoCloseable {
@@ -222,6 +220,7 @@ public class MacMini implements AutoCloseable {
             return new VisionInfo(null, null);
         }
 
+        @SuppressWarnings("unlikely-arg-type")
         private VisionInfo getVisionPose(CameraInfo cameraInfo) {
             PhotonCamera camera = cameraInfo.camera;
 
