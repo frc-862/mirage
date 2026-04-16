@@ -3,63 +3,63 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5838333333333336,
-        "y": 5.3249555555555546
+        "x": 5.680011111111112,
+        "y": 5.466
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9170496738397795,
-        "y": 5.784610955919487
-      },
-      "isLocked": false,
-      "linkedName": "Hub"
-    },
-    {
-      "anchor": {
-        "x": 0.8124444444444443,
-        "y": 4.942
-      },
-      "prevControl": {
-        "x": 1.1559892699881633,
-        "y": 5.210861167816824
-      },
-      "nextControl": {
-        "x": 0.5806555555555555,
-        "y": 4.7606
+        "x": 4.329847695762398,
+        "y": 5.479111572241394
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.8124444444444443,
-        "y": 7.612611111111111
+        "x": 0.3589444444444445,
+        "y": 5.012544444444445
       },
       "prevControl": {
-        "x": 0.7922888888888888,
-        "y": 7.038177777777778
+        "x": 0.4496444444444445,
+        "y": 4.669900000000002
+      },
+      "nextControl": {
+        "x": 0.1893035128417781,
+        "y": 5.653410186054515
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.47,
+        "y": 7.5723
+      },
+      "prevControl": {
+        "x": 0.48995555555555537,
+        "y": 7.2296555555555555
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.4421052631578979,
-      "rotationDegrees": -90.0
+      "waypointRelativePos": 0.3859649122807032,
+      "rotationDegrees": -179.6452657530151
     },
     {
-      "waypointRelativePos": 0.9964912280701579,
-      "rotationDegrees": -91.11289024771644
+      "waypointRelativePos": 0.85,
+      "rotationDegrees": -90.30200000000002
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -67,13 +67,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -88.95837332399002
+    "rotation": -89.387234277736
   },
   "reversed": false,
   "folder": "ThirdBotPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

@@ -5,22 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "deadline",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 5.0
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SMART_SHOOT"
-                }
-              }
-            ]
+            "pathName": "Bump2"
           }
         },
         {
@@ -28,9 +15,34 @@
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "wait",
                 "data": {
-                  "pathName": "Bump2-Shootback"
+                  "waitTime": 4.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "COLLECT"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NeutralZoneReturn2"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "SMART_SHOOT"
                 }
               },
               {
@@ -40,19 +52,13 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 1.5
+                        "waitTime": 3.0
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "COLLECT"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "SMART_SHOOT"
+                        "name": "STOW_COLLECTOR"
                       }
                     }
                   ]
@@ -60,17 +66,11 @@
               }
             ]
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SMART_SHOOT"
-          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "ThirdBotAutons",
   "choreoAuto": false
 }

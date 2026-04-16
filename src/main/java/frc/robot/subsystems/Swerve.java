@@ -479,7 +479,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Pose2d pose = getPose();
 
         double filteredOmegaRadPerSec = speeds.omegaRadiansPerSecond;
-        double filteredXVel = speeds.vxMetersPerSecond - LightningShuffleboard.getDouble("Cannon", "Shooter Bias Rotation", 0.18);
+        double filteredXVel = speeds.vxMetersPerSecond - 0.18;
         double filteredYVel = speeds.vyMetersPerSecond;
 
         double rrXVel = (-filteredOmegaRadPerSec * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
@@ -493,11 +493,17 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
         return pose.exp(twist);
     }
+
+    private void resetAutonPose(Pose2d pose){
+        if (getPose().getTranslation().getNorm() <= 0.3) {
+            resetPose(pose);
+        }
+    }
  
     public void configurePathplanner(){
         AutoBuilder.configure(
             this::getPose, // Supplier of current robot pose
-            this::resetPose, // Consumer for seeding pose against auto
+            this::resetAutonPose, // Consumer for seeding pose against auto
             this::getCurrentRobotChassisSpeeds,
                 (speeds, feedforwards) -> this
                     .setControl(DriveConstants.autonRequest.withSpeeds(speeds)

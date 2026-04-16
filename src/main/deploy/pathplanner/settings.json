@@ -4,10 +4,12 @@
   "holonomicMode": true,
   "pathFolders": [
     "DoubleAutonPaths",
+    "ThirdBotPaths",
     "Work-In-Progress"
   ],
   "autoFolders": [
     "MainAutons",
+    "ThirdBotAutons",
     "Work-In-Progress"
   ],
   "defaultMaxVel": 3.0,

@@ -80,12 +80,28 @@
     },
     {
       "anchor": {
-        "x": 8.6328,
-        "y": 1.9489
+        "x": 8.633,
+        "y": 1.949
       },
       "prevControl": {
-        "x": 8.5421,
-        "y": 2.392322222222223
+        "x": 9.187077777777779,
+        "y": 2.4124777777777773
+      },
+      "nextControl": {
+        "x": 8.421414550510713,
+        "y": 1.7720119346552525
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.533444444444445,
+        "y": 2.3620888888888896
+      },
+      "prevControl": {
+        "x": 3.8458555555555556,
+        "y": 2.8357444444444444
       },
       "nextControl": null,
       "isLocked": false,
@@ -108,6 +124,14 @@
     {
       "waypointRelativePos": 3.111035852137765,
       "rotationDegrees": 89.32066657718988
+    },
+    {
+      "waypointRelativePos": 4.336842105263174,
+      "rotationDegrees": 73.87413293054567
+    },
+    {
+      "waypointRelativePos": 5.094736842105398,
+      "rotationDegrees": 0.0
     }
   ],
   "constraintZones": [],
@@ -123,10 +147,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.16527328598578
+    "rotation": 0.6365935759634491
   },
   "reversed": false,
-  "folder": "Work-In-Progress",
+  "folder": "ThirdBotPaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

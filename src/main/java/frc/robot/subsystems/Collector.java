@@ -87,8 +87,8 @@ public class Collector extends SubsystemBase {
         public static final Angle MIN_ANGLE = RobotMap.IS_OASIS ? Rotations.of(-0.288818) : Rotations.of(0);
         public static final Angle MAX_ANGLE = RobotMap.IS_OASIS ? Rotations.of(0.015869) : Rotations.of(0.35);
         public static final Angle NEUTRAL_ANGLE = RobotMap.IS_OASIS ? Rotations.of(-0.25) : Rotations.of(0.25);
-        public static final Angle DEPLOY_ANGLE = MAX_ANGLE;
-        public static final Angle STOW_ANGLE = MIN_ANGLE;
+        public static final Angle DEPLOY_ANGLE = RobotMap.IS_OASIS ? Rotations.of(0.013):  MAX_ANGLE;
+        public static final Angle STOW_ANGLE = RobotMap.IS_OASIS ? Rotations.of(-0.282) : MIN_ANGLE;
         public static final Angle TOLERANCE = Rotations.of(0.05);
         public static final DutyCycleOut PIVOT_ZEROING_DC_STOW = new DutyCycleOut(-0.1);
         public static final DutyCycleOut PIVOT_ZEROING_DC_DEPLOY = new DutyCycleOut(0.1);

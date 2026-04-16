@@ -3,57 +3,48 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5838333333333336,
-        "y": 5.3249555555555546
+        "x": 0.4698,
+        "y": 7.612611111111111
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9170496738397795,
-        "y": 5.784610955919487
-      },
-      "isLocked": false,
-      "linkedName": "Hub"
-    },
-    {
-      "anchor": {
-        "x": 0.8124444444444443,
-        "y": 4.942
-      },
-      "prevControl": {
-        "x": 1.1559892699881633,
-        "y": 5.210861167816824
-      },
-      "nextControl": {
-        "x": 0.5806555555555555,
-        "y": 4.7606
+        "x": 1.4697999999999998,
+        "y": 7.612611111111111
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.8124444444444443,
-        "y": 7.612611111111111
+        "x": 2.263644444444444,
+        "y": 3.168311111111111
       },
       "prevControl": {
-        "x": 0.7922888888888888,
-        "y": 7.038177777777778
+        "x": 2.763644444444444,
+        "y": 4.473383333333333
+      },
+      "nextControl": {
+        "x": 1.7636444444444441,
+        "y": 1.8632388888888882
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.4698,
+        "y": 0.6387888888888893
+      },
+      "prevControl": {
+        "x": 1.4070333333333336,
+        "y": 1.3543111111111101
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.4421052631578979,
-      "rotationDegrees": -90.0
-    },
-    {
-      "waypointRelativePos": 0.9964912280701579,
-      "rotationDegrees": -91.11289024771644
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -67,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -88.95837332399002
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": "ThirdBotPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }
