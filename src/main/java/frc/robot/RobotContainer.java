@@ -137,10 +137,11 @@ public class RobotContainer {
         new Trigger(() -> copilot.getBButton() && !cannon.isInNoPassingZone()).whileTrue(cannon.shootOTF().alongWith(cannon.indexWhenOnTarget()));
 
         // change biases for the driver
-        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
-        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_DOWN).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA));
-        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_LEFT).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA.unaryMinus()));
-        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_RIGHT).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA));
+        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_DOWN).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA.unaryMinus()));
+        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA));
+        new Trigger(() -> driver.getRightBumperButtonPressed() && !driver.getLeftBumperButton()).onTrue(turret.changeBias(TurretConstants.BIAS_DELTA));
+        new Trigger(() -> driver.getLeftBumperButtonPressed() && !driver.getRightBumperButton()).onTrue(turret.changeBias(TurretConstants.BIAS_DELTA.unaryMinus()));
+        new Trigger(() -> driver.getLeftBumperButton() && driver.getRightBumperButton()).onTrue(turret.clearBias());
 
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))

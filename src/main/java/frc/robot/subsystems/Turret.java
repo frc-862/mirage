@@ -91,6 +91,8 @@ public class Turret extends SubsystemBase {
         public static final double SIM_FRICTION = 0.2;
 
         public static final double MANUAL_CONTROL_DEADBAND = 0.1;
+
+        public static final Angle BIAS_DELTA = Degrees.of(1);
     }
 
     private final ThunderBird motor;
@@ -125,8 +127,11 @@ public class Turret extends SubsystemBase {
     private BooleanLogEntry zeroLimitSwitchLog;
     private BooleanLogEntry maxLimitSwitchLog;
 
-    private MutAngle turretBias = Degrees.mutable(0);
+    private MutAngle manualTurretBias = Degrees.mutable(0);
     private Angle manualAngle = Degrees.zero();
+
+    private MutAngle turretBias = Degrees.mutable(0);
+
 
     /**
      * Creates a new Turret Subsystem.
@@ -279,7 +284,7 @@ public class Turret extends SubsystemBase {
      * @param hubRadPerSec the angular velocity of the hub
      */
     public void setAngle(Angle angle, AngularVelocity chassisOmegaRadPerSec, AngularVelocity hubRadPerSec) {
-        targetPosition = optimizeTurretAngle(angle);
+        targetPosition = optimizeTurretAngle(angle.plus(turretBias));
         if (zeroed && !manual) { // only allow position control if turret has been zeroed but store to apply when zeroed
             double feedforwardVolts = -chassisOmegaRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // feedforward to counteract chassis rotation
             feedforwardVolts += -hubRadPerSec.in(RotationsPerSecond) * TurretConstants.kV_FEEDFORWARD; // add feedforward for hub velocity as well
@@ -331,12 +336,20 @@ public class Turret extends SubsystemBase {
 
     public Command setManualPowerCommand(DoubleSupplier power) {
         return new RunCommand(() -> {
-            turretBias.mut_plus(Degrees.of(power.getAsDouble()));
+            manualTurretBias.mut_plus(Degrees.of(power.getAsDouble()));
             if(manual) {
                 motor.setControl(positionVoltage
-                .withPosition(optimizeTurretAngle(manualAngle.plus(turretBias))));
+                .withPosition(optimizeTurretAngle(manualAngle.plus(manualTurretBias))));
             }
         });
+    }
+
+    public Command changeBias(Angle change) {
+        return new RunCommand(() -> turretBias.mut_plus(change));
+    }
+
+    public Command clearBias() {
+        return new RunCommand(() -> turretBias.mut_replace(Degrees.of(0)));
     }
 
     public boolean isOnTarget(Angle tolerance) {
@@ -454,13 +467,13 @@ public class Turret extends SubsystemBase {
 
     public Command manual() {
         return new StartEndCommand(() -> {
-            turretBias.mut_replace(Degrees.zero());
+            manualTurretBias.mut_replace(Degrees.zero());
             manualAngle = getAngle();
             stop();
             manual = true;
         }, () -> {
             manual = false;
-            turretBias.mut_replace(Degrees.zero());
+            manualTurretBias.mut_replace(Degrees.zero());
         });
     }
 
