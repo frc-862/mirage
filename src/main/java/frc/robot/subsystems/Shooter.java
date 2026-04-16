@@ -239,8 +239,16 @@ public class Shooter extends SubsystemBase {
         }
     }
 
+    public void clearBias() {
+        shooterBias.mut_replace(RotationsPerSecond.zero());
+    }
+
     public Command changeBiasCommand(AngularVelocity bias) {
         return new InstantCommand(() -> changeBias(bias));
+    }
+
+    public Command clearBiasCommand() {
+        return new InstantCommand(() -> clearBias());
     }
 
     public void setBias(AngularVelocity bias) {

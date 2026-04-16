@@ -345,11 +345,11 @@ public class Turret extends SubsystemBase {
     }
 
     public Command changeBias(Angle change) {
-        return new RunCommand(() -> turretBias.mut_plus(change));
+        return new InstantCommand(() -> turretBias.mut_plus(change));
     }
 
     public Command clearBias() {
-        return new RunCommand(() -> turretBias.mut_replace(Degrees.of(0)));
+        return new InstantCommand(() -> turretBias.mut_replace(Degrees.mutable(0)));
     }
 
     public boolean isOnTarget(Angle tolerance) {

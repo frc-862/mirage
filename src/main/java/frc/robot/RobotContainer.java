@@ -139,8 +139,11 @@ public class RobotContainer {
         // change biases for the driver
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_DOWN).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA.unaryMinus()));
         new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA));
-        new Trigger(() -> driver.getRightBumperButtonPressed() && !driver.getLeftBumperButton()).onTrue(turret.changeBias(TurretConstants.BIAS_DELTA));
-        new Trigger(() -> driver.getLeftBumperButtonPressed() && !driver.getRightBumperButton()).onTrue(turret.changeBias(TurretConstants.BIAS_DELTA.unaryMinus()));
+        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_LEFT).onTrue(shooter.clearBiasCommand());
+        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_RIGHT).onTrue(shooter.clearBiasCommand());
+        
+        new Trigger(() -> driver.getLeftBumperButton() && !driver.getRightBumperButton()).onTrue(turret.changeBias(TurretConstants.BIAS_DELTA));
+        new Trigger(() -> driver.getRightBumperButton() && !driver.getLeftBumperButton()).onTrue(turret.changeBias(TurretConstants.BIAS_DELTA.unaryMinus()));
         new Trigger(() -> driver.getLeftBumperButton() && driver.getRightBumperButton()).onTrue(turret.clearBias());
 
         // reset the field-centric heading
@@ -208,7 +211,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("LED_CLIMB", leds.enableStateWithTimeout(LED_STATES.CLIMB.id(), 2));
 
         NamedCommands.registerCommand("MOVE_TO_TOWER", drivetrain.autoAlign(FieldConstants.getPose(FieldConstants.TOWER_POSITION)));
-        NamedCommands.registerCommand("SMART_SHOOT", cannon.shootOTF().alongWith(hood.ignoreRetractCommand()).deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
+        NamedCommands.registerCommand("SMART_SHOOT", cannon.shootOTF().alongWith(hood.ignoreRetractCommand(), indexer.autoIndex(IndexerConstants.SPINDEXDER_POWER, IndexerConstants.TRANSFER_POWER)).deadlineFor(leds.enableState(LED_STATES.SHOOT.id())));
         NamedCommands.registerCommand("COLLECT", collector.collectCommand(() -> CollectorConstants.COLLECT_POWER).deadlineFor(leds.enableState(LED_STATES.COLLECT.id())));
         NamedCommands.registerCommand("DEPLOY_COLLECTOR", collector.deployPivotCommand());
         NamedCommands.registerCommand("STOW_COLLECTOR", collector.stowPivotCommand());
