@@ -55,8 +55,8 @@ public class VisionConstants {
         ),
         new CameraConstant("leftCam",
             new Transform3d(
-                Inches.of(7.1),   // forward
-                Inches.of(12.3),   // LEFT
+                Inches.of(10.75),   // forward
+                Inches.of(12),   // LEFT
                 Inches.of(8.5),    // up
                 new Rotation3d(
                     Degrees.of(0),

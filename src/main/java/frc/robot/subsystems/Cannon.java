@@ -8,6 +8,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
@@ -324,7 +326,7 @@ public class Cannon extends SubsystemBase {
                 tof = CannonConstants.TIME_OF_FLIGHT_MAP.get(futureDist);
 
                 previousPose = futurePose;
-                futurePose = drivetrain.getFuturePoseFromTime(tof);
+                futurePose = getFuturePoseFromTime(tof);
 
                 futureDist = getTargetDistance(futurePose);
 
@@ -431,5 +433,29 @@ public class Cannon extends SubsystemBase {
 
     public AngularVelocity getRobotAngularVelocity() {
         return RadiansPerSecond.of(drivetrain.getWallCorrectedChassisSpeeds().omegaRadiansPerSecond);
+    }
+
+    public Pose2d getFuturePoseFromTime(Time time) {
+        ChassisSpeeds speeds = drivetrain.getWallCorrectedChassisSpeeds();
+        double dt = time.in(Seconds);
+
+        double driveMultiplier = 1;
+    
+        Pose2d pose = drivetrain.getPose();
+
+        double filteredOmegaRadPerSec = speeds.omegaRadiansPerSecond;
+        double filteredXVel = speeds.vxMetersPerSecond - 0.22;
+        double filteredYVel = speeds.vyMetersPerSecond;
+
+        double rrXVel = (-filteredOmegaRadPerSec * Cannon.CannonConstants.SHOOTER_TRANSLATION.getY());
+        double rrYVel = (filteredOmegaRadPerSec * Cannon.CannonConstants.SHOOTER_TRANSLATION.getX());
+
+        Twist2d twist = new Twist2d(
+            (filteredXVel+ rrXVel) * dt * driveMultiplier,
+            (filteredYVel + rrYVel) * dt * driveMultiplier,
+            0
+        );
+
+        return pose.exp(twist);
     }
 }

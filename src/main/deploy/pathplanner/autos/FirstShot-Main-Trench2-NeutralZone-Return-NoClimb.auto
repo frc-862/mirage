@@ -51,6 +51,12 @@
                     }
                   ]
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RETRACT_HOOD"
+                }
               }
             ]
           }
@@ -63,6 +69,12 @@
                 "type": "path",
                 "data": {
                   "pathName": "CenterToTrench2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RETRACT_HOOD"
                 }
               }
             ]
