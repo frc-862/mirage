@@ -67,8 +67,8 @@ public class Turret extends SubsystemBase {
 
         public static final Angle ANGLE_TOLERANCE = Degrees.of(2);
 
-        public static final Angle MIN_ANGLE = Degrees.of(-320);
-        public static final Angle MAX_ANGLE = Degrees.of(50);
+        public static final Angle MIN_ANGLE = Degrees.of(-335);
+        public static final Angle MAX_ANGLE = Degrees.of(80);
 
         public static final double kP = 150d;
         public static final double kI = 0d;
