@@ -469,7 +469,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     private void resetAutonPose(Pose2d pose){
-        if (getPose().getTranslation().getNorm() <= 0.3) {
+        if (getPose().getTranslation().getDistance(pose.getTranslation()) >= 1.5) {
             resetPose(pose);
         }
     }
