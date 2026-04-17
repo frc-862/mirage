@@ -8,57 +8,73 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9170496738397795,
-        "y": 5.784610955919487
+        "x": 2.599905100830368,
+        "y": 6.923843416370107
       },
       "isLocked": false,
       "linkedName": "Hub"
     },
     {
       "anchor": {
-        "x": 0.8124444444444443,
-        "y": 4.942
+        "x": 0.8784341637010682,
+        "y": 5.202372479240807
       },
       "prevControl": {
-        "x": 1.1559892699881633,
-        "y": 5.210861167816824
+        "x": 1.6684119669468245,
+        "y": 4.378047814984366
       },
       "nextControl": {
-        "x": 0.5806555555555555,
-        "y": 4.7606
+        "x": 0.6309727164887315,
+        "y": 5.460593119810201
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.8124444444444443,
-        "y": 7.612611111111111
+        "x": 0.8784341637010682,
+        "y": 6.590308422301304
       },
       "prevControl": {
-        "x": 0.7922888888888888,
-        "y": 7.038177777777778
+        "x": 0.8887176200693994,
+        "y": 5.993867952938093
+      },
+      "nextControl": {
+        "x": 0.8676749703440101,
+        "y": 7.214341637010676
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.6955278766310802,
+        "y": 7.354211150652431
+      },
+      "prevControl": {
+        "x": 0.7385646500593126,
+        "y": 6.977639383155398
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.4421052631578979,
-      "rotationDegrees": -90.0
+      "waypointRelativePos": 1,
+      "rotationDegrees": -45.0
     },
     {
-      "waypointRelativePos": 0.9964912280701579,
-      "rotationDegrees": -91.11289024771644
+      "waypointRelativePos": 2,
+      "rotationDegrees": -42.51044707800077
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.1118493909191383,
-      "maxWaypointRelativePos": 2.0,
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 3.5,
       "constraints": {
         "maxVelocity": 5.0,
         "maxAcceleration": 3.0,
@@ -81,7 +97,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -88.95837332399002
+    "rotation": -91.14576283817509
   },
   "reversed": false,
   "folder": "ThirdBotPaths",
