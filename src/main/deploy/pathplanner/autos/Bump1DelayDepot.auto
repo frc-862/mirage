@@ -30,45 +30,19 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "DepotNeutralZoneReturn"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "wait",
                 "data": {
-                  "pathName": "DepotNeutralZoneReturn"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 1.25
-                      }
-                    },
-                    {
-                      "type": "race",
-                      "data": {
-                        "commands": [
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "SMART_SHOOT"
-                            }
-                          },
-                          {
-                            "type": "wait",
-                            "data": {
-                              "waitTime": 0.75
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
+                  "waitTime": 1.2
                 }
               },
               {
