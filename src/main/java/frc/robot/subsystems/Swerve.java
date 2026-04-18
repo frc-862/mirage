@@ -46,6 +46,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Robot;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.MirageTunerConstants.TunerSwerveDrivetrain;
@@ -495,7 +496,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     private void resetAutonPose(Pose2d pose){
-        if (getPose().getTranslation().getNorm() <= 0.3) {
+        if (pose.getTranslation().getDistance(getPose().getTranslation()) > 0.5 || Robot.isSimulation()) {
             resetPose(pose);
         }
     }
