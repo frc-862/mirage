@@ -35,7 +35,7 @@ public class XboxControllerFilter extends XboxController {
     public XboxControllerFilter(int port) {
         super(port);
 
-        CommandScheduler.getInstance().schedule(new RunCommand(() -> this.periodic()));
+        CommandScheduler.getInstance().schedule(new RunCommand(() -> this.calculate()));
 
         joystickDeadband = 0;
         triggerDeadband = 0;
@@ -55,7 +55,7 @@ public class XboxControllerFilter extends XboxController {
     /**
      * Calculates the filtered joystick values.
      */
-    private void periodic() {
+    private void calculate() {
 
         // build vectors from joystick values
         leftStickVec.set(0, 0, super.getLeftX());
@@ -90,6 +90,7 @@ public class XboxControllerFilter extends XboxController {
      */
     public XboxControllerFilter withJoystickDeadband(double deadband){
         this.joystickDeadband = deadband;
+        calculate();
         return this;
     }
 
@@ -99,6 +100,7 @@ public class XboxControllerFilter extends XboxController {
      */
     public XboxControllerFilter withTriggerDeadband(double deadband){
         this.triggerDeadband = deadband;
+        calculate();
         return this;
     }
 
@@ -109,6 +111,7 @@ public class XboxControllerFilter extends XboxController {
      */
     public XboxControllerFilter withMultiplicity(double multiplicity){
         this.multiplicity = multiplicity;
+        calculate();
         return this;
     }
 
@@ -118,6 +121,7 @@ public class XboxControllerFilter extends XboxController {
      */
     public XboxControllerFilter withMultiplier(double multiplier){
         this.multiplier = () -> multiplier;
+        calculate();
         return this;
     }
 
@@ -127,6 +131,7 @@ public class XboxControllerFilter extends XboxController {
      */
     public XboxControllerFilter withMultiplier(DoubleSupplier multiplier){
         this.multiplier = multiplier;
+        calculate();
         return this;
     }
 
@@ -137,6 +142,7 @@ public class XboxControllerFilter extends XboxController {
      */
     public XboxControllerFilter withRateLimit(double rateLimit){
         this.rateLimit = rateLimit;
+        calculate();
         return this;
     }
 
