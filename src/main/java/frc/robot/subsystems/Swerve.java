@@ -385,27 +385,21 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             .withDriveRequestType(DriveRequestType.Velocity)));
     }
 
-    public Command driveCommand(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput) {
-        return run(() -> {
-            var xy = xyInput.get();
-            setControl(DriveConstants.fieldCentricRequest
-            .withVelocityX(DriveConstants.MaxSpeed.times(xy.get(0)))
-            .withVelocityY(DriveConstants.MaxSpeed.times(xy.get(1)))
-            .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
+    public Command driveCommand(DoubleSupplier x, DoubleSupplier y, DoubleSupplier r) {
+        return run(() -> setControl(DriveConstants.fieldCentricRequest
+            .withVelocityX(DriveConstants.MaxSpeed.times(x.getAsDouble()))
+            .withVelocityY(DriveConstants.MaxSpeed.times(y.getAsDouble()))
+            .withRotationalRate(DriveConstants.MaxAngularRate.times(r.getAsDouble()))
             .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage));
-        });
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
     }
 
-    public Command robotCentricDrive(Supplier<Vector<N2>> xyInput, DoubleSupplier rInput){
-        return run(() -> {
-            var xy = xyInput.get();
-            setControl(DriveConstants.robotCentricRequest
-            .withVelocityX(DriveConstants.MaxSpeed.times(xy.get(0)))
-            .withVelocityY(DriveConstants.MaxSpeed.times(xy.get(1)))
-            .withRotationalRate(DriveConstants.MaxAngularRate.times(rInput.getAsDouble()))
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage));
-        });
+    public Command robotCentricDrive(DoubleSupplier x, DoubleSupplier y, DoubleSupplier r){
+        return run(() -> setControl(DriveConstants.robotCentricRequest
+            .withVelocityX(DriveConstants.MaxSpeed.times(x.getAsDouble()))
+            .withVelocityY(DriveConstants.MaxSpeed.times(y.getAsDouble()))
+            .withRotationalRate(DriveConstants.MaxAngularRate.times(r.getAsDouble()))
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)));
     }
 
     public Command brakeCommand() {

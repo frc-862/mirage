@@ -48,6 +48,7 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.Turret.TurretConstants;
+import frc.util.hardware.XboxControllerFilter;
 import frc.util.leds.Color;
 import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDBooleanSupplier;
@@ -57,8 +58,8 @@ import frc.util.shuffleboard.LightningShuffleboard;
 
 public class RobotContainer {
 
-    private final XboxController driver;
-    private final XboxController copilot;
+    private final XboxControllerFilter driver;
+    private final XboxControllerFilter copilot;
 
     private final Swerve drivetrain;
     private final Collector collector;
@@ -76,8 +77,12 @@ public class RobotContainer {
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     public RobotContainer() {
-        driver = new XboxController(RobotMap.DRIVER_PORT);
-        copilot = new XboxController(RobotMap.COPILOT_PORT);
+        driver = new XboxControllerFilter(RobotMap.DRIVER_PORT).withJoystickDeadband(DriveConstants.JOYSTICK_DEADBAND)
+            .withMultiplicity(DriveConstants.CONTROLLER_POW).withTriggerDeadband(DriveConstants.TRIGGER_DEADBAND);
+            driver.withMultiplier(() -> driver.getRightTrigger() ? DriveConstants.SLOW_MODE_MULT : 1.0);
+
+        copilot = new XboxControllerFilter(RobotMap.COPILOT_PORT).withJoystickDeadband(DriveConstants.JOYSTICK_DEADBAND)
+            .withTriggerDeadband(DriveConstants.TRIGGER_DEADBAND);
 
         drivetrain = DriveConstants.createDrivetrain();
         // Update pose from vision before other subsystems so they use updated pose
@@ -111,13 +116,7 @@ public class RobotContainer {
         * Note that X is defined as forward according to WPILib convention,
         * Y is defined as to the left according to WPILib convention.
         */
-        drivetrain.setDefaultCommand(drivetrain.driveCommand(
-                () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband(
-                        VecBuilder.fill((-driver.getLeftY()), (-driver.getLeftX())), DriveConstants.JOYSTICK_DEADBAND),
-                        DriveConstants.CONTROLLER_POW).times(driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND 
-                        ? DriveConstants.SLOW_MODE_MULT : 1.0), () -> MathUtil.copyDirectionPow(MathUtil.applyDeadband((-driver.getRightX()),
-                        DriveConstants.JOYSTICK_DEADBAND), DriveConstants.CONTROLLER_POW)
-                        * (driver.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND ? DriveConstants.SLOW_MODE_MULT : 1.0)));
+        drivetrain.setDefaultCommand(drivetrain.driveCommand(() -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
 
         shooter.setDefaultCommand(cannon.shootOTF());
@@ -137,10 +136,10 @@ public class RobotContainer {
         new Trigger(() -> copilot.getBButton() && !cannon.isInNoPassingZone()).whileTrue(cannon.shootOTF().alongWith(cannon.indexWhenOnTarget()));
 
         // change biases for the driver
-        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_UP).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
-        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_DOWN).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA));
-        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_LEFT).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA.unaryMinus()));
-        new Trigger(() -> driver.getPOV() == DriveConstants.DPAD_RIGHT).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA));
+        new Trigger(() -> driver.getDPadUp()).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA.unaryMinus()));
+        new Trigger(() -> driver.getDPadDown()).onTrue(hood.changeBiasCommand(HoodConstants.BIAS_DELTA));
+        new Trigger(() -> driver.getDPadLeft()).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA.unaryMinus()));
+        new Trigger(() -> driver.getDPadRight()).onTrue(shooter.changeBiasCommand(ShooterConstants.BIAS_DELTA));
 
         // reset the field-centric heading
         new Trigger(() -> (driver.getStartButton() && driver.getBackButton()))
@@ -149,7 +148,7 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        new Trigger(() -> driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND).whileTrue(collector.driverStowPivotCommand());
+        new Trigger(driver::getLeftTrigger).whileTrue(collector.driverStowPivotCommand());
 
         new Trigger(driver::getBButton).toggleOnTrue(turret.manual());
 
@@ -164,7 +163,7 @@ public class RobotContainer {
 
         new Trigger(copilot::getStartButton).onTrue(collector.stowPivotCommand());
     
-        new Trigger(() -> (copilot.getRightTriggerAxis() > DriveConstants.TRIGGER_DEADBAND || copilot.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND)  && !(driver.getLeftTriggerAxis() > DriveConstants.TRIGGER_DEADBAND))
+        new Trigger(() -> (copilot.getRightTrigger() || copilot.getLeftTrigger())  && !(driver.getLeftTrigger()))
             .whileTrue(collector.collectCommand(() -> (copilot.getRightTriggerAxis() - copilot.getLeftTriggerAxis()) *  CollectorConstants.COLLECT_MULT).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
         new Trigger(copilot::getBackButton).whileTrue(turret.manual()); // disable turret
@@ -173,9 +172,9 @@ public class RobotContainer {
 
         // Temp Cand shots
         //RIGHT_, LEFT_, and MIDDLE_ are all set to 0, so temp shots wont work right now
-        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_RIGHT).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT).deadlineFor(rumble()));
-        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_LEFT).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT).deadlineFor(rumble()));
-        new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_UP).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT).deadlineFor(rumble()));
+        new Trigger(copilot::getDPadRight).whileTrue(cannon.createCandShotCommand(CannonConstants.RIGHT_SHOT).deadlineFor(rumble()));
+        new Trigger(copilot::getDPadLeft).whileTrue(cannon.createCandShotCommand(CannonConstants.LEFT_SHOT).deadlineFor(rumble()));
+        new Trigger(copilot::getDPadUp).whileTrue(cannon.createCandShotCommand(CannonConstants.MIDDLE_SHOT).deadlineFor(rumble()));
             
         //  new Trigger(() -> copilot.getPOV() == DriveConstants.DPAD_DOWN).whileTrue(
         //     shooter.shootCommand(() -> RotationsPerSecond.of(LightningShuffleboard.getDouble("Shooter", "RPS", 65)))
