@@ -35,6 +35,7 @@ public class XboxControllerFilter extends XboxController {
     public XboxControllerFilter(int port) {
         super(port);
 
+        // update values periodically so they aren't repeatedly recalculated in the same loop
         CommandScheduler.getInstance().schedule(new RunCommand(() -> this.calculate()));
 
         joystickDeadband = 0;
@@ -243,7 +244,9 @@ public class XboxControllerFilter extends XboxController {
         return getPOV() == 180;
     }
 
-    
+    /**
+     * @return true if DPad left is pressed
+     */
     public boolean getDPadLeft() {
         return getPOV() == 270;
     }
