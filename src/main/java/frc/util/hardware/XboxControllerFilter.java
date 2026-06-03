@@ -9,15 +9,15 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
-public class XboxControllerFilter extends XboxController {
+public class XboxControllerFilter extends XboxController implements Subsystem {
 
     private double joystickDeadband;
     private double triggerDeadband;
     private double multiplicity;
     private DoubleSupplier multiplier;
-    private double rateLimit;
+    private boolean rateLimitEnabled;
 
     private Vector<N2> leftStickVec;
     private Vector<N2> rightStickVec;
@@ -35,22 +35,22 @@ public class XboxControllerFilter extends XboxController {
     public XboxControllerFilter(int port) {
         super(port);
 
-        // update values periodically so they aren't repeatedly recalculated in the same loop
-        CommandScheduler.getInstance().schedule(new RunCommand(() -> this.calculate()));
+        // register as a subsystem to ensure periodic() is called
+        CommandScheduler.getInstance().registerSubsystem(this);
 
         joystickDeadband = 0;
         triggerDeadband = 0;
         multiplicity = 1;
         multiplier = () -> 1;
-        rateLimit = 2;
+        rateLimitEnabled = false;
 
         leftStickVec = VecBuilder.fill(0, 0);
         rightStickVec = VecBuilder.fill(0, 0);
+    }
 
-        leftXSlewRateLimiter = new SlewRateLimiter(rateLimit);
-        leftYSlewRateLimiter = new SlewRateLimiter(rateLimit);
-        rightXSlewRateLimiter = new SlewRateLimiter(rateLimit);
-        rightYSlewRateLimiter = new SlewRateLimiter(rateLimit);
+    @Override
+    public void periodic() {
+        calculate();
     }
 
     /**
@@ -77,7 +77,7 @@ public class XboxControllerFilter extends XboxController {
         rightStickVec = rightStickVec.times(multiplier.getAsDouble());
         
         // apply rate limiting
-        if (rateLimit > 0){
+        if (rateLimitEnabled){
             leftStickVec.set(0, 0, leftXSlewRateLimiter.calculate(leftStickVec.get(0)));
             leftStickVec.set(1, 0, leftYSlewRateLimiter.calculate(leftStickVec.get(1)));
             rightStickVec.set(0, 0, rightXSlewRateLimiter.calculate(rightStickVec.get(0)));
@@ -142,7 +142,14 @@ public class XboxControllerFilter extends XboxController {
      * @return This XboxControllerFilter instance for method chaining.
      */
     public XboxControllerFilter withRateLimit(double rateLimit){
-        this.rateLimit = rateLimit;
+        rateLimitEnabled = rateLimit > 0;
+        if (rateLimitEnabled){
+            leftXSlewRateLimiter = new SlewRateLimiter(rateLimit);
+            leftYSlewRateLimiter = new SlewRateLimiter(rateLimit);
+            rightXSlewRateLimiter = new SlewRateLimiter(rateLimit);
+            rightYSlewRateLimiter = new SlewRateLimiter(rateLimit);
+        }
+        
         calculate();
         return this;
     }
