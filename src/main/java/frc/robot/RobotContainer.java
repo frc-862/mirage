@@ -50,6 +50,9 @@ import frc.util.leds.LEDBehaviorFactory;
 import frc.util.leds.LEDBooleanSupplier;
 import frc.util.leds.LEDSubsystem;
 import frc.util.shuffleboard.LightningShuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 
 
 public class RobotContainer {
@@ -220,13 +223,16 @@ public class RobotContainer {
         NamedCommands.registerCommand("COLLECTOR_WHEELS", collector.runCollectorWheels(() -> CollectorConstants.COLLECT_POWER));
         NamedCommands.registerCommand("STOW_AND_COLLECTOR_WHEELS", new ParallelCommandGroup(collector.stowPivotCommand(), collector.runCollectorWheels(() -> CollectorConstants.COLLECT_POWER)));
         
-        autoChooser = AutoBuilder.buildAutoChooser();
+        autoChooser.setDefaultOption("Alliance 2 Palyoffs", AutoBuilder.buildAuto("Alliance2Playoffs"));
+        autoChooser.addOption("Favorite", AutoBuilder.buildAuto("FirstShot-Main-Trench2-NeutralZone-Return-NoClimb"));
         LightningShuffleboard.send("Auton", "Auto Chooser", autoChooser);
     }
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
-    }
+    }   
+            
+    
 
     private void configureLeds() {
         leds.setDefaultBehavior(LEDBehaviorFactory.swirl(LEDConstants.stripAll, 10, 5, Color.ORANGE, Color.BLUE));
