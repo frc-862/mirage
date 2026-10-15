@@ -1,4 +1,4 @@
-# mirage
+## mirage
 
 [![Mirage](https://photos.smugmug.com/2025-26-Season/n-W4Nh9t/2026-Build-Season/i-Ch6SjDQ/0/K4fKFPkvFXZVVS275739ptRMgJqPFpdDCpk8WVJ8R/X3/IMG_2061-X3.jpg)](https://www.thebluealliance.com/team/862/2026)
 Robot Application for mirage, our 2026 Robot for FIRST REBUILD
